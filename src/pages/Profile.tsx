@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
+import { NutritionBarChart } from "@/components/NutritionBarChart";
 
 interface ProfileFormData {
   height_cm: number;
@@ -22,16 +23,85 @@ interface ProfileFormData {
   activity_level: string;
   dietary_restrictions: string[];
   fitness_goals: string;
+  gender: string;
 }
+
+interface TargetCalculations {
+  calories: number;
+  protein: number;
+  fat: number;
+  carbs: number;
+}
+
+const calculateBMR = (data: ProfileFormData): number => {
+  const { weight_kg, height_cm, age, gender } = data;
+  const baseBMR = 10 * weight_kg + 6.25 * height_cm - 5 * age;
+  return gender === 'male' ? baseBMR + 5 : baseBMR - 161;
+};
+
+const getActivityMultiplier = (activityLevel: string): number => {
+  const multipliers = {
+    sedentary: 1.2,
+    lightly_active: 1.375,
+    moderately_active: 1.55,
+    very_active: 1.725,
+    extra_active: 1.9,
+  };
+  return multipliers[activityLevel as keyof typeof multipliers] || 1.2;
+};
+
+const calculateTargets = (data: ProfileFormData): TargetCalculations => {
+  const bmr = calculateBMR(data);
+  const tdee = bmr * getActivityMultiplier(data.activity_level);
+  
+  let targetCalories = tdee;
+  
+  // Adjust calories based on fitness goals
+  switch (data.fitness_goals) {
+    case 'weight_loss':
+      targetCalories *= 0.8; // 20% deficit
+      break;
+    case 'muscle_gain':
+      targetCalories *= 1.1; // 10% surplus
+      break;
+    // maintenance stays at TDEE
+  }
+
+  // Calculate macros
+  const protein = data.weight_kg * 2; // 2g per kg
+  const proteinCalories = protein * 4;
+  
+  const fatCalories = targetCalories * 0.3; // 30% of calories from fat
+  const fat = fatCalories / 9;
+  
+  const remainingCalories = targetCalories - proteinCalories - fatCalories;
+  const carbs = remainingCalories / 4;
+
+  return {
+    calories: Math.round(targetCalories),
+    protein: Math.round(protein),
+    fat: Math.round(fat),
+    carbs: Math.round(carbs),
+  };
+};
 
 const Profile = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
-  const { register, handleSubmit, setValue } = useForm<ProfileFormData>();
+  const [targets, setTargets] = useState<TargetCalculations | null>(null);
+  const { register, handleSubmit, setValue, watch } = useForm<ProfileFormData>();
+  const formData = watch();
 
   useEffect(() => {
     getProfile();
   }, []);
+
+  useEffect(() => {
+    if (formData.height_cm && formData.weight_kg && formData.age && formData.activity_level && formData.gender) {
+      const newTargets = calculateTargets(formData);
+      setTargets(newTargets);
+    }
+  }, [formData]);
 
   const getProfile = async () => {
     try {
@@ -41,7 +111,6 @@ const Profile = () => {
       if (user) {
         setEmail(user.email || "");
         
-        // Fetch profile data
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
@@ -55,6 +124,7 @@ const Profile = () => {
           setValue('activity_level', profile.activity_level);
           setValue('dietary_restrictions', profile.dietary_restrictions);
           setValue('fitness_goals', profile.fitness_goals);
+          setValue('gender', profile.gender);
         }
       }
     } catch (error) {
@@ -92,8 +162,8 @@ const Profile = () => {
   return (
     <div className="max-w-4xl mx-auto px-8">
       <h1 className="text-4xl font-bold text-center mb-8 text-primary">Profile</h1>
-      <div className="max-w-2xl mx-auto">
-        <Card className="mb-8">
+      <div className="max-w-2xl mx-auto space-y-8">
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <UserRound className="h-6 w-6" />
@@ -150,9 +220,26 @@ const Profile = () => {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="gender">Gender</Label>
+                  <Select
+                    onValueChange={(value) => setValue('gender', value)}
+                    value={formData.gender}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="activity_level">Activity Level</Label>
                   <Select
                     onValueChange={(value) => setValue('activity_level', value)}
+                    value={formData.activity_level}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select activity level" />
@@ -167,10 +254,11 @@ const Profile = () => {
                   </Select>
                 </div>
 
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2">
                   <Label htmlFor="fitness_goals">Fitness Goals</Label>
                   <Select
                     onValueChange={(value) => setValue('fitness_goals', value)}
+                    value={formData.fitness_goals}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select your primary fitness goal" />
@@ -179,8 +267,6 @@ const Profile = () => {
                       <SelectItem value="weight_loss">Weight Loss</SelectItem>
                       <SelectItem value="muscle_gain">Muscle Gain</SelectItem>
                       <SelectItem value="maintenance">Maintenance</SelectItem>
-                      <SelectItem value="general_health">General Health</SelectItem>
-                      <SelectItem value="athletic_performance">Athletic Performance</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -192,6 +278,33 @@ const Profile = () => {
             </form>
           </CardContent>
         </Card>
+
+        {targets && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Daily Targets</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="text-lg">
+                  Target Calories: {targets.calories} kcal/day
+                </div>
+                <NutritionBarChart
+                  data={[
+                    { name: 'Protein', value: targets.protein, fill: '#22c55e' },
+                    { name: 'Fat', value: targets.fat, fill: '#eab308' },
+                    { name: 'Carbs', value: targets.carbs, fill: '#3b82f6' },
+                  ]}
+                />
+                <div className="grid grid-cols-3 gap-4 text-sm text-muted-foreground">
+                  <div>Protein: {targets.protein}g</div>
+                  <div>Fat: {targets.fat}g</div>
+                  <div>Carbs: {targets.carbs}g</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
