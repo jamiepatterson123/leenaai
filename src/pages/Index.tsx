@@ -6,6 +6,7 @@ import { TargetsDisplay } from "@/components/profile/TargetsDisplay";
 import { calculateTargets } from "@/utils/profileCalculations";
 import { WeightChart } from "@/components/WeightChart";
 import { FoodAnalysis } from "@/components/food/FoodAnalysis";
+import { FoodLoggingCalendar } from "@/components/FoodLoggingCalendar";
 
 const Index = () => {
   const [targets, setTargets] = useState<any>(null);
@@ -45,7 +46,10 @@ const Index = () => {
           <WeightInput />
           <WeightChart />
         </div>
-        <FoodAnalysis />
+        <div className="grid gap-8 md:grid-cols-2">
+          <FoodLoggingCalendar />
+          <FoodAnalysis />
+        </div>
         <div className="text-center">
           <Link
             to="/food-diary"
