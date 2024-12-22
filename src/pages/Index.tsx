@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { WeightInput } from "@/components/WeightInput";
 import { TargetsDisplay } from "@/components/profile/TargetsDisplay";
-import { calculateTargets } from "@/utils/profileCalculations";
 import { WeightChart } from "@/components/WeightChart";
 import { FoodAnalysis } from "@/components/food/FoodAnalysis";
 import { FoodLoggingCalendar } from "@/components/FoodLoggingCalendar";
@@ -11,6 +10,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { useNutritionTargets } from "@/components/nutrition/useNutritionTargets";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowRight } from "lucide-react";
 
 const Index = () => {
   const queryClient = useQueryClient();
@@ -83,40 +84,83 @@ const Index = () => {
   }));
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h1 className="text-4xl font-bold text-center mb-8 text-primary">
-        Focused Nutrition
-      </h1>
-      <div className="space-y-8 flex flex-col items-center">
-        {targets && (
-          <TargetsDisplay 
-            targets={targets} 
-            className="w-full max-w-2xl" 
-          />
-        )}
-        <div className="w-full max-w-2xl">
-          <WeightInput />
-        </div>
-        <div className="w-full max-w-2xl">
-          <WeightChart />
-        </div>
-        <div className="w-full max-w-2xl">
-          <FoodLoggingCalendar />
-        </div>
-        <div className="w-full max-w-2xl">
-          <FoodAnalysis 
-            foods={foods}
-            onDelete={handleDelete}
-            onUpdateCategory={handleUpdateCategory}
-          />
-        </div>
-        <div className="text-center py-4">
-          <Link
-            to="/food-diary"
-            className="text-primary hover:text-primary/80 font-medium"
-          >
-            View Food Diary →
-          </Link>
+    <div className="min-h-screen bg-background">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-8">
+          {/* Header Section */}
+          <div className="text-center space-y-2">
+            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
+              Focused Nutrition
+            </h1>
+            <p className="text-muted-foreground">
+              Track your nutrition journey with precision
+            </p>
+          </div>
+
+          {/* Main Grid Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Daily Targets Card */}
+            <Card className="md:col-span-2 bg-gradient-to-br from-background to-secondary/20 border-border/5">
+              <CardContent className="pt-6">
+                {targets && <TargetsDisplay targets={targets} />}
+              </CardContent>
+            </Card>
+
+            {/* Weight Input Card */}
+            <Card className="bg-background border-border/5">
+              <CardHeader>
+                <CardTitle className="text-xl">Weight Tracker</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <WeightInput />
+              </CardContent>
+            </Card>
+
+            {/* Weight Chart Card */}
+            <Card className="bg-background border-border/5">
+              <CardHeader>
+                <CardTitle className="text-xl">Progress Chart</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <WeightChart />
+              </CardContent>
+            </Card>
+
+            {/* Food Calendar Card */}
+            <Card className="md:col-span-2 bg-background border-border/5">
+              <CardHeader>
+                <CardTitle className="text-xl">Meal Planning</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FoodLoggingCalendar />
+              </CardContent>
+            </Card>
+
+            {/* Food Analysis Card */}
+            <Card className="md:col-span-2 bg-background border-border/5">
+              <CardHeader>
+                <CardTitle className="text-xl">Nutrition Analysis</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FoodAnalysis 
+                  foods={foods}
+                  onDelete={handleDelete}
+                  onUpdateCategory={handleUpdateCategory}
+                />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Footer Link */}
+          <div className="text-center">
+            <Link
+              to="/food-diary"
+              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors"
+            >
+              View Food Diary
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </div>
     </div>
