@@ -1,5 +1,6 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
+import { NutritionBarChart } from "./NutritionBarChart";
 
 interface NutritionInfo {
   calories: number;
@@ -26,6 +27,24 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({ foods }) => {
     }),
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
   );
+
+  const chartData = [
+    {
+      name: "Protein",
+      value: Math.round(totalNutrition.protein),
+      fill: "hsl(var(--secondary))",
+    },
+    {
+      name: "Carbs",
+      value: Math.round(totalNutrition.carbs),
+      fill: "hsl(var(--success))",
+    },
+    {
+      name: "Fat",
+      value: Math.round(totalNutrition.fat),
+      fill: "hsl(var(--accent-foreground))",
+    },
+  ];
 
   return (
     <Card className="p-6 animate-fade-up">
@@ -56,6 +75,9 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({ foods }) => {
           </p>
         </div>
       </div>
+
+      <NutritionBarChart data={chartData} />
+
       <div className="mt-6">
         <h4 className="font-medium mb-2">Foods Detected</h4>
         <ul className="space-y-2">
