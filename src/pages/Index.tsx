@@ -110,16 +110,24 @@ const Index = () => {
       <h1 className="text-4xl font-bold text-center mb-8 text-primary">
         Focused Nutrition
       </h1>
-      <div className="space-y-8">
-        {targets && <TargetsDisplay targets={targets} />}
-        <WeightInput />
-        <WeightChart />
-        <FoodLoggingCalendar />
-        <FoodAnalysis 
-          foods={foods}
-          onDelete={handleDelete}
-          onUpdateCategory={handleUpdateCategory}
-        />
+      <div className="space-y-8 flex flex-col items-center">
+        {targets && <TargetsDisplay targets={targets} className="w-full max-w-2xl" />}
+        <div className="w-full max-w-2xl">
+          <WeightInput />
+        </div>
+        <div className="w-full max-w-2xl">
+          <WeightChart />
+        </div>
+        <div className="w-full max-w-2xl">
+          <FoodLoggingCalendar />
+        </div>
+        <div className="w-full max-w-2xl">
+          <FoodAnalysis 
+            foods={foods}
+            onDelete={handleDelete}
+            onUpdateCategory={handleUpdateCategory}
+          />
+        </div>
         <div className="text-center py-4">
           <Link
             to="/food-diary"
