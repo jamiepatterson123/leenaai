@@ -8,6 +8,11 @@ import { MacroTargetsChart } from "@/components/reports/MacroTargetsChart";
 import { WeightTrendChart } from "@/components/reports/WeightTrendChart";
 import { MealDistributionChart } from "@/components/reports/MealDistributionChart";
 
+interface WeightEntry {
+  weight_kg: number;
+  updated_at: string;
+}
+
 const Reports = () => {
   const { data: weightData, isLoading: weightLoading } = useQuery({
     queryKey: ["weightHistory"],
@@ -19,7 +24,7 @@ const Reports = () => {
 
       if (error) throw error;
 
-      return profile.map((entry: WeightData) => ({
+      return profile.map((entry: WeightEntry) => ({
         weight: entry.weight_kg,
         date: format(new Date(entry.updated_at), "MMM d"),
       }));
