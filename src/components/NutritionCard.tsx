@@ -3,7 +3,6 @@ import { Card } from "@/components/ui/card";
 import { TotalNutrition } from "./nutrition/TotalNutrition";
 import { FoodList } from "./nutrition/FoodList";
 import { useNutritionTargets } from "./nutrition/useNutritionTargets";
-import { NutritionBarChart } from "./NutritionBarChart";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 
@@ -20,11 +19,17 @@ interface NutritionCardProps {
     name: string;
     weight_g: number;
     nutrition: NutritionInfo;
+    category?: string;
   }>;
   onDelete: (id: string) => void;
+  onUpdateCategory: (id: string, category: string) => void;
 }
 
-export const NutritionCard: React.FC<NutritionCardProps> = ({ foods, onDelete }) => {
+export const NutritionCard: React.FC<NutritionCardProps> = ({ 
+  foods, 
+  onDelete,
+  onUpdateCategory 
+}) => {
   const totalNutrition = TotalNutrition({ foods });
   const targets = useNutritionTargets();
 
@@ -89,13 +94,11 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({ foods, onDelete })
           ))}
         </div>
 
-        <div className="space-y-3">
-          <div className="flex justify-between items-center p-4 bg-secondary/50 rounded-lg backdrop-blur-sm border border-border/10">
-            <span className="font-medium">Uncategorized</span>
-            <span>{totalNutrition.calories} kcal</span>
-          </div>
-          <FoodList foods={foods} onDelete={onDelete} />
-        </div>
+        <FoodList 
+          foods={foods} 
+          onDelete={onDelete} 
+          onUpdateCategory={onUpdateCategory}
+        />
       </div>
     </Card>
   );

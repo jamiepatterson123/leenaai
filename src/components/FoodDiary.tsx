@@ -43,6 +43,23 @@ export const FoodDiary = () => {
     }
   };
 
+  const handleUpdateCategory = async (id: string, category: string) => {
+    try {
+      const { error } = await supabase
+        .from("food_diary")
+        .update({ category })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast.success(`Moved to ${category}`);
+      queryClient.invalidateQueries({ queryKey: ["foodDiary"] });
+    } catch (error) {
+      toast.error("Failed to update food category");
+      console.error("Error updating food category:", error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
@@ -57,6 +74,7 @@ export const FoodDiary = () => {
     id: entry.id,
     name: entry.food_name,
     weight_g: entry.weight_g,
+    category: entry.category,
     nutrition: {
       calories: entry.calories,
       protein: entry.protein,
@@ -65,5 +83,11 @@ export const FoodDiary = () => {
     },
   }));
 
-  return <NutritionCard foods={foods} onDelete={handleDelete} />;
+  return (
+    <NutritionCard 
+      foods={foods} 
+      onDelete={handleDelete} 
+      onUpdateCategory={handleUpdateCategory}
+    />
+  );
 };
