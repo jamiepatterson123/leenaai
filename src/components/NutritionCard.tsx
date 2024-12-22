@@ -1,6 +1,12 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { NutritionBarChart } from "./NutritionBarChart";
+import { ProgressBar } from "./ProgressBar";
+import { HelpCircle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface NutritionInfo {
   calories: number;
@@ -28,55 +34,106 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({ foods }) => {
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
   );
 
-  const chartData = [
-    {
-      name: "Protein",
-      value: Math.round(totalNutrition.protein),
-      fill: "hsl(var(--secondary))",
-    },
-    {
-      name: "Carbs",
-      value: Math.round(totalNutrition.carbs),
-      fill: "hsl(var(--success))",
-    },
-    {
-      name: "Fat",
-      value: Math.round(totalNutrition.fat),
-      fill: "hsl(var(--accent-foreground))",
-    },
-  ];
+  // Define targets
+  const targets = {
+    calories: 1800,
+    protein: 200,
+    carbs: 100,
+    fat: 70,
+  };
 
   return (
     <Card className="p-6 animate-fade-up">
-      <h3 className="text-xl font-semibold mb-4">Nutritional Information</h3>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <p className="text-sm text-gray-600">Calories</p>
-          <p className="text-2xl font-bold text-primary">
-            {Math.round(totalNutrition.calories)}
-          </p>
-        </div>
-        <div className="space-y-2">
-          <p className="text-sm text-gray-600">Protein</p>
-          <p className="text-2xl font-bold text-secondary">
-            {Math.round(totalNutrition.protein)}g
-          </p>
-        </div>
-        <div className="space-y-2">
-          <p className="text-sm text-gray-600">Carbs</p>
-          <p className="text-2xl font-bold text-success">
-            {Math.round(totalNutrition.carbs)}g
-          </p>
-        </div>
-        <div className="space-y-2">
-          <p className="text-sm text-gray-600">Fat</p>
-          <p className="text-2xl font-bold text-accent-foreground">
-            {Math.round(totalNutrition.fat)}g
-          </p>
-        </div>
+      <div className="flex items-center gap-2 mb-6">
+        <h3 className="text-2xl font-semibold">Targets</h3>
+        <Tooltip>
+          <TooltipTrigger>
+            <HelpCircle className="w-5 h-5 text-muted-foreground" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Your daily nutrition targets based on your goals</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
-      <NutritionBarChart data={chartData} />
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-medium">Energy</span>
+            <div className="text-right">
+              <span className="font-mono">
+                {Math.round(totalNutrition.calories)} ({Math.round(totalNutrition.calories * 0.89)} net) /{" "}
+                {targets.calories} kcal
+              </span>
+              <span className="ml-4 text-muted-foreground">
+                {Math.round((totalNutrition.calories / targets.calories) * 100)}%
+              </span>
+            </div>
+          </div>
+          <ProgressBar
+            current={totalNutrition.calories}
+            target={targets.calories}
+            color="#8E9196"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-medium">Protein</span>
+            <div className="text-right">
+              <span className="font-mono">
+                {Math.round(totalNutrition.protein)} / {targets.protein} g
+              </span>
+              <span className="ml-4 text-muted-foreground">
+                {Math.round((totalNutrition.protein / targets.protein) * 100)}%
+              </span>
+            </div>
+          </div>
+          <ProgressBar
+            current={totalNutrition.protein}
+            target={targets.protein}
+            color="#7E69AB"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-medium">Net Carbs</span>
+            <div className="text-right">
+              <span className="font-mono">
+                {Math.round(totalNutrition.carbs)} / {targets.carbs} g
+              </span>
+              <span className="ml-4 text-muted-foreground">
+                {Math.round((totalNutrition.carbs / targets.carbs) * 100)}%
+              </span>
+            </div>
+          </div>
+          <ProgressBar
+            current={totalNutrition.carbs}
+            target={targets.carbs}
+            color="#0EA5E9"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-medium">Fat</span>
+            <div className="text-right">
+              <span className="font-mono">
+                {Math.round(totalNutrition.fat)} / {targets.fat} g
+              </span>
+              <span className="ml-4 text-muted-foreground">
+                {Math.round((totalNutrition.fat / targets.fat) * 100)}%
+              </span>
+            </div>
+          </div>
+          <ProgressBar
+            current={totalNutrition.fat}
+            target={targets.fat}
+            color="#ea384c"
+          />
+        </div>
+      </div>
 
       <div className="mt-6">
         <h4 className="font-medium mb-2">Foods Detected</h4>
