@@ -39,53 +39,57 @@ export const WeightChart = () => {
   }
 
   return (
-    <Card className="p-6">
-      <h3 className="text-2xl font-semibold mb-6">Weight Change</h3>
-      <div className="h-[300px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={weightData}>
-            <defs>
-              <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#0ea5e9" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#0ea5e9" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <XAxis
-              dataKey="date"
-              stroke="#64748b"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-            />
-            <YAxis
-              stroke="#64748b"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              unit=" kg"
-            />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (!active || !payload?.length) return null;
-                return (
-                  <div className="rounded-lg border bg-background p-2 shadow-sm">
-                    <div className="grid grid-cols-2 gap-2">
-                      <span className="font-medium">Weight:</span>
-                      <span>{payload[0].value} kg</span>
+    <Card className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="p-6 space-y-6">
+        <h3 className="text-2xl font-semibold text-gray-900">Weight Tracker</h3>
+        <div className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={weightData}>
+              <defs>
+                <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.2} />
+                  <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis
+                dataKey="date"
+                stroke="#374151"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                dy={10}
+              />
+              <YAxis
+                stroke="#374151"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                dx={-10}
+                unit=" kg"
+              />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null;
+                  return (
+                    <div className="rounded-lg border bg-white p-3 shadow-md">
+                      <div className="grid grid-cols-2 gap-2">
+                        <span className="font-medium text-gray-900">Weight:</span>
+                        <span className="text-primary">{payload[0].value} kg</span>
+                      </div>
                     </div>
-                  </div>
-                );
-              }}
-            />
-            <Area
-              type="monotone"
-              dataKey="weight"
-              stroke="#0ea5e9"
-              strokeWidth={2}
-              fill="url(#weightGradient)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+                  );
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="weight"
+                stroke="hsl(var(--primary))"
+                strokeWidth={2}
+                fill="url(#weightGradient)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </Card>
   );
