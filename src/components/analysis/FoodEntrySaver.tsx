@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
-export const saveFoodEntries = async (foods: any[]) => {
+export const saveFoodEntries = async (foods: any[], selectedDate: Date) => {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -10,7 +10,7 @@ export const saveFoodEntries = async (foods: any[]) => {
     return;
   }
 
-  const today = format(new Date(), 'yyyy-MM-dd');
+  const formattedDate = format(selectedDate, 'yyyy-MM-dd');
 
   const { error } = await supabase.from("food_diary").insert(
     foods.map((food) => ({
@@ -21,7 +21,7 @@ export const saveFoodEntries = async (foods: any[]) => {
       protein: food.nutrition.protein,
       carbs: food.nutrition.carbs,
       fat: food.nutrition.fat,
-      date: today,
+      date: formattedDate,
       state: food.state,
     }))
   );

@@ -12,6 +12,7 @@ interface ImageAnalysisSectionProps {
   setAnalyzing: (analyzing: boolean) => void;
   nutritionData: any;
   setNutritionData: (data: any) => void;
+  selectedDate: Date;
 }
 
 export const ImageAnalysisSection = ({
@@ -20,6 +21,7 @@ export const ImageAnalysisSection = ({
   setAnalyzing,
   nutritionData,
   setNutritionData,
+  selectedDate,
 }: ImageAnalysisSectionProps) => {
   const [resetUpload, setResetUpload] = useState(false);
 
@@ -54,7 +56,7 @@ export const ImageAnalysisSection = ({
       await analyzeImage(image, {
         apiKey,
         setNutritionData,
-        saveFoodEntries,
+        saveFoodEntries: (foods) => saveFoodEntries(foods, selectedDate),
       });
       setResetUpload(true);
     } catch (error) {
@@ -78,7 +80,7 @@ export const ImageAnalysisSection = ({
           foods={nutritionData.foods} 
           onDelete={handleDelete} 
           onUpdateCategory={handleUpdateCategory}
-          selectedDate={new Date()}
+          selectedDate={selectedDate}
         />
       )}
     </div>
