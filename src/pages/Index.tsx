@@ -7,6 +7,8 @@ import { FoodDiary } from "@/components/FoodDiary";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 const Index = () => {
   const [analyzing, setAnalyzing] = useState(false);
@@ -57,13 +59,13 @@ const Index = () => {
           setNutritionData={setNutritionData}
         />
         <WeightInput />
-        <div className="text-center">
-          <Link
-            to="/food-diary"
-            className="text-primary hover:text-primary/80 font-medium"
-          >
-            View Food Diary →
-          </Link>
+        <div className="text-center mt-8">
+          <Button asChild size="lg" className="w-full sm:w-auto">
+            <Link to="/food-diary" className="inline-flex items-center justify-center gap-2">
+              View Food Diary
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </Button>
         </div>
       </div>
     </div>
