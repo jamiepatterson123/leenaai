@@ -30,6 +30,11 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({ foods }) => {
 
   const chartData = [
     {
+      name: "Calories",
+      value: Math.round(totalNutrition.calories),
+      fill: "hsl(var(--primary))",
+    },
+    {
       name: "Protein",
       value: Math.round(totalNutrition.protein),
       fill: "hsl(var(--secondary))",
