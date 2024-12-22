@@ -31,12 +31,11 @@ export const Navigation = () => {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    navigate("/auth");
+    navigate("/"); // Changed from "/auth" to "/"
   };
 
   const handleShare = () => {
     try {
-      // Direct Instagram Stories sharing
       const instagramUrl = `https://www.instagram.com/create/story?url=${encodeURIComponent(window.location.origin)}`;
       window.open(instagramUrl, '_blank');
       toast.success("Opening Instagram Stories...");
