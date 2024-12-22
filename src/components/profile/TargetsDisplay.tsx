@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { NutritionBarChart } from "@/components/NutritionBarChart";
 import { TargetCalculations } from "@/utils/profileCalculations";
+import { MacroCircle } from "@/components/nutrition/MacroCircle";
 
 interface TargetsDisplayProps {
   targets: TargetCalculations;
@@ -8,27 +8,37 @@ interface TargetsDisplayProps {
 
 export const TargetsDisplay = ({ targets }: TargetsDisplayProps) => {
   return (
-    <Card>
+    <Card className="bg-background">
       <CardHeader>
         <CardTitle>Daily Targets</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="text-lg">
-            Target Calories: {targets.calories} kcal/day
-          </div>
-          <NutritionBarChart
-            data={[
-              { name: 'Protein', value: targets.protein, target: targets.protein, color: '#22c55e' },
-              { name: 'Fat', value: targets.fat, target: targets.fat, color: '#22c55e' },
-              { name: 'Carbs', value: targets.carbs, target: targets.carbs, color: '#22c55e' },
-            ]}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 items-center justify-items-center">
+          <MacroCircle
+            current={targets.calories}
+            target={targets.calories}
+            label="Calories"
+            unit="kcal"
+            color="bg-blue-500"
           />
-          <div className="grid grid-cols-3 gap-4 text-sm text-muted-foreground">
-            <div>Protein: {targets.protein}g</div>
-            <div>Fat: {targets.fat}g</div>
-            <div>Carbs: {targets.carbs}g</div>
-          </div>
+          <MacroCircle
+            current={targets.protein}
+            target={targets.protein}
+            label="Protein"
+            color="bg-green-500"
+          />
+          <MacroCircle
+            current={targets.carbs}
+            target={targets.carbs}
+            label="Carbs"
+            color="bg-yellow-500"
+          />
+          <MacroCircle
+            current={targets.fat}
+            target={targets.fat}
+            label="Fat"
+            color="bg-red-500"
+          />
         </div>
       </CardContent>
     </Card>
