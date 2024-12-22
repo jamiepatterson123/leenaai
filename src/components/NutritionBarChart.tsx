@@ -23,9 +23,9 @@ interface NutritionChartProps {
 export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
   const getBarColor = (value: number, target: number) => {
     const percentage = (value / target) * 100;
-    if (percentage > 110) return "#ef4444"; // Red for over target
-    if (percentage >= 90 && percentage <= 110) return "#22c55e"; // Green for within target
-    return "#f97316"; // Orange for under target
+    if (percentage > 110) return "url(#redGradient)"; // Over target gradient
+    if (percentage >= 90 && percentage <= 110) return "url(#greenGradient)"; // Within target gradient
+    return "url(#orangeGradient)"; // Under target gradient
   };
 
   return (
@@ -36,6 +36,24 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
           data={data}
           margin={{ top: 20, right: 30, left: 80, bottom: 5 }}
         >
+          <defs>
+            <linearGradient id="redGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#ef4444" />
+              <stop offset="100%" stopColor="#dc2626" />
+            </linearGradient>
+            <linearGradient id="greenGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#22c55e" />
+              <stop offset="100%" stopColor="#15803d" />
+            </linearGradient>
+            <linearGradient id="orangeGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#f97316" />
+              <stop offset="100%" stopColor="#ea580c" />
+            </linearGradient>
+            <linearGradient id="targetGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#1e293b" />
+              <stop offset="100%" stopColor="#334155" />
+            </linearGradient>
+          </defs>
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
           <XAxis type="number" className="text-xs font-medium" />
           <YAxis
@@ -48,7 +66,7 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
             verticalAlign="top" 
             height={36}
             payload={[
-              { value: 'Daily Target', type: 'rect', color: '#F2FCE2' },
+              { value: 'Daily Target', type: 'rect', color: '#334155' },
               { value: 'Consumed Amount', type: 'rect', color: '#22c55e' },
             ]}
           />
@@ -88,7 +106,7 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
           <Bar
             name="Daily Target"
             dataKey="target"
-            fill="#F2FCE2"
+            fill="url(#targetGradient)"
             radius={[0, 4, 4, 0]}
             barSize={30}
           />
