@@ -1,15 +1,12 @@
 import React from "react";
-import { DndContext, DragEndEvent, closestCenter } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { DraggableFood } from "./DraggableFood";
-import { MealCategory } from "./MealCategory";
+import { Button } from "../ui/button";
+import { Trash2, ChevronDown } from "lucide-react";
 
 interface FoodListProps {
   foods: Array<{
     id: string;
     name: string;
     weight_g: number;
-    category?: string | null;
     nutrition?: {
       calories: number;
       protein: number;
@@ -18,77 +15,65 @@ interface FoodListProps {
     };
   }>;
   onDelete: (id: string) => void;
-  onUpdateCategory: (foodId: string, category: string) => void;
 }
 
-export const FoodList: React.FC<FoodListProps> = ({ 
-  foods, 
-  onDelete,
-  onUpdateCategory 
-}) => {
+export const FoodList: React.FC<FoodListProps> = ({ foods, onDelete }) => {
   const mealCategories = [
-    { id: "breakfast", name: "Breakfast" },
-    { id: "lunch", name: "Lunch" },
-    { id: "dinner", name: "Dinner" },
-    { id: "snacks", name: "Snacks" },
+    { name: "Breakfast", calories: 855 },
+    { name: "Lunch", calories: 567 },
+    { name: "Dinner", calories: 1000 },
+    { name: "Snacks", calories: 0 },
   ];
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    
-    if (over && active.id !== over.id) {
-      const foodId = active.id as string;
-      const category = over.id as string;
-      
-      // Only update if dropping onto a valid meal category
-      if (mealCategories.some(mealCat => mealCat.id === category)) {
-        onUpdateCategory(foodId, category);
-      }
-    }
-  };
-
-  const getCategoryCalories = (category: string) => {
-    return foods
-      .filter((food) => food.category === category)
-      .reduce((sum, food) => sum + (food.nutrition?.calories || 0), 0);
-  };
-
-  const uncategorizedFoods = foods.filter((food) => !food.category);
-
   return (
-    <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <div className="space-y-3">
-        {mealCategories.map((category) => (
-          <MealCategory
-            key={category.id}
-            id={category.id}
-            name={category.name}
-            calories={getCategoryCalories(category.id)}
-            foods={foods.filter((food) => food.category === category.id)}
-            onDelete={onDelete}
-          />
-        ))}
-
-        {uncategorizedFoods.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex justify-between items-center p-4 bg-secondary/50 rounded-lg backdrop-blur-sm border border-border/10">
-              <span className="font-medium">Uncategorized</span>
-              <span>{getCategoryCalories("")} kcal</span>
-            </div>
-            <SortableContext items={uncategorizedFoods.map(f => f.id)} strategy={verticalListSortingStrategy}>
-              <div className="space-y-2">
-                {uncategorizedFoods.map((food) => (
-                  <DraggableFood
-                    key={food.id}
-                    food={food}
-                    onDelete={onDelete}
-                  />
-                ))}
-              </div>
-            </SortableContext>
+    <div className="space-y-3">
+      {mealCategories.map((category) => (
+        <div
+          key={category.name}
+          className="flex justify-between items-center p-4 bg-secondary/50 rounded-lg backdrop-blur-sm border border-border/10 hover:bg-secondary/70 transition-colors cursor-pointer"
+        >
+          <span className="font-medium">{category.name}</span>
+          <div className="flex items-center gap-2">
+            <span>{category.calories} kcal</span>
+            <ChevronDown className="w-4 h-4 text-muted-foreground" />
           </div>
-        )}
-      </div>
-    </DndContext>
+        </div>
+      ))}
+
+      {foods.map((food) => (
+        <div
+          key={food.id}
+          className="flex justify-between items-center p-4 bg-secondary/30 rounded-lg backdrop-blur-sm border border-border/10"
+        >
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="capitalize">{food.name}</span>
+              <span className="text-sm text-muted-foreground">
+                {food.weight_g}g
+              </span>
+            </div>
+            {food.nutrition && (
+              <span className="text-sm text-muted-foreground">
+                {food.nutrition.protein}g protein, {food.nutrition.carbs}g carbs,{" "}
+                {food.nutrition.fat}g fat
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-4">
+            {food.nutrition && (
+              <span className="text-sm">{food.nutrition.calories} kcal</span>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onDelete(food.id)}
+              className="h-8 w-8 text-destructive hover:text-destructive/90"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 };
