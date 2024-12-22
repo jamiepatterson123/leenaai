@@ -5,16 +5,21 @@ import { NutritionCard } from "./NutritionCard";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
-export const FoodDiary = () => {
+interface FoodDiaryProps {
+  selectedDate: Date;
+}
+
+export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
   const queryClient = useQueryClient();
+  const formattedDate = format(selectedDate, "yyyy-MM-dd");
 
   const { data: foodEntries, isLoading } = useQuery({
-    queryKey: ["foodDiary"],
+    queryKey: ["foodDiary", formattedDate],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("food_diary")
         .select("*")
-        .eq("date", format(new Date(), "yyyy-MM-dd"))
+        .eq("date", formattedDate)
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -36,7 +41,7 @@ export const FoodDiary = () => {
       if (error) throw error;
 
       toast.success("Food entry deleted");
-      queryClient.invalidateQueries({ queryKey: ["foodDiary"] });
+      queryClient.invalidateQueries({ queryKey: ["foodDiary", formattedDate] });
     } catch (error) {
       toast.error("Failed to delete food entry");
       console.error("Error deleting food entry:", error);
@@ -53,7 +58,7 @@ export const FoodDiary = () => {
       if (error) throw error;
 
       toast.success(`Moved to ${category}`);
-      queryClient.invalidateQueries({ queryKey: ["foodDiary"] });
+      queryClient.invalidateQueries({ queryKey: ["foodDiary", formattedDate] });
     } catch (error) {
       toast.error("Failed to update food category");
       console.error("Error updating food category:", error);
