@@ -73,11 +73,50 @@ const Index = () => {
 
   const handleImageSelect = async (file: File) => {
     try {
-      toast.info("Processing image...");
-      // Here you can add the image processing logic
-      // For example, sending it to an API for food recognition
-      console.log("Selected image:", file);
-      toast.success("Image uploaded successfully");
+      toast.info("Analyzing food image...");
+      
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Please sign in to analyze food");
+        return;
+      }
+
+      // Convert image to base64
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      
+      reader.onload = async () => {
+        const base64Image = reader.result as string;
+        
+        // Call the analyze-food-image function
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-food-image`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            },
+            body: JSON.stringify({
+              image: base64Image,
+              userId: user.id,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || "Failed to analyze image");
+        }
+
+        const data = await response.json();
+        
+        if (data.success) {
+          toast.success("Food added to diary!");
+          queryClient.invalidateQueries({ queryKey: ["foodDiary", today] });
+        }
+      };
     } catch (error) {
       toast.error("Failed to process image");
       console.error("Error processing image:", error);
