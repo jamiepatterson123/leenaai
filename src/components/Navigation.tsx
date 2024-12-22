@@ -36,6 +36,7 @@ export const Navigation = () => {
 
   const handleShare = () => {
     try {
+      // Direct Instagram Stories sharing
       const instagramUrl = `https://www.instagram.com/create/story?url=${encodeURIComponent(window.location.origin)}`;
       window.open(instagramUrl, '_blank');
       toast.success("Opening Instagram Stories...");
@@ -82,7 +83,7 @@ export const Navigation = () => {
               <Link to="/profile">
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   <UserRound className="w-4 h-4 mr-2" />
-                  Profile and Targets
+                  Profile
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
