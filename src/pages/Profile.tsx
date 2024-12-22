@@ -148,7 +148,10 @@ const Profile = () => {
                   id="protein"
                   type="number"
                   value={customTargets.protein}
-                  onChange={(e) => setCustomTargets(prev => ({ ...prev, protein: Number(e.target.value) }))}
+                  onChange={(e) => setCustomTargets(prev => ({ 
+                    ...prev, 
+                    protein: Number(e.target.value) 
+                  }))}
                   className="text-2xl h-12"
                 />
               </div>
@@ -158,7 +161,10 @@ const Profile = () => {
                   id="carbs"
                   type="number"
                   value={customTargets.carbs}
-                  onChange={(e) => setCustomTargets(prev => ({ ...prev, carbs: Number(e.target.value) }))}
+                  onChange={(e) => setCustomTargets(prev => ({ 
+                    ...prev, 
+                    carbs: Number(e.target.value) 
+                  }))}
                   className="text-2xl h-12"
                 />
               </div>
@@ -168,7 +174,10 @@ const Profile = () => {
                   id="fat"
                   type="number"
                   value={customTargets.fat}
-                  onChange={(e) => setCustomTargets(prev => ({ ...prev, fat: Number(e.target.value) }))}
+                  onChange={(e) => setCustomTargets(prev => ({ 
+                    ...prev, 
+                    fat: Number(e.target.value) 
+                  }))}
                   className="text-2xl h-12"
                 />
               </div>
