@@ -3,11 +3,29 @@ import { Link } from "react-router-dom";
 import { WeightInput } from "@/components/WeightInput";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
 import { StreakCounter } from "@/components/StreakCounter";
+import { FoodDiary } from "@/components/FoodDiary";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
 const Index = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState<any>(null);
   const [apiKey, setApiKey] = useState<string>("");
+  const today = format(new Date(), "yyyy-MM-dd");
+
+  const { data: hasTodayEntries } = useQuery({
+    queryKey: ["hasTodayEntries"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("food_diary")
+        .select("id")
+        .eq("date", today)
+        .limit(1);
+      
+      return data && data.length > 0;
+    },
+  });
 
   useEffect(() => {
     const savedKey = localStorage.getItem("openai_api_key");
@@ -23,6 +41,14 @@ const Index = () => {
       </h1>
       <div className="space-y-8">
         <StreakCounter />
+        
+        {hasTodayEntries && (
+          <div className="animate-fade-up">
+            <h2 className="text-2xl font-semibold mb-4">Today's Food Diary</h2>
+            <FoodDiary selectedDate={new Date()} />
+          </div>
+        )}
+
         <ImageAnalysisSection
           apiKey={apiKey}
           analyzing={analyzing}
