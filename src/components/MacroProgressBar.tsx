@@ -14,18 +14,17 @@ export const MacroProgressBar: React.FC<MacroProgressBarProps> = ({
   target,
   color,
 }) => {
-  const percentage = Math.round((current / target) * 100);
+  const percentage = Math.min(Math.round((current / target) * 100), 100);
 
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
         <span className="text-sm font-medium">{label}</span>
         <div className="text-sm text-muted-foreground">
-          {current.toFixed(1)} / {target.toFixed(1)}
-          <span className="ml-2">{percentage}%</span>
+          {percentage}%
         </div>
       </div>
-      <Progress value={percentage} className={`h-3 ${color}`} />
+      <Progress value={percentage} className={`h-2 ${color}`} />
     </div>
   );
 };

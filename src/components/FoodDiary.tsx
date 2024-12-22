@@ -4,17 +4,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { NutritionCard } from "./NutritionCard";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { useSearchParams } from "react-router-dom";
 
 export const FoodDiary = () => {
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const selectedDate = searchParams.get('date') || format(new Date(), "yyyy-MM-dd");
 
   const { data: foodEntries, isLoading } = useQuery({
-    queryKey: ["foodDiary"],
+    queryKey: ["foodDiary", selectedDate],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("food_diary")
         .select("*")
-        .eq("date", format(new Date(), "yyyy-MM-dd"))
+        .eq("date", selectedDate)
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -36,7 +39,8 @@ export const FoodDiary = () => {
       if (error) throw error;
 
       toast.success("Food entry deleted");
-      queryClient.invalidateQueries({ queryKey: ["foodDiary"] });
+      queryClient.invalidateQueries({ queryKey: ["foodDiary", selectedDate] });
+      queryClient.invalidateQueries({ queryKey: ["foodLoggedDays"] });
     } catch (error) {
       toast.error("Failed to delete food entry");
       console.error("Error deleting food entry:", error);
@@ -53,7 +57,7 @@ export const FoodDiary = () => {
       if (error) throw error;
 
       toast.success(`Moved to ${category}`);
-      queryClient.invalidateQueries({ queryKey: ["foodDiary"] });
+      queryClient.invalidateQueries({ queryKey: ["foodDiary", selectedDate] });
     } catch (error) {
       toast.error("Failed to update food category");
       console.error("Error updating food category:", error);
@@ -84,10 +88,13 @@ export const FoodDiary = () => {
   }));
 
   return (
-    <NutritionCard 
-      foods={foods} 
-      onDelete={handleDelete} 
-      onUpdateCategory={handleUpdateCategory}
-    />
+    <div>
+      <NutritionCard 
+        foods={foods} 
+        onDelete={handleDelete} 
+        onUpdateCategory={handleUpdateCategory}
+        selectedDate={selectedDate}
+      />
+    </div>
   );
 };
