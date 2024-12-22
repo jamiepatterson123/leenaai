@@ -57,12 +57,3 @@
     @apply bg-background text-foreground antialiased;
   }
 }
-
-/* Calendar Styles */
-.rdp-day_selected:not([disabled]) { 
-  @apply bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground;
-}
-
-.rdp-day_today:not(.rdp-day_outside) {
-  @apply font-bold border border-primary;
-}
