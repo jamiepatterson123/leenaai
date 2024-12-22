@@ -4,6 +4,7 @@ import { NutritionCard } from "@/components/NutritionCard";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { WeightInput } from "@/components/WeightInput";
 
 const analyzeImage = async (image: File, apiKey: string) => {
   const base64Image = await new Promise<string>((resolve, reject) => {
@@ -157,6 +158,7 @@ const Index = () => {
             Analyzing your meal...
           </p>
         )}
+        <WeightInput />
         {nutritionData && (
           <NutritionCard 
             foods={nutritionData.foods} 
