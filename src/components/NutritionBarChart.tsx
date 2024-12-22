@@ -21,18 +21,14 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
   return (
     <div className="w-full h-[300px] mt-6">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          layout="vertical"
-          data={data}
-          margin={{ top: 20, right: 30, left: 80, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
-          <XAxis type="number" className="text-xs font-medium" />
-          <YAxis
-            type="category"
+        <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+          <XAxis
             dataKey="name"
             className="text-xs font-medium"
-            width={75}
+          />
+          <YAxis
+            className="text-xs font-medium"
           />
           <Tooltip
             contentStyle={{
@@ -41,12 +37,7 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
               borderRadius: "0.5rem",
             }}
           />
-          <Bar
-            dataKey="value"
-            fill="currentColor"
-            radius={[0, 4, 4, 0]}
-            barSize={30}
-          />
+          <Bar dataKey="value" fill="currentColor" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
