@@ -2,6 +2,7 @@ import React from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { ChevronDown } from "lucide-react";
 import { DraggableFood } from "./DraggableFood";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 
 interface MealCategoryProps {
   id: string;
@@ -43,15 +44,17 @@ export const MealCategory: React.FC<MealCategoryProps> = ({
         </div>
       </div>
       {foods.length > 0 && (
-        <div className="space-y-2 pl-4">
-          {foods.map((food) => (
-            <DraggableFood
-              key={food.id}
-              food={food}
-              onDelete={onDelete}
-            />
-          ))}
-        </div>
+        <SortableContext items={foods.map(f => f.id)} strategy={verticalListSortingStrategy}>
+          <div className="space-y-2 pl-4">
+            {foods.map((food) => (
+              <DraggableFood
+                key={food.id}
+                food={food}
+                onDelete={onDelete}
+              />
+            ))}
+          </div>
+        </SortableContext>
       )}
     </div>
   );

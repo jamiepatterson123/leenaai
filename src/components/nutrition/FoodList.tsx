@@ -1,6 +1,4 @@
 import React from "react";
-import { Button } from "../ui/button";
-import { Trash2, ChevronDown } from "lucide-react";
 import { DndContext, DragEndEvent, closestCenter } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { DraggableFood } from "./DraggableFood";
@@ -73,15 +71,17 @@ export const FoodList: React.FC<FoodListProps> = ({
               <span className="font-medium">Uncategorized</span>
               <span>{getCategoryCalories("")} kcal</span>
             </div>
-            <div className="space-y-2">
-              {uncategorizedFoods.map((food) => (
-                <DraggableFood
-                  key={food.id}
-                  food={food}
-                  onDelete={onDelete}
-                />
-              ))}
-            </div>
+            <SortableContext items={uncategorizedFoods.map(f => f.id)} strategy={verticalListSortingStrategy}>
+              <div className="space-y-2">
+                {uncategorizedFoods.map((food) => (
+                  <DraggableFood
+                    key={food.id}
+                    food={food}
+                    onDelete={onDelete}
+                  />
+                ))}
+              </div>
+            </SortableContext>
           </div>
         )}
       </div>
