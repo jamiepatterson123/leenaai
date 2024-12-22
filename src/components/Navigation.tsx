@@ -97,7 +97,7 @@ export const Navigation = () => {
               <Link to="/nutrition-reports">
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   <ClipboardList className="w-4 h-4 mr-2" />
-                  Nutrition Reports
+                  Reports
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
