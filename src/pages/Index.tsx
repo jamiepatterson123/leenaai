@@ -106,25 +106,21 @@ const Index = () => {
   }));
 
   return (
-    <div className="max-w-4xl mx-auto px-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <h1 className="text-4xl font-bold text-center mb-8 text-primary">
         Focused Nutrition
       </h1>
       <div className="space-y-8">
         {targets && <TargetsDisplay targets={targets} />}
-        <div className="grid gap-8 md:grid-cols-2">
-          <WeightInput />
-          <WeightChart />
-        </div>
-        <div className="grid gap-8 md:grid-cols-2">
-          <FoodLoggingCalendar />
-          <FoodAnalysis 
-            foods={foods}
-            onDelete={handleDelete}
-            onUpdateCategory={handleUpdateCategory}
-          />
-        </div>
-        <div className="text-center">
+        <WeightInput />
+        <WeightChart />
+        <FoodLoggingCalendar />
+        <FoodAnalysis 
+          foods={foods}
+          onDelete={handleDelete}
+          onUpdateCategory={handleUpdateCategory}
+        />
+        <div className="text-center py-4">
           <Link
             to="/food-diary"
             className="text-primary hover:text-primary/80 font-medium"
