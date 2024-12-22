@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Home, UtensilsCrossed, LogOut, Settings2, UserRound, Share2 } from "lucide-react";
+import { Home, UtensilsCrossed, LogOut, Settings2, UserRound, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   NavigationMenu,
@@ -105,12 +105,11 @@ export const Navigation = () => {
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={handleShare}
             className="text-gray-600"
           >
-            <Share2 className="w-4 h-4 mr-2" />
-            Share
+            <Send className="w-4 h-4" />
           </Button>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Light</span>
