@@ -6,6 +6,9 @@ import { MacroProgressBar } from "./MacroProgressBar";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { calculateTargets } from "@/utils/profileCalculations";
+import type { Database } from "@/integrations/supabase/types";
+
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 interface NutritionInfo {
   calories: number;
@@ -37,7 +40,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({ foods, onDelete })
         .eq("user_id", user.id)
         .maybeSingle();
 
-      return data;
+      return data as Profile | null;
     },
   });
 
