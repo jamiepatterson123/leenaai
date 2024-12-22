@@ -83,19 +83,19 @@ export const MacroRing: React.FC<MacroRingProps> = ({
         </div>
       </div>
 
-      {/* Legend */}
+      {/* Legend with gram targets */}
       <div className="mt-6 flex justify-center gap-4">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-[#22c55e]"></div>
-          <span className="text-sm">Protein</span>
+          <span className="text-sm">Protein ({Math.round(protein)}g)</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-[#eab308]"></div>
-          <span className="text-sm">Carbs</span>
+          <span className="text-sm">Carbs ({Math.round(carbs)}g)</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-[#ef4444]"></div>
-          <span className="text-sm">Fat</span>
+          <span className="text-sm">Fat ({Math.round(fat)}g)</span>
         </div>
       </div>
     </Card>
