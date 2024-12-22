@@ -4,7 +4,7 @@ import { TotalNutrition } from "./nutrition/TotalNutrition";
 import { FoodList } from "./nutrition/FoodList";
 import { useNutritionTargets } from "./nutrition/useNutritionTargets";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { format } from "date-fns";
+import { format, formatDistanceToNow, isToday } from "date-fns";
 
 interface NutritionInfo {
   calories: number;
@@ -60,13 +60,20 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
     },
   ];
 
+  const getDateDisplay = (date: Date) => {
+    if (isToday(date)) {
+      return "Today";
+    }
+    return formatDistanceToNow(date, { addSuffix: true });
+  };
+
   return (
     <Card className="p-6 bg-background border-border/5 shadow-lg animate-fade-up">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ChevronLeft className="w-6 h-6 text-primary" />
-            <h2 className="text-2xl font-bold">Today</h2>
+            <h2 className="text-2xl font-bold">{getDateDisplay(new Date())}</h2>
             <ChevronRight className="w-6 h-6 text-primary" />
           </div>
           <span className="text-sm text-muted-foreground">
