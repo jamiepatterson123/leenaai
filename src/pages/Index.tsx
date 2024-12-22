@@ -52,8 +52,11 @@ const analyzeImage = async (image: File, apiKey: string) => {
   const data = await response.json();
   try {
     const content = data.choices[0].message.content;
-    console.log('GPT Response:', content); // Add logging to help debug
-    return JSON.parse(content);
+    console.log('GPT Response:', content);
+    
+    // Clean up the response by removing markdown code blocks if present
+    const cleanedContent = content.replace(/```json\n|\n```/g, '');
+    return JSON.parse(cleanedContent);
   } catch (error) {
     console.error('Error parsing GPT response:', data.choices[0].message.content);
     throw new Error('Invalid response format from GPT');
