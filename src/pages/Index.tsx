@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { NutritionCard } from "@/components/NutritionCard";
 import { ApiKeyInput } from "@/components/ApiKeyInput";
 import { toast } from "sonner";
+import Onboarding from "@/components/Onboarding";
 
 const analyzeImage = async (image: File, apiKey: string) => {
   const base64Image = await new Promise<string>((resolve, reject) => {
@@ -67,6 +68,19 @@ const Index = () => {
   const [apiKey, setApiKey] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState<any>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem("hasSeenOnboarding");
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingClose = () => {
+    setShowOnboarding(false);
+    localStorage.setItem("hasSeenOnboarding", "true");
+  };
 
   const handleImageSelect = async (image: File) => {
     if (!apiKey) {
@@ -104,6 +118,7 @@ const Index = () => {
           {nutritionData && <NutritionCard foods={nutritionData.foods} />}
         </div>
       </div>
+      <Onboarding isOpen={showOnboarding} onClose={handleOnboardingClose} />
     </div>
   );
 };
