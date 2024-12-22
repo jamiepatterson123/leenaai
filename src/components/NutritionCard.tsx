@@ -5,6 +5,7 @@ import { FoodList } from "./nutrition/FoodList";
 import { useNutritionTargets } from "./nutrition/useNutritionTargets";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
+import { NutritionBarChart } from "./NutritionBarChart";
 
 interface NutritionInfo {
   calories: number;
@@ -38,25 +39,25 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
       name: "Energy",
       value: totalNutrition.calories,
       target: targets.calories,
-      percentage: Math.round((totalNutrition.calories / targets.calories) * 100),
+      color: "#22c55e"
     },
     {
       name: "Protein",
       value: totalNutrition.protein,
       target: targets.protein,
-      percentage: Math.round((totalNutrition.protein / targets.protein) * 100),
+      color: "#eab308"
     },
     {
       name: "Net Carbs",
       value: totalNutrition.carbs,
       target: targets.carbs,
-      percentage: Math.round((totalNutrition.carbs / targets.carbs) * 100),
+      color: "#3b82f6"
     },
     {
       name: "Fat",
       value: totalNutrition.fat,
       target: targets.fat,
-      percentage: Math.round((totalNutrition.fat / targets.fat) * 100),
+      color: "#ef4444"
     },
   ];
 
@@ -74,25 +75,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
           </span>
         </div>
 
-        <div className="space-y-4">
-          {chartData.map((item) => (
-            <div key={item.name} className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>
-                  {item.name} - {item.value.toFixed(1)} / {item.target.toFixed(1)}{" "}
-                  {item.name === "Energy" ? "kcal" : "g"}
-                </span>
-                <span>{item.percentage}%</span>
-              </div>
-              <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-500"
-                  style={{ width: `${Math.min(item.percentage, 100)}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+        <NutritionBarChart data={chartData} />
 
         <FoodList 
           foods={foods} 
