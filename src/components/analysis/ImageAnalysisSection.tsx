@@ -53,10 +53,17 @@ export const ImageAnalysisSection = ({
     setAnalyzing(true);
     setResetUpload(false);
     try {
-      await analyzeImage(image, {
+      const result = await analyzeImage(image, {
         apiKey,
         setNutritionData,
-        saveFoodEntries: (foods) => saveFoodEntries(foods, selectedDate),
+        saveFoodEntries: async (foods) => {
+          await saveFoodEntries(foods, selectedDate);
+          // Trigger a refetch of the food diary data by invalidating the query
+          const queryClient = useQueryClient();
+          queryClient.invalidateQueries({ 
+            queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
+          });
+        },
       });
       setResetUpload(true);
     } catch (error) {
