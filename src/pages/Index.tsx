@@ -71,8 +71,16 @@ const Index = () => {
   const [nutritionData, setNutritionData] = useState<any>(null);
 
   const saveFoodEntries = async (foods: any[]) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error("You must be logged in to save food entries");
+      return;
+    }
+
     const { error } = await supabase.from("food_diary").insert(
       foods.map((food) => ({
+        user_id: user.id,
         food_name: food.name,
         weight_g: food.weight_g,
         calories: food.nutrition.calories,
