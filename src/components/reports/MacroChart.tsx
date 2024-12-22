@@ -5,6 +5,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  Legend,
 } from "recharts";
 import { Card } from "@/components/ui/card";
 
@@ -36,6 +37,15 @@ export const MacroChart = ({ data }: MacroChartProps) => {
               fontSize={12}
               tickLine={false}
               axisLine={false}
+            />
+            <Legend 
+              verticalAlign="top"
+              height={36}
+              iconType="circle"
+              iconSize={8}
+              wrapperStyle={{
+                paddingBottom: "20px"
+              }}
             />
             <Tooltip
               content={({ active, payload }) => {
