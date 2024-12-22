@@ -3,20 +3,8 @@ import { ProfileForm } from "@/components/profile/ProfileForm";
 import { CustomTargets } from "@/components/profile/CustomTargets";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
-interface ProfileFormData {
-  height_cm: number;
-  weight_kg: number;
-  age: number;
-  gender: string;
-  activity_level: string;
-  dietary_restrictions: string[];
-  fitness_goals: string;
-  target_calories: number;
-  target_protein: number;
-  target_carbs: number;
-  target_fat: number;
-}
+import { calculateTargets } from "@/utils/profileCalculations";
+import type { ProfileFormData } from "@/utils/profileCalculations";
 
 const Profile = () => {
   const [loading, setLoading] = useState(true);
@@ -52,11 +40,19 @@ const Profile = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
+      // Calculate new targets based on profile data
+      const targets = calculateTargets(data);
+
+      // Update profile with new data and calculated targets
       const { error } = await supabase
         .from("profiles")
         .upsert({
           user_id: user.id,
           ...data,
+          target_calories: targets.calories,
+          target_protein: targets.protein,
+          target_carbs: targets.carbs,
+          target_fat: targets.fat,
         });
 
       if (error) throw error;

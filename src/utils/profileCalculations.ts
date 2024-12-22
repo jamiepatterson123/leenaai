@@ -17,6 +17,7 @@ export interface TargetCalculations {
 
 export const calculateBMR = (data: ProfileFormData): number => {
   const { weight_kg, height_cm, age, gender } = data;
+  // Using Mifflin-St Jeor Equation
   const baseBMR = 10 * weight_kg + 6.25 * height_cm - 5 * age;
   return gender === 'male' ? baseBMR + 5 : baseBMR - 161;
 };
@@ -38,21 +39,30 @@ export const calculateTargets = (data: ProfileFormData): TargetCalculations => {
   
   let targetCalories = tdee;
   
+  // Adjust calories based on fitness goals
   switch (data.fitness_goals) {
     case 'weight_loss':
-      targetCalories *= 0.8;
+      targetCalories *= 0.8; // 20% deficit
       break;
     case 'muscle_gain':
-      targetCalories *= 1.1;
+      targetCalories *= 1.1; // 10% surplus
+      break;
+    case 'maintenance':
+    default:
+      // Keep TDEE as is
       break;
   }
 
+  // Calculate macronutrient targets
+  // Protein: 2g per kg of body weight
   const protein = data.weight_kg * 2;
   const proteinCalories = protein * 4;
   
-  const fatCalories = targetCalories * 0.3;
+  // Fat: 25% of total calories
+  const fatCalories = targetCalories * 0.25;
   const fat = fatCalories / 9;
   
+  // Remaining calories go to carbs
   const remainingCalories = targetCalories - proteinCalories - fatCalories;
   const carbs = remainingCalories / 4;
 
