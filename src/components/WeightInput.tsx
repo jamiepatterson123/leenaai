@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { calculateTargets } from "@/utils/profileCalculations";
+import { Scale } from "lucide-react";
 
 export const WeightInput = () => {
   const [weight, setWeight] = useState<string>("");
@@ -68,36 +68,41 @@ export const WeightInput = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Quick Weight Update</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="weight">Current Weight (kg)</Label>
-            <div className="flex gap-2">
-              <Input
-                id="weight"
-                type="number"
-                step="0.1"
-                min="20"
-                max="300"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-                placeholder="Enter your weight"
-                className="flex-1"
-              />
-              <Button 
-                type="submit" 
-                disabled={isSubmitting || !weight}
-              >
-                Update
-              </Button>
-            </div>
+    <div className="w-full max-w-md mx-auto">
+      <form 
+        onSubmit={handleSubmit}
+        className="relative block w-full h-64 border-2 border-dashed border-primary rounded-lg hover:border-primary/80 transition-colors"
+      >
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 space-y-4">
+          <Scale className="h-12 w-12 text-primary" />
+          <div className="text-center space-y-2">
+            <h3 className="text-lg font-semibold text-gray-900">Quick Weight Update</h3>
+            <p className="text-sm text-gray-600">
+              Enter your current weight to update your nutrition targets
+            </p>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+          <div className="flex gap-2 w-full max-w-xs">
+            <Input
+              id="weight"
+              type="number"
+              step="0.1"
+              min="20"
+              max="300"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              placeholder="Enter weight in kg"
+              className="flex-1"
+            />
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || !weight}
+              className="bg-primary hover:bg-primary/90"
+            >
+              Update
+            </Button>
+          </div>
+        </div>
+      </form>
+    </div>
   );
 };
