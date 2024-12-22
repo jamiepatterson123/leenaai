@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 import Reports from "./pages/Reports";
 import Coach from "./pages/Coach";
 import { Navigation } from "./components/Navigation";
+import { HelpPopup } from "./components/HelpPopup";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 
@@ -101,6 +102,7 @@ const App = () => (
               }
             />
           </Routes>
+          <HelpPopup />
         </div>
       </BrowserRouter>
     </TooltipProvider>
