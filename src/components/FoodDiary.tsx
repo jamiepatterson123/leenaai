@@ -4,8 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { NutritionCard } from "./NutritionCard";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Button } from "./ui/button";
-import { Trash2 } from "lucide-react";
 
 export const FoodDiary = () => {
   const queryClient = useQueryClient();
@@ -46,7 +44,13 @@ export const FoodDiary = () => {
   };
 
   if (isLoading) {
-    return <div>Loading food diary...</div>;
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="text-muted-foreground animate-pulse">
+          Loading food diary...
+        </div>
+      </div>
+    );
   }
 
   const foods = foodEntries.map((entry) => ({
@@ -61,10 +65,5 @@ export const FoodDiary = () => {
     },
   }));
 
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Today's Food Diary</h2>
-      <NutritionCard foods={foods} onDelete={handleDelete} />
-    </div>
-  );
+  return <NutritionCard foods={foods} onDelete={handleDelete} />;
 };
