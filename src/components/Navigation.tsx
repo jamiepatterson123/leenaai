@@ -30,8 +30,14 @@ export const Navigation = () => {
   }, []);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/"); // Changed from "/auth" to "/"
+    try {
+      await supabase.auth.signOut();
+      navigate("/");
+      toast.success("Successfully signed out");
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast.error("Error signing out. Please try again.");
+    }
   };
 
   const handleShare = () => {

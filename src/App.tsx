@@ -34,7 +34,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth" />;
+    return <Navigate to="/" />;
   }
 
   return <>{children}</>;
@@ -49,15 +49,8 @@ const App = () => (
         <div className="min-h-screen bg-background">
           <Navigation />
           <Routes>
+            <Route path="/" element={<Index />} />
             <Route path="/auth" element={<AuthPage />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Index />
-                </ProtectedRoute>
-              }
-            />
             <Route
               path="/food-diary"
               element={
