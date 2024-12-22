@@ -37,7 +37,7 @@ export const ImageAnalysisSection = ({
         .eq('id', foodId);
 
       if (error) throw error;
-      toast.success(`Food category updated to ${newCategory}`);
+      toast.success(`Moved to ${newCategory}`);
     } catch (error) {
       console.error('Error updating category:', error);
       toast.error('Failed to update food category');
