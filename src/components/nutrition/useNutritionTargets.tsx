@@ -23,8 +23,8 @@ export const useNutritionTargets = () => {
   });
 
   let targets = {
-    calories: 2000,
-    protein: 150,
+    calories: 1830,
+    protein: 100,
     carbs: 200,
     fat: 70,
   };
@@ -33,7 +33,7 @@ export const useNutritionTargets = () => {
     if (profile.target_calories) {
       targets = {
         calories: profile.target_calories,
-        protein: profile.target_protein || 150,
+        protein: profile.target_protein || 100,
         carbs: profile.target_carbs || 200,
         fat: profile.target_fat || 70,
       };
