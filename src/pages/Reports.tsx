@@ -4,20 +4,27 @@ import { Card } from "@/components/ui/card";
 import {
   Area,
   AreaChart,
+  Bar,
+  BarChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-import { format } from "date-fns";
+import { format, subDays } from "date-fns";
 
 interface WeightData {
   weight_kg: number;
   updated_at: string;
 }
 
+interface CalorieData {
+  date: string;
+  calories: number;
+}
+
 const Reports = () => {
-  const { data: weightData, isLoading } = useQuery({
+  const { data: weightData, isLoading: weightLoading } = useQuery({
     queryKey: ["weightHistory"],
     queryFn: async () => {
       const { data: profile, error } = await supabase
@@ -34,7 +41,36 @@ const Reports = () => {
     },
   });
 
-  if (isLoading) {
+  const { data: calorieData, isLoading: caloriesLoading } = useQuery({
+    queryKey: ["calorieHistory"],
+    queryFn: async () => {
+      // Get the date 30 days ago
+      const thirtyDaysAgo = subDays(new Date(), 30);
+      
+      const { data, error } = await supabase
+        .from("food_diary")
+        .select("date, calories")
+        .gte("date", thirtyDaysAgo.toISOString())
+        .order("date", { ascending: true });
+
+      if (error) throw error;
+
+      // Group calories by date
+      const dailyCalories = data.reduce((acc: { [key: string]: number }, entry) => {
+        const date = entry.date;
+        acc[date] = (acc[date] || 0) + entry.calories;
+        return acc;
+      }, {});
+
+      // Convert to array format for the chart
+      return Object.entries(dailyCalories).map(([date, calories]) => ({
+        date: format(new Date(date), "MMM d"),
+        calories: Math.round(calories),
+      }));
+    },
+  });
+
+  if (weightLoading || caloriesLoading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-muted-foreground animate-pulse">
@@ -103,6 +139,55 @@ const Reports = () => {
                 strokeWidth={2}
               />
             </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
+
+      <Card className="p-6">
+        <h2 className="text-2xl font-semibold mb-6">Energy History (kcal)</h2>
+        <div className="h-[400px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={calorieData}>
+              <XAxis
+                dataKey="date"
+                stroke="#888888"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                stroke="#888888"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(value) => `${value}`}
+              />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="rounded-lg border bg-background p-2 shadow-sm">
+                        <div className="flex flex-col">
+                          <span className="text-[0.70rem] uppercase text-muted-foreground">
+                            Calories
+                          </span>
+                          <span className="font-bold text-muted-foreground">
+                            {payload[0].value} kcal
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <Bar
+                dataKey="calories"
+                fill="rgb(20, 83, 45)"
+                radius={[4, 4, 0, 0]}
+                name="Consumed"
+              />
+            </BarChart>
           </ResponsiveContainer>
         </div>
       </Card>
