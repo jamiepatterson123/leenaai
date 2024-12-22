@@ -50,8 +50,11 @@ export const FoodList: React.FC<FoodListProps> = ({ foods, onDelete, onUpdateCat
     const { active, over } = event;
     
     if (over && active.id !== over.id) {
-      const category = over.id as string;
-      onUpdateCategory(active.id as string, category);
+      // Check if the over.id matches any meal category
+      const targetCategory = mealCategories.find(cat => cat.id === over.id);
+      if (targetCategory) {
+        onUpdateCategory(active.id as string, targetCategory.id);
+      }
     }
     
     setActiveId(null);
