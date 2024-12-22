@@ -12,6 +12,7 @@ import { FoodAnalysis } from "@/components/food/FoodAnalysis";
 import { FoodLoggingCalendar } from "@/components/FoodLoggingCalendar";
 import { useNutritionTargets } from "@/components/nutrition/useNutritionTargets";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ImageUpload } from "@/components/ImageUpload";
 
 const Index = () => {
   const queryClient = useQueryClient();
@@ -70,6 +71,19 @@ const Index = () => {
     }
   };
 
+  const handleImageSelect = async (file: File) => {
+    try {
+      toast.info("Processing image...");
+      // Here you can add the image processing logic
+      // For example, sending it to an API for food recognition
+      console.log("Selected image:", file);
+      toast.success("Image uploaded successfully");
+    } catch (error) {
+      toast.error("Failed to process image");
+      console.error("Error processing image:", error);
+    }
+  };
+
   const foods = foodEntries.map((entry) => ({
     id: entry.id,
     name: entry.food_name,
@@ -102,6 +116,16 @@ const Index = () => {
           <Card className="border border-primary/10 shadow-lg bg-gradient-to-b from-background to-primary/5">
             <CardContent className="pt-6">
               {targets && <TargetsDisplay targets={targets} />}
+            </CardContent>
+          </Card>
+
+          {/* Image Upload Section */}
+          <Card className="border border-primary/10 shadow-md">
+            <CardHeader>
+              <CardTitle className="text-xl text-primary">Upload Food Image</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ImageUpload onImageSelect={handleImageSelect} />
             </CardContent>
           </Card>
 
