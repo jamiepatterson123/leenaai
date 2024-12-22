@@ -12,10 +12,14 @@ const FoodDiaryPage = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState(null);
 
-  // Fetch API key from secrets
-  const { data: apiKeyData } = useQuery({
+  const { data: apiKey } = useQuery({
     queryKey: ["openai-api-key"],
     queryFn: async () => {
+      const savedKey = localStorage.getItem("openai_api_key");
+      if (savedKey) {
+        return savedKey;
+      }
+
       const { data, error } = await supabase
         .from("secrets")
         .select("value")
@@ -50,7 +54,7 @@ const FoodDiaryPage = () => {
             />
           </Card>
           <ImageAnalysisSection
-            apiKey={apiKeyData}
+            apiKey={apiKey}
             analyzing={analyzing}
             setAnalyzing={setAnalyzing}
             nutritionData={nutritionData}

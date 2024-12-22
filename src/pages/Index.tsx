@@ -13,7 +13,6 @@ import { ArrowRight } from "lucide-react";
 const Index = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState<any>(null);
-  const [apiKey, setApiKey] = useState<string>("");
   const today = format(new Date(), "yyyy-MM-dd");
 
   const { data: hasTodayEntries } = useQuery({
@@ -29,12 +28,33 @@ const Index = () => {
     },
   });
 
-  useEffect(() => {
-    const savedKey = localStorage.getItem("openai_api_key");
-    if (savedKey) {
-      setApiKey(savedKey);
-    }
-  }, []);
+  const { data: apiKey } = useQuery({
+    queryKey: ["openai-api-key"],
+    queryFn: async () => {
+      const savedKey = localStorage.getItem("openai_api_key");
+      if (savedKey) {
+        return savedKey;
+      }
+
+      const { data, error } = await supabase
+        .from("secrets")
+        .select("value")
+        .eq("name", "OPENAI_API_KEY")
+        .maybeSingle();
+
+      if (error) {
+        toast.error("Error fetching API key");
+        throw error;
+      }
+
+      if (!data) {
+        toast.error("Please set your OpenAI API key in API Settings first");
+        return null;
+      }
+
+      return data.value;
+    },
+  });
 
   return (
     <div className="max-w-4xl mx-auto px-8">
