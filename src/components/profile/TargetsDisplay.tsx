@@ -19,9 +19,9 @@ export const TargetsDisplay = ({ targets }: TargetsDisplayProps) => {
           </div>
           <NutritionBarChart
             data={[
-              { name: 'Protein', value: targets.protein, fill: '#22c55e' },
-              { name: 'Fat', value: targets.fat, fill: '#eab308' },
-              { name: 'Carbs', value: targets.carbs, fill: '#3b82f6' },
+              { name: 'Protein', value: targets.protein, target: targets.protein, color: '#22c55e' },
+              { name: 'Fat', value: targets.fat, target: targets.fat, color: '#22c55e' },
+              { name: 'Carbs', value: targets.carbs, target: targets.carbs, color: '#22c55e' },
             ]}
           />
           <div className="grid grid-cols-3 gap-4 text-sm text-muted-foreground">

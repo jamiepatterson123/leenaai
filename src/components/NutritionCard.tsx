@@ -1,10 +1,9 @@
 import React from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
-import { MacroProgressBar } from "./MacroProgressBar";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { calculateTargets } from "@/utils/profileCalculations";
 import type { Database } from "@/integrations/supabase/types";
 import { NutritionBarChart } from "./NutritionBarChart";

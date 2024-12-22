@@ -8,7 +8,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
-  Background,
 } from "recharts";
 
 interface NutritionChartProps {
@@ -21,6 +20,11 @@ interface NutritionChartProps {
 }
 
 export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
+  const isWithinTarget = (value: number, target: number) => {
+    const percentage = (value / target) * 100;
+    return Math.abs(100 - percentage) <= 10;
+  };
+
   return (
     <div className="w-full h-[300px] mt-6">
       <ResponsiveContainer width="100%" height="100%">
@@ -41,12 +45,16 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
                 const data = payload[0].payload;
+                const withinTarget = isWithinTarget(data.value, data.target);
                 return (
                   <div className="bg-background border border-border/50 rounded-lg p-2 text-sm">
                     <p className="font-medium">{data.name}</p>
                     <p>Current: {data.value}</p>
                     <p>Target: {data.target}</p>
-                    <p>Progress: {Math.round((data.value / data.target) * 100)}%</p>
+                    <p className={withinTarget ? "text-green-600" : ""}>
+                      Progress: {Math.round((data.value / data.target) * 100)}%
+                      {withinTarget && " ✓"}
+                    </p>
                   </div>
                 );
               }
@@ -55,7 +63,7 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
           />
           <Bar
             dataKey="target"
-            fill="#F1F1F1"
+            fill="#F2FCE2"
             radius={[0, 4, 4, 0]}
             barSize={30}
           />
@@ -65,7 +73,10 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
             barSize={30}
           >
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
+              <Cell 
+                key={`cell-${index}`} 
+                fill={isWithinTarget(entry.value, entry.target) ? "#22c55e" : entry.color} 
+              />
             ))}
           </Bar>
         </BarChart>
