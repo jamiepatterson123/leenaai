@@ -89,7 +89,7 @@ export const Navigation = () => {
               <Link to="/profile">
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   <UserRound className="w-4 h-4 mr-2" />
-                  Profile
+                  Biometrics
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
