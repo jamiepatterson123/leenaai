@@ -57,6 +57,7 @@ const Index = () => {
           setAnalyzing={setAnalyzing}
           nutritionData={nutritionData}
           setNutritionData={setNutritionData}
+          selectedDate={new Date()}
         />
         <WeightInput />
         <div className="text-center mt-8">
