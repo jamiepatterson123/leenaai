@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Home, UtensilsCrossed, LogOut, Settings, UserRound, Share2 } from "lucide-react";
+import { Home, UtensilsCrossed, LogOut, Settings, UserRound, Share2, Target } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   NavigationMenu,
@@ -36,7 +36,6 @@ export const Navigation = () => {
 
   const handleShare = () => {
     try {
-      // Direct Instagram Stories sharing
       const instagramUrl = `https://www.instagram.com/create/story?url=${encodeURIComponent(window.location.origin)}`;
       window.open(instagramUrl, '_blank');
       toast.success("Opening Instagram Stories...");
@@ -82,8 +81,8 @@ export const Navigation = () => {
             <NavigationMenuItem>
               <Link to="/profile">
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <UserRound className="w-4 h-4 mr-2" />
-                  Profile
+                  <Target className="w-4 h-4 mr-2" />
+                  Targets
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
