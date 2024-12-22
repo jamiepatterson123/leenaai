@@ -4,23 +4,9 @@ import { format, subDays, eachDayOfInterval } from "date-fns";
 import { WeightChart } from "@/components/reports/WeightChart";
 import { CalorieChart } from "@/components/reports/CalorieChart";
 import { MacroChart } from "@/components/reports/MacroChart";
-
-interface WeightData {
-  weight_kg: number;
-  updated_at: string;
-}
-
-interface CalorieData {
-  date: string;
-  calories: number;
-}
-
-interface MacroData {
-  date: string;
-  protein: number;
-  carbs: number;
-  fat: number;
-}
+import { MacroTargetsChart } from "@/components/reports/MacroTargetsChart";
+import { WeightTrendChart } from "@/components/reports/WeightTrendChart";
+import { MealDistributionChart } from "@/components/reports/MealDistributionChart";
 
 const Reports = () => {
   const { data: weightData, isLoading: weightLoading } = useQuery({
@@ -122,7 +108,24 @@ const Reports = () => {
     },
   });
 
-  if (weightLoading || caloriesLoading || macrosLoading) {
+  const { data: mealData, isLoading: mealsLoading } = useQuery({
+    queryKey: ["mealDistribution"],
+    queryFn: async () => {
+      const endDate = new Date();
+      const startDate = subDays(endDate, 6);
+      
+      const { data, error } = await supabase
+        .from("food_diary")
+        .select("calories, category")
+        .gte("date", startDate.toISOString().split('T')[0])
+        .lte("date", endDate.toISOString().split('T')[0]);
+
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  if (weightLoading || caloriesLoading || macrosLoading || mealsLoading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-muted-foreground animate-pulse">
@@ -135,9 +138,13 @@ const Reports = () => {
   return (
     <div className="container max-w-4xl mx-auto p-4 space-y-8">
       <h1 className="text-3xl font-bold">Reports</h1>
-      <WeightChart data={weightData} />
-      <CalorieChart data={calorieData} />
-      <MacroChart data={macroData} />
+      <div className="grid gap-8">
+        <WeightTrendChart data={weightData} />
+        <CalorieChart data={calorieData} />
+        <MacroChart data={macroData} />
+        <MacroTargetsChart data={macroData} />
+        <MealDistributionChart data={mealData} />
+      </div>
     </div>
   );
 };
