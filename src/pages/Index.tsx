@@ -22,7 +22,7 @@ const analyzeImage = async (image: File, apiKey: string) => {
       'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o", // Updated to use the correct model
+      model: "gpt-4o-mini", // Updated to use the mini model for faster results
       messages: [
         {
           role: "user",
