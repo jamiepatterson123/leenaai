@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { NutritionCard } from "@/components/NutritionCard";
 import { ApiKeyInput } from "@/components/ApiKeyInput";
-import { FoodDiary } from "@/components/FoodDiary";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -125,7 +125,14 @@ const Index = () => {
             </p>
           )}
           {nutritionData && <NutritionCard foods={nutritionData.foods} />}
-          <FoodDiary />
+          <div className="text-center">
+            <Link
+              to="/food-diary"
+              className="text-primary hover:text-primary/80 font-medium"
+            >
+              View Food Diary →
+            </Link>
+          </div>
         </div>
       </div>
     </div>
