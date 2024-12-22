@@ -67,7 +67,8 @@ const AuthPage = () => {
                     brandButtonText: 'white',
                   },
                   borderWidths: {
-                    buttonBorder: '1px',
+                    inputBorderWidth: '1px',
+                    buttonBorderWidth: '1px',
                   },
                   radii: {
                     borderRadiusButton: '0.5rem',
