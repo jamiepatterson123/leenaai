@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import FoodDiaryPage from "./pages/FoodDiary";
 import AuthPage from "./pages/Auth";
+import ApiSettings from "./pages/ApiSettings";
 import { Navigation } from "./components/Navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
@@ -61,6 +62,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <FoodDiaryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/api-settings"
+              element={
+                <ProtectedRoute>
+                  <ApiSettings />
                 </ProtectedRoute>
               }
             />

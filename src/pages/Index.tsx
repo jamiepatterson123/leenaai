@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { NutritionCard } from "@/components/NutritionCard";
-import { ApiKeyInput } from "@/components/ApiKeyInput";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -66,9 +65,17 @@ const analyzeImage = async (image: File, apiKey: string) => {
 };
 
 const Index = () => {
-  const [apiKey, setApiKey] = useState("");
+  const navigate = useNavigate();
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState<any>(null);
+  const [apiKey, setApiKey] = useState<string>("");
+
+  useEffect(() => {
+    const savedKey = localStorage.getItem("openai_api_key");
+    if (savedKey) {
+      setApiKey(savedKey);
+    }
+  }, []);
 
   const saveFoodEntries = async (foods: any[]) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -100,7 +107,8 @@ const Index = () => {
 
   const handleImageSelect = async (image: File) => {
     if (!apiKey) {
-      toast.error("Please set your OpenAI API key first");
+      toast.error("Please set your OpenAI API key in API Settings first");
+      navigate("/api-settings");
       return;
     }
 
@@ -128,7 +136,6 @@ const Index = () => {
       <h1 className="text-4xl font-bold text-center mb-8 text-primary">
         Nutrition Tracker
       </h1>
-      <ApiKeyInput onApiKeySet={setApiKey} />
       <div className="space-y-8">
         <ImageUpload onImageSelect={handleImageSelect} />
         {analyzing && (
