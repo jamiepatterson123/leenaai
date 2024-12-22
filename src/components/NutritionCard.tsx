@@ -73,7 +73,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({ foods }) => {
           <ProgressBar
             current={totalNutrition.calories}
             target={targets.calories}
-            color="#8E9196"
+            color="#8E9196"  // Neutral Gray from previous palette
           />
         </div>
 
@@ -92,7 +92,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({ foods }) => {
           <ProgressBar
             current={totalNutrition.protein}
             target={targets.protein}
-            color="#7E69AB"
+            color="#9b87f5"  // Primary Purple from previous palette
           />
         </div>
 
@@ -111,7 +111,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({ foods }) => {
           <ProgressBar
             current={totalNutrition.carbs}
             target={targets.carbs}
-            color="#0EA5E9"
+            color="#0EA5E9"  // Ocean Blue from previous palette
           />
         </div>
 
@@ -130,7 +130,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({ foods }) => {
           <ProgressBar
             current={totalNutrition.fat}
             target={targets.fat}
-            color="#ea384c"
+            color="#ea384c"  // Red from previous palette
           />
         </div>
       </div>
