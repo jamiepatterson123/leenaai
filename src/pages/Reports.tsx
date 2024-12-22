@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { format, subDays, eachDayOfInterval } from "date-fns";
+import { format, subDays, subMonths, subYears, eachDayOfInterval } from "date-fns";
 import { WeightChart } from "@/components/reports/WeightChart";
 import { CalorieChart } from "@/components/reports/CalorieChart";
 import { MacroChart } from "@/components/reports/MacroChart";
@@ -8,19 +8,46 @@ import { MacroTargetsChart } from "@/components/reports/MacroTargetsChart";
 import { WeightTrendChart } from "@/components/reports/WeightTrendChart";
 import { MealDistributionChart } from "@/components/reports/MealDistributionChart";
 import { CalorieTargetsChart } from "@/components/reports/CalorieTargetsChart";
+import { TimeRange, TimeRangeSelector } from "@/components/reports/TimeRangeSelector";
+import { useState } from "react";
 
 interface WeightEntry {
   weight_kg: number;
   updated_at: string;
 }
 
+const getStartDate = (timeRange: TimeRange) => {
+  const now = new Date();
+  switch (timeRange) {
+    case "1w":
+      return subDays(now, 6);
+    case "2w":
+      return subDays(now, 13);
+    case "1m":
+      return subMonths(now, 1);
+    case "2m":
+      return subMonths(now, 2);
+    case "6m":
+      return subMonths(now, 6);
+    case "1y":
+      return subYears(now, 1);
+  }
+};
+
 const Reports = () => {
+  const [weightTimeRange, setWeightTimeRange] = useState<TimeRange>("1w");
+  const [calorieTimeRange, setCalorieTimeRange] = useState<TimeRange>("1w");
+  const [macroTimeRange, setMacroTimeRange] = useState<TimeRange>("1w");
+  const [mealTimeRange, setMealTimeRange] = useState<TimeRange>("1w");
+
   const { data: weightData, isLoading: weightLoading } = useQuery({
-    queryKey: ["weightHistory"],
+    queryKey: ["weightHistory", weightTimeRange],
     queryFn: async () => {
+      const startDate = getStartDate(weightTimeRange);
       const { data: profile, error } = await supabase
         .from("profiles")
         .select("weight_kg, updated_at")
+        .gte("updated_at", startDate.toISOString())
         .order("updated_at", { ascending: true });
 
       if (error) throw error;
@@ -33,10 +60,10 @@ const Reports = () => {
   });
 
   const { data: calorieData, isLoading: caloriesLoading } = useQuery({
-    queryKey: ["calorieHistory"],
+    queryKey: ["calorieHistory", calorieTimeRange],
     queryFn: async () => {
       const endDate = new Date();
-      const startDate = subDays(endDate, 6);
+      const startDate = getStartDate(calorieTimeRange);
       
       const { data, error } = await supabase
         .from("food_diary")
@@ -62,10 +89,10 @@ const Reports = () => {
   });
 
   const { data: macroData, isLoading: macrosLoading } = useQuery({
-    queryKey: ["macroHistory"],
+    queryKey: ["macroHistory", macroTimeRange],
     queryFn: async () => {
       const endDate = new Date();
-      const startDate = subDays(endDate, 6);
+      const startDate = getStartDate(macroTimeRange);
       
       const { data, error } = await supabase
         .from("food_diary")
@@ -98,7 +125,6 @@ const Reports = () => {
         macroMaps.fat[dateKey].push(entry.fat);
       });
 
-      // Calculate averages for each date
       return dateRange.map(date => {
         const dateKey = format(date, "yyyy-MM-dd");
         const getAverage = (arr: number[]) => 
@@ -115,10 +141,10 @@ const Reports = () => {
   });
 
   const { data: mealData, isLoading: mealsLoading } = useQuery({
-    queryKey: ["mealDistribution"],
+    queryKey: ["mealDistribution", mealTimeRange],
     queryFn: async () => {
       const endDate = new Date();
-      const startDate = subDays(endDate, 6);
+      const startDate = getStartDate(mealTimeRange);
       
       const { data, error } = await supabase
         .from("food_diary")
@@ -145,12 +171,42 @@ const Reports = () => {
     <div className="container max-w-4xl mx-auto p-4 space-y-8">
       <h1 className="text-3xl font-bold">Reports</h1>
       <div className="grid gap-8">
-        <WeightTrendChart data={weightData} />
-        <CalorieTargetsChart data={calorieData} />
-        <CalorieChart data={calorieData} />
-        <MacroChart data={macroData} />
-        <MacroTargetsChart data={macroData} />
-        <MealDistributionChart data={mealData} />
+        <div className="relative">
+          <div className="absolute top-6 right-6 z-10">
+            <TimeRangeSelector value={weightTimeRange} onChange={setWeightTimeRange} />
+          </div>
+          <WeightTrendChart data={weightData} />
+        </div>
+        <div className="relative">
+          <div className="absolute top-6 right-6 z-10">
+            <TimeRangeSelector value={calorieTimeRange} onChange={setCalorieTimeRange} />
+          </div>
+          <CalorieTargetsChart data={calorieData} />
+        </div>
+        <div className="relative">
+          <div className="absolute top-6 right-6 z-10">
+            <TimeRangeSelector value={calorieTimeRange} onChange={setCalorieTimeRange} />
+          </div>
+          <CalorieChart data={calorieData} />
+        </div>
+        <div className="relative">
+          <div className="absolute top-6 right-6 z-10">
+            <TimeRangeSelector value={macroTimeRange} onChange={setMacroTimeRange} />
+          </div>
+          <MacroChart data={macroData} />
+        </div>
+        <div className="relative">
+          <div className="absolute top-6 right-6 z-10">
+            <TimeRangeSelector value={macroTimeRange} onChange={setMacroTimeRange} />
+          </div>
+          <MacroTargetsChart data={macroData} />
+        </div>
+        <div className="relative">
+          <div className="absolute top-6 right-6 z-10">
+            <TimeRangeSelector value={mealTimeRange} onChange={setMealTimeRange} />
+          </div>
+          <MealDistributionChart data={mealData} />
+        </div>
       </div>
     </div>
   );
