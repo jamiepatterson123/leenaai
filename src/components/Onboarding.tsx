@@ -21,7 +21,7 @@ const Onboarding = ({ isOpen, onClose }: OnboardingProps) => {
   const steps = [
     {
       title: "Welcome to Nutrition Tracker",
-      description: "Let's get started with tracking your food intake using AI!",
+      description: "Let's get started with tracking your food intake using AI! The onboarding process usually takes around 5 minutes to complete.",
       icon: <ScanIcon className="w-12 h-12 text-primary" />,
     },
     {
