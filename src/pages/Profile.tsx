@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -7,7 +7,6 @@ import { NutritionTargetsDialog } from "@/components/nutrition/NutritionTargetsD
 import { Button } from "@/components/ui/button";
 import { Settings2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MacroProgressBar } from "@/components/MacroProgressBar";
 
 interface ProfileFormData {
   height_cm: number;
@@ -97,38 +96,34 @@ const Profile = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-2xl font-bold">Nutrition Targets</CardTitle>
+            <CardTitle className="text-2xl">Custom Nutrition Targets</CardTitle>
             <NutritionTargetsDialog
               currentTargets={targets}
               trigger={
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                  <Settings2 className="w-4 h-4 mr-1" />
-                  Edit Targets
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+                  <Settings2 className="w-5 h-5" />
                 </Button>
               }
             />
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="text-sm font-medium">Daily Calories: {Math.round(targets.calories)} kcal</div>
-              <MacroProgressBar
-                label="Protein"
-                current={(targets.protein * 4 / targets.calories) * 100}
-                target={30}
-                color="bg-green-500"
-              />
-              <MacroProgressBar
-                label="Carbs"
-                current={(targets.carbs * 4 / targets.calories) * 100}
-                target={50}
-                color="bg-yellow-500"
-              />
-              <MacroProgressBar
-                label="Fat"
-                current={(targets.fat * 9 / targets.calories) * 100}
-                target={20}
-                color="bg-red-500"
-              />
+          <CardContent className="space-y-6">
+            <div className="space-y-4">
+              <div>
+                <div className="text-lg mb-2">Protein (g)</div>
+                <div className="text-3xl font-medium">{Math.round(targets.protein)}</div>
+              </div>
+              <div>
+                <div className="text-lg mb-2">Carbs (g)</div>
+                <div className="text-3xl font-medium">{Math.round(targets.carbs)}</div>
+              </div>
+              <div>
+                <div className="text-lg mb-2">Fat (g)</div>
+                <div className="text-3xl font-medium">{Math.round(targets.fat)}</div>
+              </div>
+              <div className="pt-2">
+                <div className="text-lg">Calculated Daily Calories</div>
+                <div className="text-3xl font-medium">{Math.round(targets.calories)} kcal</div>
+              </div>
             </div>
           </CardContent>
         </Card>
