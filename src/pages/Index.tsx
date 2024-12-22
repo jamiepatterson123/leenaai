@@ -128,13 +128,27 @@ const Index = () => {
 
   const handleDelete = () => {
     // No-op since we don't want to allow deletion from the analysis view
-    // Users should go to the food diary page to manage their entries
+  };
+
+  const handleUpdateCategory = async (foodId: string, newCategory: string) => {
+    try {
+      const { error } = await supabase
+        .from('food_diary')
+        .update({ category: newCategory })
+        .eq('id', foodId);
+
+      if (error) throw error;
+      toast.success(`Food category updated to ${newCategory}`);
+    } catch (error) {
+      console.error('Error updating category:', error);
+      toast.error('Failed to update food category');
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto px-8">
       <h1 className="text-4xl font-bold text-center mb-8 text-primary">
-        Nutrition Tracker
+        Focused Nutrition
       </h1>
       <div className="space-y-8">
         <ImageUpload onImageSelect={handleImageSelect} />
@@ -143,7 +157,13 @@ const Index = () => {
             Analyzing your meal...
           </p>
         )}
-        {nutritionData && <NutritionCard foods={nutritionData.foods} onDelete={handleDelete} />}
+        {nutritionData && (
+          <NutritionCard 
+            foods={nutritionData.foods} 
+            onDelete={handleDelete} 
+            onUpdateCategory={handleUpdateCategory}
+          />
+        )}
         <div className="text-center">
           <Link
             to="/food-diary"
