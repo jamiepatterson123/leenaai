@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Home, UtensilsCrossed, LogOut, Key, UserRound, Send, ClipboardList, PlusCircle, UserCheck } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Home, UtensilsCrossed, LogOut, Key, UserRound, Send, ClipboardList, Menu, X, UserCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   NavigationMenu,
@@ -12,12 +12,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 export const Navigation = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -28,7 +33,6 @@ export const Navigation = () => {
       setIsAuthenticated(!!session);
     });
 
-    // Initialize theme from localStorage
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
     if (savedTheme) {
       setTheme(savedTheme);
@@ -62,20 +66,9 @@ export const Navigation = () => {
   };
 
   const handleAddFood = () => {
-    if (location.pathname !== '/') {
-      navigate('/');
-      // Add a small delay to ensure the image upload element is mounted
-      setTimeout(() => {
-        const imageUploadInput = document.getElementById('image-upload');
-        if (imageUploadInput) {
-          imageUploadInput.click();
-        }
-      }, 100);
-    } else {
-      const imageUploadInput = document.getElementById('image-upload');
-      if (imageUploadInput) {
-        imageUploadInput.click();
-      }
+    const imageUploadInput = document.getElementById('image-upload');
+    if (imageUploadInput) {
+      imageUploadInput.click();
     }
   };
 
@@ -83,62 +76,60 @@ export const Navigation = () => {
     return null;
   }
 
+  const navigationItems = [
+    { icon: Home, text: "Home", to: "/" },
+    { icon: UtensilsCrossed, text: "Food Diary", to: "/food-diary" },
+    { icon: UserRound, text: "Biometrics", to: "/profile" },
+    { icon: ClipboardList, text: "Reports", to: "/reports" },
+    { icon: UserCheck, text: "Coach", to: "/coach" },
+  ];
+
+  const MobileMenu = () => (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" className="md:hidden">
+          <Menu className="h-6 w-6" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+        <nav className="flex flex-col gap-4">
+          {navigationItems.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="flex items-center gap-2 p-2 hover:bg-accent rounded-md"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <item.icon className="h-4 w-4" />
+              <span>{item.text}</span>
+            </Link>
+          ))}
+        </nav>
+      </SheetContent>
+    </Sheet>
+  );
+
   return (
     <div className="border-b mb-6">
       <div className="max-w-4xl mx-auto p-4 flex justify-between items-center">
-        <NavigationMenu>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <Link to="/">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <Home className="w-4 h-4 mr-2" />
-                  Home
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <button
-                onClick={handleAddFood}
-                className={navigationMenuTriggerStyle()}
-              >
-                <PlusCircle className="w-4 h-4 mr-2" />
-                Add Food
-              </button>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/food-diary">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <UtensilsCrossed className="w-4 h-4 mr-2" />
-                  Food Diary
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/profile">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <UserRound className="w-4 h-4 mr-2" />
-                  Biometrics
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/reports">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <ClipboardList className="w-4 h-4 mr-2" />
-                  Reports
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/coach">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <UserCheck className="w-4 h-4 mr-2" />
-                  Coach
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
+        <div className="flex items-center gap-4">
+          <MobileMenu />
+          <NavigationMenu className="hidden md:block">
+            <NavigationMenuList>
+              {navigationItems.map((item) => (
+                <NavigationMenuItem key={item.to}>
+                  <Link to={item.to}>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      <item.icon className="w-4 h-4 mr-2" />
+                      {item.text}
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
+
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -157,7 +148,7 @@ export const Navigation = () => {
               <Key className="w-4 h-4" />
             </Button>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Light</span>
             <Switch
               checked={theme === "dark"}
@@ -173,7 +164,7 @@ export const Navigation = () => {
             className="text-gray-600"
           >
             <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
+            <span className="hidden md:inline">Sign Out</span>
           </Button>
         </div>
       </div>
