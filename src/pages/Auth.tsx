@@ -11,6 +11,13 @@ const AuthPage = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Check if user is already logged in
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate("/");
+      }
+    });
+
     // Check for password reset confirmation
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const type = hashParams.get("type");
@@ -47,7 +54,7 @@ const AuthPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardContent className="pt-6">
-          <h1 className="text-2xl font-bold text-center mb-8">Welcome Back</h1>
+          <h1 className="text-2xl font-bold text-center mb-8 text-primary">Welcome to Focused Nutrition</h1>
           <Auth
             supabaseClient={supabase}
             appearance={{
@@ -57,17 +64,29 @@ const AuthPage = () => {
                   colors: {
                     brand: 'hsl(var(--primary))',
                     brandAccent: 'hsl(var(--primary))',
+                    brandButtonText: 'white',
+                  },
+                  borderWidths: {
+                    buttonBorder: '1px',
+                  },
+                  radii: {
+                    borderRadiusButton: '0.5rem',
+                    inputBorderRadius: '0.5rem',
                   },
                 },
               },
               className: {
                 container: 'w-full',
-                button: 'w-full',
+                button: 'w-full bg-primary hover:bg-primary/90',
                 anchor: 'text-primary hover:text-primary/80',
+                divider: 'bg-border',
+                label: 'text-foreground',
+                input: 'bg-background border-input',
               },
             }}
             providers={["google"]}
-            redirectTo={window.location.origin + '/auth'}
+            redirectTo={`${window.location.origin}/auth`}
+            onlyThirdPartyProviders={false}
           />
         </CardContent>
       </Card>
