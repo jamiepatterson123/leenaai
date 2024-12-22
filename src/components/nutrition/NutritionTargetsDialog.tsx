@@ -11,9 +11,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { MacroProgressBar } from "../MacroProgressBar";
+import { MacroInputs } from "./targets/MacroInputs";
+import { MacroDistribution } from "./targets/MacroDistribution";
+import { CaloriesSummary } from "./targets/CaloriesSummary";
 
 interface NutritionTargetsFormData {
   protein: number;
@@ -93,74 +93,14 @@ export const NutritionTargetsDialog = ({ currentTargets, trigger }: NutritionTar
           <DialogTitle>Custom Nutrition Targets</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="protein">Protein (g)</Label>
-              <Input
-                id="protein"
-                type="number"
-                step="1"
-                {...register("protein", { 
-                  valueAsNumber: true,
-                  min: 0,
-                })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="carbs">Carbs (g)</Label>
-              <Input
-                id="carbs"
-                type="number"
-                step="1"
-                {...register("carbs", { 
-                  valueAsNumber: true,
-                  min: 0,
-                })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fat">Fat (g)</Label>
-              <Input
-                id="fat"
-                type="number"
-                step="1"
-                {...register("fat", { 
-                  valueAsNumber: true,
-                  min: 0,
-                })}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="text-sm font-medium">
-              Calculated Daily Calories: {Math.round(calculatedCalories)} kcal
-            </div>
-            <div className="space-y-2">
-              <div className="text-sm font-medium">Macro Distribution</div>
-              <div className="space-y-2">
-                <MacroProgressBar
-                  label="Protein"
-                  current={(watchedValues.protein * 4 / calculatedCalories) * 100}
-                  target={30}
-                  color="bg-green-500"
-                />
-                <MacroProgressBar
-                  label="Carbs"
-                  current={(watchedValues.carbs * 4 / calculatedCalories) * 100}
-                  target={50}
-                  color="bg-yellow-500"
-                />
-                <MacroProgressBar
-                  label="Fat"
-                  current={(watchedValues.fat * 9 / calculatedCalories) * 100}
-                  target={20}
-                  color="bg-red-500"
-                />
-              </div>
-            </div>
-          </div>
-
+          <MacroInputs register={register} />
+          <CaloriesSummary calculatedCalories={calculatedCalories} />
+          <MacroDistribution
+            protein={watchedValues.protein}
+            carbs={watchedValues.carbs}
+            fat={watchedValues.fat}
+            calculatedCalories={calculatedCalories}
+          />
           <Button type="submit" className="w-full">Save Targets</Button>
         </form>
       </DialogContent>
