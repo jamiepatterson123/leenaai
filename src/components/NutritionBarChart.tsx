@@ -7,13 +7,16 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Cell,
+  Background,
 } from "recharts";
 
 interface NutritionChartProps {
   data: {
     name: string;
     value: number;
-    fill: string;
+    target: number;
+    color: string;
   }[];
 }
 
@@ -35,18 +38,36 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
             width={75}
           />
           <Tooltip
-            contentStyle={{
-              backgroundColor: "hsl(var(--background))",
-              border: "1px solid hsl(var(--border))",
-              borderRadius: "0.5rem",
+            content={({ active, payload }) => {
+              if (active && payload && payload.length) {
+                const data = payload[0].payload;
+                return (
+                  <div className="bg-background border border-border/50 rounded-lg p-2 text-sm">
+                    <p className="font-medium">{data.name}</p>
+                    <p>Current: {data.value}</p>
+                    <p>Target: {data.target}</p>
+                    <p>Progress: {Math.round((data.value / data.target) * 100)}%</p>
+                  </div>
+                );
+              }
+              return null;
             }}
           />
           <Bar
-            dataKey="value"
-            fill="currentColor"
+            dataKey="target"
+            fill="#F1F1F1"
             radius={[0, 4, 4, 0]}
             barSize={30}
           />
+          <Bar
+            dataKey="value"
+            radius={[0, 4, 4, 0]}
+            barSize={30}
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.color} />
+            ))}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>

@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { calculateTargets } from "@/utils/profileCalculations";
 import type { Database } from "@/integrations/supabase/types";
+import { NutritionBarChart } from "./NutritionBarChart";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
@@ -62,7 +63,6 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({ foods, onDelete })
   };
 
   if (profile) {
-    // Use stored targets if available, otherwise calculate them
     if (profile.target_calories) {
       targets = {
         calories: profile.target_calories,
@@ -71,7 +71,6 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({ foods, onDelete })
         fat: profile.target_fat || 70,
       };
     } else if (profile.height_cm && profile.weight_kg && profile.age && profile.activity_level && profile.gender) {
-      // Calculate targets if we have the necessary profile data
       targets = calculateTargets({
         height_cm: profile.height_cm,
         weight_kg: profile.weight_kg,
@@ -84,35 +83,37 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({ foods, onDelete })
     }
   }
 
+  const chartData = [
+    {
+      name: "Energy",
+      value: totalNutrition.calories,
+      target: targets.calories,
+      color: "#8B5CF6", // Vivid Purple
+    },
+    {
+      name: "Protein",
+      value: totalNutrition.protein,
+      target: targets.protein,
+      color: "#D946EF", // Magenta Pink
+    },
+    {
+      name: "Net Carbs",
+      value: totalNutrition.carbs,
+      target: targets.carbs,
+      color: "#F97316", // Bright Orange
+    },
+    {
+      name: "Fat",
+      value: totalNutrition.fat,
+      target: targets.fat,
+      color: "#0EA5E9", // Ocean Blue
+    },
+  ];
+
   return (
     <Card className="p-6 animate-fade-up">
       <h3 className="text-xl font-semibold mb-6">Daily Progress</h3>
-      <div className="space-y-4">
-        <MacroProgressBar
-          label="Energy"
-          current={totalNutrition.calories}
-          target={targets.calories}
-          color="bg-primary"
-        />
-        <MacroProgressBar
-          label="Protein"
-          current={totalNutrition.protein}
-          target={targets.protein}
-          color="bg-secondary"
-        />
-        <MacroProgressBar
-          label="Net Carbs"
-          current={totalNutrition.carbs}
-          target={targets.carbs}
-          color="bg-cyan-500"
-        />
-        <MacroProgressBar
-          label="Fat"
-          current={totalNutrition.fat}
-          target={targets.fat}
-          color="bg-red-500"
-        />
-      </div>
+      <NutritionBarChart data={chartData} />
 
       <div className="mt-8">
         <h4 className="font-medium mb-2">Foods Detected</h4>
