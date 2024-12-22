@@ -11,7 +11,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { format, subDays } from "date-fns";
+import { format, subDays, eachDayOfInterval } from "date-fns";
 
 interface WeightData {
   weight_kg: number;
@@ -44,28 +44,31 @@ const Reports = () => {
   const { data: calorieData, isLoading: caloriesLoading } = useQuery({
     queryKey: ["calorieHistory"],
     queryFn: async () => {
-      // Get the date 30 days ago
-      const thirtyDaysAgo = subDays(new Date(), 30);
+      const endDate = new Date();
+      const startDate = subDays(endDate, 6); // Get 6 days ago to include today (7 days total)
       
       const { data, error } = await supabase
         .from("food_diary")
         .select("date, calories")
-        .gte("date", thirtyDaysAgo.toISOString())
+        .gte("date", startDate.toISOString().split('T')[0])
+        .lte("date", endDate.toISOString().split('T')[0])
         .order("date", { ascending: true });
 
       if (error) throw error;
 
-      // Group calories by date
-      const dailyCalories = data.reduce((acc: { [key: string]: number }, entry) => {
-        const date = entry.date;
-        acc[date] = (acc[date] || 0) + entry.calories;
+      // Create an array of the last 7 days
+      const dateRange = eachDayOfInterval({ start: startDate, end: endDate });
+      
+      // Create a map of existing calorie data
+      const calorieMap = (data || []).reduce((acc: { [key: string]: number }, entry) => {
+        acc[entry.date] = entry.calories;
         return acc;
       }, {});
 
-      // Convert to array format for the chart
-      return Object.entries(dailyCalories).map(([date, calories]) => ({
-        date: format(new Date(date), "MMM d"),
-        calories: Math.round(calories),
+      // Map over the date range to create the final data array, using 0 for days without entries
+      return dateRange.map(date => ({
+        date: format(date, "MMM d"),
+        calories: calorieMap[format(date, "yyyy-MM-dd")] || 0,
       }));
     },
   });
@@ -144,10 +147,10 @@ const Reports = () => {
       </Card>
 
       <Card className="p-6">
-        <h2 className="text-2xl font-semibold mb-6">Energy History (kcal)</h2>
+        <h2 className="text-2xl font-semibold mb-6">Energy History</h2>
         <div className="h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={calorieData} barSize={6}>
+            <BarChart data={calorieData}>
               <XAxis
                 dataKey="date"
                 stroke="#888888"
@@ -160,7 +163,6 @@ const Reports = () => {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `${value}`}
               />
               <Tooltip
                 content={({ active, payload }) => {
@@ -187,6 +189,7 @@ const Reports = () => {
                 radius={[2, 2, 0, 0]}
                 name="Consumed"
                 style={{ pointerEvents: 'none' }}
+                barSize={6}
               />
             </BarChart>
           </ResponsiveContainer>
