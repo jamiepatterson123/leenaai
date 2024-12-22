@@ -10,7 +10,7 @@ export const NavigationLinks = () => {
   return (
     <>
       <NavigationMenuItem>
-        <Link to="/">
+        <Link to="/home">
           <NavigationMenuLink className={navigationMenuTriggerStyle()}>
             <Home className="w-4 h-4 mr-2" />
             Home
