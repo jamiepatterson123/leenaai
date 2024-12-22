@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Home, UtensilsCrossed, LogOut, Settings, UserRound } from "lucide-react";
+import { Home, UtensilsCrossed, LogOut, Settings, UserRound, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   NavigationMenu,
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
+import { toast } from "sonner";
 
 export const Navigation = () => {
   const navigate = useNavigate();
@@ -31,6 +32,25 @@ export const Navigation = () => {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Focused Nutrition',
+          text: 'Track your nutrition and reach your fitness goals!',
+          url: window.location.origin
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      const instagramUrl = `https://www.instagram.com/create/story?url=${encodeURIComponent(window.location.origin)}`;
+      window.open(instagramUrl, '_blank');
+      toast.success("Opening Instagram Stories...");
+    }
   };
 
   if (!isAuthenticated) {
@@ -77,6 +97,15 @@ export const Navigation = () => {
           </NavigationMenuList>
         </NavigationMenu>
         <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleShare}
+            className="text-gray-600"
+          >
+            <Share2 className="w-4 h-4 mr-2" />
+            Share
+          </Button>
           <ThemeToggle />
           <Button
             variant="ghost"
