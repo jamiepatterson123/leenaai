@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { WeightInput } from "@/components/WeightInput";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
-import { TargetsSection } from "@/components/analysis/TargetsSection";
 
 const Index = () => {
   const [analyzing, setAnalyzing] = useState(false);
@@ -22,7 +21,6 @@ const Index = () => {
         Focused Nutrition
       </h1>
       <div className="space-y-8">
-        <TargetsSection />
         <ImageAnalysisSection
           apiKey={apiKey}
           analyzing={analyzing}
