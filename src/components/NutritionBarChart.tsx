@@ -8,6 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
+  Legend,
 } from "recharts";
 
 interface NutritionChartProps {
@@ -43,6 +44,14 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
             className="text-xs font-medium"
             width={75}
           />
+          <Legend 
+            verticalAlign="top" 
+            height={36}
+            payload={[
+              { value: 'Daily Target', type: 'rect', color: '#F2FCE2' },
+              { value: 'Consumed Amount', type: 'rect', color: '#22c55e' },
+            ]}
+          />
           <Tooltip
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
@@ -65,8 +74,8 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
                 return (
                   <div className="bg-background border border-border/50 rounded-lg p-2 text-sm">
                     <p className="font-medium">{data.name}</p>
-                    <p>Current: {data.value}</p>
-                    <p>Target: {data.target}</p>
+                    <p>Consumed: {data.value}</p>
+                    <p>Daily Target: {data.target}</p>
                     <p className={statusColor}>
                       {Math.round(percentage)}% - {status}
                     </p>
@@ -77,12 +86,14 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
             }}
           />
           <Bar
+            name="Daily Target"
             dataKey="target"
             fill="#F2FCE2"
             radius={[0, 4, 4, 0]}
             barSize={30}
           />
           <Bar
+            name="Consumed Amount"
             dataKey="value"
             radius={[0, 4, 4, 0]}
             barSize={30}
