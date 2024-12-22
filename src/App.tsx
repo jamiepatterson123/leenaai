@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import FoodDiaryPage from "./pages/FoodDiary";
 import AuthPage from "./pages/Auth";
 import ApiSettings from "./pages/ApiSettings";
+import Profile from "./pages/Profile";
 import { Navigation } from "./components/Navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
@@ -70,6 +71,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <ApiSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               }
             />
