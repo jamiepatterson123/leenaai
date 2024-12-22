@@ -118,6 +118,11 @@ const Index = () => {
     }
   };
 
+  const handleDelete = () => {
+    // No-op since we don't want to allow deletion from the analysis view
+    // Users should go to the food diary page to manage their entries
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-8">
       <h1 className="text-4xl font-bold text-center mb-8 text-primary">
@@ -131,7 +136,7 @@ const Index = () => {
             Analyzing your meal...
           </p>
         )}
-        {nutritionData && <NutritionCard foods={nutritionData.foods} />}
+        {nutritionData && <NutritionCard foods={nutritionData.foods} onDelete={handleDelete} />}
         <div className="text-center">
           <Link
             to="/food-diary"
