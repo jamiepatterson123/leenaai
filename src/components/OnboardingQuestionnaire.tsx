@@ -1,75 +1,14 @@
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-
-const formSchema = z.object({
-  // Personal Information
-  age: z.string().min(1, "Age is required"),
-  gender: z.enum(["male", "female", "other"]),
-  weight: z.string().min(1, "Weight is required"),
-  height: z.string().min(1, "Height is required"),
-  
-  // Activity Level
-  activityLevel: z.enum([
-    "sedentary",
-    "lightly_active",
-    "moderately_active",
-    "very_active",
-    "extremely_active"
-  ]),
-  
-  // Goals
-  primaryGoal: z.enum([
-    "weight_loss",
-    "weight_maintenance",
-    "muscle_gain",
-    "athletic_performance"
-  ]),
-  targetWeight: z.string().optional(),
-  
-  // Dietary Preferences
-  diet: z.enum([
-    "none",
-    "vegan",
-    "vegetarian",
-    "paleo",
-    "keto",
-    "low_carb",
-    "high_protein",
-    "other"
-  ]),
-  
-  // Exercise
-  exerciseFrequency: z.string(),
-  exerciseType: z.array(z.string()),
-  
-  // Lifestyle
-  sleepHours: z.string(),
-  stressLevel: z.enum(["low", "moderate", "high"]),
-});
+import { formSchema, type FormSchema } from "@/schemas/onboardingSchema";
+import { OnboardingFormField } from "./onboarding/FormField";
+import { toast } from "sonner";
 
 interface OnboardingQuestionnaireProps {
-  onComplete: (data: z.infer<typeof formSchema>) => void;
+  onComplete: (data: FormSchema) => void;
   currentStep: number;
   onNextStep: () => void;
   onPreviousStep: () => void;
@@ -81,124 +20,70 @@ const OnboardingQuestionnaire = ({
   onNextStep,
   onPreviousStep,
 }: OnboardingQuestionnaireProps) => {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       exerciseType: [],
     },
   });
 
-  const steps = [
+  const questions = [
     {
-      title: "Personal Information",
-      fields: ["age", "gender", "weight", "height"],
+      field: "age",
+      label: "What is your age?",
+      type: "number" as const,
     },
     {
-      title: "Activity & Goals",
-      fields: ["activityLevel", "primaryGoal", "targetWeight"],
+      field: "gender",
+      label: "What is your gender?",
+      type: "radio" as const,
+      options: [
+        { value: "male", label: "Male" },
+        { value: "female", label: "Female" },
+        { value: "other", label: "Other" },
+      ],
     },
     {
-      title: "Diet & Exercise",
-      fields: ["diet", "exerciseFrequency", "exerciseType"],
+      field: "weight",
+      label: "What is your current weight (in kg)?",
+      type: "number" as const,
     },
     {
-      title: "Lifestyle",
-      fields: ["sleepHours", "stressLevel"],
+      field: "height",
+      label: "What is your height (in cm)?",
+      type: "number" as const,
     },
+    {
+      field: "activityLevel",
+      label: "What is your activity level?",
+      type: "select" as const,
+      options: [
+        { value: "sedentary", label: "Sedentary (desk job, minimal exercise)" },
+        { value: "lightly_active", label: "Lightly Active (light exercise)" },
+        { value: "moderately_active", label: "Moderately Active (exercise 3-5 days)" },
+        { value: "very_active", label: "Very Active (intense exercise 6-7 days)" },
+        { value: "extremely_active", label: "Extremely Active (professional athlete)" },
+      ],
+    },
+    // Add more questions following the same pattern
   ];
 
-  const currentStepFields = steps[currentStep].fields;
+  const currentQuestion = questions[currentStep];
 
-  const renderField = (fieldName: string) => {
-    switch (fieldName) {
-      case "age":
-        return (
-          <FormField
-            control={form.control}
-            name="age"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>What is your age?</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        );
-
-      case "gender":
-        return (
-          <FormField
-            control={form.control}
-            name="gender"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>What is your gender?</FormLabel>
-                <FormControl>
-                  <RadioGroup
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    className="flex flex-col space-y-1"
-                  >
-                    <FormItem className="flex items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value="male" />
-                      </FormControl>
-                      <FormLabel className="font-normal">Male</FormLabel>
-                    </FormItem>
-                    <FormItem className="flex items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value="female" />
-                      </FormControl>
-                      <FormLabel className="font-normal">Female</FormLabel>
-                    </FormItem>
-                    <FormItem className="flex items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value="other" />
-                      </FormControl>
-                      <FormLabel className="font-normal">Other</FormLabel>
-                    </FormItem>
-                  </RadioGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        );
-
-      case "activityLevel":
-        return (
-          <FormField
-            control={form.control}
-            name="activityLevel"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>What is your activity level?</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your activity level" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="sedentary">Sedentary (desk job, minimal exercise)</SelectItem>
-                    <SelectItem value="lightly_active">Lightly Active (light exercise)</SelectItem>
-                    <SelectItem value="moderately_active">Moderately Active (exercise 3-5 days)</SelectItem>
-                    <SelectItem value="very_active">Very Active (intense exercise 6-7 days)</SelectItem>
-                    <SelectItem value="extremely_active">Extremely Active (professional athlete)</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        );
-
-      // Add more field renderers as needed
-      default:
-        return null;
+  const handleNext = async () => {
+    const isValid = await form.trigger(currentQuestion.field as keyof FormSchema);
+    
+    if (isValid) {
+      if (currentStep < questions.length - 1) {
+        // Save current step data (will be implemented with Supabase)
+        toast.success("Progress saved!");
+        onNextStep();
+      } else {
+        const isFormValid = await form.trigger();
+        if (isFormValid) {
+          onComplete(form.getValues());
+        }
+      }
     }
   };
 
@@ -206,9 +91,13 @@ const OnboardingQuestionnaire = ({
     <Form {...form}>
       <form className="space-y-6">
         <div className="space-y-4">
-          {currentStepFields.map((fieldName) => (
-            <div key={fieldName}>{renderField(fieldName)}</div>
-          ))}
+          <OnboardingFormField
+            form={form}
+            fieldName={currentQuestion.field as keyof FormSchema}
+            label={currentQuestion.label}
+            type={currentQuestion.type}
+            options={currentQuestion.options}
+          />
         </div>
         
         <div className="flex justify-between">
@@ -217,21 +106,20 @@ const OnboardingQuestionnaire = ({
               Previous
             </Button>
           )}
-          <Button
-            type="button"
-            onClick={() => {
-              if (currentStep < steps.length - 1) {
-                onNextStep();
-              } else {
-                const isValid = form.trigger();
-                if (isValid) {
-                  onComplete(form.getValues());
-                }
-              }
-            }}
-          >
-            {currentStep === steps.length - 1 ? "Complete" : "Next"}
+          <Button type="button" onClick={handleNext}>
+            {currentStep === questions.length - 1 ? "Complete" : "Next"}
           </Button>
+        </div>
+
+        <div className="flex justify-center gap-2 mt-4">
+          {questions.map((_, index) => (
+            <div
+              key={index}
+              className={`h-2 w-16 rounded-full ${
+                index === currentStep ? "bg-primary" : "bg-muted"
+              }`}
+            />
+          ))}
         </div>
       </form>
     </Form>
