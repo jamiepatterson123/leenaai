@@ -20,6 +20,7 @@ export type Database = {
           food_name: string
           id: string
           protein: number
+          state: string | null
           user_id: string | null
           weight_g: number
         }
@@ -33,6 +34,7 @@ export type Database = {
           food_name: string
           id?: string
           protein: number
+          state?: string | null
           user_id?: string | null
           weight_g: number
         }
@@ -46,6 +48,7 @@ export type Database = {
           food_name?: string
           id?: string
           protein?: number
+          state?: string | null
           user_id?: string | null
           weight_g?: number
         }
