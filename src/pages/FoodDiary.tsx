@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const FoodDiaryPage = () => {
   const [date, setDate] = useState<Date>(new Date());
@@ -19,9 +20,18 @@ const FoodDiaryPage = () => {
         .from("secrets")
         .select("value")
         .eq("name", "OPENAI_API_KEY")
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        toast.error("Error fetching API key");
+        throw error;
+      }
+
+      if (!data) {
+        toast.error("Please set your OpenAI API key in API Settings first");
+        return null;
+      }
+
       return data.value;
     },
   });
