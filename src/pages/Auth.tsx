@@ -66,7 +66,7 @@ const AuthPage = () => {
                 anchor: 'text-primary hover:text-primary/80',
               },
             }}
-            providers={[]}
+            providers={["google"]}
             redirectTo={window.location.origin + '/auth'}
           />
         </CardContent>
