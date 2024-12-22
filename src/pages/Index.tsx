@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { WeightInput } from "@/components/WeightInput";
 import { TargetsDisplay } from "@/components/profile/TargetsDisplay";
 import { calculateTargets } from "@/utils/profileCalculations";
+import { WeightChart } from "@/components/WeightChart";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -176,13 +177,16 @@ const Index = () => {
       </h1>
       <div className="space-y-8">
         {targets && <TargetsDisplay targets={targets} />}
+        <div className="grid gap-8 md:grid-cols-2">
+          <WeightInput />
+          <WeightChart />
+        </div>
         <ImageUpload onImageSelect={handleImageSelect} />
         {analyzing && (
           <p className="text-center text-gray-600 animate-pulse">
             Analyzing your meal...
           </p>
         )}
-        <WeightInput />
         {nutritionData && (
           <NutritionCard 
             foods={nutritionData.foods} 
