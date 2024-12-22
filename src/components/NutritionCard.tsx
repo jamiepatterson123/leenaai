@@ -35,30 +35,30 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
   const totalNutrition = TotalNutrition({ foods });
   const targets = useNutritionTargets();
 
-  const chartData = [
+  const macros = [
     {
       name: "Energy",
-      value: totalNutrition.calories,
+      current: totalNutrition.calories,
       target: targets.calories,
-      percentage: Math.round((totalNutrition.calories / targets.calories) * 100),
+      unit: "kcal"
     },
     {
       name: "Protein",
-      value: totalNutrition.protein,
+      current: totalNutrition.protein,
       target: targets.protein,
-      percentage: Math.round((totalNutrition.protein / targets.protein) * 100),
+      unit: "g"
     },
     {
       name: "Net Carbs",
-      value: totalNutrition.carbs,
+      current: totalNutrition.carbs,
       target: targets.carbs,
-      percentage: Math.round((totalNutrition.carbs / targets.carbs) * 100),
+      unit: "g"
     },
     {
       name: "Fat",
-      value: totalNutrition.fat,
+      current: totalNutrition.fat,
       target: targets.fat,
-      percentage: Math.round((totalNutrition.fat / targets.fat) * 100),
+      unit: "g"
     },
   ];
 
@@ -74,29 +74,32 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ChevronLeft className="w-6 h-6 text-primary" />
+            <ChevronLeft className="w-6 h-6 text-primary cursor-pointer hover:text-primary/80" />
             <h2 className="text-2xl font-bold">{getDateDisplay(selectedDate)}</h2>
-            <ChevronRight className="w-6 h-6 text-primary" />
+            <ChevronRight className="w-6 h-6 text-primary cursor-pointer hover:text-primary/80" />
           </div>
           <span className="text-sm text-muted-foreground">
             {format(selectedDate, "EEEE - 'Default Macronutrient Targets'")}
           </span>
         </div>
 
-        <div className="space-y-4">
-          {chartData.map((item) => (
-            <div key={item.name} className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>
-                  {item.name} - {item.value.toFixed(1)} / {item.target.toFixed(1)}{" "}
-                  {item.name === "Energy" ? "kcal" : "g"}
+        <div className="space-y-6">
+          {macros.map((macro) => (
+            <div key={macro.name} className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-base">
+                  {macro.name} - {macro.current.toFixed(1)} / {macro.target.toFixed(1)} {macro.unit}
                 </span>
-                <span>{item.percentage}%</span>
+                <span className="text-base">
+                  {Math.round((macro.current / macro.target) * 100)}%
+                </span>
               </div>
-              <div className="h-2 bg-secondary rounded-full overflow-hidden">
+              <div className="h-2 bg-secondary/50 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-500"
-                  style={{ width: `${Math.min(item.percentage, 100)}%` }}
+                  className="h-full bg-primary transition-all duration-500"
+                  style={{ 
+                    width: `${Math.min((macro.current / macro.target) * 100, 100)}%`,
+                  }}
                 />
               </div>
             </div>
