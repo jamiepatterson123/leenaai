@@ -34,22 +34,15 @@ export const Navigation = () => {
     navigate("/auth");
   };
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Focused Nutrition',
-          text: 'Track your nutrition and reach your fitness goals!',
-          url: window.location.origin
-        });
-      } catch (error) {
-        console.error('Error sharing:', error);
-      }
-    } else {
-      // Fallback for browsers that don't support Web Share API
+  const handleShare = () => {
+    try {
+      // Direct Instagram Stories sharing
       const instagramUrl = `https://www.instagram.com/create/story?url=${encodeURIComponent(window.location.origin)}`;
       window.open(instagramUrl, '_blank');
       toast.success("Opening Instagram Stories...");
+    } catch (error) {
+      console.error('Error sharing:', error);
+      toast.error("Couldn't open Instagram Stories. Please try again.");
     }
   };
 
