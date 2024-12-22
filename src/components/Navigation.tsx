@@ -97,14 +97,6 @@ export const Navigation = () => {
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link to="/food-diary">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <UtensilsCrossed className="w-4 h-4 mr-2" />
-                  Food Diary
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
               <button
                 onClick={handleAddFood}
                 className={navigationMenuTriggerStyle()}
@@ -112,6 +104,14 @@ export const Navigation = () => {
                 <PlusCircle className="w-4 h-4 mr-2" />
                 Add Food
               </button>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link to="/food-diary">
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <UtensilsCrossed className="w-4 h-4 mr-2" />
+                  Food Diary
+                </NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
               <Link to="/profile">
