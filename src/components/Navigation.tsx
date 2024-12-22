@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Home, UtensilsCrossed, LogOut, Settings, UserRound, Share2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
   NavigationMenuList,
+  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { supabase } from "@/integrations/supabase/client";
-import { NavigationLinks } from "./navigation/NavigationLinks";
-import { NavigationActions } from "./navigation/NavigationActions";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "./ThemeToggle";
+import { toast } from "sonner";
 
 export const Navigation = () => {
+  const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -22,6 +29,23 @@ export const Navigation = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
+
+  const handleShare = () => {
+    try {
+      // Direct Instagram Stories sharing
+      const instagramUrl = `https://www.instagram.com/create/story?url=${encodeURIComponent(window.location.origin)}`;
+      window.open(instagramUrl, '_blank');
+      toast.success("Opening Instagram Stories...");
+    } catch (error) {
+      console.error('Error sharing:', error);
+      toast.error("Couldn't open Instagram Stories. Please try again.");
+    }
+  };
+
   if (!isAuthenticated) {
     return null;
   }
@@ -31,10 +55,61 @@ export const Navigation = () => {
       <div className="max-w-4xl mx-auto p-4 flex justify-between items-center">
         <NavigationMenu>
           <NavigationMenuList>
-            <NavigationLinks />
+            <NavigationMenuItem>
+              <Link to="/">
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <Home className="w-4 h-4 mr-2" />
+                  Home
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link to="/food-diary">
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <UtensilsCrossed className="w-4 h-4 mr-2" />
+                  Food Diary
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link to="/api-settings">
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <Settings className="w-4 h-4 mr-2" />
+                  API Settings
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link to="/profile">
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <UserRound className="w-4 h-4 mr-2" />
+                  Profile
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
-        <NavigationActions />
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleShare}
+            className="text-gray-600"
+          >
+            <Share2 className="w-4 h-4 mr-2" />
+            Share
+          </Button>
+          <ThemeToggle />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSignOut}
+            className="text-gray-600"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
-import Home from "./pages/Home";
 import FoodDiaryPage from "./pages/FoodDiary";
 import AuthPage from "./pages/Auth";
 import ApiSettings from "./pages/ApiSettings";
@@ -35,7 +34,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/" />;
+    return <Navigate to="/auth" />;
   }
 
   return <>{children}</>;
@@ -50,13 +49,12 @@ const App = () => (
         <div className="min-h-screen bg-background">
           <Navigation />
           <Routes>
-            <Route path="/" element={<Index />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route
-              path="/home"
+              path="/"
               element={
                 <ProtectedRoute>
-                  <Home />
+                  <Index />
                 </ProtectedRoute>
               }
             />
