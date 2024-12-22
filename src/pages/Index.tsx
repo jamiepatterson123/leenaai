@@ -60,7 +60,7 @@ const Index = () => {
   return (
     <div className="max-w-4xl mx-auto px-8">
       <h1 className="text-4xl font-bold text-center mb-8 text-primary">
-        AI Nutrition Tracker
+        Leen.AI
       </h1>
       <div className="space-y-8">
         <StreakCounter />
