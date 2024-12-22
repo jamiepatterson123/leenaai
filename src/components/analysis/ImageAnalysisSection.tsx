@@ -59,7 +59,7 @@ export const ImageAnalysisSection = ({
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4-vision-preview",
+        model: "gpt-4o",  // Updated to use the newer model
         messages: [
           {
             role: "user",
