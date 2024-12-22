@@ -20,9 +20,11 @@ interface NutritionChartProps {
 }
 
 export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
-  const isWithinTarget = (value: number, target: number) => {
+  const getBarColor = (value: number, target: number) => {
     const percentage = (value / target) * 100;
-    return Math.abs(100 - percentage) <= 10;
+    if (percentage > 110) return "#ef4444"; // Red for over target
+    if (percentage >= 90 && percentage <= 110) return "#22c55e"; // Green for within target
+    return "#f97316"; // Orange for under target
   };
 
   return (
@@ -45,15 +47,28 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
                 const data = payload[0].payload;
-                const withinTarget = isWithinTarget(data.value, data.target);
+                const percentage = (data.value / data.target) * 100;
+                let status = "";
+                let statusColor = "";
+
+                if (percentage > 110) {
+                  status = "Over target";
+                  statusColor = "text-red-500";
+                } else if (percentage >= 90 && percentage <= 110) {
+                  status = "Within target ✓";
+                  statusColor = "text-green-600";
+                } else {
+                  status = "Under target";
+                  statusColor = "text-orange-500";
+                }
+
                 return (
                   <div className="bg-background border border-border/50 rounded-lg p-2 text-sm">
                     <p className="font-medium">{data.name}</p>
                     <p>Current: {data.value}</p>
                     <p>Target: {data.target}</p>
-                    <p className={withinTarget ? "text-green-600" : ""}>
-                      Progress: {Math.round((data.value / data.target) * 100)}%
-                      {withinTarget && " ✓"}
+                    <p className={statusColor}>
+                      {Math.round(percentage)}% - {status}
                     </p>
                   </div>
                 );
@@ -75,7 +90,7 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
             {data.map((entry, index) => (
               <Cell 
                 key={`cell-${index}`} 
-                fill={isWithinTarget(entry.value, entry.target) ? "#22c55e" : entry.color} 
+                fill={getBarColor(entry.value, entry.target)}
               />
             ))}
           </Bar>
