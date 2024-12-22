@@ -147,7 +147,7 @@ const Reports = () => {
         <h2 className="text-2xl font-semibold mb-6">Energy History (kcal)</h2>
         <div className="h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={calorieData}>
+            <BarChart data={calorieData} barSize={6}>
               <XAxis
                 dataKey="date"
                 stroke="#888888"
@@ -183,8 +183,8 @@ const Reports = () => {
               />
               <Bar
                 dataKey="calories"
-                fill="rgb(20, 83, 45)"
-                radius={[4, 4, 0, 0]}
+                fill="rgb(14, 165, 233)"
+                radius={[2, 2, 0, 0]}
                 name="Consumed"
               />
             </BarChart>
