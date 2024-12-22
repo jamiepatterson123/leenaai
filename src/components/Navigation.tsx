@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Home, UtensilsCrossed, LogOut, Key, UserRound, Send, ClipboardList, PlusCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -15,6 +15,7 @@ import { toast } from "sonner";
 
 export const Navigation = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("dark");
 
@@ -60,6 +61,24 @@ export const Navigation = () => {
     document.documentElement.classList.toggle("dark", checked);
   };
 
+  const handleAddFood = () => {
+    if (location.pathname !== '/') {
+      navigate('/');
+      // Add a small delay to ensure the image upload element is mounted
+      setTimeout(() => {
+        const imageUploadInput = document.getElementById('image-upload');
+        if (imageUploadInput) {
+          imageUploadInput.click();
+        }
+      }, 100);
+    } else {
+      const imageUploadInput = document.getElementById('image-upload');
+      if (imageUploadInput) {
+        imageUploadInput.click();
+      }
+    }
+  };
+
   if (!isAuthenticated) {
     return null;
   }
@@ -86,12 +105,13 @@ export const Navigation = () => {
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link to="/food-diary">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <PlusCircle className="w-4 h-4 mr-2" />
-                  Add Food
-                </NavigationMenuLink>
-              </Link>
+              <button
+                onClick={handleAddFood}
+                className={navigationMenuTriggerStyle()}
+              >
+                <PlusCircle className="w-4 h-4 mr-2" />
+                Add Food
+              </button>
             </NavigationMenuItem>
             <NavigationMenuItem>
               <Link to="/profile">
