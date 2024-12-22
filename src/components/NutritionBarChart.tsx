@@ -20,13 +20,6 @@ interface NutritionChartProps {
 }
 
 export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
-  const getBarColor = (value: number, target: number) => {
-    const percentage = (value / target) * 100;
-    if (percentage > 110) return "#ea384c"; // Red for over 10%
-    if (percentage < 100) return "#FEC6A1"; // Orange for under target
-    return "#22c55e"; // Green for within 10%
-  };
-
   const isWithinTarget = (value: number, target: number) => {
     const percentage = (value / target) * 100;
     return Math.abs(100 - percentage) <= 10;
@@ -53,22 +46,15 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
               if (active && payload && payload.length) {
                 const data = payload[0].payload;
                 const withinTarget = isWithinTarget(data.value, data.target);
-                const percentage = (data.value / data.target) * 100;
-                const status = percentage > 110 
-                  ? "Over target" 
-                  : percentage < 100 
-                    ? "Under target" 
-                    : "Within target";
                 return (
                   <div className="bg-background border border-border/50 rounded-lg p-2 text-sm">
                     <p className="font-medium">{data.name}</p>
                     <p>Current: {data.value}</p>
                     <p>Target: {data.target}</p>
-                    <p className={withinTarget ? "text-green-600" : percentage > 110 ? "text-red-600" : "text-orange-600"}>
-                      Progress: {Math.round(percentage)}%
+                    <p className={withinTarget ? "text-green-600" : ""}>
+                      Progress: {Math.round((data.value / data.target) * 100)}%
                       {withinTarget && " ✓"}
                     </p>
-                    <p className="text-sm text-muted-foreground">{status}</p>
                   </div>
                 );
               }
@@ -89,7 +75,7 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
             {data.map((entry, index) => (
               <Cell 
                 key={`cell-${index}`} 
-                fill={getBarColor(entry.value, entry.target)}
+                fill={isWithinTarget(entry.value, entry.target) ? "#22c55e" : entry.color} 
               />
             ))}
           </Bar>
