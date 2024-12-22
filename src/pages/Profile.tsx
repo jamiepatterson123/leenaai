@@ -97,7 +97,6 @@ const Profile = () => {
             carbs: targets.carbs,
             fat: targets.fat
           }}
-          onUpdate={fetchProfile}
         />
       </div>
     </div>
