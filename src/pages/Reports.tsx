@@ -7,6 +7,7 @@ import { MacroChart } from "@/components/reports/MacroChart";
 import { MacroTargetsChart } from "@/components/reports/MacroTargetsChart";
 import { WeightTrendChart } from "@/components/reports/WeightTrendChart";
 import { MealDistributionChart } from "@/components/reports/MealDistributionChart";
+import { CalorieTargetsChart } from "@/components/reports/CalorieTargetsChart";
 
 interface WeightEntry {
   weight_kg: number;
@@ -145,6 +146,7 @@ const Reports = () => {
       <h1 className="text-3xl font-bold">Reports</h1>
       <div className="grid gap-8">
         <WeightTrendChart data={weightData} />
+        <CalorieTargetsChart data={calorieData} />
         <CalorieChart data={calorieData} />
         <MacroChart data={macroData} />
         <MacroTargetsChart data={macroData} />
