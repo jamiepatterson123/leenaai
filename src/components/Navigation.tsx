@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Home, UtensilsCrossed, LogOut, Key, UserRound, Send, ClipboardList, PlusCircle } from "lucide-react";
+import { 
+  Home, 
+  UtensilsCrossed, 
+  LogOut, 
+  Key, 
+  UserRound, 
+  Send, 
+  ClipboardList, 
+  PlusCircle,
+  Menu
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   NavigationMenu,
@@ -18,14 +28,25 @@ export const Navigation = () => {
   const location = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [coachName, setCoachName] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session);
+      if (session?.user?.email) {
+        // Extract coach name from email (everything before @)
+        const name = session.user.email.split('@')[0];
+        // Capitalize first letter
+        setCoachName(name.charAt(0).toUpperCase() + name.slice(1));
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setIsAuthenticated(!!session);
+      if (session?.user?.email) {
+        const name = session.user.email.split('@')[0];
+        setCoachName(name.charAt(0).toUpperCase() + name.slice(1));
+      }
     });
 
     // Initialize theme from localStorage
@@ -64,7 +85,6 @@ export const Navigation = () => {
   const handleAddFood = () => {
     if (location.pathname !== '/') {
       navigate('/');
-      // Add a small delay to ensure the image upload element is mounted
       setTimeout(() => {
         const imageUploadInput = document.getElementById('image-upload');
         if (imageUploadInput) {
@@ -86,52 +106,66 @@ export const Navigation = () => {
   return (
     <div className="border-b mb-6">
       <div className="max-w-4xl mx-auto p-4 flex justify-between items-center">
-        <NavigationMenu>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <Link to="/">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <Home className="w-4 h-4 mr-2" />
-                  Home
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <button
-                onClick={handleAddFood}
-                className={navigationMenuTriggerStyle()}
-              >
-                <PlusCircle className="w-4 h-4 mr-2" />
-                Add Food
-              </button>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/food-diary">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <UtensilsCrossed className="w-4 h-4 mr-2" />
-                  Food Diary
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/profile">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <UserRound className="w-4 h-4 mr-2" />
-                  Biometrics
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/reports">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <ClipboardList className="w-4 h-4 mr-2" />
-                  Reports
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
         <div className="flex items-center gap-4">
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <Link to="/">
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    <Home className="w-4 h-4 mr-2" />
+                    Home
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <button
+                  onClick={handleAddFood}
+                  className={navigationMenuTriggerStyle()}
+                >
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  Add Food
+                </button>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link to="/food-diary">
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    <UtensilsCrossed className="w-4 h-4 mr-2" />
+                    Food Diary
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link to="/profile">
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    <UserRound className="w-4 h-4 mr-2" />
+                    Biometrics
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link to="/reports">
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    <ClipboardList className="w-4 h-4 mr-2" />
+                    Reports
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <button className={navigationMenuTriggerStyle()}>
+                  <Menu className="w-4 h-4 mr-2" />
+                  Menu
+                </button>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
+        <div className="flex items-center gap-4">
+          {coachName && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <UserRound className="w-4 h-4" />
+              <span>{coachName}</span>
+            </div>
+          )}
           <Button
             variant="ghost"
             size="icon"
