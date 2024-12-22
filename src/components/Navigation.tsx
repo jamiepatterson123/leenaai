@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Home, UtensilsCrossed, LogOut, Key, UserRound, Send, ClipboardList, Menu, X, UserCheck } from "lucide-react";
+import { Home, UtensilsCrossed, LogOut, Key, UserRound, Send, ClipboardList, Menu, UserCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   NavigationMenu,
@@ -22,7 +22,6 @@ export const Navigation = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("dark");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -65,13 +64,6 @@ export const Navigation = () => {
     document.documentElement.classList.toggle("dark", checked);
   };
 
-  const handleAddFood = () => {
-    const imageUploadInput = document.getElementById('image-upload');
-    if (imageUploadInput) {
-      imageUploadInput.click();
-    }
-  };
-
   if (!isAuthenticated) {
     return null;
   }
@@ -82,6 +74,8 @@ export const Navigation = () => {
     { icon: UserRound, text: "Biometrics", to: "/profile" },
     { icon: ClipboardList, text: "Reports", to: "/reports" },
     { icon: UserCheck, text: "Coach", to: "/coach" },
+    { icon: Send, text: "Share", onClick: handleShare },
+    { icon: Key, text: "API Key", to: "/api-settings" },
   ];
 
   const MobileMenu = () => (
@@ -94,15 +88,25 @@ export const Navigation = () => {
       <SheetContent side="left" className="w-[300px] sm:w-[400px]">
         <nav className="flex flex-col gap-4">
           {navigationItems.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="flex items-center gap-2 p-2 hover:bg-accent rounded-md"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <item.icon className="h-4 w-4" />
-              <span>{item.text}</span>
-            </Link>
+            item.onClick ? (
+              <button
+                key={item.text}
+                onClick={item.onClick}
+                className="flex items-center gap-2 p-2 hover:bg-accent rounded-md"
+              >
+                <item.icon className="h-4 w-4" />
+                <span>{item.text}</span>
+              </button>
+            ) : (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="flex items-center gap-2 p-2 hover:bg-accent rounded-md"
+              >
+                <item.icon className="h-4 w-4" />
+                <span>{item.text}</span>
+              </Link>
+            )
           ))}
         </nav>
       </SheetContent>
@@ -116,7 +120,7 @@ export const Navigation = () => {
           <MobileMenu />
           <NavigationMenu className="hidden md:block">
             <NavigationMenuList>
-              {navigationItems.map((item) => (
+              {navigationItems.slice(0, 5).map((item) => (
                 <NavigationMenuItem key={item.to}>
                   <Link to={item.to}>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
@@ -131,23 +135,25 @@ export const Navigation = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleShare}
-            className="text-white"
-          >
-            <Send className="w-4 h-4" />
-          </Button>
-          <Link to="/api-settings">
+          <div className="hidden md:flex">
             <Button
               variant="ghost"
               size="icon"
+              onClick={handleShare}
               className="text-white"
             >
-              <Key className="w-4 h-4" />
+              <Send className="w-4 h-4" />
             </Button>
-          </Link>
+            <Link to="/api-settings">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white"
+              >
+                <Key className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
           <div className="hidden md:flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Light</span>
             <Switch
