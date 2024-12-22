@@ -10,11 +10,12 @@ import { FoodLoggingCalendar } from "@/components/FoodLoggingCalendar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { useNutritionTargets } from "@/components/nutrition/useNutritionTargets";
 
 const Index = () => {
-  const [targets, setTargets] = useState<any>(null);
   const queryClient = useQueryClient();
   const today = format(new Date(), "yyyy-MM-dd");
+  const targets = useNutritionTargets();
 
   const { data: foodEntries = [] } = useQuery({
     queryKey: ["foodDiary", today],
@@ -33,30 +34,6 @@ const Index = () => {
       return data || [];
     },
   });
-
-  useEffect(() => {
-    fetchUserProfile();
-  }, []);
-
-  const fetchUserProfile = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
-
-      if (profile) {
-        const calculatedTargets = calculateTargets(profile);
-        setTargets(calculatedTargets);
-      }
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-    }
-  };
 
   const handleDelete = async (id: string) => {
     try {
@@ -111,7 +88,12 @@ const Index = () => {
         Focused Nutrition
       </h1>
       <div className="space-y-8 flex flex-col items-center">
-        {targets && <TargetsDisplay targets={targets} className="w-full max-w-2xl" />}
+        {targets && (
+          <TargetsDisplay 
+            targets={targets} 
+            className="w-full max-w-2xl" 
+          />
+        )}
         <div className="w-full max-w-2xl">
           <WeightInput />
         </div>
