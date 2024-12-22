@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { ProfileForm } from "@/components/profile/ProfileForm";
-import { CustomTargets } from "@/components/profile/CustomTargets";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { calculateTargets } from "@/utils/profileCalculations";
@@ -40,10 +39,8 @@ const Profile = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      // Calculate new targets based on profile data
       const targets = calculateTargets(data);
 
-      // Update profile with new data and calculated targets
       const { error } = await supabase
         .from("profiles")
         .upsert({
@@ -81,13 +78,6 @@ const Profile = () => {
         onSubmit={handleSubmit} 
         onChange={handleChange}
         initialData={profile || undefined} 
-      />
-      <CustomTargets 
-        initialData={{
-          target_protein: profile?.target_protein,
-          target_carbs: profile?.target_carbs,
-          target_fat: profile?.target_fat,
-        }}
       />
     </div>
   );

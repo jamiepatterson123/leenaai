@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Home, UtensilsCrossed, LogOut, Key, UserRound, Send } from "lucide-react";
+import { Home, UtensilsCrossed, LogOut, Key, UserRound, Send, Target } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   NavigationMenu,
@@ -27,7 +27,6 @@ export const Navigation = () => {
       setIsAuthenticated(!!session);
     });
 
-    // Initialize theme from localStorage
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
     if (savedTheme) {
       setTheme(savedTheme);
@@ -82,6 +81,14 @@ export const Navigation = () => {
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   <UtensilsCrossed className="w-4 h-4 mr-2" />
                   Food Diary
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link to="/targets">
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <Target className="w-4 h-4 mr-2" />
+                  Targets
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>

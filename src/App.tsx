@@ -8,6 +8,7 @@ import FoodDiaryPage from "./pages/FoodDiary";
 import AuthPage from "./pages/Auth";
 import ApiSettings from "./pages/ApiSettings";
 import Profile from "./pages/Profile";
+import Targets from "./pages/Targets";
 import { Navigation } from "./components/Navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
@@ -79,6 +80,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/targets"
+              element={
+                <ProtectedRoute>
+                  <Targets />
                 </ProtectedRoute>
               }
             />
