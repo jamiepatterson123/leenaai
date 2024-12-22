@@ -86,13 +86,6 @@ export const Navigation = () => {
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link to="/api-settings">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <Settings2 className="w-4 h-4" />
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
               <Link to="/profile">
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   <UserRound className="w-4 h-4 mr-2" />
@@ -107,7 +100,7 @@ export const Navigation = () => {
             variant="ghost"
             size="icon"
             onClick={handleShare}
-            className="text-gray-600"
+            className="text-white"
           >
             <Send className="w-4 h-4" />
           </Button>
@@ -120,6 +113,15 @@ export const Navigation = () => {
             />
             <span className="text-sm text-muted-foreground">Dark</span>
           </div>
+          <Link to="/api-settings">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white"
+            >
+              <Settings2 className="w-4 h-4" />
+            </Button>
+          </Link>
           <Button
             variant="ghost"
             size="sm"
