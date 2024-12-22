@@ -23,12 +23,14 @@ interface NutritionCardProps {
   }>;
   onDelete: (id: string) => void;
   onUpdateCategory: (id: string, category: string) => void;
+  selectedDate: Date;
 }
 
 export const NutritionCard: React.FC<NutritionCardProps> = ({ 
   foods, 
   onDelete,
-  onUpdateCategory 
+  onUpdateCategory,
+  selectedDate
 }) => {
   const totalNutrition = TotalNutrition({ foods });
   const targets = useNutritionTargets();
@@ -73,11 +75,11 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ChevronLeft className="w-6 h-6 text-primary" />
-            <h2 className="text-2xl font-bold">{getDateDisplay(new Date())}</h2>
+            <h2 className="text-2xl font-bold">{getDateDisplay(selectedDate)}</h2>
             <ChevronRight className="w-6 h-6 text-primary" />
           </div>
           <span className="text-sm text-muted-foreground">
-            {format(new Date(), "EEEE - 'Default Macronutrient Targets'")}
+            {format(selectedDate, "EEEE - 'Default Macronutrient Targets'")}
           </span>
         </div>
 

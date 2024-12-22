@@ -93,6 +93,7 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
       foods={foods} 
       onDelete={handleDelete} 
       onUpdateCategory={handleUpdateCategory}
+      selectedDate={selectedDate}
     />
   );
 };
