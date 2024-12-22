@@ -3,6 +3,9 @@ import { Card } from "@/components/ui/card";
 import { NutritionBarChart } from "./NutritionBarChart";
 import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
+import { MacroProgressBar } from "./MacroProgressBar";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface NutritionInfo {
   calories: number;
@@ -22,6 +25,22 @@ interface NutritionCardProps {
 }
 
 export const NutritionCard: React.FC<NutritionCardProps> = ({ foods, onDelete }) => {
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      return data;
+    },
+  });
+
   const totalNutrition = foods.reduce(
     (acc, food) => ({
       calories: acc.calories + food.nutrition.calories,
@@ -32,62 +51,49 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({ foods, onDelete })
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
   );
 
-  const chartData = [
-    {
-      name: "Calories",
-      value: Math.round(totalNutrition.calories),
-      fill: "hsl(var(--primary))",
-    },
-    {
-      name: "Protein",
-      value: Math.round(totalNutrition.protein),
-      fill: "hsl(var(--secondary))",
-    },
-    {
-      name: "Carbs",
-      value: Math.round(totalNutrition.carbs),
-      fill: "hsl(var(--success))",
-    },
-    {
-      name: "Fat",
-      value: Math.round(totalNutrition.fat),
-      fill: "hsl(var(--accent-foreground))",
-    },
-  ];
+  const targets = profile ? {
+    calories: profile.target_calories || 2000,
+    protein: profile.target_protein || 150,
+    carbs: profile.target_carbs || 200,
+    fat: profile.target_fat || 70,
+  } : {
+    calories: 2000,
+    protein: 150,
+    carbs: 200,
+    fat: 70,
+  };
 
   return (
     <Card className="p-6 animate-fade-up">
-      <h3 className="text-xl font-semibold mb-4">Nutritional Information</h3>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <p className="text-sm text-gray-600">Calories</p>
-          <p className="text-2xl font-bold text-primary">
-            {Math.round(totalNutrition.calories)}
-          </p>
-        </div>
-        <div className="space-y-2">
-          <p className="text-sm text-gray-600">Protein</p>
-          <p className="text-2xl font-bold text-secondary">
-            {Math.round(totalNutrition.protein)}g
-          </p>
-        </div>
-        <div className="space-y-2">
-          <p className="text-sm text-gray-600">Carbs</p>
-          <p className="text-2xl font-bold text-success">
-            {Math.round(totalNutrition.carbs)}g
-          </p>
-        </div>
-        <div className="space-y-2">
-          <p className="text-sm text-gray-600">Fat</p>
-          <p className="text-2xl font-bold text-accent-foreground">
-            {Math.round(totalNutrition.fat)}g
-          </p>
-        </div>
+      <h3 className="text-xl font-semibold mb-6">Daily Progress</h3>
+      <div className="space-y-4">
+        <MacroProgressBar
+          label="Energy"
+          current={totalNutrition.calories}
+          target={targets.calories}
+          color="bg-primary"
+        />
+        <MacroProgressBar
+          label="Protein"
+          current={totalNutrition.protein}
+          target={targets.protein}
+          color="bg-secondary"
+        />
+        <MacroProgressBar
+          label="Net Carbs"
+          current={totalNutrition.carbs}
+          target={targets.carbs}
+          color="bg-cyan-500"
+        />
+        <MacroProgressBar
+          label="Fat"
+          current={totalNutrition.fat}
+          target={targets.fat}
+          color="bg-red-500"
+        />
       </div>
 
-      <NutritionBarChart data={chartData} />
-
-      <div className="mt-6">
+      <div className="mt-8">
         <h4 className="font-medium mb-2">Foods Detected</h4>
         <ul className="space-y-2">
           {foods.map((food) => (
