@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { NutritionCard } from "@/components/NutritionCard";
 import { ApiKeyInput } from "@/components/ApiKeyInput";
+import { FoodDiary } from "@/components/FoodDiary";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const analyzeImage = async (image: File, apiKey: string) => {
@@ -68,6 +70,26 @@ const Index = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState<any>(null);
 
+  const saveFoodEntries = async (foods: any[]) => {
+    const { error } = await supabase.from("food_diary").insert(
+      foods.map((food) => ({
+        food_name: food.name,
+        weight_g: food.weight_g,
+        calories: food.nutrition.calories,
+        protein: food.nutrition.protein,
+        carbs: food.nutrition.carbs,
+        fat: food.nutrition.fat,
+      }))
+    );
+
+    if (error) {
+      toast.error("Failed to save food entries");
+      throw error;
+    }
+
+    toast.success("Food entries saved to diary!");
+  };
+
   const handleImageSelect = async (image: File) => {
     if (!apiKey) {
       toast.error("Please set your OpenAI API key first");
@@ -78,6 +100,7 @@ const Index = () => {
     try {
       const result = await analyzeImage(image, apiKey);
       setNutritionData(result);
+      await saveFoodEntries(result.foods);
       toast.success("Food analysis complete!");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Error analyzing image");
@@ -102,6 +125,7 @@ const Index = () => {
             </p>
           )}
           {nutritionData && <NutritionCard foods={nutritionData.foods} />}
+          <FoodDiary />
         </div>
       </div>
     </div>
