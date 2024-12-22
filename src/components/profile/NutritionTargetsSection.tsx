@@ -50,7 +50,8 @@ export const NutritionTargetsSection: React.FC<NutritionTargetsSectionProps> = (
       
       // Invalidate all queries that might use the nutrition targets
       queryClient.invalidateQueries({ queryKey: ["profile"] });
-      queryClient.invalidateQueries({ queryKey: ["foodDiary"] });
+      // Force an immediate refetch of the profile data
+      await queryClient.refetchQueries({ queryKey: ["profile"] });
     } catch (error) {
       console.error("Error updating nutrition targets:", error);
       toast.error("Failed to update nutrition targets");

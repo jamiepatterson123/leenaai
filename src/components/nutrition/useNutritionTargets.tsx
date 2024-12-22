@@ -22,6 +22,7 @@ export const useNutritionTargets = () => {
     },
     staleTime: 0, // This ensures we always get fresh data
     refetchOnMount: true,
+    refetchOnWindowFocus: true, // Add this to ensure data is fresh when window regains focus
   });
 
   let targets = {
