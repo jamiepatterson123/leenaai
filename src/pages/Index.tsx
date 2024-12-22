@@ -111,28 +111,26 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-8 text-primary">
-          Nutrition Tracker
-        </h1>
-        <ApiKeyInput onApiKeySet={setApiKey} />
-        <div className="space-y-8">
-          <ImageUpload onImageSelect={handleImageSelect} />
-          {analyzing && (
-            <p className="text-center text-gray-600 animate-pulse">
-              Analyzing your meal...
-            </p>
-          )}
-          {nutritionData && <NutritionCard foods={nutritionData.foods} />}
-          <div className="text-center">
-            <Link
-              to="/food-diary"
-              className="text-primary hover:text-primary/80 font-medium"
-            >
-              View Food Diary →
-            </Link>
-          </div>
+    <div className="max-w-4xl mx-auto px-8">
+      <h1 className="text-4xl font-bold text-center mb-8 text-primary">
+        Nutrition Tracker
+      </h1>
+      <ApiKeyInput onApiKeySet={setApiKey} />
+      <div className="space-y-8">
+        <ImageUpload onImageSelect={handleImageSelect} />
+        {analyzing && (
+          <p className="text-center text-gray-600 animate-pulse">
+            Analyzing your meal...
+          </p>
+        )}
+        {nutritionData && <NutritionCard foods={nutritionData.foods} />}
+        <div className="text-center">
+          <Link
+            to="/food-diary"
+            className="text-primary hover:text-primary/80 font-medium"
+          >
+            View Food Diary →
+          </Link>
         </div>
       </div>
     </div>
