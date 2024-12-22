@@ -186,6 +186,7 @@ const Reports = () => {
                 fill="rgb(14, 165, 233)"
                 radius={[2, 2, 0, 0]}
                 name="Consumed"
+                style={{ pointerEvents: 'none' }}
               />
             </BarChart>
           </ResponsiveContainer>
