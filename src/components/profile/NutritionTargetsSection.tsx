@@ -20,6 +20,9 @@ export const NutritionTargetsSection: React.FC<NutritionTargetsSectionProps> = (
   onUpdate
 }) => {
   const [customTargets, setCustomTargets] = useState(initialTargets);
+  const [displayedCalories, setDisplayedCalories] = useState(() => 
+    initialTargets.protein * 4 + initialTargets.carbs * 4 + initialTargets.fat * 9
+  );
 
   const calculateCalories = () => {
     return customTargets.protein * 4 + customTargets.carbs * 4 + customTargets.fat * 9;
@@ -42,6 +45,7 @@ export const NutritionTargetsSection: React.FC<NutritionTargetsSectionProps> = (
         .eq("user_id", user.id);
 
       if (error) throw error;
+      setDisplayedCalories(calories);
       toast.success("Nutrition targets updated successfully");
       await onUpdate();
     } catch (error) {
@@ -98,7 +102,7 @@ export const NutritionTargetsSection: React.FC<NutritionTargetsSectionProps> = (
           </div>
           <div className="pt-2">
             <div className="text-lg">Calculated Daily Calories</div>
-            <div className="text-3xl font-medium">{Math.round(calculateCalories())} kcal</div>
+            <div className="text-3xl font-medium">{Math.round(displayedCalories)} kcal</div>
           </div>
           <Button 
             onClick={handleTargetsSubmit}
