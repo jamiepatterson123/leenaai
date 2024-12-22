@@ -1,6 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { Trash2, ChevronDown } from "lucide-react";
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  useSensor,
+  useSensors,
+  PointerSensor,
+} from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { FoodItem } from "./FoodItem";
+import { MealCategory } from "./MealCategory";
 
 interface FoodListProps {
   foods: Array<{
@@ -13,67 +25,83 @@ interface FoodListProps {
       carbs: number;
       fat: number;
     };
+    category?: string;
   }>;
   onDelete: (id: string) => void;
+  onUpdateCategory: (foodId: string, category: string) => void;
 }
 
-export const FoodList: React.FC<FoodListProps> = ({ foods, onDelete }) => {
+export const FoodList: React.FC<FoodListProps> = ({ foods, onDelete, onUpdateCategory }) => {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const sensors = useSensors(useSensor(PointerSensor));
+
   const mealCategories = [
-    { name: "Breakfast", calories: 855 },
-    { name: "Lunch", calories: 567 },
-    { name: "Dinner", calories: 1000 },
-    { name: "Snacks", calories: 0 },
+    { id: "breakfast", name: "Breakfast", calories: 855 },
+    { id: "lunch", name: "Lunch", calories: 567 },
+    { id: "dinner", name: "Dinner", calories: 1000 },
+    { id: "snacks", name: "Snacks", calories: 0 },
   ];
 
-  return (
-    <div className="space-y-3">
-      {mealCategories.map((category) => (
-        <div
-          key={category.name}
-          className="flex justify-between items-center p-4 bg-secondary/50 rounded-lg backdrop-blur-sm border border-border/10 hover:bg-secondary/70 transition-colors cursor-pointer"
-        >
-          <span className="font-medium">{category.name}</span>
-          <div className="flex items-center gap-2">
-            <span>{category.calories} kcal</span>
-            <ChevronDown className="w-4 h-4 text-muted-foreground" />
-          </div>
-        </div>
-      ))}
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
 
-      {foods.map((food) => (
-        <div
-          key={food.id}
-          className="flex justify-between items-center p-4 bg-secondary/30 rounded-lg backdrop-blur-sm border border-border/10"
-        >
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="capitalize">{food.name}</span>
-              <span className="text-sm text-muted-foreground">
-                {food.weight_g}g
-              </span>
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      const category = over.id as string;
+      onUpdateCategory(active.id as string, category);
+    }
+    
+    setActiveId(null);
+  };
+
+  const getFoodsByCategory = (category: string) => {
+    return foods.filter((food) => food.category === category);
+  };
+
+  const uncategorizedFoods = foods.filter((food) => !food.category);
+
+  return (
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="space-y-3">
+        {mealCategories.map((category) => (
+          <MealCategory
+            key={category.id}
+            id={category.id}
+            name={category.name}
+            calories={category.calories}
+            foods={getFoodsByCategory(category.id)}
+            onDelete={onDelete}
+          />
+        ))}
+
+        {uncategorizedFoods.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex justify-between items-center p-4 bg-secondary/50 rounded-lg backdrop-blur-sm border border-border/10">
+              <span className="font-medium">Uncategorized</span>
+              <div className="flex items-center gap-2">
+                <span>{uncategorizedFoods.reduce((acc, food) => acc + (food.nutrition?.calories || 0), 0)} kcal</span>
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              </div>
             </div>
-            {food.nutrition && (
-              <span className="text-sm text-muted-foreground">
-                {food.nutrition.protein}g protein, {food.nutrition.carbs}g carbs,{" "}
-                {food.nutrition.fat}g fat
-              </span>
-            )}
+            <SortableContext items={uncategorizedFoods.map(f => f.id)} strategy={verticalListSortingStrategy}>
+              {uncategorizedFoods.map((food) => (
+                <FoodItem
+                  key={food.id}
+                  food={food}
+                  onDelete={onDelete}
+                />
+              ))}
+            </SortableContext>
           </div>
-          <div className="flex items-center gap-4">
-            {food.nutrition && (
-              <span className="text-sm">{food.nutrition.calories} kcal</span>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onDelete(food.id)}
-              className="h-8 w-8 text-destructive hover:text-destructive/90"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      ))}
-    </div>
+        )}
+      </div>
+    </DndContext>
   );
 };
