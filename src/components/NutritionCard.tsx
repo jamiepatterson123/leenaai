@@ -4,7 +4,7 @@ import { TotalNutrition } from "./nutrition/TotalNutrition";
 import { FoodList } from "./nutrition/FoodList";
 import { useNutritionTargets } from "./nutrition/useNutritionTargets";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { format, formatDistanceToNow, isToday } from "date-fns";
+import { format } from "date-fns";
 
 interface NutritionInfo {
   calories: number;
@@ -23,25 +23,15 @@ interface NutritionCardProps {
   }>;
   onDelete: (id: string) => void;
   onUpdateCategory: (id: string, category: string) => void;
-  selectedDate: string;
 }
 
 export const NutritionCard: React.FC<NutritionCardProps> = ({ 
   foods, 
   onDelete,
-  onUpdateCategory,
-  selectedDate
+  onUpdateCategory 
 }) => {
   const totalNutrition = TotalNutrition({ foods });
   const targets = useNutritionTargets();
-
-  const getDateDisplay = () => {
-    const date = new Date(selectedDate);
-    if (isToday(date)) {
-      return "Today";
-    }
-    return formatDistanceToNow(date, { addSuffix: true });
-  };
 
   const chartData = [
     {
@@ -76,11 +66,11 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ChevronLeft className="w-6 h-6 text-primary" />
-            <h2 className="text-2xl font-bold">{getDateDisplay()}</h2>
+            <h2 className="text-2xl font-bold">Today</h2>
             <ChevronRight className="w-6 h-6 text-primary" />
           </div>
           <span className="text-sm text-muted-foreground">
-            {format(new Date(selectedDate), "EEEE - 'Default Macronutrient Targets'")}
+            {format(new Date(), "EEEE - 'Default Macronutrient Targets'")}
           </span>
         </div>
 

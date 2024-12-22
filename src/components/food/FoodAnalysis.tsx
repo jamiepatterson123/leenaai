@@ -4,13 +4,11 @@ import { NutritionCard } from "@/components/NutritionCard";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { format } from "date-fns";
 
 export const FoodAnalysis = () => {
   const navigate = useNavigate();
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState<any>(null);
-  const currentDate = format(new Date(), "yyyy-MM-dd");
 
   const analyzeImage = async (image: File, apiKey: string) => {
     const base64Image = await new Promise<string>((resolve, reject) => {
@@ -148,7 +146,6 @@ export const FoodAnalysis = () => {
           foods={nutritionData.foods} 
           onDelete={() => {}} 
           onUpdateCategory={handleUpdateCategory}
-          selectedDate={currentDate}
         />
       )}
     </>

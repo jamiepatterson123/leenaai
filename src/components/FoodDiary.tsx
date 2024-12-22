@@ -89,11 +89,13 @@ export const FoodDiary = () => {
 
   return (
     <div>
+      <h2 className="text-2xl font-bold mb-6">
+        Food Diary for {format(new Date(selectedDate), "MMMM d, yyyy")}
+      </h2>
       <NutritionCard 
         foods={foods} 
         onDelete={handleDelete} 
         onUpdateCategory={handleUpdateCategory}
-        selectedDate={selectedDate}
       />
     </div>
   );
