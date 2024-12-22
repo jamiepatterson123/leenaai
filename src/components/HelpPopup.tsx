@@ -1,5 +1,5 @@
 import React from "react";
-import { QuestionMarkCircle } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
@@ -36,7 +36,7 @@ export const HelpPopup = () => {
             size="icon"
             className="rounded-full h-12 w-12 bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            <QuestionMarkCircle className="h-6 w-6" />
+            <HelpCircle className="h-6 w-6" />
           </Button>
         </HoverCardTrigger>
         <HoverCardContent 

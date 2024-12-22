@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { analyzeImage } from "./ImageAnalyzer";
 import { saveFoodEntries } from "./FoodEntrySaver";
+import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 
 interface ImageAnalysisSectionProps {
   apiKey: string;
@@ -24,6 +26,7 @@ export const ImageAnalysisSection = ({
   selectedDate,
 }: ImageAnalysisSectionProps) => {
   const [resetUpload, setResetUpload] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleDelete = () => {
     // No-op since we don't want to allow deletion from the analysis view
@@ -59,7 +62,6 @@ export const ImageAnalysisSection = ({
         saveFoodEntries: async (foods) => {
           await saveFoodEntries(foods, selectedDate);
           // Trigger a refetch of the food diary data by invalidating the query
-          const queryClient = useQueryClient();
           queryClient.invalidateQueries({ 
             queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
           });
