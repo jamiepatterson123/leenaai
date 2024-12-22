@@ -29,20 +29,20 @@ export default {
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#1e293b",
-          foreground: "#FFFFFF",
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
         },
         success: {
           DEFAULT: "#15803d",
           foreground: "#FFFFFF",
         },
         accent: {
-          DEFAULT: "#0f172a",
-          foreground: "#FFFFFF",
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
         },
         muted: {
-          DEFAULT: "#1e293b",
-          foreground: "#94a3b8",
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
         },
       },
       keyframes: {
