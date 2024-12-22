@@ -5,7 +5,6 @@ import { ApiKeyInput } from "@/components/ApiKeyInput";
 import { toast } from "sonner";
 
 const analyzeImage = async (image: File, apiKey: string) => {
-  // Convert image to base64
   const base64Image = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -30,7 +29,7 @@ const analyzeImage = async (image: File, apiKey: string) => {
           content: [
             {
               type: "text",
-              text: "Analyze this food image. Return ONLY a JSON object with this exact format, nothing else: { \"foods\": [ { \"name\": \"food name\", \"weight_g\": estimated_weight_in_grams, \"nutrition\": { \"calories\": number, \"protein\": grams, \"carbs\": grams, \"fat\": grams } } ] }. Be very accurate with food recognition. If you see a whole chicken, don't say it's chicken breast. Estimate portions and nutrition based on standard serving sizes.",
+              text: "You are analyzing a photo of food for a nutrition tracking application. Your task is to:\n1. Identify each food item visible in the image.\n2. Determine whether the food is a whole item (e.g., whole chicken) or a portioned item (e.g., chicken breast).\n3. Estimate the weight of each food item in grams, keeping in mind that the photo might include uncooked or unusually large portions.\n\nProvide the output in JSON format with this structure:\n{\n    \"foods\": [\n        {\"name\": \"food name\", \"weight_g\": estimated_weight, \"nutrition\": {\"calories\": number, \"protein\": grams, \"carbs\": grams, \"fat\": grams}}\n    ]\n}\n\nContext and instructions:\n- If you see a whole chicken, specify it as 'whole chicken' not 'chicken breast'\n- Estimate portions based on standard serving sizes\n- Be very specific with food identification\n- Include detailed nutritional information per item",
             },
             {
               type: "image_url",
