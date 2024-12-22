@@ -37,9 +37,13 @@ export const FoodList: React.FC<FoodListProps> = ({
     const { active, over } = event;
     
     if (over && active.id !== over.id) {
-      const category = over.id as string;
       const foodId = active.id as string;
-      onUpdateCategory(foodId, category);
+      const category = over.id as string;
+      
+      // Only update if dropping onto a valid meal category
+      if (mealCategories.some(mealCat => mealCat.id === category)) {
+        onUpdateCategory(foodId, category);
+      }
     }
   };
 
