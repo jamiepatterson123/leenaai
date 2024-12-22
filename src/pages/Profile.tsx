@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useNutritionTargets } from "@/components/nutrition/useNutritionTargets";
+import { NutritionTargetsDialog } from "@/components/nutrition/NutritionTargetsDialog";
+import { Button } from "@/components/ui/button";
+import { Settings2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MacroProgressBar } from "@/components/MacroProgressBar";
 
 interface ProfileFormData {
   height_cm: number;
@@ -20,6 +26,7 @@ interface ProfileFormData {
 const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileFormData | null>(null);
+  const targets = useNutritionTargets();
 
   useEffect(() => {
     fetchProfile();
@@ -78,13 +85,54 @@ const Profile = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
       <h1 className="text-3xl font-bold mb-8">Profile Settings</h1>
-      <ProfileForm 
-        onSubmit={handleSubmit} 
-        onChange={handleChange}
-        initialData={profile || undefined} 
-      />
+      
+      <div className="space-y-8">
+        <ProfileForm 
+          onSubmit={handleSubmit} 
+          onChange={handleChange}
+          initialData={profile || undefined} 
+        />
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-2xl font-bold">Nutrition Targets</CardTitle>
+            <NutritionTargetsDialog
+              currentTargets={targets}
+              trigger={
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                  <Settings2 className="w-4 h-4 mr-1" />
+                  Edit Targets
+                </Button>
+              }
+            />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="text-sm font-medium">Daily Calories: {Math.round(targets.calories)} kcal</div>
+              <MacroProgressBar
+                label="Protein"
+                current={(targets.protein * 4 / targets.calories) * 100}
+                target={30}
+                color="bg-green-500"
+              />
+              <MacroProgressBar
+                label="Carbs"
+                current={(targets.carbs * 4 / targets.calories) * 100}
+                target={50}
+                color="bg-yellow-500"
+              />
+              <MacroProgressBar
+                label="Fat"
+                current={(targets.fat * 9 / targets.calories) * 100}
+                target={20}
+                color="bg-red-500"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
