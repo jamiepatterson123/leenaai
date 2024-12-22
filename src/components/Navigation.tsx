@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Home, UtensilsCrossed, LogOut, Key, UserRound, Send } from "lucide-react";
+import { Home, UtensilsCrossed, LogOut, Key, UserRound, Send, ClipboardList } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   NavigationMenu,
@@ -90,6 +90,14 @@ export const Navigation = () => {
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   <UserRound className="w-4 h-4 mr-2" />
                   Biometrics
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link to="/nutrition-reports">
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <ClipboardList className="w-4 h-4 mr-2" />
+                  Nutrition Reports
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
