@@ -140,15 +140,6 @@ export const Navigation = () => {
           >
             <Send className="w-4 h-4" />
           </Button>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Light</span>
-            <Switch
-              checked={theme === "dark"}
-              onCheckedChange={toggleTheme}
-              className="data-[state=checked]:bg-primary"
-            />
-            <span className="text-sm text-muted-foreground">Dark</span>
-          </div>
           <Link to="/api-settings">
             <Button
               variant="ghost"
@@ -158,6 +149,15 @@ export const Navigation = () => {
               <Key className="w-4 h-4" />
             </Button>
           </Link>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Light</span>
+            <Switch
+              checked={theme === "dark"}
+              onCheckedChange={toggleTheme}
+              className="data-[state=checked]:bg-primary"
+            />
+            <span className="text-sm text-muted-foreground">Dark</span>
+          </div>
           <Button
             variant="ghost"
             size="sm"
