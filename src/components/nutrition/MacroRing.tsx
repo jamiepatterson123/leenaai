@@ -47,7 +47,7 @@ export const MacroRing: React.FC<MacroRingProps> = ({
             cy="50"
             r="40"
             fill="none"
-            stroke="#15803d"
+            stroke="#22c55e"
             strokeWidth="20"
             strokeDasharray={`${(proteinDegrees / 360) * 251.2} 251.2`}
             className="transition-all duration-500"
@@ -57,7 +57,7 @@ export const MacroRing: React.FC<MacroRingProps> = ({
             cy="50"
             r="40"
             fill="none"
-            stroke="#16a34a"
+            stroke="#eab308"
             strokeWidth="20"
             strokeDasharray={`${(carbsDegrees / 360) * 251.2} 251.2`}
             strokeDashoffset={`${-((proteinDegrees / 360) * 251.2)}`}
@@ -68,7 +68,7 @@ export const MacroRing: React.FC<MacroRingProps> = ({
             cy="50"
             r="40"
             fill="none"
-            stroke="#86efac"
+            stroke="#ef4444"
             strokeWidth="20"
             strokeDasharray={`${(fatDegrees / 360) * 251.2} 251.2`}
             strokeDashoffset={`${-(((proteinDegrees + carbsDegrees) / 360) * 251.2)}`}
@@ -78,7 +78,7 @@ export const MacroRing: React.FC<MacroRingProps> = ({
 
         {/* Center text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span className="text-3xl font-bold">{Math.round(targetCalories)}</span>
+          <span className="text-3xl font-bold">{Math.round(calories)}</span>
           <span className="text-sm text-muted-foreground">kcal</span>
         </div>
       </div>
@@ -86,15 +86,15 @@ export const MacroRing: React.FC<MacroRingProps> = ({
       {/* Legend with gram targets */}
       <div className="mt-6 flex justify-center gap-4">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-[#15803d]"></div>
+          <div className="w-3 h-3 rounded-full bg-[#22c55e]"></div>
           <span className="text-sm">Protein ({Math.round(protein)}g)</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-[#16a34a]"></div>
+          <div className="w-3 h-3 rounded-full bg-[#eab308]"></div>
           <span className="text-sm">Carbs ({Math.round(carbs)}g)</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-[#86efac]"></div>
+          <div className="w-3 h-3 rounded-full bg-[#ef4444]"></div>
           <span className="text-sm">Fat ({Math.round(fat)}g)</span>
         </div>
       </div>

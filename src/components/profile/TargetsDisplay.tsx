@@ -1,16 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TargetCalculations } from "@/utils/profileCalculations";
 import { MacroRing } from "@/components/nutrition/MacroRing";
-import { cn } from "@/lib/utils";
 
 interface TargetsDisplayProps {
   targets: TargetCalculations;
-  className?: string;
 }
 
-export const TargetsDisplay = ({ targets, className }: TargetsDisplayProps) => {
+export const TargetsDisplay = ({ targets }: TargetsDisplayProps) => {
   return (
-    <Card className={cn("bg-background", className)}>
+    <Card className="bg-background">
       <CardHeader>
         <CardTitle>Daily Targets</CardTitle>
       </CardHeader>

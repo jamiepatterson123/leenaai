@@ -1,9 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useNutritionTargets } from "@/components/nutrition/useNutritionTargets";
-import { NutritionTargetsSection } from "@/components/profile/NutritionTargetsSection";
 
 interface ProfileFormData {
   height_cm: number;
@@ -22,7 +20,10 @@ interface ProfileFormData {
 const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileFormData | null>(null);
-  const targets = useNutritionTargets();
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
   const fetchProfile = async () => {
     try {
@@ -44,10 +45,6 @@ const Profile = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
 
   const handleSubmit = async (data: ProfileFormData) => {
     try {
@@ -81,24 +78,13 @@ const Profile = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
+    <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Profile Settings</h1>
-      
-      <div className="space-y-8">
-        <ProfileForm 
-          onSubmit={handleSubmit} 
-          onChange={handleChange}
-          initialData={profile || undefined} 
-        />
-
-        <NutritionTargetsSection
-          initialTargets={{
-            protein: targets.protein,
-            carbs: targets.carbs,
-            fat: targets.fat
-          }}
-        />
-      </div>
+      <ProfileForm 
+        onSubmit={handleSubmit} 
+        onChange={handleChange}
+        initialData={profile || undefined} 
+      />
     </div>
   );
 };

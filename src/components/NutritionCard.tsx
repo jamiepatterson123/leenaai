@@ -3,10 +3,8 @@ import { Card } from "@/components/ui/card";
 import { TotalNutrition } from "./nutrition/TotalNutrition";
 import { FoodList } from "./nutrition/FoodList";
 import { useNutritionTargets } from "./nutrition/useNutritionTargets";
-import { ChevronLeft, ChevronRight, Settings2 } from "lucide-react";
-import { format, formatDistanceToNow, isToday } from "date-fns";
-import { NutritionTargetsDialog } from "./nutrition/NutritionTargetsDialog";
-import { Button } from "./ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { format } from "date-fns";
 
 interface NutritionInfo {
   calories: number;
@@ -25,25 +23,15 @@ interface NutritionCardProps {
   }>;
   onDelete: (id: string) => void;
   onUpdateCategory: (id: string, category: string) => void;
-  selectedDate: string;
 }
 
 export const NutritionCard: React.FC<NutritionCardProps> = ({ 
   foods, 
   onDelete,
-  onUpdateCategory,
-  selectedDate
+  onUpdateCategory 
 }) => {
   const totalNutrition = TotalNutrition({ foods });
   const targets = useNutritionTargets();
-
-  const getDateDisplay = () => {
-    const date = new Date(selectedDate);
-    if (isToday(date)) {
-      return "Today";
-    }
-    return formatDistanceToNow(date, { addSuffix: true });
-  };
 
   const chartData = [
     {
@@ -78,23 +66,12 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ChevronLeft className="w-6 h-6 text-primary" />
-            <h2 className="text-2xl font-bold">{getDateDisplay()}</h2>
+            <h2 className="text-2xl font-bold">Today</h2>
             <ChevronRight className="w-6 h-6 text-primary" />
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">
-              {format(new Date(selectedDate), "EEEE")} - 
-            </span>
-            <NutritionTargetsDialog
-              currentTargets={targets}
-              trigger={
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                  <Settings2 className="w-4 h-4 mr-1" />
-                  Targets
-                </Button>
-              }
-            />
-          </div>
+          <span className="text-sm text-muted-foreground">
+            {format(new Date(), "EEEE - 'Default Macronutrient Targets'")}
+          </span>
         </div>
 
         <div className="space-y-4">

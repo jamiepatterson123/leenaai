@@ -5,11 +5,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format, startOfMonth, endOfMonth } from "date-fns";
-import { useNavigate } from "react-router-dom";
 
 export const FoodLoggingCalendar = () => {
   const [date, setDate] = React.useState<Date>(new Date());
-  const navigate = useNavigate();
 
   const { data: loggedDays } = useQuery({
     queryKey: ["foodLoggedDays", format(date, "yyyy-MM")],
@@ -26,17 +24,11 @@ export const FoodLoggingCalendar = () => {
 
       if (error) throw error;
 
+      // Get unique dates
       const uniqueDates = [...new Set(data.map(entry => entry.date))];
       return uniqueDates.map(date => new Date(date));
     },
   });
-
-  const handleDateSelect = (newDate: Date | undefined) => {
-    if (newDate) {
-      setDate(newDate);
-      navigate(`/food-diary?date=${format(newDate, "yyyy-MM-dd")}`);
-    }
-  };
 
   return (
     <Card className="p-6 bg-background">
@@ -45,8 +37,8 @@ export const FoodLoggingCalendar = () => {
         <Calendar
           mode="single"
           selected={date}
-          onSelect={handleDateSelect}
-          className="rounded-md cursor-pointer"
+          onSelect={(newDate) => newDate && setDate(newDate)}
+          className="rounded-md"
           modifiers={{
             logged: loggedDays || [],
           }}
