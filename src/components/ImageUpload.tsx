@@ -4,10 +4,18 @@ import { toast } from "sonner";
 
 interface ImageUploadProps {
   onImageSelect: (image: File) => void;
+  resetPreview?: boolean;
 }
 
-export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
+export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPreview }) => {
   const [preview, setPreview] = useState<string | null>(null);
+
+  // Reset preview when resetPreview prop changes
+  React.useEffect(() => {
+    if (resetPreview) {
+      setPreview(null);
+    }
+  }, [resetPreview]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -24,6 +32,9 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
     };
     reader.readAsDataURL(file);
     onImageSelect(file);
+    
+    // Reset the input value so the same file can be selected again
+    e.target.value = '';
   };
 
   return (

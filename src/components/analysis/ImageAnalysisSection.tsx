@@ -3,6 +3,7 @@ import { NutritionCard } from "@/components/NutritionCard";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { useState } from "react";
 
 interface ImageAnalysisSectionProps {
   apiKey: string;
@@ -19,6 +20,8 @@ export const ImageAnalysisSection = ({
   nutritionData,
   setNutritionData,
 }: ImageAnalysisSectionProps) => {
+  const [resetUpload, setResetUpload] = useState(false);
+
   const handleDelete = () => {
     // No-op since we don't want to allow deletion from the analysis view
   };
@@ -56,7 +59,7 @@ export const ImageAnalysisSection = ({
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o", // Updated to use the current supported model
+        model: "gpt-4-vision-preview",
         messages: [
           {
             role: "user",
@@ -103,11 +106,14 @@ export const ImageAnalysisSection = ({
     }
 
     setAnalyzing(true);
+    setResetUpload(false);
     try {
       const result = await analyzeImage(image, apiKey);
       setNutritionData(result);
       await saveFoodEntries(result.foods);
       toast.success("Food analysis complete!");
+      // Reset the upload component after successful analysis
+      setResetUpload(true);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Error analyzing image");
       console.error(error);
@@ -136,7 +142,7 @@ export const ImageAnalysisSection = ({
         protein: food.nutrition.protein,
         carbs: food.nutrition.carbs,
         fat: food.nutrition.fat,
-        date: today, // Explicitly set the date
+        date: today,
       }))
     );
 
@@ -150,7 +156,7 @@ export const ImageAnalysisSection = ({
 
   return (
     <div className="space-y-8">
-      <ImageUpload onImageSelect={handleImageSelect} />
+      <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
       {analyzing && (
         <p className="text-center text-gray-600 animate-pulse">
           Analyzing your meal...
@@ -161,7 +167,7 @@ export const ImageAnalysisSection = ({
           foods={nutritionData.foods} 
           onDelete={handleDelete} 
           onUpdateCategory={handleUpdateCategory}
-          selectedDate={new Date()} // Add today's date since this is for current entries
+          selectedDate={new Date()}
         />
       )}
     </div>
