@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface NutritionTargetsSectionProps {
   initialTargets: {
@@ -12,17 +13,16 @@ interface NutritionTargetsSectionProps {
     carbs: number;
     fat: number;
   };
-  onUpdate: () => Promise<void>;
 }
 
 export const NutritionTargetsSection: React.FC<NutritionTargetsSectionProps> = ({
   initialTargets,
-  onUpdate
 }) => {
   const [customTargets, setCustomTargets] = useState(initialTargets);
   const [displayedCalories, setDisplayedCalories] = useState(() => 
     initialTargets.protein * 4 + initialTargets.carbs * 4 + initialTargets.fat * 9
   );
+  const queryClient = useQueryClient();
 
   const calculateCalories = () => {
     return customTargets.protein * 4 + customTargets.carbs * 4 + customTargets.fat * 9;
@@ -47,7 +47,10 @@ export const NutritionTargetsSection: React.FC<NutritionTargetsSectionProps> = (
       if (error) throw error;
       setDisplayedCalories(calories);
       toast.success("Nutrition targets updated successfully");
-      await onUpdate();
+      
+      // Invalidate all queries that might use the nutrition targets
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ["foodDiary"] });
     } catch (error) {
       console.error("Error updating nutrition targets:", error);
       toast.error("Failed to update nutrition targets");

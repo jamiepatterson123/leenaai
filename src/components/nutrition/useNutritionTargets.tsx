@@ -20,6 +20,8 @@ export const useNutritionTargets = () => {
 
       return data as Profile | null;
     },
+    staleTime: 0, // This ensures we always get fresh data
+    refetchOnMount: true,
   });
 
   let targets = {
