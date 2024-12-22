@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { NutritionCard } from "@/components/NutritionCard";
-import { WeightInput } from "@/components/WeightInput";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -153,7 +152,6 @@ const Index = () => {
       </h1>
       <div className="space-y-8">
         <ImageUpload onImageSelect={handleImageSelect} />
-        <WeightInput />
         {analyzing && (
           <p className="text-center text-gray-600 animate-pulse">
             Analyzing your meal...
