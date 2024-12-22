@@ -1,11 +1,11 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { NutritionBarChart } from "./NutritionBarChart";
 import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
 import { MacroProgressBar } from "./MacroProgressBar";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { calculateTargets } from "@/utils/profileCalculations";
 
 interface NutritionInfo {
   calories: number;
@@ -51,17 +51,35 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({ foods, onDelete })
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
   );
 
-  const targets = profile ? {
-    calories: profile.target_calories || 2000,
-    protein: profile.target_protein || 150,
-    carbs: profile.target_carbs || 200,
-    fat: profile.target_fat || 70,
-  } : {
+  let targets = {
     calories: 2000,
     protein: 150,
     carbs: 200,
     fat: 70,
   };
+
+  if (profile) {
+    // Use stored targets if available, otherwise calculate them
+    if (profile.target_calories) {
+      targets = {
+        calories: profile.target_calories,
+        protein: profile.target_protein || 150,
+        carbs: profile.target_carbs || 200,
+        fat: profile.target_fat || 70,
+      };
+    } else if (profile.height_cm && profile.weight_kg && profile.age && profile.activity_level && profile.gender) {
+      // Calculate targets if we have the necessary profile data
+      targets = calculateTargets({
+        height_cm: profile.height_cm,
+        weight_kg: profile.weight_kg,
+        age: profile.age,
+        activity_level: profile.activity_level,
+        gender: profile.gender,
+        fitness_goals: profile.fitness_goals || 'maintain',
+        dietary_restrictions: profile.dietary_restrictions || [],
+      });
+    }
+  }
 
   return (
     <Card className="p-6 animate-fade-up">

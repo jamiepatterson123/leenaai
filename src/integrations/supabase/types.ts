@@ -58,6 +58,10 @@ export type Database = {
           gender: string | null
           height_cm: number | null
           id: string
+          target_calories: number | null
+          target_carbs: number | null
+          target_fat: number | null
+          target_protein: number | null
           updated_at: string
           user_id: string | null
           weight_kg: number | null
@@ -71,6 +75,10 @@ export type Database = {
           gender?: string | null
           height_cm?: number | null
           id?: string
+          target_calories?: number | null
+          target_carbs?: number | null
+          target_fat?: number | null
+          target_protein?: number | null
           updated_at?: string
           user_id?: string | null
           weight_kg?: number | null
@@ -84,6 +92,10 @@ export type Database = {
           gender?: string | null
           height_cm?: number | null
           id?: string
+          target_calories?: number | null
+          target_carbs?: number | null
+          target_fat?: number | null
+          target_protein?: number | null
           updated_at?: string
           user_id?: string | null
           weight_kg?: number | null
