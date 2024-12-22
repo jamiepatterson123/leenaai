@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           calories: number
           carbs: number
+          category: string | null
           created_at: string
           date: string
           fat: number
@@ -25,6 +26,7 @@ export type Database = {
         Insert: {
           calories: number
           carbs: number
+          category?: string | null
           created_at?: string
           date?: string
           fat: number
@@ -37,6 +39,7 @@ export type Database = {
         Update: {
           calories?: number
           carbs?: number
+          category?: string | null
           created_at?: string
           date?: string
           fat?: number
