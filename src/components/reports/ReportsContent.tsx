@@ -4,6 +4,7 @@ import { CalorieChart } from "./CalorieChart";
 import { MacroChart } from "./MacroChart";
 import { MacroTargetsChart } from "./MacroTargetsChart";
 import { MealDistributionChart } from "./MealDistributionChart";
+import { CalorieStateChart } from "./CalorieStateChart";
 import { TimeRange } from "./TimeRangeSelector";
 
 interface ReportsContentProps {
@@ -36,9 +37,12 @@ export const ReportsContent = ({
       <WeightTrendChart data={weightData} />
       <CalorieTargetsChart data={calorieData} />
       <CalorieChart data={calorieData} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <MealDistributionChart data={mealData} />
+        <CalorieStateChart data={mealData} />
+      </div>
       <MacroChart data={macroData} />
       <MacroTargetsChart data={macroData} />
-      <MealDistributionChart data={mealData} />
     </div>
   );
 };

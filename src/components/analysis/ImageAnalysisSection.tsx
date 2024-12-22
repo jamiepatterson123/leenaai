@@ -59,14 +59,14 @@ export const ImageAnalysisSection = ({
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",  // Updated to use the newer model
+        model: "gpt-4o",
         messages: [
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "You are analyzing a photo of food for a nutrition tracking application. Your task is to:\n1. Identify each food item visible in the image.\n2. Determine whether the food is a whole item (e.g., whole chicken) or a portioned item (e.g., chicken breast).\n3. Estimate the weight of each food item in grams, keeping in mind that the photo might include uncooked or unusually large portions.\n\nProvide the output in JSON format with this structure:\n{\n    \"foods\": [\n        {\"name\": \"food name\", \"weight_g\": estimated_weight, \"nutrition\": {\"calories\": number, \"protein\": grams, \"carbs\": grams, \"fat\": grams}}\n    ]\n}\n\nContext and instructions:\n- If you see a whole chicken, specify it as 'whole chicken' not 'chicken breast'\n- Estimate portions based on standard serving sizes\n- Be very specific with food identification\n- Include detailed nutritional information per item",
+                text: "You are analyzing a photo of food for a nutrition tracking application. Your task is to:\n1. Identify each food item visible in the image.\n2. Determine whether the food is a whole item (e.g., whole chicken) or a portioned item (e.g., chicken breast).\n3. Determine whether each item is a liquid or solid.\n4. Estimate the weight of each food item in grams, keeping in mind that the photo might include uncooked or unusually large portions.\n\nProvide the output in JSON format with this structure:\n{\n    \"foods\": [\n        {\"name\": \"food name\", \"weight_g\": estimated_weight, \"state\": \"liquid|solid\", \"nutrition\": {\"calories\": number, \"protein\": grams, \"carbs\": grams, \"fat\": grams}}\n    ]\n}\n\nContext and instructions:\n- If you see a whole chicken, specify it as 'whole chicken' not 'chicken breast'\n- Estimate portions based on standard serving sizes\n- Be very specific with food identification\n- Include detailed nutritional information per item\n- For state, use only 'liquid' or 'solid' as values",
               },
               {
                 type: "image_url",
@@ -112,7 +112,6 @@ export const ImageAnalysisSection = ({
       setNutritionData(result);
       await saveFoodEntries(result.foods);
       toast.success("Food analysis complete!");
-      // Reset the upload component after successful analysis
       setResetUpload(true);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Error analyzing image");
@@ -130,7 +129,6 @@ export const ImageAnalysisSection = ({
       return;
     }
 
-    // Format today's date in YYYY-MM-DD format for the database
     const today = format(new Date(), 'yyyy-MM-dd');
 
     const { error } = await supabase.from("food_diary").insert(
@@ -143,6 +141,7 @@ export const ImageAnalysisSection = ({
         carbs: food.nutrition.carbs,
         fat: food.nutrition.fat,
         date: today,
+        state: food.state, // Add the state (liquid/solid) to the database entry
       }))
     );
 
