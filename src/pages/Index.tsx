@@ -188,6 +188,7 @@ const Index = () => {
             foods={nutritionData.foods} 
             onDelete={handleDelete} 
             onUpdateCategory={handleUpdateCategory}
+            selectedDate={new Date()} // Add today's date since this is for current entries
           />
         )}
         <div className="text-center">
