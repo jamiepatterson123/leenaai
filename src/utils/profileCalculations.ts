@@ -6,6 +6,9 @@ export interface ProfileFormData {
   dietary_restrictions: string[];
   fitness_goals: string;
   gender: string;
+  target_protein?: number;
+  target_carbs?: number;
+  target_fat?: number;
 }
 
 export interface TargetCalculations {
