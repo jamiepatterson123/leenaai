@@ -2,6 +2,7 @@ import { ImageUpload } from "@/components/ImageUpload";
 import { NutritionCard } from "@/components/NutritionCard";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
 interface ImageAnalysisSectionProps {
   apiKey: string;
@@ -123,6 +124,9 @@ export const ImageAnalysisSection = ({
       return;
     }
 
+    // Format today's date in YYYY-MM-DD format for the database
+    const today = format(new Date(), 'yyyy-MM-dd');
+
     const { error } = await supabase.from("food_diary").insert(
       foods.map((food) => ({
         user_id: user.id,
@@ -132,6 +136,7 @@ export const ImageAnalysisSection = ({
         protein: food.nutrition.protein,
         carbs: food.nutrition.carbs,
         fat: food.nutrition.fat,
+        date: today, // Explicitly set the date
       }))
     );
 
