@@ -35,9 +35,9 @@ export const HealthDataConnect = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>WhatsApp Support</CardTitle>
+            <CardTitle>Leena on WhatsApp</CardTitle>
             <CardDescription>
-              Connect with us instantly via WhatsApp for quick support and guidance
+              Connect with Leena, your AI coach, via WhatsApp to receive personalized recommendations and reminders directly on your phone
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -46,16 +46,16 @@ export const HealthDataConnect = () => {
               className="w-full flex items-center gap-2"
             >
               <MessageCircle className="h-5 w-5" />
-              Chat on WhatsApp
+              Chat with Leena
             </Button>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Phone Support</CardTitle>
+            <CardTitle>Call Leena</CardTitle>
             <CardDescription>
-              Call us directly for immediate assistance with your health tracking needs
+              Get instant voice support from Leena. Receive nutrition advice and coaching reminders through phone calls
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -64,7 +64,7 @@ export const HealthDataConnect = () => {
               className="w-full flex items-center gap-2"
             >
               <Phone className="h-5 w-5" />
-              Call Support
+              Call Leena
             </Button>
           </CardContent>
         </Card>
