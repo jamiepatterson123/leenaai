@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface Message {
   role: "assistant" | "user";
@@ -14,25 +16,50 @@ const Coach = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hello! I'm your nutrition coach. While I'm currently in development, soon I'll be able to help you analyze your nutrition data and provide personalized advice. Stay tuned!"
+      content: "Hello! I'm your AI nutrition coach. I can analyze your nutrition data and help you reach your goals. What would you like to know?"
     }
   ]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
-    // Add user message
-    setMessages(prev => [...prev, { role: "user", content: input.trim() }]);
-    
-    // Placeholder for future backend integration
-    setMessages(prev => [...prev, { 
-      role: "assistant", 
-      content: "I'm still in development, but soon I'll be able to help you with your nutrition journey!"
-    }]);
-    
-    setInput("");
+    try {
+      setIsLoading(true);
+      
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Please sign in to use the AI coach");
+        return;
+      }
+
+      // Add user message
+      const userMessage = { role: "user" as const, content: input.trim() };
+      setMessages(prev => [...prev, userMessage]);
+      setInput("");
+
+      // Call AI coach function
+      const { data, error } = await supabase.functions.invoke('ai-coach', {
+        body: { message: input.trim(), userId: user.id }
+      });
+
+      if (error) throw error;
+
+      // Add AI response
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: data.response
+      }]);
+
+    } catch (error) {
+      console.error('Error in AI coach:', error);
+      toast.error("Sorry, I couldn't process your request. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -68,10 +95,11 @@ const Coach = () => {
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
+          placeholder="Ask your nutrition coach..."
           className="flex-1"
+          disabled={isLoading}
         />
-        <Button type="submit" size="icon">
+        <Button type="submit" size="icon" disabled={isLoading}>
           <Send className="h-4 w-4" />
         </Button>
       </form>
