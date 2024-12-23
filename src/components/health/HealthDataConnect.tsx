@@ -1,4 +1,4 @@
-import { Phone, MessageCircle, Apple, Activity } from "lucide-react";
+import { Phone, MessageCircle, Apple, Activity, Heart, Watch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -27,6 +27,16 @@ export const HealthDataConnect = () => {
   const handleWhoopClick = () => {
     // This would be handled by Whoop API integration
     window.open("https://www.whoop.com/", "_blank");
+  };
+
+  const handleOuraClick = () => {
+    // This would be handled by Oura Ring API integration
+    window.open("https://ouraring.com/", "_blank");
+  };
+
+  const handleFitbitClick = () => {
+    // This would be handled by Fitbit API integration
+    window.open("https://www.fitbit.com/", "_blank");
   };
 
   return (
@@ -73,7 +83,7 @@ export const HealthDataConnect = () => {
           <CardHeader>
             <CardTitle>Apple Health</CardTitle>
             <CardDescription>
-              Sync your health and fitness data from Apple Health
+              Sync your health and fitness data from Apple Health, including workouts, steps, and vital signs
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -91,7 +101,7 @@ export const HealthDataConnect = () => {
           <CardHeader>
             <CardTitle>Whoop</CardTitle>
             <CardDescription>
-              Connect with Whoop to sync your activity and health data
+              Connect with Whoop to sync your recovery, strain, and sleep data for better training insights
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -101,6 +111,42 @@ export const HealthDataConnect = () => {
             >
               <Activity className="h-5 w-5" />
               Connect Whoop
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Oura Ring</CardTitle>
+            <CardDescription>
+              Import your sleep quality, readiness, and activity data from your Oura Ring
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={handleOuraClick}
+              className="w-full flex items-center gap-2"
+            >
+              <Heart className="h-5 w-5" />
+              Connect Oura Ring
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Fitbit</CardTitle>
+            <CardDescription>
+              Sync your daily activity, heart rate, and sleep tracking data from your Fitbit device
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={handleFitbitClick}
+              className="w-full flex items-center gap-2"
+            >
+              <Watch className="h-5 w-5" />
+              Connect Fitbit
             </Button>
           </CardContent>
         </Card>
