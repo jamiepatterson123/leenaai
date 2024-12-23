@@ -87,6 +87,39 @@ export type Database = {
         }
         Relationships: []
       }
+      oura_data: {
+        Row: {
+          created_at: string
+          data_type: string
+          id: string
+          source: string | null
+          timestamp: string
+          unit: string
+          user_id: string | null
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          data_type: string
+          id?: string
+          source?: string | null
+          timestamp: string
+          unit: string
+          user_id?: string | null
+          value: number
+        }
+        Update: {
+          created_at?: string
+          data_type?: string
+          id?: string
+          source?: string | null
+          timestamp?: string
+          unit?: string
+          user_id?: string | null
+          value?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           activity_level: string | null

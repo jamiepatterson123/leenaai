@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Apple, Activity } from 'lucide-react';
+import { Apple, Activity, Ring } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -28,7 +28,6 @@ export const HealthDataConnect = () => {
 
   const handleAppleHealthConnect = async () => {
     try {
-      // Request HealthKit authorization
       const healthKitWindow = window as HealthKitWindow;
       const healthData = await healthKitWindow.webkit?.messageHandlers?.healthKit?.postMessage({
         request: 'authorize',
@@ -51,9 +50,7 @@ export const HealthDataConnect = () => {
 
   const handleWhoopConnect = async () => {
     try {
-      // Open Whoop OAuth flow
       window.open('https://api.whoop.com/oauth/authorize', '_blank');
-      // Handle OAuth callback and data sync in a separate component
       toast.success('Connected to Whoop successfully');
     } catch (error) {
       console.error('Error connecting to Whoop:', error);
@@ -61,8 +58,18 @@ export const HealthDataConnect = () => {
     }
   };
 
+  const handleOuraConnect = async () => {
+    try {
+      window.open('https://cloud.ouraring.com/oauth/authorize', '_blank');
+      toast.success('Connected to Oura Ring successfully');
+    } catch (error) {
+      console.error('Error connecting to Oura Ring:', error);
+      toast.error('Failed to connect to Oura Ring');
+    }
+  };
+
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-4 md:grid-cols-3">
       <Card className="p-6">
         <div className="flex items-center gap-4">
           <Apple className="h-8 w-8" />
@@ -96,6 +103,24 @@ export const HealthDataConnect = () => {
           className="mt-4 w-full"
         >
           Connect Whoop
+        </Button>
+      </Card>
+
+      <Card className="p-6">
+        <div className="flex items-center gap-4">
+          <Ring className="h-8 w-8" />
+          <div>
+            <h3 className="text-lg font-semibold">Oura Ring</h3>
+            <p className="text-sm text-muted-foreground">
+              Connect your Oura Ring for sleep and recovery data
+            </p>
+          </div>
+        </div>
+        <Button 
+          onClick={handleOuraConnect}
+          className="mt-4 w-full"
+        >
+          Connect Oura Ring
         </Button>
       </Card>
     </div>
