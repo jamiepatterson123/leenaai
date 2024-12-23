@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { WeightInput } from "@/components/WeightInput";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
@@ -6,7 +6,7 @@ import { StreakCounter } from "@/components/StreakCounter";
 import { FoodDiary } from "@/components/FoodDiary";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
+import { format, subDays } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
@@ -37,6 +37,38 @@ const Index = () => {
       return data as ProfileRow;
     },
   });
+
+  // Check for recent calorie adjustments
+  useEffect(() => {
+    const checkRecentAdjustments = async () => {
+      if (!profile) return;
+
+      const twoDaysAgo = format(subDays(new Date(), 2), "yyyy-MM-dd");
+      
+      const { data: adjustments } = await supabase
+        .from("profiles")
+        .select("updated_at, target_calories")
+        .eq("id", profile.id)
+        .gt("updated_at", twoDaysAgo)
+        .order("updated_at", { ascending: false })
+        .limit(1);
+
+      if (adjustments && adjustments.length > 0) {
+        toast.info(
+          "Your daily calorie target has been automatically adjusted to help with your progress. View your new targets in the Profile section.",
+          {
+            duration: 8000,
+            action: {
+              label: "View Profile",
+              onClick: () => window.location.href = "/profile"
+            }
+          }
+        );
+      }
+    };
+
+    checkRecentAdjustments();
+  }, [profile]);
 
   const { data: hasTodayEntries } = useQuery({
     queryKey: ["hasTodayEntries"],
