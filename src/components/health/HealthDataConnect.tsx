@@ -35,7 +35,7 @@ export const HealthDataConnect = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Leena on WhatsApp</CardTitle>
+            <CardTitle>WhatsApp</CardTitle>
             <CardDescription>
               Connect with Leena, your AI coach, via WhatsApp to receive personalized recommendations and reminders directly on your phone
             </CardDescription>
@@ -53,7 +53,7 @@ export const HealthDataConnect = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Call Leena</CardTitle>
+            <CardTitle>Phone</CardTitle>
             <CardDescription>
               Get instant voice support from Leena. Receive nutrition advice and coaching reminders through phone calls
             </CardDescription>
