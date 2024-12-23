@@ -10,41 +10,21 @@ import { toast } from "sonner";
 interface Message {
   role: "assistant" | "user";
   content: string;
-  suggestions?: string[];
 }
-
-const defaultSuggestions = [
-  "What advice would you give me from today's nutrition?",
-  "How can I improve my meal planning for tomorrow?",
-  "Based on my profile, what should my macros be?",
-  "What are healthy snack options for my fitness goals?"
-];
 
 const Coach = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hello! I'm your AI nutrition coach. I can analyze your nutrition data and help you reach your goals. What would you like to know?",
-      suggestions: defaultSuggestions
+      content: "Hello! I'm your AI nutrition coach. I can analyze your nutrition data and help you reach your goals. What would you like to know?"
     }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSuggestionClick = (suggestion: string) => {
-    if (!isLoading) {
-      setInput(suggestion);
-      handleSubmit(suggestion);
-    }
-  };
-
-  const handleSubmit = async (messageText: string | React.FormEvent) => {
-    if (typeof messageText !== 'string') {
-      messageText.preventDefault();
-      messageText = input;
-    }
-    
-    if (!messageText.trim() || isLoading) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
 
     try {
       setIsLoading(true);
@@ -57,7 +37,7 @@ const Coach = () => {
       }
 
       // Add user message
-      const userMessage = { role: "user" as const, content: messageText.trim() };
+      const userMessage = { role: "user" as const, content: input.trim() };
       setMessages(prev => [...prev, userMessage]);
       setInput("");
 
@@ -69,28 +49,24 @@ const Coach = () => {
 
       // Call AI coach function
       const { data, error } = await supabase.functions.invoke('ai-coach', {
-        body: { 
-          message: messageText.trim(), 
-          userId: user.id,
-          generateSuggestions: true
-        }
+        body: { message: input.trim(), userId: user.id }
       });
 
       if (error) throw error;
 
-      // Remove thinking message and add AI response with new suggestions
+      // Remove thinking message and add AI response
       setMessages(prev => {
         const newMessages = [...prev];
         newMessages.pop(); // Remove thinking message
         return [...newMessages, {
           role: "assistant",
-          content: data.response,
-          suggestions: data.suggestions || defaultSuggestions
+          content: data.response
         }];
       });
 
     } catch (error) {
       console.error('Error in AI coach:', error);
+      // Remove thinking message if there was an error
       setMessages(prev => {
         const newMessages = [...prev];
         newMessages.pop(); // Remove thinking message
@@ -101,11 +77,6 @@ const Coach = () => {
       setIsLoading(false);
     }
   };
-
-  // Get the latest suggestions from the last assistant message
-  const currentSuggestions = messages
-    .filter(m => m.role === "assistant" && m.suggestions)
-    .slice(-1)[0]?.suggestions || defaultSuggestions;
 
   return (
     <div className="max-w-4xl mx-auto px-4 h-[calc(100vh-120px)] flex flex-col text-white">
@@ -135,21 +106,6 @@ const Coach = () => {
             ))}
           </div>
         </ScrollArea>
-      </div>
-      
-      {/* Suggestions Section */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {currentSuggestions.map((suggestion, index) => (
-          <Button
-            key={index}
-            variant="secondary"
-            className="text-sm"
-            onClick={() => handleSuggestionClick(suggestion)}
-            disabled={isLoading}
-          >
-            {suggestion}
-          </Button>
-        ))}
       </div>
       
       <form onSubmit={handleSubmit} className="flex gap-2 pb-4">

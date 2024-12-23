@@ -1,7 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.2.1';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,135 +8,96 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { message, userId, generateSuggestions } = await req.json();
+    const { message, userId } = await req.json();
 
-    // Initialize OpenAI
-    const openAiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAiKey) {
-      throw new Error('Missing OpenAI API key');
-    }
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
 
-    const configuration = new Configuration({ apiKey: openAiKey });
-    const openai = new OpenAIApi(configuration);
-
-    // Get user profile data
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    if (!supabaseUrl || !supabaseKey) {
-      throw new Error('Missing Supabase credentials');
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    const { data: profile } = await supabase
+    // Fetch user's profile data
+    const { data: profile } = await supabaseClient
       .from('profiles')
       .select('*')
       .eq('user_id', userId)
       .single();
 
-    // Prepare the conversation context
-    let systemPrompt = "You are a knowledgeable nutrition coach. ";
-    if (profile) {
-      systemPrompt += `The user has the following profile: 
-        Age: ${profile.age}, 
-        Gender: ${profile.gender},
-        Weight: ${profile.weight_kg}kg, 
-        Height: ${profile.height_cm}cm, 
-        Activity Level: ${profile.activity_level},
-        Fitness Goals: ${profile.fitness_goals},
-        Dietary Restrictions: ${profile.dietary_restrictions?.join(', ')}`;
-    }
+    // Fetch recent health data
+    const { data: appleHealthData } = await supabaseClient
+      .from('apple_health_data')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('timestamp', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+      .order('timestamp', { ascending: false });
 
-    console.log('Sending request to OpenAI with system prompt:', systemPrompt);
+    const { data: whoopData } = await supabaseClient
+      .from('whoop_data')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('timestamp', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+      .order('timestamp', { ascending: false });
 
-    // Get response from OpenAI
-    const completion = await openai.createChatCompletion({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: message }
-      ],
-      temperature: 0.7,
+    // Prepare context for the AI
+    const healthContext = `
+      Recent Health Data:
+      ${appleHealthData ? `
+        Apple Health Metrics (Last 7 days):
+        - Steps: ${calculateAverage(appleHealthData.filter(d => d.data_type === 'steps'))} steps/day
+        - Active Energy: ${calculateAverage(appleHealthData.filter(d => d.data_type === 'activeEnergy'))} kcal/day
+        - Heart Rate: ${calculateAverage(appleHealthData.filter(d => d.data_type === 'heartRate'))} bpm
+      ` : 'No Apple Health data available'}
+
+      ${whoopData ? `
+        Whoop Metrics (Last 7 days):
+        - Recovery: ${calculateAverage(whoopData.filter(d => d.data_type === 'recovery'))}%
+        - Strain: ${calculateAverage(whoopData.filter(d => d.data_type === 'strain'))}
+        - Sleep Performance: ${calculateAverage(whoopData.filter(d => d.data_type === 'sleepPerformance'))}%
+      ` : 'No Whoop data available'}
+    `;
+
+    // Call OpenAI API with enhanced context
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: "You are a knowledgeable nutrition and fitness coach. Analyze the user's health data and provide personalized advice. Be concise but friendly. Focus on actionable insights and encouragement."
+          },
+          {
+            role: 'user',
+            content: `Context about the user's health:\n${healthContext}\n\nUser message: ${message}`
+          }
+        ],
+      }),
     });
 
-    console.log('Received response from OpenAI:', completion.data);
+    const data = await response.json();
+    const aiResponse = data.choices[0].message.content;
 
-    const response = completion.data.choices[0].message?.content || "I'm sorry, I couldn't process that request.";
-
-    // Generate follow-up suggestions if requested
-    let suggestions = [];
-    if (generateSuggestions) {
-      console.log('Generating suggestions...');
-      
-      const suggestionsPrompt = `Based on the user's profile and our conversation:
-User Profile:
-- Age: ${profile?.age}
-- Weight: ${profile?.weight_kg}kg
-- Goals: ${profile?.fitness_goals}
-- Dietary Restrictions: ${profile?.dietary_restrictions?.join(', ')}
-
-Last Question: "${message}"
-My Response: "${response}"
-
-Generate 4 relevant follow-up questions that would be helpful for the user's nutrition and fitness journey. Focus on:
-1. Daily nutrition advice
-2. Progress tracking
-3. Goal-specific recommendations
-4. Personalized meal planning
-
-Make questions concise and specific to their profile.`;
-
-      const suggestionsCompletion = await openai.createChatCompletion({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: "You are a nutrition coach assistant. Generate relevant follow-up questions based on the user's profile and conversation context." },
-          { role: "user", content: suggestionsPrompt }
-        ],
-        temperature: 0.7,
-      });
-
-      const suggestionsText = suggestionsCompletion.data.choices[0].message?.content || "";
-      suggestions = suggestionsText
-        .split('\n')
-        .map(s => s.replace(/^\d+\.\s*/, '').trim())
-        .filter(s => s.length > 0 && s.endsWith('?'))
-        .slice(0, 4);
-        
-      console.log('Generated suggestions:', suggestions);
-
-      // If we don't get enough suggestions, add some defaults
-      const defaultSuggestions = [
-        "What advice would you give me from today's nutrition?",
-        "How can I improve my meal planning for tomorrow?",
-        "Based on my profile, what should my macros be?",
-        "What are healthy snack options for my fitness goals?"
-      ];
-
-      while (suggestions.length < 4) {
-        suggestions.push(defaultSuggestions[suggestions.length]);
-      }
-    }
-
-    return new Response(
-      JSON.stringify({ response, suggestions }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      },
-    );
+    return new Response(JSON.stringify({ response: aiResponse }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   } catch (error) {
-    console.error('Error in AI coach:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
-      },
-    );
+    console.error('Error in ai-coach function:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
+
+function calculateAverage(data: any[]) {
+  if (!data || data.length === 0) return 0;
+  return (data.reduce((sum, item) => sum + Number(item.value), 0) / data.length).toFixed(1);
+}
