@@ -28,14 +28,59 @@ export const analyzeImage = async (
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini", // Fixed model name from gpt-4o to gpt-4o-mini
+        model: "gpt-4o-mini",
         messages: [
+          {
+            role: "system",
+            content: "You are an expert nutritionist and image recognition specialist analyzing food photos."
+          },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "You are analyzing a photo of food for a nutrition tracking application. Your task is to:\n1. Identify each food item visible in the image.\n2. Determine whether the food is a whole item (e.g., whole chicken) or a portioned item (e.g., chicken breast).\n3. Determine whether each item is a liquid or solid.\n4. Estimate the weight of each food item in grams, keeping in mind that the photo might include uncooked or unusually large portions.\n\nProvide the output in JSON format with this structure:\n{\n    \"foods\": [\n        {\"name\": \"food name\", \"weight_g\": estimated_weight, \"state\": \"liquid|solid\", \"nutrition\": {\"calories\": number, \"protein\": grams, \"carbs\": grams, \"fat\": grams}}\n    ]\n}\n\nContext and instructions:\n- If you see a whole chicken, specify it as 'whole chicken' not 'chicken breast'\n- Estimate portions based on standard serving sizes\n- Be very specific with food identification\n- Include detailed nutritional information per item\n- For state, use only 'liquid' or 'solid' as values",
+                text: `Analyze this meal photo following these steps carefully:
+
+1. Food Identification:
+   - Identify all visible items
+   - Categorize each food item specifically (e.g., chicken breast vs. whole chicken)
+
+2. Weight Estimation:
+   - Estimate weight in grams for each item
+   - Use reasonable portion sizes based on visible cues
+
+3. Nutritional Information:
+   - Calculate macronutrients based on weight
+   - Use standard nutritional values
+
+4. Contextual Consistency:
+   - Assume standard preparation methods
+   - Default to healthier preparation when ambiguous
+
+Provide output in this exact JSON format:
+{
+    "foods": [
+        {
+            "name": "food name",
+            "weight_g": number,
+            "state": "liquid|solid",
+            "nutrition": {
+                "calories": number,
+                "protein": number,
+                "carbs": number,
+                "fat": number
+            }
+        }
+    ]
+}
+
+Important guidelines:
+- Be specific with food names (e.g., "chicken breast" not just "chicken")
+- Use only "liquid" or "solid" for state
+- All numerical values should be numbers, not strings
+- Round weights to nearest gram
+- Include all visible food items
+- Use standard nutritional databases for calculations`
               },
               {
                 type: "image_url",
@@ -47,6 +92,7 @@ export const analyzeImage = async (
           }
         ],
         max_tokens: 1000,
+        temperature: 0.7
       }),
     });
 
@@ -62,6 +108,22 @@ export const analyzeImage = async (
       
       const cleanedContent = content.replace(/```json\n|\n```/g, '');
       const result = JSON.parse(cleanedContent);
+      
+      // Validate the response format
+      if (!result.foods || !Array.isArray(result.foods)) {
+        throw new Error('Invalid response format: missing foods array');
+      }
+
+      // Validate each food item
+      result.foods.forEach((food: any, index: number) => {
+        if (!food.name || typeof food.weight_g !== 'number' || !food.nutrition) {
+          throw new Error(`Invalid food item at index ${index}`);
+        }
+        if (food.state !== 'liquid' && food.state !== 'solid') {
+          food.state = 'solid'; // Default to solid if invalid
+        }
+      });
+
       setNutritionData(result);
       await saveFoodEntries(result.foods);
       toast.success("Food analysis complete!");
