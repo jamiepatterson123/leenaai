@@ -14,6 +14,7 @@ import { Navigation } from "./components/Navigation";
 import { HelpPopup } from "./components/HelpPopup";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
+import { HealthDataConnect } from "./components/health/HealthDataConnect";
 
 const queryClient = new QueryClient();
 
@@ -98,6 +99,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Coach />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/integrations"
+              element={
+                <ProtectedRoute>
+                  <HealthDataConnect />
                 </ProtectedRoute>
               }
             />

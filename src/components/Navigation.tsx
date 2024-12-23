@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Home, UtensilsCrossed, LogOut, Key, UserRound, Send, ClipboardList, Menu, UserCheck } from "lucide-react";
+import { Home, UtensilsCrossed, LogOut, Key, UserRound, Send, ClipboardList, Menu, UserCheck, Plug } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   NavigationMenu,
@@ -74,6 +74,7 @@ export const Navigation = () => {
     { icon: UserRound, text: "Biometrics", to: "/profile" },
     { icon: ClipboardList, text: "Reports", to: "/reports" },
     { icon: UserCheck, text: "Coach", to: "/coach" },
+    { icon: Plug, text: "Integrations", to: "/integrations" },
     { icon: Send, text: "Share", onClick: handleShare },
     { icon: Key, text: "API Key", to: "/api-settings" },
   ];
@@ -120,7 +121,7 @@ export const Navigation = () => {
           <MobileMenu />
           <NavigationMenu className="hidden md:block">
             <NavigationMenuList>
-              {navigationItems.slice(0, 5).map((item) => (
+              {navigationItems.slice(0, 6).map((item) => (
                 <NavigationMenuItem key={item.to}>
                   <Link to={item.to}>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
