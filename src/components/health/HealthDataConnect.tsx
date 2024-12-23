@@ -1,24 +1,43 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Apple, Activity } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+interface HealthKitWindow extends Window {
+  webkit?: {
+    messageHandlers?: {
+      healthKit?: {
+        postMessage: (message: any) => Promise<any>;
+      };
+    };
+  };
+}
+
 export const HealthDataConnect = () => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+    };
+    getUser();
+  }, []);
 
   const handleAppleHealthConnect = async () => {
     try {
       // Request HealthKit authorization
-      const healthData = await window.webkit?.messageHandlers.healthKit?.postMessage({
+      const healthKitWindow = window as HealthKitWindow;
+      const healthData = await healthKitWindow.webkit?.messageHandlers?.healthKit?.postMessage({
         request: 'authorize',
         dataTypes: ['steps', 'weight', 'activeEnergy', 'heartRate']
       });
 
-      if (healthData) {
+      if (healthData && userId) {
         const { error } = await supabase.functions.invoke('sync-apple-health', {
-          body: { healthData, userId: user?.id }
+          body: { healthData, userId }
         });
 
         if (error) throw error;
