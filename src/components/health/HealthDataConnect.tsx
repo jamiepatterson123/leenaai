@@ -24,9 +24,9 @@ export const HealthDataConnect = () => {
     window.open("https://www.apple.com/ios/health/", "_blank");
   };
 
-  const handleGoogleFitClick = () => {
-    // This would be handled by Google Fit API integration
-    window.open("https://www.google.com/fit/", "_blank");
+  const handleWhoopClick = () => {
+    // This would be handled by Whoop API integration
+    window.open("https://www.whoop.com/", "_blank");
   };
 
   return (
@@ -89,18 +89,18 @@ export const HealthDataConnect = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Google Fit</CardTitle>
+            <CardTitle>Whoop</CardTitle>
             <CardDescription>
-              Connect with Google Fit to sync your activity and health data
+              Connect with Whoop to sync your activity and health data
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button
-              onClick={handleGoogleFitClick}
+              onClick={handleWhoopClick}
               className="w-full flex items-center gap-2"
             >
               <Activity className="h-5 w-5" />
-              Connect Google Fit
+              Connect Whoop
             </Button>
           </CardContent>
         </Card>
