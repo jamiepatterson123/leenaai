@@ -1,45 +1,47 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.2.1'
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.2.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { message, userId, generateSuggestions } = await req.json()
+    const { message, userId, generateSuggestions } = await req.json();
 
     // Initialize OpenAI
-    const openAiKey = Deno.env.get('OPENAI_API_KEY')
+    const openAiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAiKey) {
-      throw new Error('Missing OpenAI API key')
+      throw new Error('Missing OpenAI API key');
     }
 
-    const configuration = new Configuration({ apiKey: openAiKey })
-    const openai = new OpenAIApi(configuration)
+    const configuration = new Configuration({ apiKey: openAiKey });
+    const openai = new OpenAIApi(configuration);
 
     // Get user profile data
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     if (!supabaseUrl || !supabaseKey) {
-      throw new Error('Missing Supabase credentials')
+      throw new Error('Missing Supabase credentials');
     }
 
-    const supabase = createClient(supabaseUrl, supabaseKey)
+    const supabase = createClient(supabaseUrl, supabaseKey);
     const { data: profile } = await supabase
       .from('profiles')
       .select('*')
       .eq('user_id', userId)
-      .single()
+      .single();
 
     // Prepare the conversation context
-    let systemPrompt = "You are a knowledgeable nutrition coach. "
+    let systemPrompt = "You are a knowledgeable nutrition coach. ";
     if (profile) {
       systemPrompt += `The user has the following profile: 
         Age: ${profile.age}, 
@@ -48,8 +50,10 @@ serve(async (req) => {
         Height: ${profile.height_cm}cm, 
         Activity Level: ${profile.activity_level},
         Fitness Goals: ${profile.fitness_goals},
-        Dietary Restrictions: ${profile.dietary_restrictions?.join(', ')}`
+        Dietary Restrictions: ${profile.dietary_restrictions?.join(', ')}`;
     }
+
+    console.log('Sending request to OpenAI with system prompt:', systemPrompt);
 
     // Get response from OpenAI
     const completion = await openai.createChatCompletion({
@@ -59,13 +63,17 @@ serve(async (req) => {
         { role: "user", content: message }
       ],
       temperature: 0.7,
-    })
+    });
 
-    let response = completion.data.choices[0].message?.content || "I'm sorry, I couldn't process that request."
+    console.log('Received response from OpenAI:', completion.data);
+
+    const response = completion.data.choices[0].message?.content || "I'm sorry, I couldn't process that request.";
 
     // Generate follow-up suggestions if requested
-    let suggestions = []
+    let suggestions = [];
     if (generateSuggestions) {
+      console.log('Generating suggestions...');
+      
       const suggestionsCompletion = await openai.createChatCompletion({
         model: "gpt-4o-mini",
         messages: [
@@ -75,14 +83,16 @@ serve(async (req) => {
           { role: "user", content: "Generate 4 relevant follow-up questions." }
         ],
         temperature: 0.7,
-      })
+      });
 
-      const suggestionsText = suggestionsCompletion.data.choices[0].message?.content || ""
+      const suggestionsText = suggestionsCompletion.data.choices[0].message?.content || "";
       suggestions = suggestionsText
         .split('\n')
         .map(s => s.replace(/^\d+\.\s*/, '').trim())
         .filter(s => s.length > 0)
-        .slice(0, 4)
+        .slice(0, 4);
+        
+      console.log('Generated suggestions:', suggestions);
     }
 
     return new Response(
@@ -91,15 +101,15 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       },
-    )
+    );
   } catch (error) {
-    console.error('Error in AI coach:', error)
+    console.error('Error in AI coach:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
       },
-    )
+    );
   }
-})
+});
