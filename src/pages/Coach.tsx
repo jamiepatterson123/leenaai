@@ -14,10 +14,10 @@ interface Message {
 }
 
 const defaultSuggestions = [
-  "What should I eat before a workout?",
-  "How can I increase my protein intake?",
-  "What are good post-workout snacks?",
-  "How many calories should I eat?"
+  "What advice would you give me from today's nutrition?",
+  "How can I improve my meal planning for tomorrow?",
+  "Based on my profile, what should my macros be?",
+  "What are healthy snack options for my fitness goals?"
 ];
 
 const Coach = () => {
@@ -40,8 +40,8 @@ const Coach = () => {
 
   const handleSubmit = async (messageText: string | React.FormEvent) => {
     if (typeof messageText !== 'string') {
-      messageText = input;
       messageText.preventDefault();
+      messageText = input;
     }
     
     if (!messageText.trim() || isLoading) return;
@@ -72,7 +72,7 @@ const Coach = () => {
         body: { 
           message: messageText.trim(), 
           userId: user.id,
-          generateSuggestions: true // Add this flag to request suggestions
+          generateSuggestions: true
         }
       });
 
@@ -85,7 +85,7 @@ const Coach = () => {
         return [...newMessages, {
           role: "assistant",
           content: data.response,
-          suggestions: data.suggestions || defaultSuggestions // Use provided suggestions or fall back to defaults
+          suggestions: data.suggestions || defaultSuggestions
         }];
       });
 
