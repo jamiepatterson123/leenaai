@@ -16,6 +16,27 @@ const Index = () => {
   const [nutritionData, setNutritionData] = useState<any>(null);
   const today = format(new Date(), "yyyy-MM-dd");
 
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error) {
+        toast.error("Error fetching profile");
+        throw error;
+      }
+
+      return data;
+    },
+  });
+
   const { data: hasTodayEntries } = useQuery({
     queryKey: ["hasTodayEntries"],
     queryFn: async () => {
@@ -60,7 +81,7 @@ const Index = () => {
   return (
     <div className="max-w-4xl mx-auto px-8">
       <h1 className="text-4xl font-bold text-center mb-8 text-primary">
-        Leena
+        {profile?.first_name ? `Hi ${profile.first_name}, welcome to Leena` : "Welcome to Leena"}
       </h1>
       <div className="space-y-8">
         <StreakCounter />
