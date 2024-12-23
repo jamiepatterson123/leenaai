@@ -10,6 +10,7 @@ import ApiSettings from "./pages/ApiSettings";
 import Profile from "./pages/Profile";
 import Reports from "./pages/Reports";
 import Coach from "./pages/Coach";
+import Learn from "./pages/Learn";
 import { Navigation } from "./components/Navigation";
 import { HelpPopup } from "./components/HelpPopup";
 import { useEffect, useState } from "react";
@@ -99,6 +100,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Coach />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/learn"
+              element={
+                <ProtectedRoute>
+                  <Learn />
                 </ProtectedRoute>
               }
             />

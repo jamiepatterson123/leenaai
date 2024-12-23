@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Home, UtensilsCrossed, LogOut, Key, UserRound, Send, ClipboardList, Menu, UserCheck, Plug } from "lucide-react";
+import { Home, UtensilsCrossed, LogOut, Key, UserRound, Send, ClipboardList, Menu, UserCheck, Plug, GraduationCap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   NavigationMenu,
@@ -75,6 +75,7 @@ export const Navigation = () => {
     { icon: ClipboardList, text: "Reports", to: "/reports" },
     { icon: UserCheck, text: "Coach", to: "/coach" },
     { icon: Plug, text: "Integrations", to: "/integrations" },
+    { icon: GraduationCap, text: "Learn", to: "/learn" },
     { icon: Send, text: "Share", onClick: handleShare },
     { icon: Key, text: "API Key", to: "/api-settings" },
   ];
