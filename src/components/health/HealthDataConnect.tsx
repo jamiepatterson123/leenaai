@@ -1,4 +1,4 @@
-import { Phone, WhatsApp, Apple, Activity } from "lucide-react";
+import { Phone, MessageCircle, Apple, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -45,7 +45,7 @@ export const HealthDataConnect = () => {
               onClick={handleWhatsAppClick}
               className="w-full flex items-center gap-2"
             >
-              <WhatsApp className="h-5 w-5" />
+              <MessageCircle className="h-5 w-5" />
               Chat on WhatsApp
             </Button>
           </CardContent>
