@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      apple_health_data: {
+        Row: {
+          created_at: string
+          data_type: string
+          id: string
+          source: string | null
+          timestamp: string
+          unit: string
+          user_id: string | null
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          data_type: string
+          id?: string
+          source?: string | null
+          timestamp: string
+          unit: string
+          user_id?: string | null
+          value: number
+        }
+        Update: {
+          created_at?: string
+          data_type?: string
+          id?: string
+          source?: string | null
+          timestamp?: string
+          unit?: string
+          user_id?: string | null
+          value?: number
+        }
+        Relationships: []
+      }
       food_diary: {
         Row: {
           calories: number
@@ -126,6 +159,39 @@ export type Database = {
           id?: string
           name?: string
           value?: string
+        }
+        Relationships: []
+      }
+      whoop_data: {
+        Row: {
+          created_at: string
+          data_type: string
+          id: string
+          source: string | null
+          timestamp: string
+          unit: string
+          user_id: string | null
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          data_type: string
+          id?: string
+          source?: string | null
+          timestamp: string
+          unit: string
+          user_id?: string | null
+          value: number
+        }
+        Update: {
+          created_at?: string
+          data_type?: string
+          id?: string
+          source?: string | null
+          timestamp?: string
+          unit?: string
+          user_id?: string | null
+          value?: number
         }
         Relationships: []
       }

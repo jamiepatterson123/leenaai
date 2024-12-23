@@ -8,7 +8,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -16,7 +15,6 @@ serve(async (req) => {
   try {
     const { message, userId } = await req.json();
 
-    // Initialize Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -29,52 +27,40 @@ serve(async (req) => {
       .eq('user_id', userId)
       .single();
 
-    // Fetch recent food diary entries (last 7 days)
-    const { data: foodEntries } = await supabaseClient
-      .from('food_diary')
+    // Fetch recent health data
+    const { data: appleHealthData } = await supabaseClient
+      .from('apple_health_data')
       .select('*')
       .eq('user_id', userId)
-      .gte('date', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
-      .order('date', { ascending: false });
+      .gte('timestamp', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+      .order('timestamp', { ascending: false });
 
-    // Calculate average daily nutrition
-    const nutritionSummary = foodEntries?.reduce((acc, entry) => {
-      acc.calories += entry.calories;
-      acc.protein += entry.protein;
-      acc.carbs += entry.carbs;
-      acc.fat += entry.fat;
-      return acc;
-    }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
-
-    const daysCount = [...new Set(foodEntries?.map(entry => entry.date))].length || 1;
-    Object.keys(nutritionSummary).forEach(key => {
-      nutritionSummary[key] = Math.round(nutritionSummary[key] / daysCount);
-    });
+    const { data: whoopData } = await supabaseClient
+      .from('whoop_data')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('timestamp', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+      .order('timestamp', { ascending: false });
 
     // Prepare context for the AI
-    const context = `
-      User Profile:
-      - Current weight: ${profile?.weight_kg}kg
-      - Height: ${profile?.height_cm}cm
-      - Age: ${profile?.age}
-      - Activity level: ${profile?.activity_level}
-      - Fitness goals: ${profile?.fitness_goals}
-      - Dietary restrictions: ${profile?.dietary_restrictions?.join(', ')}
+    const healthContext = `
+      Recent Health Data:
+      ${appleHealthData ? `
+        Apple Health Metrics (Last 7 days):
+        - Steps: ${calculateAverage(appleHealthData.filter(d => d.data_type === 'steps'))} steps/day
+        - Active Energy: ${calculateAverage(appleHealthData.filter(d => d.data_type === 'activeEnergy'))} kcal/day
+        - Heart Rate: ${calculateAverage(appleHealthData.filter(d => d.data_type === 'heartRate'))} bpm
+      ` : 'No Apple Health data available'}
 
-      Current Targets:
-      - Daily calories: ${profile?.target_calories}
-      - Daily protein: ${profile?.target_protein}g
-      - Daily carbs: ${profile?.target_carbs}g
-      - Daily fat: ${profile?.target_fat}g
-
-      7-Day Average Intake:
-      - Calories: ${nutritionSummary.calories}
-      - Protein: ${nutritionSummary.protein}g
-      - Carbs: ${nutritionSummary.carbs}g
-      - Fat: ${nutritionSummary.fat}g
+      ${whoopData ? `
+        Whoop Metrics (Last 7 days):
+        - Recovery: ${calculateAverage(whoopData.filter(d => d.data_type === 'recovery'))}%
+        - Strain: ${calculateAverage(whoopData.filter(d => d.data_type === 'strain'))}
+        - Sleep Performance: ${calculateAverage(whoopData.filter(d => d.data_type === 'sleepPerformance'))}%
+      ` : 'No Whoop data available'}
     `;
 
-    // Call OpenAI API
+    // Call OpenAI API with enhanced context
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -86,11 +72,11 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: "You are a knowledgeable and supportive nutrition coach. Analyze the user's data and provide personalized advice. Be concise but friendly. Focus on actionable insights and encouragement. Use the provided context to give specific, data-driven recommendations."
+            content: "You are a knowledgeable nutrition and fitness coach. Analyze the user's health data and provide personalized advice. Be concise but friendly. Focus on actionable insights and encouragement."
           },
           {
             role: 'user',
-            content: `Context about the user:\n${context}\n\nUser message: ${message}`
+            content: `Context about the user's health:\n${healthContext}\n\nUser message: ${message}`
           }
         ],
       }),
@@ -110,3 +96,8 @@ serve(async (req) => {
     });
   }
 });
+
+function calculateAverage(data: any[]) {
+  if (!data || data.length === 0) return 0;
+  return (data.reduce((sum, item) => sum + Number(item.value), 0) / data.length).toFixed(1);
+}
