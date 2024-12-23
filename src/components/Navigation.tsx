@@ -70,7 +70,7 @@ export const Navigation = () => {
 
   const navigationItems = [
     { icon: Home, text: "Home", to: "/" },
-    { icon: UtensilsCrossed, text: "Food Diary", to: "/food-diary" },
+    { icon: UtensilsCrossed, text: "Nutrition", to: "/food-diary" },
     { icon: UserRound, text: "Biometrics", to: "/profile" },
     { icon: ClipboardList, text: "Reports", to: "/reports" },
     { icon: UserCheck, text: "Coach", to: "/coach" },
