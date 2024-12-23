@@ -41,6 +41,12 @@ const Coach = () => {
       setMessages(prev => [...prev, userMessage]);
       setInput("");
 
+      // Show thinking message
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "I'm thinking..."
+      }]);
+
       // Call AI coach function
       const { data, error } = await supabase.functions.invoke('ai-coach', {
         body: { message: input.trim(), userId: user.id }
@@ -48,14 +54,24 @@ const Coach = () => {
 
       if (error) throw error;
 
-      // Add AI response
-      setMessages(prev => [...prev, {
-        role: "assistant",
-        content: data.response
-      }]);
+      // Remove thinking message and add AI response
+      setMessages(prev => {
+        const newMessages = [...prev];
+        newMessages.pop(); // Remove thinking message
+        return [...newMessages, {
+          role: "assistant",
+          content: data.response
+        }];
+      });
 
     } catch (error) {
       console.error('Error in AI coach:', error);
+      // Remove thinking message if there was an error
+      setMessages(prev => {
+        const newMessages = [...prev];
+        newMessages.pop(); // Remove thinking message
+        return newMessages;
+      });
       toast.error("Sorry, I couldn't process your request. Please try again.");
     } finally {
       setIsLoading(false);
@@ -80,7 +96,8 @@ const Coach = () => {
                     "rounded-lg px-4 py-2 max-w-[80%] break-words",
                     message.role === "assistant" 
                       ? "bg-muted text-muted-foreground" 
-                      : "bg-primary text-primary-foreground"
+                      : "bg-primary text-primary-foreground",
+                    message.content === "I'm thinking..." && "animate-pulse"
                   )}
                 >
                   {message.content}
@@ -95,7 +112,7 @@ const Coach = () => {
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask your nutrition coach..."
+          placeholder={isLoading ? "Please wait..." : "Ask your nutrition coach..."}
           className="flex-1"
           disabled={isLoading}
         />
