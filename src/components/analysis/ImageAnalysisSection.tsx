@@ -53,6 +53,12 @@ export const ImageAnalysisSection = ({
       return;
     }
 
+    // Prevent multiple simultaneous analyses
+    if (analyzing) {
+      toast.error("Please wait for the current analysis to complete");
+      return;
+    }
+
     setAnalyzing(true);
     setResetUpload(false);
     try {
@@ -61,7 +67,6 @@ export const ImageAnalysisSection = ({
         setNutritionData,
         saveFoodEntries: async (foods) => {
           await saveFoodEntries(foods, selectedDate);
-          // Trigger a refetch of the food diary data by invalidating the query
           queryClient.invalidateQueries({ 
             queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
           });
