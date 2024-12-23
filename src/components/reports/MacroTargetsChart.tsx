@@ -20,7 +20,7 @@ interface MacroTargetsChartProps {
 }
 
 export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
-  const targets = useNutritionTargets();
+  const { targets } = useNutritionTargets();
   
   // Calculate averages for the week
   const averages = data.reduce((acc, day) => ({

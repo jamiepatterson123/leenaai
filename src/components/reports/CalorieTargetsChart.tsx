@@ -17,7 +17,7 @@ interface CalorieTargetsChartProps {
 }
 
 export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
-  const targets = useNutritionTargets();
+  const { targets } = useNutritionTargets();
   
   // Calculate average calories for the week
   const averageCalories = data.reduce((acc, day) => acc + day.calories, 0) / data.length;
