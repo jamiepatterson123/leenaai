@@ -6,7 +6,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { HealthDataConnect } from "@/components/health/HealthDataConnect";
 
 interface Message {
   role: "assistant" | "user";
@@ -81,10 +80,6 @@ const Coach = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 h-[calc(100vh-120px)] flex flex-col">
-      <div className="mb-6">
-        <HealthDataConnect />
-      </div>
-      
       <div className="flex-1 space-y-4 mb-4">
         <ScrollArea className="h-full pr-4">
           <div className="space-y-4 pb-4">
