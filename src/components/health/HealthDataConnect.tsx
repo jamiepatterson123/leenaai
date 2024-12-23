@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Apple, Activity, Ring } from 'lucide-react';
+import { Apple, Activity, CircleDot } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -108,7 +108,7 @@ export const HealthDataConnect = () => {
 
       <Card className="p-6">
         <div className="flex items-center gap-4">
-          <Ring className="h-8 w-8" />
+          <CircleDot className="h-8 w-8" />
           <div>
             <h3 className="text-lg font-semibold">Oura Ring</h3>
             <p className="text-sm text-muted-foreground">
