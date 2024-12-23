@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import type { ProfileRow } from "@/integrations/supabase/types/profiles";
 
 const Index = () => {
   const [analyzing, setAnalyzing] = useState(false);
@@ -33,7 +34,7 @@ const Index = () => {
         throw error;
       }
 
-      return data;
+      return data as ProfileRow;
     },
   });
 
