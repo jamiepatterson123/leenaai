@@ -53,7 +53,7 @@ serve(async (req) => {
 
     // Get response from OpenAI
     const completion = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o-mini",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: message }
@@ -67,7 +67,7 @@ serve(async (req) => {
     let suggestions = []
     if (generateSuggestions) {
       const suggestionsCompletion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o-mini",
         messages: [
           { role: "system", content: "Based on the previous conversation, generate 4 relevant follow-up questions that the user might want to ask. Make them concise and specific." },
           { role: "user", content: message },
