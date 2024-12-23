@@ -79,7 +79,7 @@ const Coach = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 h-[calc(100vh-120px)] flex flex-col">
+    <div className="max-w-4xl mx-auto px-4 h-[calc(100vh-120px)] flex flex-col text-white">
       <div className="flex-1 space-y-4 mb-4">
         <ScrollArea className="h-full pr-4">
           <div className="space-y-4 pb-4">
@@ -95,8 +95,8 @@ const Coach = () => {
                   className={cn(
                     "rounded-lg px-4 py-2 max-w-[80%] break-words text-white",
                     message.role === "assistant" 
-                      ? "bg-muted text-muted-foreground" 
-                      : "bg-primary text-primary-foreground",
+                      ? "bg-muted" 
+                      : "bg-primary",
                     message.content === "I'm thinking..." && "animate-pulse"
                   )}
                 >
@@ -113,7 +113,7 @@ const Coach = () => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={isLoading ? "Please wait..." : "Ask your nutrition coach..."}
-          className="flex-1"
+          className="flex-1 text-white placeholder:text-white/70"
           disabled={isLoading}
         />
         <Button type="submit" size="icon" disabled={isLoading}>
