@@ -93,7 +93,7 @@ const Coach = () => {
               >
                 <div
                   className={cn(
-                    "rounded-lg px-4 py-2 max-w-[80%] break-words",
+                    "rounded-lg px-4 py-2 max-w-[80%] break-words text-white",
                     message.role === "assistant" 
                       ? "bg-muted text-muted-foreground" 
                       : "bg-primary text-primary-foreground",
