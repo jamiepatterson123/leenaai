@@ -74,13 +74,29 @@ serve(async (req) => {
     if (generateSuggestions) {
       console.log('Generating suggestions...');
       
+      const suggestionsPrompt = `Based on the user's profile and our conversation:
+User Profile:
+- Age: ${profile?.age}
+- Weight: ${profile?.weight_kg}kg
+- Goals: ${profile?.fitness_goals}
+- Dietary Restrictions: ${profile?.dietary_restrictions?.join(', ')}
+
+Last Question: "${message}"
+My Response: "${response}"
+
+Generate 4 relevant follow-up questions that would be helpful for the user's nutrition and fitness journey. Focus on:
+1. Daily nutrition advice
+2. Progress tracking
+3. Goal-specific recommendations
+4. Personalized meal planning
+
+Make questions concise and specific to their profile.`;
+
       const suggestionsCompletion = await openai.createChatCompletion({
         model: "gpt-4o-mini",
         messages: [
-          { role: "system", content: "Based on the previous conversation, generate 4 relevant follow-up questions that the user might want to ask. Make them concise and specific." },
-          { role: "user", content: message },
-          { role: "assistant", content: response },
-          { role: "user", content: "Generate 4 relevant follow-up questions." }
+          { role: "system", content: "You are a nutrition coach assistant. Generate relevant follow-up questions based on the user's profile and conversation context." },
+          { role: "user", content: suggestionsPrompt }
         ],
         temperature: 0.7,
       });
@@ -89,10 +105,22 @@ serve(async (req) => {
       suggestions = suggestionsText
         .split('\n')
         .map(s => s.replace(/^\d+\.\s*/, '').trim())
-        .filter(s => s.length > 0)
+        .filter(s => s.length > 0 && s.endsWith('?'))
         .slice(0, 4);
         
       console.log('Generated suggestions:', suggestions);
+
+      // If we don't get enough suggestions, add some defaults
+      const defaultSuggestions = [
+        "What advice would you give me from today's nutrition?",
+        "How can I improve my meal planning for tomorrow?",
+        "Based on my profile, what should my macros be?",
+        "What are healthy snack options for my fitness goals?"
+      ];
+
+      while (suggestions.length < 4) {
+        suggestions.push(defaultSuggestions[suggestions.length]);
+      }
     }
 
     return new Response(
