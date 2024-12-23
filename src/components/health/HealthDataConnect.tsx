@@ -1,128 +1,110 @@
-import React, { useEffect, useState } from 'react';
+import { Phone, WhatsApp, Apple, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Apple, Activity, CircleDot } from 'lucide-react';
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-
-interface HealthKitWindow extends Window {
-  webkit?: {
-    messageHandlers?: {
-      healthKit?: {
-        postMessage: (message: any) => Promise<any>;
-      };
-    };
-  };
-}
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export const HealthDataConnect = () => {
-  const [userId, setUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUserId(user?.id || null);
-    };
-    getUser();
-  }, []);
-
-  const handleAppleHealthConnect = async () => {
-    try {
-      const healthKitWindow = window as HealthKitWindow;
-      const healthData = await healthKitWindow.webkit?.messageHandlers?.healthKit?.postMessage({
-        request: 'authorize',
-        dataTypes: ['steps', 'weight', 'activeEnergy', 'heartRate']
-      });
-
-      if (healthData && userId) {
-        const { error } = await supabase.functions.invoke('sync-apple-health', {
-          body: { healthData, userId }
-        });
-
-        if (error) throw error;
-        toast.success('Apple Health data synced successfully');
-      }
-    } catch (error) {
-      console.error('Error connecting to Apple Health:', error);
-      toast.error('Failed to connect to Apple Health');
-    }
+  const handleWhatsAppClick = () => {
+    // Placeholder for future WhatsApp integration
+    window.open("https://wa.me/1234567890", "_blank");
   };
 
-  const handleWhoopConnect = async () => {
-    try {
-      window.open('https://api.whoop.com/oauth/authorize', '_blank');
-      toast.success('Connected to Whoop successfully');
-    } catch (error) {
-      console.error('Error connecting to Whoop:', error);
-      toast.error('Failed to connect to Whoop');
-    }
+  const handlePhoneClick = () => {
+    // Placeholder for future phone call integration
+    window.location.href = "tel:1234567890";
   };
 
-  const handleOuraConnect = async () => {
-    try {
-      window.open('https://cloud.ouraring.com/oauth/authorize', '_blank');
-      toast.success('Connected to Oura Ring successfully');
-    } catch (error) {
-      console.error('Error connecting to Oura Ring:', error);
-      toast.error('Failed to connect to Oura Ring');
-    }
+  const handleAppleHealthClick = () => {
+    // This would be handled by a native app integration
+    window.open("https://www.apple.com/ios/health/", "_blank");
+  };
+
+  const handleGoogleFitClick = () => {
+    // This would be handled by Google Fit API integration
+    window.open("https://www.google.com/fit/", "_blank");
   };
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
-      <Card className="p-6">
-        <div className="flex items-center gap-4">
-          <Apple className="h-8 w-8" />
-          <div>
-            <h3 className="text-lg font-semibold">Apple Health</h3>
-            <p className="text-sm text-muted-foreground">
-              Connect your Apple Health data for personalized insights
-            </p>
-          </div>
-        </div>
-        <Button 
-          onClick={handleAppleHealthConnect}
-          className="mt-4 w-full"
-        >
-          Connect Apple Health
-        </Button>
-      </Card>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">Integrations & Contact</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>WhatsApp Support</CardTitle>
+            <CardDescription>
+              Connect with us instantly via WhatsApp for quick support and guidance
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={handleWhatsAppClick}
+              className="w-full flex items-center gap-2"
+            >
+              <WhatsApp className="h-5 w-5" />
+              Chat on WhatsApp
+            </Button>
+          </CardContent>
+        </Card>
 
-      <Card className="p-6">
-        <div className="flex items-center gap-4">
-          <Activity className="h-8 w-8" />
-          <div>
-            <h3 className="text-lg font-semibold">Whoop</h3>
-            <p className="text-sm text-muted-foreground">
-              Connect your Whoop data for recovery insights
-            </p>
-          </div>
-        </div>
-        <Button 
-          onClick={handleWhoopConnect}
-          className="mt-4 w-full"
-        >
-          Connect Whoop
-        </Button>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Phone Support</CardTitle>
+            <CardDescription>
+              Call us directly for immediate assistance with your health tracking needs
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={handlePhoneClick}
+              className="w-full flex items-center gap-2"
+            >
+              <Phone className="h-5 w-5" />
+              Call Support
+            </Button>
+          </CardContent>
+        </Card>
 
-      <Card className="p-6">
-        <div className="flex items-center gap-4">
-          <CircleDot className="h-8 w-8" />
-          <div>
-            <h3 className="text-lg font-semibold">Oura Ring</h3>
-            <p className="text-sm text-muted-foreground">
-              Connect your Oura Ring for sleep and recovery data
-            </p>
-          </div>
-        </div>
-        <Button 
-          onClick={handleOuraConnect}
-          className="mt-4 w-full"
-        >
-          Connect Oura Ring
-        </Button>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Apple Health</CardTitle>
+            <CardDescription>
+              Sync your health and fitness data from Apple Health
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={handleAppleHealthClick}
+              className="w-full flex items-center gap-2"
+            >
+              <Apple className="h-5 w-5" />
+              Connect Apple Health
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Google Fit</CardTitle>
+            <CardDescription>
+              Connect with Google Fit to sync your activity and health data
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={handleGoogleFitClick}
+              className="w-full flex items-center gap-2"
+            >
+              <Activity className="h-5 w-5" />
+              Connect Google Fit
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
