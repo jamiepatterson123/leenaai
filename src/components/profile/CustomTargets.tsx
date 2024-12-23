@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface CustomTargetsFormData {
   target_calories: number;
@@ -15,6 +16,7 @@ interface CustomTargetsFormData {
 }
 
 export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTargetsFormData> }) => {
+  const queryClient = useQueryClient();
   const { register, watch, setValue, handleSubmit } = useForm<CustomTargetsFormData>({
     defaultValues: {
       target_calories: initialData?.target_calories || 2000,
@@ -26,18 +28,14 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
 
   const watchCalories = watch("target_calories");
 
-  // Update macros when calories change
   React.useEffect(() => {
     if (watchCalories) {
-      // Protein: 30% of calories (4 calories per gram)
       const proteinCalories = watchCalories * 0.3;
       const protein = Math.round(proteinCalories / 4);
       
-      // Fat: 25% of calories (9 calories per gram)
       const fatCalories = watchCalories * 0.25;
       const fat = Math.round(fatCalories / 9);
       
-      // Remaining calories go to carbs (4 calories per gram)
       const carbsCalories = watchCalories - proteinCalories - fatCalories;
       const carbs = Math.round(carbsCalories / 4);
 
@@ -63,6 +61,10 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
         .eq("user_id", user.id);
 
       if (error) throw error;
+      
+      // Invalidate and refetch queries
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      
       toast.success("Macro targets updated successfully");
     } catch (error) {
       console.error("Error updating targets:", error);

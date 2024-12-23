@@ -33,7 +33,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
   selectedDate
 }) => {
   const totalNutrition = TotalNutrition({ foods });
-  const targets = useNutritionTargets();
+  const { targets } = useNutritionTargets();
 
   const macros = [
     {

@@ -6,7 +6,7 @@ import type { Database } from "@/integrations/supabase/types";
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 export const useNutritionTargets = () => {
-  const { data: profile } = useQuery({
+  const { data: profile, refetch } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -50,5 +50,5 @@ export const useNutritionTargets = () => {
     }
   }
 
-  return targets;
+  return { targets, refetch };
 };
