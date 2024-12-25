@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Send } from "lucide-react";
+import { Send, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -21,6 +21,43 @@ const Coach = () => {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+
+  const playAudio = async (text: string) => {
+    try {
+      setIsPlaying(true);
+      const response = await supabase.functions.invoke('text-to-speech', {
+        body: { text }
+      });
+
+      if (response.error) throw response.error;
+
+      // Create and play audio
+      const audio = new Audio(`data:audio/mpeg;base64,${response.data.audio}`);
+      setAudioElement(audio);
+      
+      audio.onended = () => {
+        setIsPlaying(false);
+        setAudioElement(null);
+      };
+
+      audio.play();
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      toast.error("Couldn't play audio. Please try again.");
+      setIsPlaying(false);
+    }
+  };
+
+  const stopAudio = () => {
+    if (audioElement) {
+      audioElement.pause();
+      audioElement.currentTime = 0;
+      setIsPlaying(false);
+      setAudioElement(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,16 +128,28 @@ const Coach = () => {
                   message.role === "assistant" ? "justify-start" : "justify-end"
                 )}
               >
-                <div
-                  className={cn(
-                    "rounded-lg px-4 py-2 max-w-[80%] break-words text-white",
-                    message.role === "assistant" 
-                      ? "bg-muted" 
-                      : "bg-primary",
-                    message.content === "I'm thinking..." && "animate-pulse"
+                <div className="flex flex-col gap-2">
+                  <div
+                    className={cn(
+                      "rounded-lg px-4 py-2 max-w-[80%] break-words text-white",
+                      message.role === "assistant" 
+                        ? "bg-muted" 
+                        : "bg-primary",
+                      message.content === "I'm thinking..." && "animate-pulse"
+                    )}
+                  >
+                    {message.content}
+                  </div>
+                  {message.role === "assistant" && message.content !== "I'm thinking..." && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="self-start"
+                      onClick={() => isPlaying ? stopAudio() : playAudio(message.content)}
+                    >
+                      {isPlaying ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                    </Button>
                   )}
-                >
-                  {message.content}
                 </div>
               </div>
             ))}
