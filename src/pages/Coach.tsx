@@ -6,6 +6,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Message {
   role: "assistant" | "user";
@@ -141,14 +146,25 @@ const Coach = () => {
                     {message.content}
                   </div>
                   {message.role === "assistant" && message.content !== "I'm thinking..." && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="self-start"
-                      onClick={() => isPlaying ? stopAudio() : playAudio(message.content)}
-                    >
-                      {isPlaying ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="self-start"
+                          onClick={() => isPlaying ? stopAudio() : playAudio(message.content)}
+                        >
+                          {isPlaying ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          {isPlaying 
+                            ? "Stop audio playback" 
+                            : "Listen to this response"}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
                   )}
                 </div>
               </div>
