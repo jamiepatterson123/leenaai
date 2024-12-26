@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
@@ -13,13 +13,6 @@ export const CameraView: React.FC<CameraViewProps> = ({
   onCapture,
   onClose,
 }) => {
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.style.width = "100%";
-      videoRef.current.style.height = "100%";
-    }
-  }, []);
-
   return (
     <div className="fixed inset-0 bg-black z-50 flex flex-col">
       <div className="relative flex-1">
