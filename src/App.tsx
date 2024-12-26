@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 import Reports from "./pages/Reports";
 import Coach from "./pages/Coach";
 import Learn from "./pages/Learn";
+import Community from "./pages/Community";
 import { Navigation } from "./components/Navigation";
 import { HelpPopup } from "./components/HelpPopup";
 import { HealthDataConnect } from "./components/health/HealthDataConnect";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/reports" element={<Reports />} />
             <Route path="/coach" element={<Coach />} />
             <Route path="/learn" element={<Learn />} />
+            <Route path="/community" element={<Community />} />
             <Route path="/integrations" element={<HealthDataConnect />} />
           </Routes>
           <HelpPopup />

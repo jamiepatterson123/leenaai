@@ -42,6 +42,65 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_requests: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          status: string | null
+          title: string
+          user_id: string | null
+          votes_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          status?: string | null
+          title: string
+          user_id?: string | null
+          votes_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          status?: string | null
+          title?: string
+          user_id?: string | null
+          votes_count?: number | null
+        }
+        Relationships: []
+      }
+      feature_votes: {
+        Row: {
+          created_at: string
+          feature_id: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          feature_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          feature_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_votes_feature_id_fkey"
+            columns: ["feature_id"]
+            isOneToOne: false
+            referencedRelation: "feature_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       food_diary: {
         Row: {
           calories: number
