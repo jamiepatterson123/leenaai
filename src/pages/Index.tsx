@@ -114,8 +114,6 @@ const Index = () => {
 
   const handleCameraClick = () => {
     if (fileInputRef.current) {
-      fileInputRef.current.accept = "image/*";
-      fileInputRef.current.capture = "environment"; // This triggers the rear camera
       fileInputRef.current.click();
     }
   };
@@ -148,11 +146,11 @@ const Index = () => {
             type="file"
             ref={fileInputRef}
             className="hidden"
+            accept="image/*"
+            capture="environment"
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (file) {
-                // Handle the captured image
-                // You can pass this to your ImageAnalysisSection
                 const event = new CustomEvent('imageSelected', { detail: file });
                 window.dispatchEvent(event);
               }
