@@ -113,7 +113,10 @@ const Community = () => {
 
   const hasVoted = (feature: any) => {
     return feature.feature_votes?.some(
-      (vote: any) => vote.user_id === supabase.auth.getUser()?.data?.user?.id
+      (vote: any) => {
+        const session = supabase.auth.getSession();
+        return vote.user_id === session?.data?.session?.user?.id;
+      }
     );
   };
 
