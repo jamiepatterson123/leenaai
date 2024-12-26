@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { X, Camera } from "lucide-react";
+import { X } from "lucide-react";
 
 interface CameraViewProps {
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -13,16 +13,15 @@ export const CameraView: React.FC<CameraViewProps> = ({
   onCapture,
   onClose,
 }) => {
-  // Ensure video fills the screen on mount
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.style.transform = 'scaleX(-1)'; // Mirror the front camera view
+      videoRef.current.style.width = "100%";
+      videoRef.current.style.height = "100%";
     }
   }, []);
 
   return (
     <div className="fixed inset-0 bg-black z-50 flex flex-col">
-      {/* Camera Preview */}
       <div className="relative flex-1">
         <video
           ref={videoRef}
@@ -31,7 +30,6 @@ export const CameraView: React.FC<CameraViewProps> = ({
           className="absolute inset-0 w-full h-full object-cover"
         />
         
-        {/* Close Button */}
         <Button
           variant="ghost"
           size="icon"
@@ -42,7 +40,6 @@ export const CameraView: React.FC<CameraViewProps> = ({
         </Button>
       </div>
 
-      {/* Camera Controls */}
       <div className="bg-black/90 p-8">
         <div className="flex justify-center items-center">
           <Button

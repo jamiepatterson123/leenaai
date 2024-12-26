@@ -18,7 +18,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const streamRef = React.useRef<MediaStream | null>(null);
 
-  // Reset preview when resetPreview prop changes
   React.useEffect(() => {
     if (resetPreview) {
       setPreview(null);
@@ -59,34 +58,39 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         return;
       }
 
-      const stream = await navigator.mediaDevices.getUserMedia({
+      const constraints = {
         video: {
-          facingMode: { ideal: "environment" },
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-        },
-      });
+          facingMode: "environment",
+          width: { ideal: window.innerWidth },
+          height: { ideal: window.innerHeight }
+        }
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
         setIsCapturing(true);
 
-        // Ensure video plays after metadata is loaded
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current?.play().catch(error => {
-            console.error("Error playing video:", error);
-            toast.error("Failed to start camera preview");
-          });
-        };
+        await new Promise((resolve) => {
+          if (videoRef.current) {
+            videoRef.current.onloadedmetadata = () => {
+              videoRef.current?.play()
+                .then(resolve)
+                .catch(error => {
+                  console.error("Error playing video:", error);
+                  toast.error("Failed to start camera preview");
+                });
+            };
+          }
+        });
       }
     } catch (err) {
       console.error("Camera error:", err);
       if (err instanceof Error) {
         if (err.name === "NotAllowedError") {
-          toast.error(
-            "Camera access was denied. Please allow camera access and try again."
-          );
+          toast.error("Camera access denied. Please allow camera access in your browser settings.");
         } else if (err.name === "NotFoundError") {
           toast.error("No camera found on your device");
         } else {
@@ -95,6 +99,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       } else {
         toast.error("Unable to access camera");
       }
+      setIsCapturing(false);
     }
   };
 
@@ -115,12 +120,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         return;
       }
 
-      // Flip the image horizontally if using front camera
-      if (videoRef.current.style.transform.includes('scaleX(-1)')) {
-        ctx.translate(canvas.width, 0);
-        ctx.scale(-1, 1);
-      }
-      
       ctx.drawImage(videoRef.current, 0, 0);
 
       canvas.toBlob(
