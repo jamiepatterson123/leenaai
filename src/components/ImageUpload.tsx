@@ -1,36 +1,21 @@
 import React, { useState } from "react";
+import { Upload, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
-import { CameraView } from "./camera/CameraView";
-import { ImagePreview } from "./camera/ImagePreview";
-import { CameraButton } from "./camera/CameraButton";
 
 interface ImageUploadProps {
   onImageSelect: (image: File) => void;
   resetPreview?: boolean;
 }
 
-export const ImageUpload: React.FC<ImageUploadProps> = ({
-  onImageSelect,
-  resetPreview,
-}) => {
+export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPreview }) => {
   const [preview, setPreview] = useState<string | null>(null);
-  const [isCapturing, setIsCapturing] = useState(false);
-  const videoRef = React.useRef<HTMLVideoElement>(null);
-  const streamRef = React.useRef<MediaStream | null>(null);
 
+  // Reset preview when resetPreview prop changes
   React.useEffect(() => {
     if (resetPreview) {
       setPreview(null);
     }
   }, [resetPreview]);
-
-  React.useEffect(() => {
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-      }
-    };
-  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -47,83 +32,41 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     };
     reader.readAsDataURL(file);
     onImageSelect(file);
-    e.target.value = "";
-  };
-
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" }
-      });
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        streamRef.current = stream;
-        await videoRef.current.play();
-        setIsCapturing(true);
-      }
-    } catch (err) {
-      console.error("Camera error:", err);
-      if (err instanceof Error) {
-        if (err.name === "NotAllowedError") {
-          toast.error("Please allow camera access in your browser settings");
-        } else if (err.name === "NotFoundError") {
-          toast.error("No camera found on your device");
-        } else {
-          toast.error("Error accessing camera: " + err.message);
-        }
-      } else {
-        toast.error("Unable to access camera");
-      }
-      setIsCapturing(false);
-    }
-  };
-
-  const capturePhoto = () => {
-    if (!videoRef.current) return;
-
-    const canvas = document.createElement("canvas");
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    const ctx = canvas.getContext("2d");
     
-    if (!ctx) {
-      toast.error("Unable to capture photo");
-      return;
-    }
-
-    ctx.drawImage(videoRef.current, 0, 0);
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const file = new File([blob], "camera-photo.jpg", { type: "image/jpeg" });
-        setPreview(canvas.toDataURL("image/jpeg"));
-        onImageSelect(file);
-        stopCamera();
-      }
-    }, "image/jpeg", 0.8);
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-    }
-    setIsCapturing(false);
+    // Reset the input value so the same file can be selected again
+    e.target.value = '';
   };
 
   return (
     <div className="w-full max-w-md mx-auto">
-      {isCapturing ? (
-        <CameraView
-          videoRef={videoRef}
-          onCapture={capturePhoto}
-          onClose={stopCamera}
+      <label
+        htmlFor="image-upload"
+        className="relative block w-full h-64 border-2 border-dashed border-primary rounded-lg cursor-pointer hover:border-primary/80 transition-colors"
+      >
+        <input
+          id="image-upload"
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleImageChange}
         />
-      ) : (
-        <div className="space-y-4">
-          <ImagePreview preview={preview} onImageUpload={handleImageChange} />
-          {!preview && <CameraButton onClick={startCamera} />}
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+          {preview ? (
+            <img
+              src={preview}
+              alt="Preview"
+              className="w-full h-full object-cover rounded-lg animate-fade-in"
+            />
+          ) : (
+            <div className="text-center">
+              <Upload className="mx-auto h-12 w-12 text-primary" />
+              <p className="mt-2 text-sm text-gray-600">
+                Click or drag image to upload
+              </p>
+            </div>
+          )}
         </div>
-      )}
+      </label>
     </div>
   );
 };
