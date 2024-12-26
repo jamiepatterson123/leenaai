@@ -111,12 +111,10 @@ const Community = () => {
     createFeatureRequest.mutate();
   };
 
-  const hasVoted = (feature: any) => {
+  const hasVoted = async (feature: any) => {
+    const { data: { session } } = await supabase.auth.getSession();
     return feature.feature_votes?.some(
-      (vote: any) => {
-        const session = supabase.auth.getSession();
-        return vote.user_id === session?.data?.session?.user?.id;
-      }
+      (vote: any) => vote.user_id === session?.user?.id
     );
   };
 
@@ -168,7 +166,7 @@ const Community = () => {
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
                   <Button
-                    variant={hasVoted(feature) ? "default" : "outline"}
+                    variant="outline"
                     size="icon"
                     className="flex-shrink-0"
                     onClick={() => voteForFeature.mutate(feature.id)}
