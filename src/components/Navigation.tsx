@@ -123,7 +123,7 @@ export const Navigation = () => {
           <MobileMenu />
           <NavigationMenu className="hidden md:block">
             <NavigationMenuList>
-              {navigationItems.slice(0, 6).map((item) => (
+              {navigationItems.slice(0, 8).map((item) => (
                 <NavigationMenuItem key={item.to}>
                   <Link to={item.to}>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
