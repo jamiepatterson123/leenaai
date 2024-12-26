@@ -60,19 +60,45 @@ const Community = () => {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error("Not authenticated");
 
-      const { error } = await supabase.from("feature_votes").insert({
-        feature_id: featureId,
-        user_id: userData.user.id,
-      });
+      // First check if the user has already voted
+      const { data: existingVote } = await supabase
+        .from("feature_votes")
+        .select("id")
+        .eq("feature_id", featureId)
+        .eq("user_id", userData.user.id)
+        .single();
 
-      if (error) throw error;
+      if (existingVote) {
+        // If vote exists, remove it
+        const { error } = await supabase
+          .from("feature_votes")
+          .delete()
+          .eq("feature_id", featureId)
+          .eq("user_id", userData.user.id);
+
+        if (error) throw error;
+        return { action: "removed" };
+      } else {
+        // If no vote exists, add it
+        const { error } = await supabase.from("feature_votes").insert({
+          feature_id: featureId,
+          user_id: userData.user.id,
+        });
+
+        if (error) throw error;
+        return { action: "added" };
+      }
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["featureRequests"] });
-      toast.success("Vote recorded!");
+      toast.success(
+        result.action === "added" 
+          ? "Vote recorded!" 
+          : "Vote removed!"
+      );
     },
     onError: (error) => {
-      toast.error("Failed to vote: " + error.message);
+      toast.error("Failed to process vote: " + error.message);
     },
   });
 
@@ -83,6 +109,12 @@ const Community = () => {
       return;
     }
     createFeatureRequest.mutate();
+  };
+
+  const hasVoted = (feature: any) => {
+    return feature.feature_votes?.some(
+      (vote: any) => vote.user_id === supabase.auth.getUser()?.data?.user?.id
+    );
   };
 
   return (
@@ -133,7 +165,7 @@ const Community = () => {
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
                   <Button
-                    variant="outline"
+                    variant={hasVoted(feature) ? "default" : "outline"}
                     size="icon"
                     className="flex-shrink-0"
                     onClick={() => voteForFeature.mutate(feature.id)}
