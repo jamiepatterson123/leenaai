@@ -1,12 +1,20 @@
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUp, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
+import { ThumbsUp } from "lucide-react";
 
 const Community = () => {
   const [title, setTitle] = useState("");
@@ -26,20 +34,26 @@ const Community = () => {
         `)
         .order("votes_count", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        toast.error("Error fetching feature requests");
+        throw error;
+      }
+
       return data;
     },
   });
 
   const createFeatureRequest = useMutation({
     mutationFn: async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error("Not authenticated");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("You must be logged in to create a feature request");
+      }
 
       const { error } = await supabase.from("feature_requests").insert({
         title,
         description,
-        user_id: userData.user.id,
+        user_id: session.user.id,
       });
 
       if (error) throw error;
@@ -48,66 +62,71 @@ const Community = () => {
       queryClient.invalidateQueries({ queryKey: ["featureRequests"] });
       setTitle("");
       setDescription("");
-      toast.success("Feature request submitted successfully!");
+      toast.success("Feature request created successfully!");
     },
     onError: (error) => {
-      toast.error("Failed to submit feature request: " + error.message);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Error creating feature request"
+      );
     },
   });
 
   const voteForFeature = useMutation({
     mutationFn: async (featureId: string) => {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error("Not authenticated");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("You must be logged in to vote");
+      }
 
-      // First check if the user has already voted
       const { data: existingVote } = await supabase
         .from("feature_votes")
-        .select("id")
+        .select("*")
         .eq("feature_id", featureId)
-        .eq("user_id", userData.user.id)
+        .eq("user_id", session.user.id)
         .single();
 
       if (existingVote) {
-        // If vote exists, remove it
+        // Remove vote if it exists
         const { error } = await supabase
           .from("feature_votes")
           .delete()
           .eq("feature_id", featureId)
-          .eq("user_id", userData.user.id);
+          .eq("user_id", session.user.id);
 
         if (error) throw error;
-        return { action: "removed" };
+        return "removed";
       } else {
-        // If no vote exists, add it
-        const { error } = await supabase.from("feature_votes").insert({
-          feature_id: featureId,
-          user_id: userData.user.id,
-        });
+        // Add vote if it doesn't exist
+        const { error } = await supabase
+          .from("feature_votes")
+          .insert({
+            feature_id: featureId,
+            user_id: session.user.id,
+          });
 
         if (error) throw error;
-        return { action: "added" };
+        return "added";
       }
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["featureRequests"] });
       toast.success(
-        result.action === "added" 
-          ? "Vote recorded!" 
-          : "Vote removed!"
+        result === "added"
+          ? "Vote added successfully!"
+          : "Vote removed successfully!"
       );
     },
     onError: (error) => {
-      toast.error("Failed to process vote: " + error.message);
+      toast.error(
+        error instanceof Error ? error.message : "Error processing vote"
+      );
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !description) {
-      toast.error("Please fill in all fields");
-      return;
-    }
     createFeatureRequest.mutate();
   };
 
@@ -118,73 +137,76 @@ const Community = () => {
     );
   };
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold mb-2">Community Feature Requests</h1>
-        <p className="text-muted-foreground">
-          Your suggestions go directly to our CEO, who personally reviews every request.
-          The most popular features will be prioritized for development.
-        </p>
-      </div>
+    <div className="container mx-auto p-8">
+      <h1 className="text-4xl font-bold mb-8">Community Feature Requests</h1>
 
       <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Submit a Feature Request</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit}>
+          <CardHeader>
+            <CardTitle>Submit a Feature Request</CardTitle>
+            <CardDescription>
+              Share your ideas for improving the platform
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div>
+              <Label htmlFor="title">Title</Label>
               <Input
-                placeholder="Feature title"
+                id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="mb-2"
-              />
-              <Textarea
-                placeholder="Describe the feature you'd like to see..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={4}
+                required
               />
             </div>
-            <Button type="submit" className="w-full">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Submit Feature Request
-            </Button>
-          </form>
-        </CardContent>
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+              />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button type="submit">Submit Request</Button>
+          </CardFooter>
+        </form>
       </Card>
 
       <div className="grid gap-4">
-        <h2 className="text-2xl font-semibold mb-4">Feature Leaderboard</h2>
-        {isLoading ? (
-          <p>Loading feature requests...</p>
-        ) : (
-          featureRequests?.map((feature) => (
-            <Card key={feature.id} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="flex-shrink-0"
-                    onClick={() => voteForFeature.mutate(feature.id)}
-                  >
-                    <ArrowUp className="h-4 w-4" />
-                  </Button>
-                  <div className="flex-grow">
-                    <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                    <p className="text-muted-foreground">{feature.description}</p>
-                    <div className="mt-2 text-sm text-muted-foreground">
-                      {feature.votes_count} votes
-                    </div>
-                  </div>
+        {featureRequests?.map((feature: any) => (
+          <Card key={feature.id}>
+            <CardHeader>
+              <CardTitle>{feature.title}</CardTitle>
+              <CardDescription>{feature.description}</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4">
+                <Button
+                  variant={feature.feature_votes?.some((vote: any) => vote.user_id === supabase.auth.getSession()?.data?.session?.user?.id) ? "default" : "outline"}
+                  size="icon"
+                  className="flex-shrink-0"
+                  onClick={() => voteForFeature.mutate(feature.id)}
+                >
+                  <ThumbsUp className="h-4 w-4" />
+                </Button>
+                <div>
+                  <p className="font-medium">{feature.votes_count} votes</p>
+                  <p className="text-sm text-gray-500">
+                    Submitted on{" "}
+                    {new Date(feature.created_at).toLocaleDateString()}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );
