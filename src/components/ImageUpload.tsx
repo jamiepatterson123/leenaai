@@ -52,43 +52,85 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPr
 
   const startCamera = async () => {
     try {
+      // First check if the browser supports getUserMedia
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        toast.error("Your browser doesn't support camera access");
+        return;
+      }
+
+      // Try to get both rear and front cameras
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1920 },
+          height: { ideal: 1080 }
+        }
       });
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
         setIsCapturing(true);
+        
+        // Wait for video to be ready
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current?.play();
+        };
       }
     } catch (err) {
-      toast.error("Unable to access camera");
-      console.error(err);
+      console.error('Camera error:', err);
+      if (err instanceof Error) {
+        if (err.name === 'NotAllowedError') {
+          toast.error("Camera access was denied. Please allow camera access and try again.");
+        } else if (err.name === 'NotFoundError') {
+          toast.error("No camera found on your device");
+        } else {
+          toast.error("Unable to access camera: " + err.message);
+        }
+      } else {
+        toast.error("Unable to access camera");
+      }
     }
   };
 
   const capturePhoto = () => {
-    if (!videoRef.current) return;
+    if (!videoRef.current) {
+      toast.error("Camera not initialized");
+      return;
+    }
 
-    const canvas = document.createElement('canvas');
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.drawImage(videoRef.current, 0, 0);
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const file = new File([blob], "camera-photo.jpg", { type: "image/jpeg" });
-        setPreview(canvas.toDataURL('image/jpeg'));
-        onImageSelect(file);
-        
-        // Stop the camera stream
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach(track => track.stop());
-        }
-        setIsCapturing(false);
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        toast.error("Unable to capture photo");
+        return;
       }
-    }, 'image/jpeg');
+
+      // Flip horizontally if using front camera
+      ctx.drawImage(videoRef.current, 0, 0);
+      
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const file = new File([blob], "camera-photo.jpg", { type: "image/jpeg" });
+          setPreview(canvas.toDataURL('image/jpeg'));
+          onImageSelect(file);
+          
+          // Stop the camera stream
+          if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+          }
+          setIsCapturing(false);
+        } else {
+          toast.error("Failed to create image file");
+        }
+      }, 'image/jpeg', 0.8);
+    } catch (err) {
+      console.error('Capture error:', err);
+      toast.error("Failed to capture photo");
+    }
   };
 
   const stopCamera = () => {
@@ -127,7 +169,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPr
               id="image-upload"
               type="file"
               accept="image/*"
-              capture="environment"
               className="hidden"
               onChange={handleImageChange}
             />
