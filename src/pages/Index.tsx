@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { WeightInput } from "@/components/WeightInput";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, subDays } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Camera } from "lucide-react";
 import { toast } from "sonner";
 import type { ProfileRow } from "@/integrations/supabase/types/profiles";
 
@@ -16,6 +16,7 @@ const Index = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState<any>(null);
   const today = format(new Date(), "yyyy-MM-dd");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
@@ -111,6 +112,14 @@ const Index = () => {
     },
   });
 
+  const handleCameraClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.accept = "image/*";
+      fileInputRef.current.capture = "environment"; // This triggers the rear camera
+      fileInputRef.current.click();
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-8">
       <h1 className="text-4xl font-bold text-center mb-8 text-primary">
@@ -125,6 +134,31 @@ const Index = () => {
             <FoodDiary selectedDate={new Date()} />
           </div>
         )}
+
+        <div className="flex flex-col items-center gap-4">
+          <Button 
+            onClick={handleCameraClick}
+            size="lg"
+            className="w-full max-w-md flex items-center justify-center gap-2"
+          >
+            <Camera className="w-5 h-5" />
+            Take Photo
+          </Button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                // Handle the captured image
+                // You can pass this to your ImageAnalysisSection
+                const event = new CustomEvent('imageSelected', { detail: file });
+                window.dispatchEvent(event);
+              }
+            }}
+          />
+        </div>
 
         <ImageAnalysisSection
           apiKey={apiKey}
