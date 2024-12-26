@@ -72,8 +72,12 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         streamRef.current = stream;
         setIsCapturing(true);
 
+        // Ensure video plays after metadata is loaded
         videoRef.current.onloadedmetadata = () => {
-          videoRef.current?.play();
+          videoRef.current?.play().catch(error => {
+            console.error("Error playing video:", error);
+            toast.error("Failed to start camera preview");
+          });
         };
       }
     } catch (err) {
@@ -111,6 +115,12 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         return;
       }
 
+      // Flip the image horizontally if using front camera
+      if (videoRef.current.style.transform.includes('scaleX(-1)')) {
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+      }
+      
       ctx.drawImage(videoRef.current, 0, 0);
 
       canvas.toBlob(
