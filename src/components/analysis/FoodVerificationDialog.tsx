@@ -38,9 +38,11 @@ export const FoodVerificationDialog = ({
 }: FoodVerificationDialogProps) => {
   const [editedFoods, setEditedFoods] = React.useState<FoodItem[]>(foods);
   const [updating, setUpdating] = React.useState<number | null>(null);
+  const [tempNames, setTempNames] = React.useState<string[]>(foods.map(f => f.name));
 
   React.useEffect(() => {
     setEditedFoods(foods);
+    setTempNames(foods.map(f => f.name));
   }, [foods]);
 
   const updateNutritionInfo = async (index: number, newName: string) => {
@@ -53,7 +55,7 @@ export const FoodVerificationDialog = ({
           'Authorization': `Bearer ${localStorage.getItem('openai_api_key')}`,
         },
         body: JSON.stringify({
-          model: "gpt-4o-mini",
+          model: "gpt-4",
           messages: [
             {
               role: "system",
@@ -99,7 +101,12 @@ export const FoodVerificationDialog = ({
     }
   };
 
-  const handleNameChange = async (index: number, newName: string) => {
+  const handleNameChange = (index: number, value: string) => {
+    setTempNames(prev => prev.map((name, i) => i === index ? value : name));
+  };
+
+  const handleNameBlur = async (index: number) => {
+    const newName = tempNames[index];
     if (newName !== editedFoods[index].name) {
       await updateNutritionInfo(index, newName);
     }
@@ -141,8 +148,9 @@ export const FoodVerificationDialog = ({
                   <Label htmlFor={`food-name-${index}`}>Food Name</Label>
                   <Input
                     id={`food-name-${index}`}
-                    value={food.name}
+                    value={tempNames[index]}
                     onChange={(e) => handleNameChange(index, e.target.value)}
+                    onBlur={() => handleNameBlur(index)}
                     disabled={updating === index}
                   />
                 </div>
