@@ -10,7 +10,6 @@ import { format, subDays } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Camera } from "lucide-react";
 import { toast } from "sonner";
-import type { ProfileRow } from "@/integrations/supabase/types/profiles";
 
 const Index = () => {
   const [analyzing, setAnalyzing] = useState(false);
@@ -35,7 +34,7 @@ const Index = () => {
         throw error;
       }
 
-      return data as ProfileRow;
+      return data;
     },
   });
 
@@ -118,6 +117,18 @@ const Index = () => {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Create a custom event with the file
+      const event = new CustomEvent('imageSelected', { detail: file });
+      window.dispatchEvent(event);
+      
+      // Reset the input value so the same file can be selected again
+      e.target.value = '';
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-8">
       <h1 className="text-4xl font-bold text-center mb-8 text-primary">
@@ -148,13 +159,7 @@ const Index = () => {
             className="hidden"
             accept="image/*"
             capture="environment"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                const event = new CustomEvent('imageSelected', { detail: file });
-                window.dispatchEvent(event);
-              }
-            }}
+            onChange={handleFileChange}
           />
         </div>
 
