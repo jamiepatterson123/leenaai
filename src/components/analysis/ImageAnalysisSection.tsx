@@ -6,6 +6,7 @@ import { analyzeImage } from "./ImageAnalyzer";
 import { saveFoodEntries } from "./FoodEntrySaver";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { FoodVerificationDialog } from "./FoodVerificationDialog";
 
 interface ImageAnalysisSectionProps {
   apiKey: string;
@@ -25,6 +26,8 @@ export const ImageAnalysisSection = ({
   selectedDate,
 }: ImageAnalysisSectionProps) => {
   const [resetUpload, setResetUpload] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
+  const [analyzedFoods, setAnalyzedFoods] = useState([]);
   const queryClient = useQueryClient();
 
   const handleImageSelect = async (image: File) => {
@@ -33,7 +36,6 @@ export const ImageAnalysisSection = ({
       return;
     }
 
-    // Prevent multiple simultaneous analyses
     if (analyzing) {
       toast.error("Please wait for the current analysis to complete");
       return;
@@ -44,21 +46,34 @@ export const ImageAnalysisSection = ({
     try {
       const result = await analyzeImage(image, {
         apiKey,
-        setNutritionData: () => {}, // Don't set nutrition data directly
-        saveFoodEntries: async (foods) => {
-          await saveFoodEntries(foods, selectedDate);
-          queryClient.invalidateQueries({ 
-            queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
-          });
-          setResetUpload(true);
-          toast.success("Food added to diary!");
-        },
+        setNutritionData,
+        saveFoodEntries: async () => {}, // Don't save immediately
       });
+      
+      if (result?.foods) {
+        setAnalyzedFoods(result.foods);
+        setShowVerification(true);
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Error analyzing image");
       console.error(error);
     } finally {
       setAnalyzing(false);
+    }
+  };
+
+  const handleConfirmFoods = async (foods: any[]) => {
+    try {
+      await saveFoodEntries(foods, selectedDate);
+      queryClient.invalidateQueries({ 
+        queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
+      });
+      setResetUpload(true);
+      setShowVerification(false);
+      toast.success("Food added to diary!");
+    } catch (error) {
+      toast.error("Failed to save food entries");
+      console.error(error);
     }
   };
 
@@ -70,6 +85,12 @@ export const ImageAnalysisSection = ({
           Analyzing your meal...
         </p>
       )}
+      <FoodVerificationDialog
+        isOpen={showVerification}
+        onClose={() => setShowVerification(false)}
+        foods={analyzedFoods}
+        onConfirm={handleConfirmFoods}
+      />
     </div>
   );
 };
