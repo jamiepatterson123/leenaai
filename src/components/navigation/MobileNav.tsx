@@ -9,6 +9,12 @@ export const MobileNav = () => {
     return location.pathname === path ? "text-primary" : "text-muted-foreground";
   };
 
+  const handleHelpClick = () => {
+    if (typeof window !== 'undefined' && window.Tawk_API) {
+      window.Tawk_API.toggle();
+    }
+  };
+
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t md:hidden z-50">
       <nav className="flex items-center justify-between px-6 h-16">
@@ -32,7 +38,7 @@ export const MobileNav = () => {
         </Link>
         
         <button 
-          onClick={() => window.Tawk_API?.toggle()} 
+          onClick={handleHelpClick}
           className="flex flex-col items-center text-muted-foreground"
         >
           <MessageSquare className="h-6 w-6" />
