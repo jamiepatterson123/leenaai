@@ -1,9 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import { Home, BookOpen, Plus, MessageSquare, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const MobileNav = () => {
   const location = useLocation();
+  const [analyzing, setAnalyzing] = useState(false);
+  const [nutritionData, setNutritionData] = useState(null);
   
   const isActive = (path: string) => {
     return location.pathname === path ? "text-primary" : "text-muted-foreground";
@@ -14,6 +27,34 @@ export const MobileNav = () => {
       window.Tawk_API.toggle();
     }
   };
+
+  const { data: apiKey } = useQuery({
+    queryKey: ["openai-api-key"],
+    queryFn: async () => {
+      const savedKey = localStorage.getItem("openai_api_key");
+      if (savedKey) {
+        return savedKey;
+      }
+
+      const { data, error } = await supabase
+        .from("secrets")
+        .select("value")
+        .eq("name", "OPENAI_API_KEY")
+        .maybeSingle();
+
+      if (error) {
+        toast.error("Error fetching API key");
+        throw error;
+      }
+
+      if (!data) {
+        toast.error("Please set your OpenAI API key in API Settings first");
+        return null;
+      }
+
+      return data.value;
+    },
+  });
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t md:hidden z-50">
@@ -28,14 +69,28 @@ export const MobileNav = () => {
           <span className="text-xs mt-1">Diary</span>
         </Link>
         
-        <Link 
-          to="/food-diary" 
-          className="flex flex-col items-center -mt-8 relative"
-        >
-          <div className="bg-primary rounded-full p-4">
-            <Plus className="h-6 w-6 text-primary-foreground" />
-          </div>
-        </Link>
+        <Dialog>
+          <DialogTrigger className="flex flex-col items-center -mt-8 relative">
+            <div className="bg-primary rounded-full p-4">
+              <Plus className="h-6 w-6 text-primary-foreground" />
+            </div>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add Food</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <ImageAnalysisSection
+                apiKey={apiKey}
+                analyzing={analyzing}
+                setAnalyzing={setAnalyzing}
+                nutritionData={nutritionData}
+                setNutritionData={setNutritionData}
+                selectedDate={new Date()}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
         
         <button 
           onClick={handleHelpClick}
