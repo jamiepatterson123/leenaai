@@ -7,6 +7,16 @@ import { saveFoodEntries } from "./FoodEntrySaver";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { FoodVerificationDialog } from "./FoodVerificationDialog";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 interface ImageAnalysisSectionProps {
   apiKey: string;
@@ -30,9 +40,12 @@ export const ImageAnalysisSection = ({
   const [resetUpload, setResetUpload] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [analyzedFoods, setAnalyzedFoods] = useState([]);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [pendingImage, setPendingImage] = useState<File | null>(null);
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
-  const handleImageSelect = async (image: File) => {
+  const processImage = async (image: File) => {
     if (!apiKey) {
       toast.error("Please set your OpenAI API key in API Settings first");
       return;
@@ -64,6 +77,29 @@ export const ImageAnalysisSection = ({
     }
   };
 
+  const handleImageSelect = (image: File) => {
+    if (isMobile) {
+      setPendingImage(image);
+      setShowConfirmation(true);
+    } else {
+      processImage(image);
+    }
+  };
+
+  const handleConfirmUpload = () => {
+    if (pendingImage) {
+      processImage(pendingImage);
+    }
+    setShowConfirmation(false);
+    setPendingImage(null);
+  };
+
+  const handleCancelUpload = () => {
+    setShowConfirmation(false);
+    setPendingImage(null);
+    setResetUpload(true);
+  };
+
   const handleConfirmFoods = async (foods: any[]) => {
     try {
       await saveFoodEntries(foods, selectedDate);
@@ -73,7 +109,7 @@ export const ImageAnalysisSection = ({
       setResetUpload(true);
       setShowVerification(false);
       toast.success("Food added to diary!");
-      onSuccess?.(); // Call the onSuccess callback if provided
+      onSuccess?.();
     } catch (error) {
       toast.error("Failed to save food entries");
       console.error(error);
@@ -94,6 +130,24 @@ export const ImageAnalysisSection = ({
         foods={analyzedFoods}
         onConfirm={handleConfirmFoods}
       />
+      <AlertDialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Finished uploading?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you happy with the photo you just took?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={handleCancelUpload}>
+              No, retake
+            </Button>
+            <Button onClick={handleConfirmUpload}>
+              Yes, continue
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
