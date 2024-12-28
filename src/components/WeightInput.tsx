@@ -18,12 +18,23 @@ export const WeightInput = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      const { error } = await supabase
+      // Update current weight in profiles
+      const { error: profileError } = await supabase
         .from("profiles")
         .update({ weight_kg: parseFloat(weight) })
         .eq("user_id", user.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Add entry to weight history
+      const { error: historyError } = await supabase
+        .from("weight_history")
+        .insert({
+          user_id: user.id,
+          weight_kg: parseFloat(weight),
+        });
+
+      if (historyError) throw historyError;
 
       toast.success("Weight updated successfully");
       setWeight("");
