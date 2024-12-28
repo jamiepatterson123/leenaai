@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { WeightInput } from "@/components/WeightInput";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
@@ -6,135 +6,23 @@ import { StreakCounter } from "@/components/StreakCounter";
 import { FoodDiary } from "@/components/FoodDiary";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { format, subDays, subMonths, subYears, eachDayOfInterval } from "date-fns";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Camera } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ReportsContent } from "@/components/reports/ReportsContent";
-import type { ProfileRow } from "@/integrations/supabase/types/profiles";
+import { ProfileHeader } from "@/components/home/ProfileHeader";
+import { CameraButton } from "@/components/home/CameraButton";
+import { useHomeData } from "@/components/home/useHomeData";
 
 const Index = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState<any>(null);
   const today = format(new Date(), "yyyy-MM-dd");
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
 
-  const { data: weightData, isLoading: weightLoading } = useQuery({
-    queryKey: ["weightHistory", "1w"],
-    queryFn: async () => {
-      const startDate = subDays(new Date(), 6);
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("weight_kg, updated_at")
-        .gte("updated_at", startDate.toISOString())
-        .order("updated_at", { ascending: true });
-
-      if (error) throw error;
-
-      return profile.map((entry) => ({
-        weight: entry.weight_kg,
-        date: format(new Date(entry.updated_at), "MMM d"),
-      }));
-    },
-  });
-
-  const { data: calorieData, isLoading: caloriesLoading } = useQuery({
-    queryKey: ["calorieHistory", "1w"],
-    queryFn: async () => {
-      const endDate = new Date();
-      const startDate = subDays(new Date(), 6);
-      
-      const { data, error } = await supabase
-        .from("food_diary")
-        .select("date, calories")
-        .gte("date", startDate.toISOString().split('T')[0])
-        .lte("date", endDate.toISOString().split('T')[0])
-        .order("date", { ascending: true });
-
-      if (error) throw error;
-
-      const dateRange = eachDayOfInterval({ start: startDate, end: endDate });
-      
-      const calorieMap = (data || []).reduce((acc: { [key: string]: number }, entry) => {
-        acc[entry.date] = entry.calories;
-        return acc;
-      }, {});
-
-      return dateRange.map(date => ({
-        date: format(date, "MMM d"),
-        calories: calorieMap[format(date, "yyyy-MM-dd")] || 0,
-      }));
-    },
-  });
-
-  const { data: macroData, isLoading: macrosLoading } = useQuery({
-    queryKey: ["macroHistory", "1w"],
-    queryFn: async () => {
-      const endDate = new Date();
-      const startDate = subDays(new Date(), 6);
-      
-      const { data, error } = await supabase
-        .from("food_diary")
-        .select("date, protein, carbs, fat")
-        .gte("date", startDate.toISOString().split('T')[0])
-        .lte("date", endDate.toISOString().split('T')[0])
-        .order("date", { ascending: true });
-
-      if (error) throw error;
-
-      const dateRange = eachDayOfInterval({ start: startDate, end: endDate });
-      
-      const macroMaps = {
-        protein: {} as { [key: string]: number[] },
-        carbs: {} as { [key: string]: number[] },
-        fat: {} as { [key: string]: number[] },
-      };
-
-      (data || []).forEach(entry => {
-        const dateKey = entry.date;
-        if (!macroMaps.protein[dateKey]) {
-          macroMaps.protein[dateKey] = [];
-          macroMaps.carbs[dateKey] = [];
-          macroMaps.fat[dateKey] = [];
-        }
-        macroMaps.protein[dateKey].push(entry.protein);
-        macroMaps.carbs[dateKey].push(entry.carbs);
-        macroMaps.fat[dateKey].push(entry.fat);
-      });
-
-      return dateRange.map(date => {
-        const dateKey = format(date, "yyyy-MM-dd");
-        const getAverage = (arr: number[]) => 
-          arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
-
-        return {
-          date: format(date, "MMM d"),
-          protein: getAverage(macroMaps.protein[dateKey] || []),
-          carbs: getAverage(macroMaps.carbs[dateKey] || []),
-          fat: getAverage(macroMaps.fat[dateKey] || []),
-        };
-      });
-    },
-  });
-
-  const { data: mealData, isLoading: mealsLoading } = useQuery({
-    queryKey: ["mealDistribution", "1w"],
-    queryFn: async () => {
-      const endDate = new Date();
-      const startDate = subDays(new Date(), 6);
-      
-      const { data, error } = await supabase
-        .from("food_diary")
-        .select("calories, category")
-        .gte("date", startDate.toISOString().split('T')[0])
-        .lte("date", endDate.toISOString().split('T')[0]);
-
-      if (error) throw error;
-      return data || [];
-    },
-  });
+  const { weightData, calorieData, macroData, mealData, isLoading } = useHomeData();
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
@@ -153,40 +41,9 @@ const Index = () => {
         throw error;
       }
 
-      return data as ProfileRow;
+      return data;
     },
   });
-
-  useEffect(() => {
-    const checkRecentAdjustments = async () => {
-      if (!profile) return;
-
-      const twoDaysAgo = format(subDays(new Date(), 2), "yyyy-MM-dd");
-      
-      const { data: adjustments } = await supabase
-        .from("profiles")
-        .select("updated_at, target_calories")
-        .eq("id", profile.id)
-        .gt("updated_at", twoDaysAgo)
-        .order("updated_at", { ascending: false })
-        .limit(1);
-
-      if (adjustments && adjustments.length > 0) {
-        toast.info(
-          "Your daily calorie target has been automatically adjusted to help with your progress. View your new targets in the Profile section.",
-          {
-            duration: 8000,
-            action: {
-              label: "View Profile",
-              onClick: () => window.location.href = "/profile"
-            }
-          }
-        );
-      }
-    };
-
-    checkRecentAdjustments();
-  }, [profile]);
 
   const { data: hasTodayEntries } = useQuery({
     queryKey: ["hasTodayEntries"],
@@ -229,31 +86,14 @@ const Index = () => {
     },
   });
 
-  const handleCameraClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+  const handleFileSelect = (file: File) => {
+    const event = new CustomEvent('imageSelected', { detail: file });
+    window.dispatchEvent(event);
   };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Create a custom event with the file
-      const event = new CustomEvent('imageSelected', { detail: file });
-      window.dispatchEvent(event);
-      
-      // Reset the input value so the same file can be selected again
-      e.target.value = '';
-    }
-  };
-
-  const isLoading = weightLoading || caloriesLoading || macrosLoading || mealsLoading;
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-8">
-      <h1 className="text-4xl font-bold text-center mb-8 text-primary">
-        {profile?.first_name ? `Hi ${profile.first_name}, welcome to Leena` : "Welcome to Leena"}
-      </h1>
+      <ProfileHeader profile={profile} />
       
       <div className="space-y-8">
         <StreakCounter />
@@ -275,24 +115,7 @@ const Index = () => {
           />
         )}
 
-        <div className="flex flex-col items-center gap-4">
-          <Button 
-            onClick={handleCameraClick}
-            size="lg"
-            className="w-full max-w-md flex items-center justify-center gap-2"
-          >
-            <Camera className="w-5 h-5" />
-            Take Photo
-          </Button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            accept="image/*"
-            capture="environment"
-            onChange={handleFileChange}
-          />
-        </div>
+        <CameraButton onFileSelect={handleFileSelect} />
 
         <ImageAnalysisSection
           apiKey={apiKey}
