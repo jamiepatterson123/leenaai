@@ -1,7 +1,7 @@
+import React, { useState } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useState } from "react";
 import { analyzeImage } from "./ImageAnalyzer";
 import { saveFoodEntries } from "./FoodEntrySaver";
 import { useQueryClient } from "@tanstack/react-query";
@@ -41,11 +41,10 @@ export const ImageAnalysisSection = ({
   const [showVerification, setShowVerification] = useState(false);
   const [analyzedFoods, setAnalyzedFoods] = useState([]);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [pendingImage, setPendingImage] = useState<File | null>(null);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
-  const processImage = async (image: File) => {
+  const handleImageSelect = async (image: File) => {
     if (!apiKey) {
       toast.error("Please set your OpenAI API key in API Settings first");
       return;
@@ -67,7 +66,11 @@ export const ImageAnalysisSection = ({
       
       if (result?.foods) {
         setAnalyzedFoods(result.foods);
-        setShowVerification(true);
+        if (isMobile) {
+          setShowConfirmation(true);
+        } else {
+          setShowVerification(true);
+        }
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Error analyzing image");
@@ -77,27 +80,15 @@ export const ImageAnalysisSection = ({
     }
   };
 
-  const handleImageSelect = (image: File) => {
-    if (isMobile) {
-      setPendingImage(image);
-      setShowConfirmation(true);
-    } else {
-      processImage(image);
-    }
-  };
-
   const handleConfirmUpload = () => {
-    if (pendingImage) {
-      processImage(pendingImage);
-    }
     setShowConfirmation(false);
-    setPendingImage(null);
+    setShowVerification(true);
   };
 
   const handleCancelUpload = () => {
     setShowConfirmation(false);
-    setPendingImage(null);
     setResetUpload(true);
+    setAnalyzedFoods([]);
   };
 
   const handleConfirmFoods = async (foods: any[]) => {
@@ -135,7 +126,7 @@ export const ImageAnalysisSection = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Finished uploading?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you happy with the photo you just took?
+              Are you happy with the analyzed results?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
