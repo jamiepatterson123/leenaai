@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Home, BookOpen, Plus, MessageSquare, User, Camera, Scale } from "lucide-react";
+import { Home, BookOpen, Plus, MessageSquare, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Dialog,
@@ -8,19 +8,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
 import { WeightInput } from "@/components/WeightInput";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CameraButton } from "@/components/home/CameraButton";
 
 export const MobileNav = () => {
   const location = useLocation();
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<"food" | "weight">("food");
   
   const isActive = (path: string) => {
     return location.pathname === path ? "text-primary" : "text-muted-foreground";
@@ -60,12 +59,6 @@ export const MobileNav = () => {
     },
   });
 
-  const handleFileSelect = (file: File) => {
-    const event = new CustomEvent('imageSelected', { detail: file });
-    window.dispatchEvent(event);
-    setSelectedTab("food");
-  };
-
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t md:hidden z-50">
       <nav className="flex items-center justify-between px-6 h-16">
@@ -85,50 +78,30 @@ export const MobileNav = () => {
               <Plus className="h-6 w-6 text-primary-foreground" />
             </div>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px] h-[100dvh] p-0 gap-0">
-            <DialogHeader className="p-6 pb-2">
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
               <DialogTitle>Add Entry</DialogTitle>
             </DialogHeader>
-            <div className="flex flex-col h-full p-6 pt-2 gap-4">
-              {selectedTab === "food" ? (
-                <>
-                  <CameraButton onFileSelect={handleFileSelect} />
-                  {nutritionData && (
-                    <ImageAnalysisSection
-                      apiKey={apiKey}
-                      analyzing={analyzing}
-                      setAnalyzing={setAnalyzing}
-                      nutritionData={nutritionData}
-                      setNutritionData={setNutritionData}
-                      selectedDate={new Date()}
-                      onSuccess={() => setDialogOpen(false)}
-                    />
-                  )}
-                </>
-              ) : (
+            <Tabs defaultValue="food" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="food">Add Food</TabsTrigger>
+                <TabsTrigger value="weight">Update Weight</TabsTrigger>
+              </TabsList>
+              <TabsContent value="food" className="mt-4">
+                <ImageAnalysisSection
+                  apiKey={apiKey}
+                  analyzing={analyzing}
+                  setAnalyzing={setAnalyzing}
+                  nutritionData={nutritionData}
+                  setNutritionData={setNutritionData}
+                  selectedDate={new Date()}
+                  onSuccess={() => setDialogOpen(false)}
+                />
+              </TabsContent>
+              <TabsContent value="weight" className="mt-4">
                 <WeightInput onSuccess={() => setDialogOpen(false)} />
-              )}
-              <div className="grid grid-cols-2 gap-4 mt-auto">
-                <button
-                  onClick={() => setSelectedTab("food")}
-                  className={`flex flex-col items-center justify-center p-8 rounded-lg border-2 ${
-                    selectedTab === "food" ? "border-primary" : "border-muted"
-                  }`}
-                >
-                  <Camera className="h-8 w-8 mb-2" />
-                  <span className="font-medium">Add Food</span>
-                </button>
-                <button
-                  onClick={() => setSelectedTab("weight")}
-                  className={`flex flex-col items-center justify-center p-8 rounded-lg border-2 ${
-                    selectedTab === "weight" ? "border-primary" : "border-muted"
-                  }`}
-                >
-                  <Scale className="h-8 w-8 mb-2" />
-                  <span className="font-medium">Weigh In</span>
-                </button>
-              </div>
-            </div>
+              </TabsContent>
+            </Tabs>
           </DialogContent>
         </Dialog>
         
