@@ -8,7 +8,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
+import { WeightInput } from "@/components/WeightInput";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -78,19 +80,28 @@ export const MobileNav = () => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Add Food</DialogTitle>
+              <DialogTitle>Add Entry</DialogTitle>
             </DialogHeader>
-            <div className="py-4">
-              <ImageAnalysisSection
-                apiKey={apiKey}
-                analyzing={analyzing}
-                setAnalyzing={setAnalyzing}
-                nutritionData={nutritionData}
-                setNutritionData={setNutritionData}
-                selectedDate={new Date()}
-                onSuccess={() => setDialogOpen(false)}
-              />
-            </div>
+            <Tabs defaultValue="food" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="food">Add Food</TabsTrigger>
+                <TabsTrigger value="weight">Update Weight</TabsTrigger>
+              </TabsList>
+              <TabsContent value="food" className="mt-4">
+                <ImageAnalysisSection
+                  apiKey={apiKey}
+                  analyzing={analyzing}
+                  setAnalyzing={setAnalyzing}
+                  nutritionData={nutritionData}
+                  setNutritionData={setNutritionData}
+                  selectedDate={new Date()}
+                  onSuccess={() => setDialogOpen(false)}
+                />
+              </TabsContent>
+              <TabsContent value="weight" className="mt-4">
+                <WeightInput onSuccess={() => setDialogOpen(false)} />
+              </TabsContent>
+            </Tabs>
           </DialogContent>
         </Dialog>
         

@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export const WeightInput = () => {
+interface WeightInputProps {
+  onSuccess?: () => void;
+}
+
+export const WeightInput = ({ onSuccess }: WeightInputProps) => {
   const [weight, setWeight] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -38,6 +42,7 @@ export const WeightInput = () => {
 
       toast.success("Weight updated successfully");
       setWeight("");
+      onSuccess?.();
     } catch (error) {
       console.error("Error updating weight:", error);
       toast.error("Failed to update weight");
