@@ -10,7 +10,7 @@ import { format, subDays, subMonths, subYears, eachDayOfInterval } from "date-fn
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Camera } from "lucide-react";
 import { toast } from "sonner";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { ReportsContent } from "@/components/reports/ReportsContent";
 import type { ProfileRow } from "@/integrations/supabase/types/profiles";
 
@@ -19,9 +19,8 @@ const Index = () => {
   const [nutritionData, setNutritionData] = useState<any>(null);
   const today = format(new Date(), "yyyy-MM-dd");
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
-  // Reports data queries
   const { data: weightData, isLoading: weightLoading } = useQuery({
     queryKey: ["weightHistory", "1w"],
     queryFn: async () => {
