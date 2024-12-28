@@ -10,6 +10,7 @@ import { format, subDays } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Camera } from "lucide-react";
 import { toast } from "sonner";
+import type { ProfileRow } from "@/integrations/supabase/types/profiles";
 
 const Index = () => {
   const [analyzing, setAnalyzing] = useState(false);
@@ -34,11 +35,10 @@ const Index = () => {
         throw error;
       }
 
-      return data;
+      return data as ProfileRow;
     },
   });
 
-  // Check for recent calorie adjustments
   useEffect(() => {
     const checkRecentAdjustments = async () => {
       if (!profile) return;
@@ -134,6 +134,7 @@ const Index = () => {
       <h1 className="text-4xl font-bold text-center mb-8 text-primary">
         {profile?.first_name ? `Hi ${profile.first_name}, welcome to Leena` : "Welcome to Leena"}
       </h1>
+      
       <div className="space-y-8">
         <StreakCounter />
         

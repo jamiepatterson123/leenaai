@@ -185,6 +185,7 @@ export type Database = {
           age: number | null
           created_at: string
           dietary_restrictions: string[] | null
+          first_name: string | null
           fitness_goals: string | null
           gender: string | null
           height_cm: number | null
@@ -202,6 +203,7 @@ export type Database = {
           age?: number | null
           created_at?: string
           dietary_restrictions?: string[] | null
+          first_name?: string | null
           fitness_goals?: string | null
           gender?: string | null
           height_cm?: number | null
@@ -219,6 +221,7 @@ export type Database = {
           age?: number | null
           created_at?: string
           dietary_restrictions?: string[] | null
+          first_name?: string | null
           fitness_goals?: string | null
           gender?: string | null
           height_cm?: number | null
