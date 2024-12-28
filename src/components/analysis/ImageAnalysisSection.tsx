@@ -15,6 +15,7 @@ interface ImageAnalysisSectionProps {
   nutritionData: any;
   setNutritionData: (data: any) => void;
   selectedDate: Date;
+  onSuccess?: () => void;
 }
 
 export const ImageAnalysisSection = ({
@@ -24,6 +25,7 @@ export const ImageAnalysisSection = ({
   nutritionData,
   setNutritionData,
   selectedDate,
+  onSuccess,
 }: ImageAnalysisSectionProps) => {
   const [resetUpload, setResetUpload] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
@@ -71,6 +73,7 @@ export const ImageAnalysisSection = ({
       setResetUpload(true);
       setShowVerification(false);
       toast.success("Food added to diary!");
+      onSuccess?.(); // Call the onSuccess callback if provided
     } catch (error) {
       toast.error("Failed to save food entries");
       console.error(error);

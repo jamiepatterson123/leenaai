@@ -17,6 +17,7 @@ export const MobileNav = () => {
   const location = useLocation();
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   
   const isActive = (path: string) => {
     return location.pathname === path ? "text-primary" : "text-muted-foreground";
@@ -69,7 +70,7 @@ export const MobileNav = () => {
           <span className="text-xs mt-1">Diary</span>
         </Link>
         
-        <Dialog>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger className="flex flex-col items-center -mt-8 relative">
             <div className="bg-primary rounded-full p-4">
               <Plus className="h-6 w-6 text-primary-foreground" />
@@ -87,6 +88,7 @@ export const MobileNav = () => {
                 nutritionData={nutritionData}
                 setNutritionData={setNutritionData}
                 selectedDate={new Date()}
+                onSuccess={() => setDialogOpen(false)}
               />
             </div>
           </DialogContent>
