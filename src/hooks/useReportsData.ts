@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format, subDays, subMonths, subYears, eachDayOfInterval } from "date-fns";
 import { TimeRange } from "@/components/reports/TimeRangeSelector";
 import { MacroData } from "@/types/nutrition";
+import { useToast } from "@/components/ui/use-toast";
 
 const getStartDate = (timeRange: TimeRange) => {
   const now = new Date();
@@ -23,9 +24,21 @@ const getStartDate = (timeRange: TimeRange) => {
 };
 
 export const useReportsData = (timeRange: TimeRange) => {
+  const { toast } = useToast();
+
   const { data: weightData, isLoading: weightLoading } = useQuery({
     queryKey: ["weightHistory", timeRange],
     queryFn: async () => {
+      const session = await supabase.auth.getSession();
+      if (!session.data.session) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to view your weight history.",
+          variant: "destructive",
+        });
+        return [];
+      }
+
       const startDate = getStartDate(timeRange);
       const { data: weightHistory, error } = await supabase
         .from("weight_history")
@@ -33,7 +46,15 @@ export const useReportsData = (timeRange: TimeRange) => {
         .gte("recorded_at", startDate.toISOString())
         .order("recorded_at", { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching weight history:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch weight history. Please try again.",
+          variant: "destructive",
+        });
+        return [];
+      }
 
       return weightHistory.map((entry) => ({
         weight: entry.weight_kg,
