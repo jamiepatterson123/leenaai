@@ -45,6 +45,9 @@ export default {
           foreground: "hsl(var(--muted-foreground))",
         },
       },
+      backgroundImage: {
+        'gradient-primary': 'linear-gradient(to right, #0891b2, #22c55e)',
+      },
       keyframes: {
         "fade-up": {
           "0%": {
