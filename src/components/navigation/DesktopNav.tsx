@@ -25,8 +25,8 @@ export const DesktopNav = ({
   const mainNavigationItems = [
     { icon: Home, text: "Home", to: "/" },
     { icon: UtensilsCrossed, text: "Nutrition", to: "/food-diary" },
-    { icon: UserRound, text: "Biometrics", to: "/profile" },
-    { icon: ClipboardList, text: "Reports", to: "/reports" },
+    { icon: UserRound, text: "Profile", to: "/profile" },
+    { icon: ClipboardList, text: "Stats", to: "/reports" },
     { icon: UserCheck, text: "Coach", to: "/coach" },
   ];
 
