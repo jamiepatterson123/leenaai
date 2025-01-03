@@ -102,14 +102,17 @@ export const useHomeData = () => {
         result.protein.push({
           date: formattedDate,
           value: getAverage(macroMaps.protein[dateKey] || []),
+          average: getAverage(macroMaps.protein[dateKey] || []), // Added average property
         });
         result.carbs.push({
           date: formattedDate,
           value: getAverage(macroMaps.carbs[dateKey] || []),
+          average: getAverage(macroMaps.carbs[dateKey] || []), // Added average property
         });
         result.fat.push({
           date: formattedDate,
           value: getAverage(macroMaps.fat[dateKey] || []),
+          average: getAverage(macroMaps.fat[dateKey] || []), // Added average property
         });
       });
 
