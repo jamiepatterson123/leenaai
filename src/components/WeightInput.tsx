@@ -53,7 +53,7 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="relative block w-full h-64 border-2 border-dashed border-primary rounded-lg">
+      <div className="relative block w-full h-64 border border-solid border-foreground rounded-lg">
         <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
           <Scale className="mx-auto h-12 w-12 text-primary mb-4" />
           <h3 className="text-lg font-semibold mb-4">Update Your Weight</h3>
