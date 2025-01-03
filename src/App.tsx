@@ -21,26 +21,30 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <div className="min-h-screen bg-background">
-          <Navigation />
-          <Routes>
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/" element={<Index />} />
-            <Route path="/food-diary" element={<FoodDiaryPage />} />
-            <Route path="/api-settings" element={<ApiSettings />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/coach" element={<Coach />} />
-            <Route path="/learn" element={<Learn />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/integrations" element={<HealthDataConnect />} />
-          </Routes>
-          <HelpPopup />
-        </div>
-      </BrowserRouter>
+      <div className="min-h-screen bg-background text-foreground antialiased transition-colors duration-300">
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <div className="min-h-screen">
+            <Navigation />
+            <main className="animate-fade-in">
+              <Routes>
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/" element={<Index />} />
+                <Route path="/food-diary" element={<FoodDiaryPage />} />
+                <Route path="/api-settings" element={<ApiSettings />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/coach" element={<Coach />} />
+                <Route path="/learn" element={<Learn />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/integrations" element={<HealthDataConnect />} />
+              </Routes>
+            </main>
+            <HelpPopup />
+          </div>
+        </BrowserRouter>
+      </div>
     </TooltipProvider>
   </QueryClientProvider>
 );

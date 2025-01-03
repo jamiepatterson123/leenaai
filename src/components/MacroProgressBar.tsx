@@ -17,7 +17,7 @@ export const MacroProgressBar: React.FC<MacroProgressBarProps> = ({
   const percentage = Math.round((current / target) * 100);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 animate-fade-in">
       <div className="flex justify-between items-center">
         <span className="text-sm font-medium">{label}</span>
         <div className="text-sm text-muted-foreground">
