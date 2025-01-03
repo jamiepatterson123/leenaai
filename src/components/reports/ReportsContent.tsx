@@ -54,9 +54,6 @@ export const ReportsContent = ({
     );
   }
 
-  // Get the first macro data entry to extract target values
-  const targetValues = macroData[0] || { protein: 150, carbs: 200, fat: 70 };
-
   return (
     <div className="grid gap-8">
       <ChartSettings 
@@ -94,27 +91,18 @@ export const ReportsContent = ({
       {visibleCharts.proteinDaily && (
         <MacroDailyChart 
           data={macroData}
-          targetProtein={targetValues.protein}
-          targetCarbs={targetValues.carbs}
-          targetFat={targetValues.fat}
           type="protein"
         />
       )}
       {visibleCharts.carbsDaily && (
         <MacroDailyChart 
           data={macroData}
-          targetProtein={targetValues.protein}
-          targetCarbs={targetValues.carbs}
-          targetFat={targetValues.fat}
           type="carbs"
         />
       )}
       {visibleCharts.fatDaily && (
         <MacroDailyChart 
           data={macroData}
-          targetProtein={targetValues.protein}
-          targetCarbs={targetValues.carbs}
-          targetFat={targetValues.fat}
           type="fat"
         />
       )}
