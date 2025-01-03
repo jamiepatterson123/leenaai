@@ -47,6 +47,7 @@ export default {
       },
       backgroundImage: {
         'gradient-primary': 'linear-gradient(to right, #0891b2, #22c55e)',
+        'gradient-hover': 'linear-gradient(to right, #EC4899, #FDE047)',
       },
       keyframes: {
         "fade-up": {
