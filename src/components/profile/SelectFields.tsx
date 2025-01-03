@@ -47,34 +47,34 @@ export const SelectFields: React.FC<SelectFieldsProps> = ({
             <SelectValue placeholder="Select activity level" />
           </SelectTrigger>
           <SelectContent className="w-[350px]">
-            <SelectItem value="sedentary">
+            <SelectItem value="sedentary" className="py-2">
               <div className="space-y-1">
                 <div className="font-medium">Sedentary</div>
-                <p className="text-sm text-muted-foreground">Little to no exercise, desk job (e.g., office work with minimal movement)</p>
+                <p className="text-sm text-muted-foreground whitespace-normal">Little to no exercise, desk job (e.g., office work with minimal movement)</p>
               </div>
             </SelectItem>
-            <SelectItem value="lightly_active">
+            <SelectItem value="lightly_active" className="py-2">
               <div className="space-y-1">
                 <div className="font-medium">Lightly Active</div>
-                <p className="text-sm text-muted-foreground">Light exercise 1-3 days/week (e.g., walking, light yoga, casual cycling)</p>
+                <p className="text-sm text-muted-foreground whitespace-normal">Light exercise 1-3 days/week (e.g., walking, light yoga, casual cycling)</p>
               </div>
             </SelectItem>
-            <SelectItem value="moderately_active">
+            <SelectItem value="moderately_active" className="py-2">
               <div className="space-y-1">
                 <div className="font-medium">Moderately Active</div>
-                <p className="text-sm text-muted-foreground">Moderate exercise 3-5 days/week (e.g., jogging, gym workouts, recreational sports)</p>
+                <p className="text-sm text-muted-foreground whitespace-normal">Moderate exercise 3-5 days/week (e.g., jogging, gym workouts, recreational sports)</p>
               </div>
             </SelectItem>
-            <SelectItem value="very_active">
+            <SelectItem value="very_active" className="py-2">
               <div className="space-y-1">
                 <div className="font-medium">Very Active</div>
-                <p className="text-sm text-muted-foreground">Hard exercise 6-7 days/week (e.g., intense training, competitive sports)</p>
+                <p className="text-sm text-muted-foreground whitespace-normal">Hard exercise 6-7 days/week (e.g., intense training, competitive sports)</p>
               </div>
             </SelectItem>
-            <SelectItem value="extra_active">
+            <SelectItem value="extra_active" className="py-2">
               <div className="space-y-1">
                 <div className="font-medium">Extra Active</div>
-                <p className="text-sm text-muted-foreground">Very hard exercise daily & physical job (e.g., professional athletes, construction work)</p>
+                <p className="text-sm text-muted-foreground whitespace-normal">Very hard exercise daily & physical job (e.g., professional athletes, construction work)</p>
               </div>
             </SelectItem>
           </SelectContent>
