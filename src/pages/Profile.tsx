@@ -5,6 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { calculateTargets } from "@/utils/profileCalculations";
 import type { ProfileFormData } from "@/utils/profileCalculations";
+import { Info } from "lucide-react";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 const Profile = () => {
   const [loading, setLoading] = useState(true);
@@ -76,7 +82,32 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Profile Settings</h1>
+      <div className="flex items-center gap-2 mb-8">
+        <h1 className="text-3xl font-bold">Profile Settings</h1>
+        <HoverCard>
+          <HoverCardTrigger asChild>
+            <button className="inline-flex items-center justify-center rounded-full w-6 h-6 hover:bg-gray-100 transition-colors">
+              <Info className="h-4 w-4 text-gray-500" />
+            </button>
+          </HoverCardTrigger>
+          <HoverCardContent className="w-80">
+            <div className="space-y-2">
+              <h4 className="font-medium">Why do we need this information?</h4>
+              <p className="text-sm text-muted-foreground">
+                Your biometric data (height, weight, age, etc.) helps us calculate your personalized nutrition targets. We use scientifically-backed formulas to determine your:
+              </p>
+              <ul className="text-sm text-muted-foreground list-disc pl-4">
+                <li>Basal Metabolic Rate (BMR)</li>
+                <li>Daily calorie needs</li>
+                <li>Optimal macro-nutrient ratios</li>
+              </ul>
+              <p className="text-sm text-muted-foreground">
+                This ensures you receive nutrition recommendations tailored to your specific needs and goals.
+              </p>
+            </div>
+          </HoverCardContent>
+        </HoverCard>
+      </div>
       <ProfileForm 
         onSubmit={handleSubmit} 
         onChange={handleChange}
