@@ -23,9 +23,9 @@ interface NutritionChartProps {
 export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
   const getBarColor = (value: number, target: number) => {
     const percentage = (value / target) * 100;
-    if (percentage > 110) return "url(#redGradient)"; // Over target gradient
-    if (percentage >= 90 && percentage <= 110) return "url(#greenGradient)"; // Within target gradient
-    return "url(#orangeGradient)"; // Under target gradient
+    if (percentage > 110) return "url(#redGradient)";
+    if (percentage >= 90 && percentage <= 110) return "url(#greenGradient)";
+    return "url(#orangeGradient)";
   };
 
   return (
@@ -38,20 +38,20 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
         >
           <defs>
             <linearGradient id="redGradient" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#ef4444" />
-              <stop offset="100%" stopColor="#dc2626" />
+              <stop offset="0%" stopColor="#0891b2" />
+              <stop offset="100%" stopColor="#22c55e" />
             </linearGradient>
             <linearGradient id="greenGradient" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#22c55e" />
-              <stop offset="100%" stopColor="#15803d" />
+              <stop offset="0%" stopColor="#0891b2" />
+              <stop offset="100%" stopColor="#22c55e" />
             </linearGradient>
             <linearGradient id="orangeGradient" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#f97316" />
-              <stop offset="100%" stopColor="#ea580c" />
+              <stop offset="0%" stopColor="#0891b2" />
+              <stop offset="100%" stopColor="#22c55e" />
             </linearGradient>
             <linearGradient id="targetGradient" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#1e293b" />
-              <stop offset="100%" stopColor="#334155" />
+              <stop offset="0%" stopColor="#0891b2" />
+              <stop offset="100%" stopColor="#22c55e" />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
@@ -66,7 +66,7 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
             verticalAlign="top" 
             height={36}
             payload={[
-              { value: 'Daily Target', type: 'rect', color: '#334155' },
+              { value: 'Daily Target', type: 'rect', color: '#0891b2' },
               { value: 'Consumed Amount', type: 'rect', color: '#22c55e' },
             ]}
           />
@@ -80,13 +80,13 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
 
                 if (percentage > 110) {
                   status = "Over target";
-                  statusColor = "text-red-500";
+                  statusColor = "text-[#0891b2]";
                 } else if (percentage >= 90 && percentage <= 110) {
                   status = "Within target ✓";
-                  statusColor = "text-green-600";
+                  statusColor = "text-[#22c55e]";
                 } else {
                   status = "Under target";
-                  statusColor = "text-orange-500";
+                  statusColor = "text-[#0891b2]";
                 }
 
                 return (
