@@ -57,7 +57,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPr
             />
           ) : (
             <div className="text-center">
-              <Upload className="mx-auto h-12 w-12 text-red-500" />
+              <Upload className="mx-auto h-12 w-12 text-red-500" strokeWidth={1} />
               <p className="mt-2 text-sm text-gray-600">
                 Click or drag image to upload
               </p>
