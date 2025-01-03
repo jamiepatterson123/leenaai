@@ -105,13 +105,15 @@ const Index = () => {
           </div>
         )}
 
-        <ReportsContent 
-          weightData={weightData || []}
-          calorieData={calorieData || []}
-          macroData={macroData || []}
-          mealData={mealData || []}
-          isLoading={isLoading}
-        />
+        {isMobile && (
+          <ReportsContent 
+            weightData={weightData || []}
+            calorieData={calorieData || []}
+            macroData={macroData || []}
+            mealData={mealData || []}
+            isLoading={isLoading}
+          />
+        )}
 
         <CameraButton onFileSelect={handleFileSelect} />
 
