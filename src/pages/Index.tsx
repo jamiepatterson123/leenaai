@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { WeightInput } from "@/components/WeightInput";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
 import { StreakCounter } from "@/components/StreakCounter";
@@ -7,8 +6,6 @@ import { FoodDiary } from "@/components/FoodDiary";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ReportsContent } from "@/components/reports/ReportsContent";
@@ -127,15 +124,6 @@ const Index = () => {
         />
         
         <WeightInput />
-        
-        <div className="text-center mt-8">
-          <Button asChild size="lg" className="w-full sm:w-auto">
-            <Link to="/food-diary" className="inline-flex items-center justify-center gap-2">
-              View Food Diary
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-          </Button>
-        </div>
       </div>
     </div>
   );
