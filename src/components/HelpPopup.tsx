@@ -34,9 +34,9 @@ export const HelpPopup = () => {
           <Button
             variant="outline"
             size="icon"
-            className="rounded-full h-12 w-12 bg-primary text-primary-foreground hover:bg-primary/90"
+            className="rounded-full h-12 w-12 bg-white border-2 border-transparent relative before:absolute before:inset-0 before:p-[2px] before:bg-gradient-primary before:content-[''] before:-z-10 before:rounded-full after:absolute after:inset-[2px] after:bg-white after:rounded-full after:-z-[5] hover:bg-white/90"
           >
-            <MessageSquare className="h-6 w-6" />
+            <MessageSquare className="h-6 w-6 bg-gradient-primary text-transparent bg-clip-text" />
           </Button>
         </HoverCardTrigger>
         <HoverCardContent 
