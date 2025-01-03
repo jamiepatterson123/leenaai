@@ -57,3 +57,17 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+/* Override dropdown and popup backgrounds to ensure solid white */
+.bg-popover {
+  @apply bg-white !important;
+}
+
+[data-radix-popper-content-wrapper] > * {
+  @apply bg-white !important;
+}
+
+.dark [data-radix-popper-content-wrapper] > *,
+.dark .bg-popover {
+  @apply bg-gray-900 !important;
+}
