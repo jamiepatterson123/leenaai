@@ -1,7 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { format, subDays, eachDayOfInterval } from "date-fns";
-import { MacroData } from "@/types/nutrition";
 
 export const useHomeData = () => {
   const { data: weightData, isLoading: weightLoading } = useQuery({
@@ -87,36 +86,18 @@ export const useHomeData = () => {
         macroMaps.fat[dateKey].push(entry.fat);
       });
 
-      const result: MacroData = {
-        protein: [],
-        carbs: [],
-        fat: [],
-      };
-
-      dateRange.forEach(date => {
+      return dateRange.map(date => {
         const dateKey = format(date, "yyyy-MM-dd");
-        const formattedDate = format(date, "MMM d");
         const getAverage = (arr: number[]) => 
           arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
 
-        result.protein.push({
-          date: formattedDate,
-          value: getAverage(macroMaps.protein[dateKey] || []),
-          average: getAverage(macroMaps.protein[dateKey] || []), // Added average property
-        });
-        result.carbs.push({
-          date: formattedDate,
-          value: getAverage(macroMaps.carbs[dateKey] || []),
-          average: getAverage(macroMaps.carbs[dateKey] || []), // Added average property
-        });
-        result.fat.push({
-          date: formattedDate,
-          value: getAverage(macroMaps.fat[dateKey] || []),
-          average: getAverage(macroMaps.fat[dateKey] || []), // Added average property
-        });
+        return {
+          date: format(date, "MMM d"),
+          protein: getAverage(macroMaps.protein[dateKey] || []),
+          carbs: getAverage(macroMaps.carbs[dateKey] || []),
+          fat: getAverage(macroMaps.fat[dateKey] || []),
+        };
       });
-
-      return result;
     },
   });
 
@@ -140,7 +121,7 @@ export const useHomeData = () => {
   return {
     weightData,
     calorieData,
-    macroData: macroData || { protein: [], carbs: [], fat: [] },
+    macroData,
     mealData,
     isLoading: weightLoading || caloriesLoading || macrosLoading || mealsLoading
   };

@@ -13,42 +13,38 @@ import { useNutritionTargets } from "@/components/nutrition/useNutritionTargets"
 
 interface MacroTargetsChartProps {
   data: {
-    protein: { date: string; value: number; average: number }[];
-    carbs: { date: string; value: number; average: number }[];
-    fat: { date: string; value: number; average: number }[];
-  };
+    protein: number;
+    carbs: number;
+    fat: number;
+  }[];
 }
 
 export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
   const { targets } = useNutritionTargets();
   
-  if (!data?.protein || !data?.carbs || !data?.fat) {
-    return null;
-  }
-
   // Calculate averages for the week
-  const averages = {
-    protein: data.protein.reduce((acc, day) => acc + day.value, 0) / data.protein.length,
-    carbs: data.carbs.reduce((acc, day) => acc + day.value, 0) / data.carbs.length,
-    fat: data.fat.reduce((acc, day) => acc + day.value, 0) / data.fat.length,
-  };
+  const averages = data.reduce((acc, day) => ({
+    protein: acc.protein + day.protein,
+    carbs: acc.carbs + day.carbs,
+    fat: acc.fat + day.fat,
+  }), { protein: 0, carbs: 0, fat: 0 });
 
   const weeklyData = [
     {
       name: "Protein",
-      value: averages.protein,
+      value: averages.protein / data.length,
       target: targets.protein,
       color: "rgb(14, 165, 233)",
     },
     {
       name: "Carbohydrates",
-      value: averages.carbs,
+      value: averages.carbs / data.length,
       target: targets.carbs,
       color: "rgb(34, 197, 94)",
     },
     {
       name: "Fat",
-      value: averages.fat,
+      value: averages.fat / data.length,
       target: targets.fat,
       color: "rgb(249, 115, 22)",
     },

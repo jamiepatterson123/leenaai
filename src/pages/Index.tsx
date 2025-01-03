@@ -3,13 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ProfileHeader } from "@/components/home/ProfileHeader";
-import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
-import { WeightInput } from "@/components/WeightInput";
+import { HomeDataSection } from "@/components/home/HomeDataSection";
 
 const Index = () => {
-  const [analyzing, setAnalyzing] = React.useState(false);
-  const [nutritionData, setNutritionData] = React.useState(null);
-
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -34,13 +30,27 @@ const Index = () => {
   const { data: apiKey } = useQuery({
     queryKey: ["openai-api-key"],
     queryFn: async () => {
+      const savedKey = localStorage.getItem("openai_api_key");
+      if (savedKey) {
+        return savedKey;
+      }
+
       const { data, error } = await supabase
         .from("secrets")
         .select("value")
         .eq("name", "OPENAI_API_KEY")
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        toast.error("Error fetching API key");
+        throw error;
+      }
+
+      if (!data) {
+        toast.error("Please set your OpenAI API key in API Settings first");
+        return null;
+      }
+
       return data.value;
     },
   });
@@ -48,17 +58,7 @@ const Index = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-8 pb-20 md:pb-8">
       <ProfileHeader profile={profile} />
-      <div className="grid gap-8">
-        <ImageAnalysisSection
-          apiKey={apiKey || ""}
-          analyzing={analyzing}
-          setAnalyzing={setAnalyzing}
-          nutritionData={nutritionData}
-          setNutritionData={setNutritionData}
-          selectedDate={new Date()}
-        />
-        <WeightInput />
-      </div>
+      <HomeDataSection apiKey={apiKey} />
     </div>
   );
 };

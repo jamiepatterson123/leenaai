@@ -1,63 +1,81 @@
 import React from "react";
-import { Card } from "@/components/ui/card";
-import { MacroChart } from "@/components/reports/MacroChart";
-import { WeightTrendChart } from "@/components/reports/WeightTrendChart";
-import { CalorieChart } from "@/components/reports/CalorieChart";
-import { MacroData, DailyMacroData } from "@/types/nutrition";
+import { WeightInput } from "@/components/WeightInput";
+import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
+import { StreakCounter } from "@/components/StreakCounter";
+import { FoodDiary } from "@/components/FoodDiary";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { ReportsContent } from "@/components/reports/ReportsContent";
+import { CameraButton } from "@/components/home/CameraButton";
+import { useHomeData } from "@/components/home/useHomeData";
 
 interface HomeDataSectionProps {
-  weightData: {
-    weight: number;
-    date: string;
-  }[];
-  calorieData: {
-    calories: number;
-    date: string;
-  }[];
-  macroData: MacroData;
-  isLoading: boolean;
+  apiKey: string | null;
 }
 
-export const HomeDataSection = ({
-  weightData,
-  calorieData,
-  macroData,
-  isLoading,
-}: HomeDataSectionProps) => {
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-[50vh]">
-        <div className="text-muted-foreground animate-pulse">
-          Loading data...
-        </div>
-      </div>
-    );
-  }
+export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
+  const [analyzing, setAnalyzing] = React.useState(false);
+  const [nutritionData, setNutritionData] = React.useState<any>(null);
+  const today = format(new Date(), "yyyy-MM-dd");
+  const isMobile = useIsMobile();
 
-  // Safely transform macroData for MacroChart with null checks
-  const dailyMacroData: DailyMacroData[] = macroData?.protein?.map((item, index) => ({
-    date: item.date,
-    protein: macroData.protein[index]?.value || 0,
-    carbs: macroData.carbs[index]?.value || 0,
-    fat: macroData.fat[index]?.value || 0,
-  })) || [];
+  const { weightData, calorieData, macroData, mealData, isLoading } = useHomeData();
+
+  const { data: hasTodayEntries } = useQuery({
+    queryKey: ["hasTodayEntries"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("food_diary")
+        .select("id")
+        .eq("date", today)
+        .limit(1);
+      
+      return data && data.length > 0;
+    },
+  });
+
+  const handleFileSelect = (file: File) => {
+    const event = new CustomEvent('imageSelected', { detail: file });
+    window.dispatchEvent(event);
+  };
 
   return (
-    <div className="grid gap-8">
-      <Card className="p-6">
-        <h2 className="text-2xl font-semibold mb-6">Recent Progress</h2>
-        <div className="grid gap-8">
-          {weightData && weightData.length > 0 && (
-            <WeightTrendChart data={weightData} />
-          )}
-          {calorieData && calorieData.length > 0 && (
-            <CalorieChart data={calorieData} />
-          )}
-          {dailyMacroData && dailyMacroData.length > 0 && (
-            <MacroChart data={dailyMacroData} />
-          )}
+    <div className="space-y-8">
+      <StreakCounter />
+      
+      {hasTodayEntries && (
+        <div className="animate-fade-up">
+          <h2 className="text-2xl font-semibold mb-4">Today's Food Diary</h2>
+          <FoodDiary selectedDate={new Date()} />
         </div>
-      </Card>
+      )}
+
+      {isMobile && (
+        <>
+          <ReportsContent 
+            weightData={weightData || []}
+            calorieData={calorieData || []}
+            macroData={macroData || []}
+            mealData={mealData || []}
+            isLoading={isLoading}
+          />
+          <CameraButton onFileSelect={handleFileSelect} />
+        </>
+      )}
+
+      <ImageAnalysisSection
+        apiKey={apiKey}
+        analyzing={analyzing}
+        setAnalyzing={setAnalyzing}
+        nutritionData={nutritionData}
+        setNutritionData={setNutritionData}
+        selectedDate={new Date()}
+      />
+      
+      <WeightInput />
     </div>
   );
 };

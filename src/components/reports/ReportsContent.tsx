@@ -7,12 +7,11 @@ import { MacroTargetsChart } from "./MacroTargetsChart";
 import { MealDistributionChart } from "./MealDistributionChart";
 import { CalorieStateChart } from "./CalorieStateChart";
 import { ChartSettings, VisibleCharts } from "./ChartSettings";
-import { MacroData, DailyMacroData } from "@/types/nutrition";
 
 interface ReportsContentProps {
   weightData: any[];
   calorieData: any[];
-  macroData: MacroData;
+  macroData: any[];
   mealData: any[];
   isLoading: boolean;
 }
@@ -51,27 +50,12 @@ export const ReportsContent = ({
     );
   }
 
-  // Transform macroData for MacroChart
-  const dailyMacroData: DailyMacroData[] = macroData.protein.map((item, index) => ({
-    date: item.date,
-    protein: item.value,
-    carbs: macroData.carbs[index].value,
-    fat: macroData.fat[index].value,
-  }));
-
   return (
     <div className="grid gap-8">
       <ChartSettings 
         visibleCharts={visibleCharts} 
         onToggleChart={handleToggleChart}
       />
-
-      {visibleCharts.macros && macroData && (
-        <MacroChart data={dailyMacroData} />
-      )}
-      {visibleCharts.macroTargets && macroData && (
-        <MacroTargetsChart data={macroData} />
-      )}
       
       {visibleCharts.weightTrend && (
         <WeightTrendChart data={weightData} />
@@ -93,6 +77,12 @@ export const ReportsContent = ({
       )}
       {visibleCharts.mealDistribution && !visibleCharts.calorieState && (
         <MealDistributionChart data={mealData} />
+      )}
+      {visibleCharts.macros && (
+        <MacroChart data={macroData} />
+      )}
+      {visibleCharts.macroTargets && (
+        <MacroTargetsChart data={macroData} />
       )}
     </div>
   );
