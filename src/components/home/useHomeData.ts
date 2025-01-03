@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { format, subDays, eachDayOfInterval } from "date-fns";
+import { MacroData } from "@/types/nutrition";
 
 export const useHomeData = () => {
   const { data: weightData, isLoading: weightLoading } = useQuery({
@@ -86,18 +87,33 @@ export const useHomeData = () => {
         macroMaps.fat[dateKey].push(entry.fat);
       });
 
-      return dateRange.map(date => {
+      const result: MacroData = {
+        protein: [],
+        carbs: [],
+        fat: [],
+      };
+
+      dateRange.forEach(date => {
         const dateKey = format(date, "yyyy-MM-dd");
+        const formattedDate = format(date, "MMM d");
         const getAverage = (arr: number[]) => 
           arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
 
-        return {
-          date: format(date, "MMM d"),
-          protein: getAverage(macroMaps.protein[dateKey] || []),
-          carbs: getAverage(macroMaps.carbs[dateKey] || []),
-          fat: getAverage(macroMaps.fat[dateKey] || []),
-        };
+        result.protein.push({
+          date: formattedDate,
+          value: getAverage(macroMaps.protein[dateKey] || []),
+        });
+        result.carbs.push({
+          date: formattedDate,
+          value: getAverage(macroMaps.carbs[dateKey] || []),
+        });
+        result.fat.push({
+          date: formattedDate,
+          value: getAverage(macroMaps.fat[dateKey] || []),
+        });
       });
+
+      return result;
     },
   });
 
@@ -121,7 +137,7 @@ export const useHomeData = () => {
   return {
     weightData,
     calorieData,
-    macroData,
+    macroData: macroData || { protein: [], carbs: [], fat: [] },
     mealData,
     isLoading: weightLoading || caloriesLoading || macrosLoading || mealsLoading
   };

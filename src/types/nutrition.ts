@@ -1,7 +1,6 @@
 export interface MacroDataPoint {
   date: string;
   value: number;
-  average: number;
 }
 
 export interface MacroData {

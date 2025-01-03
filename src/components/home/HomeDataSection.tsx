@@ -37,7 +37,7 @@ export const HomeDataSection = ({
   // Transform macroData for MacroChart
   const dailyMacroData: DailyMacroData[] = macroData.protein.map((item, index) => ({
     date: item.date,
-    protein: item.value,
+    protein: macroData.protein[index].value,
     carbs: macroData.carbs[index].value,
     fat: macroData.fat[index].value,
   }));
