@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ProfileHeader } from "@/components/home/ProfileHeader";
 import { HomeDataSection } from "@/components/home/HomeDataSection";
+import { useHomeData } from "@/components/home/useHomeData";
 
 const Index = () => {
   const { data: profile } = useQuery({
@@ -27,38 +28,17 @@ const Index = () => {
     },
   });
 
-  const { data: apiKey } = useQuery({
-    queryKey: ["openai-api-key"],
-    queryFn: async () => {
-      const savedKey = localStorage.getItem("openai_api_key");
-      if (savedKey) {
-        return savedKey;
-      }
-
-      const { data, error } = await supabase
-        .from("secrets")
-        .select("value")
-        .eq("name", "OPENAI_API_KEY")
-        .maybeSingle();
-
-      if (error) {
-        toast.error("Error fetching API key");
-        throw error;
-      }
-
-      if (!data) {
-        toast.error("Please set your OpenAI API key in API Settings first");
-        return null;
-      }
-
-      return data.value;
-    },
-  });
+  const { weightData, calorieData, macroData, isLoading } = useHomeData();
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-8 pb-20 md:pb-8">
       <ProfileHeader profile={profile} />
-      <HomeDataSection apiKey={apiKey} />
+      <HomeDataSection 
+        weightData={weightData || []}
+        calorieData={calorieData || []}
+        macroData={macroData || { protein: [], carbs: [], fat: [] }}
+        isLoading={isLoading}
+      />
     </div>
   );
 };
