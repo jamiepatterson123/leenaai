@@ -7,15 +7,12 @@ import { MacroTargetsChart } from "./MacroTargetsChart";
 import { MealDistributionChart } from "./MealDistributionChart";
 import { CalorieStateChart } from "./CalorieStateChart";
 import { ChartSettings, VisibleCharts } from "./ChartSettings";
+import { MacroData, DailyMacroData } from "@/types/nutrition";
 
 interface ReportsContentProps {
   weightData: any[];
   calorieData: any[];
-  macroData: {
-    protein: { date: string; value: number; average: number }[];
-    carbs: { date: string; value: number; average: number }[];
-    fat: { date: string; value: number; average: number }[];
-  };
+  macroData: MacroData;
   mealData: any[];
   isLoading: boolean;
 }
@@ -54,6 +51,14 @@ export const ReportsContent = ({
     );
   }
 
+  // Transform macroData for MacroChart
+  const dailyMacroData: DailyMacroData[] = macroData.protein.map((item, index) => ({
+    date: item.date,
+    protein: item.value,
+    carbs: macroData.carbs[index].value,
+    fat: macroData.fat[index].value,
+  }));
+
   return (
     <div className="grid gap-8">
       <ChartSettings 
@@ -62,7 +67,7 @@ export const ReportsContent = ({
       />
 
       {visibleCharts.macros && macroData && (
-        <MacroChart data={macroData} />
+        <MacroChart data={dailyMacroData} />
       )}
       {visibleCharts.macroTargets && macroData && (
         <MacroTargetsChart data={macroData} />

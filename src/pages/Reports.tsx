@@ -6,6 +6,7 @@ import { ReportsHeader } from "@/components/reports/ReportsHeader";
 import { ReportsContent } from "@/components/reports/ReportsContent";
 import { IndividualMacroChart } from "@/components/reports/IndividualMacroChart";
 import { useState } from "react";
+import { MacroData } from "@/types/nutrition";
 
 const getStartDate = (timeRange: TimeRange) => {
   const now = new Date();
@@ -142,7 +143,7 @@ const Reports = () => {
       const carbAverages = calculateRollingAverage(carbValues);
       const fatAverages = calculateRollingAverage(fatValues);
 
-      return {
+      const result: MacroData = {
         protein: processedData.map((d, i) => ({
           date: d.date,
           value: d.protein,
@@ -159,6 +160,8 @@ const Reports = () => {
           average: fatAverages[i]
         }))
       };
+
+      return result;
     },
   });
 

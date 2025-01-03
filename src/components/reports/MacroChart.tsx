@@ -8,14 +8,10 @@ import {
   Legend,
 } from "recharts";
 import { Card } from "@/components/ui/card";
+import { DailyMacroData } from "@/types/nutrition";
 
 interface MacroChartProps {
-  data: {
-    date: string;
-    protein: number;
-    carbs: number;
-    fat: number;
-  }[];
+  data: DailyMacroData[];
 }
 
 export const MacroChart = ({ data }: MacroChartProps) => {
