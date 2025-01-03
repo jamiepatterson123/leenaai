@@ -4,6 +4,7 @@ import { format, subDays, subMonths, subYears, eachDayOfInterval } from "date-fn
 import { TimeRange } from "@/components/reports/TimeRangeSelector";
 import { ReportsHeader } from "@/components/reports/ReportsHeader";
 import { ReportsContent } from "@/components/reports/ReportsContent";
+import { IndividualMacroChart } from "@/components/reports/IndividualMacroChart";
 import { useState } from "react";
 
 const getStartDate = (timeRange: TimeRange) => {
@@ -110,18 +111,54 @@ const Reports = () => {
         macroMaps.fat[dateKey].push(entry.fat);
       });
 
-      return dateRange.map(date => {
+      const processedData = dateRange.map(date => {
         const dateKey = format(date, "yyyy-MM-dd");
+        const formattedDate = format(date, "MMM d");
         const getAverage = (arr: number[]) => 
           arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
 
         return {
-          date: format(date, "MMM d"),
+          date: formattedDate,
           protein: getAverage(macroMaps.protein[dateKey] || []),
           carbs: getAverage(macroMaps.carbs[dateKey] || []),
           fat: getAverage(macroMaps.fat[dateKey] || []),
         };
       });
+
+      // Calculate rolling averages
+      const calculateRollingAverage = (data: number[]) => {
+        return data.map((_, index, array) => {
+          const start = Math.max(0, index - 2);
+          const values = array.slice(start, index + 1);
+          return values.reduce((a, b) => a + b, 0) / values.length;
+        });
+      };
+
+      const proteinValues = processedData.map(d => d.protein);
+      const carbValues = processedData.map(d => d.carbs);
+      const fatValues = processedData.map(d => d.fat);
+
+      const proteinAverages = calculateRollingAverage(proteinValues);
+      const carbAverages = calculateRollingAverage(carbValues);
+      const fatAverages = calculateRollingAverage(fatValues);
+
+      return {
+        protein: processedData.map((d, i) => ({
+          date: d.date,
+          value: d.protein,
+          average: proteinAverages[i]
+        })),
+        carbs: processedData.map((d, i) => ({
+          date: d.date,
+          value: d.carbs,
+          average: carbAverages[i]
+        })),
+        fat: processedData.map((d, i) => ({
+          date: d.date,
+          value: d.fat,
+          average: fatAverages[i]
+        }))
+      };
     },
   });
 
@@ -150,6 +187,30 @@ const Reports = () => {
         timeRange={timeRange} 
         onTimeRangeChange={setTimeRange} 
       />
+      
+      {!isLoading && macroData && (
+        <div className="grid gap-8">
+          <IndividualMacroChart
+            data={macroData.protein}
+            title="Daily Protein Intake"
+            color="rgb(14, 165, 233)"
+            unit="g"
+          />
+          <IndividualMacroChart
+            data={macroData.carbs}
+            title="Daily Carbohydrate Intake"
+            color="rgb(34, 197, 94)"
+            unit="g"
+          />
+          <IndividualMacroChart
+            data={macroData.fat}
+            title="Daily Fat Intake"
+            color="rgb(249, 115, 22)"
+            unit="g"
+          />
+        </div>
+      )}
+
       <ReportsContent 
         weightData={weightData || []}
         calorieData={calorieData || []}
