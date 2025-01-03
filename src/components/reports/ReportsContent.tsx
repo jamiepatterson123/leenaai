@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { WeightTrendChart } from "./WeightTrendChart";
 import { CalorieTargetsChart } from "./CalorieTargetsChart";
 import { CalorieChart } from "./CalorieChart";
@@ -5,7 +6,7 @@ import { MacroChart } from "./MacroChart";
 import { MacroTargetsChart } from "./MacroTargetsChart";
 import { MealDistributionChart } from "./MealDistributionChart";
 import { CalorieStateChart } from "./CalorieStateChart";
-import { TimeRange } from "./TimeRangeSelector";
+import { ChartSettings, VisibleCharts } from "./ChartSettings";
 
 interface ReportsContentProps {
   weightData: any[];
@@ -22,6 +23,23 @@ export const ReportsContent = ({
   mealData,
   isLoading 
 }: ReportsContentProps) => {
+  const [visibleCharts, setVisibleCharts] = useState<VisibleCharts>({
+    weightTrend: true,
+    calorieTargets: true,
+    calories: true,
+    mealDistribution: true,
+    calorieState: true,
+    macros: true,
+    macroTargets: true,
+  });
+
+  const handleToggleChart = (chart: keyof VisibleCharts) => {
+    setVisibleCharts(prev => ({
+      ...prev,
+      [chart]: !prev[chart]
+    }));
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
@@ -34,15 +52,38 @@ export const ReportsContent = ({
 
   return (
     <div className="grid gap-8">
-      <WeightTrendChart data={weightData} />
-      <CalorieTargetsChart data={calorieData} />
-      <CalorieChart data={calorieData} />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <MealDistributionChart data={mealData} />
+      <ChartSettings 
+        visibleCharts={visibleCharts} 
+        onToggleChart={handleToggleChart}
+      />
+      
+      {visibleCharts.weightTrend && (
+        <WeightTrendChart data={weightData} />
+      )}
+      {visibleCharts.calorieTargets && (
+        <CalorieTargetsChart data={calorieData} />
+      )}
+      {visibleCharts.calories && (
+        <CalorieChart data={calorieData} />
+      )}
+      {visibleCharts.mealDistribution && visibleCharts.calorieState && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <MealDistributionChart data={mealData} />
+          <CalorieStateChart data={mealData} />
+        </div>
+      )}
+      {!visibleCharts.mealDistribution && visibleCharts.calorieState && (
         <CalorieStateChart data={mealData} />
-      </div>
-      <MacroChart data={macroData} />
-      <MacroTargetsChart data={macroData} />
+      )}
+      {visibleCharts.mealDistribution && !visibleCharts.calorieState && (
+        <MealDistributionChart data={mealData} />
+      )}
+      {visibleCharts.macros && (
+        <MacroChart data={macroData} />
+      )}
+      {visibleCharts.macroTargets && (
+        <MacroTargetsChart data={macroData} />
+      )}
     </div>
   );
 };
