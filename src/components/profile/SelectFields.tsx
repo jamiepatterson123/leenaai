@@ -46,12 +46,37 @@ export const SelectFields: React.FC<SelectFieldsProps> = ({
           <SelectTrigger>
             <SelectValue placeholder="Select activity level" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="sedentary">Sedentary</SelectItem>
-            <SelectItem value="lightly_active">Lightly Active</SelectItem>
-            <SelectItem value="moderately_active">Moderately Active</SelectItem>
-            <SelectItem value="very_active">Very Active</SelectItem>
-            <SelectItem value="extra_active">Extra Active</SelectItem>
+          <SelectContent className="w-[350px]">
+            <SelectItem value="sedentary">
+              <div className="space-y-1">
+                <div className="font-medium">Sedentary</div>
+                <p className="text-sm text-muted-foreground">Little to no exercise, desk job (e.g., office work with minimal movement)</p>
+              </div>
+            </SelectItem>
+            <SelectItem value="lightly_active">
+              <div className="space-y-1">
+                <div className="font-medium">Lightly Active</div>
+                <p className="text-sm text-muted-foreground">Light exercise 1-3 days/week (e.g., walking, light yoga, casual cycling)</p>
+              </div>
+            </SelectItem>
+            <SelectItem value="moderately_active">
+              <div className="space-y-1">
+                <div className="font-medium">Moderately Active</div>
+                <p className="text-sm text-muted-foreground">Moderate exercise 3-5 days/week (e.g., jogging, gym workouts, recreational sports)</p>
+              </div>
+            </SelectItem>
+            <SelectItem value="very_active">
+              <div className="space-y-1">
+                <div className="font-medium">Very Active</div>
+                <p className="text-sm text-muted-foreground">Hard exercise 6-7 days/week (e.g., intense training, competitive sports)</p>
+              </div>
+            </SelectItem>
+            <SelectItem value="extra_active">
+              <div className="space-y-1">
+                <div className="font-medium">Extra Active</div>
+                <p className="text-sm text-muted-foreground">Very hard exercise daily & physical job (e.g., professional athletes, construction work)</p>
+              </div>
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
