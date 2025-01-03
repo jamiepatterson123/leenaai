@@ -60,6 +60,13 @@ export const ReportsContent = ({
         visibleCharts={visibleCharts} 
         onToggleChart={handleToggleChart}
       />
+
+      {visibleCharts.macros && macroData && (
+        <MacroChart data={macroData} />
+      )}
+      {visibleCharts.macroTargets && macroData && (
+        <MacroTargetsChart data={macroData} />
+      )}
       
       {visibleCharts.weightTrend && (
         <WeightTrendChart data={weightData} />
@@ -81,12 +88,6 @@ export const ReportsContent = ({
       )}
       {visibleCharts.mealDistribution && !visibleCharts.calorieState && (
         <MealDistributionChart data={mealData} />
-      )}
-      {visibleCharts.macros && (
-        <MacroChart data={macroData} />
-      )}
-      {visibleCharts.macroTargets && macroData && (
-        <MacroTargetsChart data={macroData} />
       )}
     </div>
   );
