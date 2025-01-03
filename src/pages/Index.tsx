@@ -103,16 +103,17 @@ const Index = () => {
         )}
 
         {isMobile && (
-          <ReportsContent 
-            weightData={weightData || []}
-            calorieData={calorieData || []}
-            macroData={macroData || []}
-            mealData={mealData || []}
-            isLoading={isLoading}
-          />
+          <>
+            <ReportsContent 
+              weightData={weightData || []}
+              calorieData={calorieData || []}
+              macroData={macroData || []}
+              mealData={mealData || []}
+              isLoading={isLoading}
+            />
+            <CameraButton onFileSelect={handleFileSelect} />
+          </>
         )}
-
-        <CameraButton onFileSelect={handleFileSelect} />
 
         <ImageAnalysisSection
           apiKey={apiKey}
