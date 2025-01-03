@@ -92,7 +92,7 @@ const Index = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-8 pb-20 md:pb-8">
       <ProfileHeader profile={profile} />
       
       <div className="space-y-8">
@@ -105,15 +105,13 @@ const Index = () => {
           </div>
         )}
 
-        {isMobile && (
-          <ReportsContent 
-            weightData={weightData || []}
-            calorieData={calorieData || []}
-            macroData={macroData || []}
-            mealData={mealData || []}
-            isLoading={isLoading}
-          />
-        )}
+        <ReportsContent 
+          weightData={weightData || []}
+          calorieData={calorieData || []}
+          macroData={macroData || []}
+          mealData={mealData || []}
+          isLoading={isLoading}
+        />
 
         <CameraButton onFileSelect={handleFileSelect} />
 
@@ -125,7 +123,9 @@ const Index = () => {
           setNutritionData={setNutritionData}
           selectedDate={new Date()}
         />
+        
         <WeightInput />
+        
         <div className="text-center mt-8">
           <Button asChild size="lg" className="w-full sm:w-auto">
             <Link to="/food-diary" className="inline-flex items-center justify-center gap-2">
