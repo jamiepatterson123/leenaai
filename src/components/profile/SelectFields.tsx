@@ -40,8 +40,13 @@ const ActivityLevelOption = ({ value, label }: { value: string; label: string })
           <Info className="h-3 w-3 text-gray-500" />
         </button>
       </HoverCardTrigger>
-      <HoverCardContent side="right" align="start" className="w-64">
-        <p className="text-sm text-muted-foreground">
+      <HoverCardContent 
+        side="right" 
+        align="start" 
+        className="w-72 p-3"
+        sideOffset={5}
+      >
+        <p className="text-sm text-muted-foreground whitespace-normal leading-relaxed">
           {activityLevelInfo[value as keyof typeof activityLevelInfo]}
         </p>
       </HoverCardContent>
