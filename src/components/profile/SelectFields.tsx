@@ -110,8 +110,8 @@ export const SelectFields: React.FC<SelectFieldsProps> = ({
             <SelectValue placeholder="Select your primary fitness goal" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="weight_loss">Weight Loss</SelectItem>
-            <SelectItem value="muscle_gain">Muscle Gain</SelectItem>
+            <SelectItem value="weight_loss">Reduce Bodyfat</SelectItem>
+            <SelectItem value="muscle_gain">Lean Muscle Gain</SelectItem>
             <SelectItem value="maintenance">Maintenance</SelectItem>
           </SelectContent>
         </Select>
