@@ -9,8 +9,8 @@ const AuthPage = () => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (session) {
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
           navigate("/");
         }
       }
@@ -26,6 +26,7 @@ const AuthPage = () => {
         supabaseClient={supabase}
         appearance={{ theme: ThemeSupa }}
         providers={[]}
+        redirectTo={window.location.origin}
       />
     </div>
   );
