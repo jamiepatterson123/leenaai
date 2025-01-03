@@ -44,7 +44,7 @@ const ActivityLevelOption = ({ value, label }: { value: string; label: string })
         side="right" 
         align="start" 
         className="w-72 p-3"
-        sideOffset={5}
+        sideOffset={-45}
       >
         <p className="text-sm text-muted-foreground whitespace-normal leading-relaxed">
           {activityLevelInfo[value as keyof typeof activityLevelInfo]}
