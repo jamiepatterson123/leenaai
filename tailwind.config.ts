@@ -69,9 +69,6 @@ export default {
         "fade-up": "fade-up 0.5s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
       },
-      backgroundImage: {
-        'gradient-primary': 'linear-gradient(to right, #FF69B4, #FFA07A, #FFD700)',
-      },
     },
   },
   plugins: [require("tailwindcss-animate")],
