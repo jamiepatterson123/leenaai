@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Home, BookOpen, Plus, MessageSquare, User } from "lucide-react";
+import { Home, BookOpen, Plus, MessageSquare, Target } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Dialog,
@@ -122,8 +122,8 @@ export const MobileNav = ({ isAuthenticated }: MobileNavProps) => {
         </button>
         
         <Link to="/profile" className={`flex flex-col items-center ${isActive('/profile')}`}>
-          <User className="h-6 w-6" />
-          <span className="text-xs mt-1">Profile</span>
+          <Target className="h-6 w-6" />
+          <span className="text-xs mt-1">Targets</span>
         </Link>
       </nav>
     </div>

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Home, UtensilsCrossed, UserRound, ClipboardList, UserCheck, Send, Key } from "lucide-react";
+import { Home, UtensilsCrossed, Target, ClipboardList, UserCheck, Send, Key } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -25,7 +25,7 @@ export const DesktopNav = ({
   const mainNavigationItems = [
     { icon: Home, text: "Home", to: "/" },
     { icon: UtensilsCrossed, text: "Nutrition", to: "/food-diary" },
-    { icon: UserRound, text: "Profile", to: "/profile" },
+    { icon: Target, text: "Targets", to: "/profile" },
     { icon: ClipboardList, text: "Dashboard", to: "/reports" },
     { icon: UserCheck, text: "Coach", to: "/coach" },
   ];
