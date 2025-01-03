@@ -10,7 +10,6 @@ interface ImageUploadProps {
 export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPreview }) => {
   const [preview, setPreview] = useState<string | null>(null);
 
-  // Reset preview when resetPreview prop changes
   React.useEffect(() => {
     if (resetPreview) {
       setPreview(null);
@@ -33,7 +32,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPr
     reader.readAsDataURL(file);
     onImageSelect(file);
     
-    // Reset the input value so the same file can be selected again
     e.target.value = '';
   };
 
@@ -41,7 +39,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPr
     <div className="w-full max-w-md mx-auto">
       <label
         htmlFor="image-upload"
-        className="relative block w-full h-64 border border-solid border-foreground rounded-lg cursor-pointer hover:border-foreground/80 transition-colors"
+        className="relative block w-full h-64 border border-solid border-gray-200 dark:border-gray-800 rounded-lg cursor-pointer hover:border-gray-300 dark:hover:border-gray-700 transition-colors"
       >
         <input
           id="image-upload"
@@ -59,7 +57,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPr
             />
           ) : (
             <div className="text-center">
-              <Upload className="mx-auto h-12 w-12 text-primary" />
+              <Upload className="mx-auto h-12 w-12 text-red-500" />
               <p className="mt-2 text-sm text-gray-600">
                 Click or drag image to upload
               </p>
