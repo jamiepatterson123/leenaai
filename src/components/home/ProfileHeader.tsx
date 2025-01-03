@@ -5,9 +5,11 @@ interface ProfileHeaderProps {
 }
 
 export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
+  if (!profile?.first_name) return null;
+  
   return (
     <h1 className="text-4xl font-bold text-center mb-8 text-primary">
-      {profile?.first_name ? `Hi ${profile.first_name}, welcome to Leena` : "Welcome to Leena"}
+      Hi {profile.first_name}
     </h1>
   );
 };
