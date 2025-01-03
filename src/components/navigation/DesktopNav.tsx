@@ -26,7 +26,7 @@ export const DesktopNav = ({
     { icon: Home, text: "Home", to: "/" },
     { icon: UtensilsCrossed, text: "Nutrition", to: "/food-diary" },
     { icon: UserRound, text: "Profile", to: "/profile" },
-    { icon: ClipboardList, text: "Stats", to: "/reports" },
+    { icon: ClipboardList, text: "Dashboard", to: "/reports" },
     { icon: UserCheck, text: "Coach", to: "/coach" },
   ];
 
