@@ -33,7 +33,7 @@ export default {
           foreground: "hsl(var(--secondary-foreground))",
         },
         success: {
-          DEFAULT: "#15803d",
+          DEFAULT: "#EC4899",
           foreground: "#FFFFFF",
         },
         accent: {
@@ -46,7 +46,7 @@ export default {
         },
       },
       backgroundImage: {
-        'gradient-primary': 'linear-gradient(to right, #0891b2, #22c55e)',
+        'gradient-primary': 'linear-gradient(to right, #EC4899, #FDE047)',
         'gradient-hover': 'linear-gradient(to right, #EC4899, #FDE047)',
       },
       keyframes: {
