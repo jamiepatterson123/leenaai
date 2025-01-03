@@ -1,5 +1,6 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
+import { Info } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -7,6 +8,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 interface SelectFieldsProps {
   gender: string;
@@ -16,6 +22,32 @@ interface SelectFieldsProps {
   onActivityLevelChange: (value: string) => void;
   onFitnessGoalsChange: (value: string) => void;
 }
+
+const activityLevelInfo = {
+  sedentary: "Little to no exercise, desk job (e.g., office work with minimal movement)",
+  lightly_active: "Light exercise 1-3 days/week (e.g., walking, light yoga, casual cycling)",
+  moderately_active: "Moderate exercise 3-5 days/week (e.g., jogging, gym workouts, recreational sports)",
+  very_active: "Hard exercise 6-7 days/week (e.g., intense training, competitive sports)",
+  extra_active: "Very hard exercise daily & physical job (e.g., professional athletes, construction work)"
+};
+
+const ActivityLevelOption = ({ value, label }: { value: string; label: string }) => (
+  <div className="flex items-center justify-between gap-2">
+    <span>{label}</span>
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <button className="inline-flex items-center justify-center rounded-full w-5 h-5 hover:bg-gray-100 transition-colors">
+          <Info className="h-3 w-3 text-gray-500" />
+        </button>
+      </HoverCardTrigger>
+      <HoverCardContent side="right" align="start" className="w-64">
+        <p className="text-sm text-muted-foreground">
+          {activityLevelInfo[value as keyof typeof activityLevelInfo]}
+        </p>
+      </HoverCardContent>
+    </HoverCard>
+  </div>
+);
 
 export const SelectFields: React.FC<SelectFieldsProps> = ({
   gender,
@@ -46,36 +78,21 @@ export const SelectFields: React.FC<SelectFieldsProps> = ({
           <SelectTrigger>
             <SelectValue placeholder="Select activity level" />
           </SelectTrigger>
-          <SelectContent className="w-[350px]">
-            <SelectItem value="sedentary" className="py-2">
-              <div className="space-y-1">
-                <div className="font-medium">Sedentary</div>
-                <p className="text-xs text-muted-foreground whitespace-normal">Little to no exercise, desk job (e.g., office work with minimal movement)</p>
-              </div>
+          <SelectContent>
+            <SelectItem value="sedentary">
+              <ActivityLevelOption value="sedentary" label="Sedentary" />
             </SelectItem>
-            <SelectItem value="lightly_active" className="py-2">
-              <div className="space-y-1">
-                <div className="font-medium">Lightly Active</div>
-                <p className="text-xs text-muted-foreground whitespace-normal">Light exercise 1-3 days/week (e.g., walking, light yoga, casual cycling)</p>
-              </div>
+            <SelectItem value="lightly_active">
+              <ActivityLevelOption value="lightly_active" label="Lightly Active" />
             </SelectItem>
-            <SelectItem value="moderately_active" className="py-2">
-              <div className="space-y-1">
-                <div className="font-medium">Moderately Active</div>
-                <p className="text-xs text-muted-foreground whitespace-normal">Moderate exercise 3-5 days/week (e.g., jogging, gym workouts, recreational sports)</p>
-              </div>
+            <SelectItem value="moderately_active">
+              <ActivityLevelOption value="moderately_active" label="Moderately Active" />
             </SelectItem>
-            <SelectItem value="very_active" className="py-2">
-              <div className="space-y-1">
-                <div className="font-medium">Very Active</div>
-                <p className="text-xs text-muted-foreground whitespace-normal">Hard exercise 6-7 days/week (e.g., intense training, competitive sports)</p>
-              </div>
+            <SelectItem value="very_active">
+              <ActivityLevelOption value="very_active" label="Very Active" />
             </SelectItem>
-            <SelectItem value="extra_active" className="py-2">
-              <div className="space-y-1">
-                <div className="font-medium">Extra Active</div>
-                <p className="text-xs text-muted-foreground whitespace-normal">Very hard exercise daily & physical job (e.g., professional athletes, construction work)</p>
-              </div>
+            <SelectItem value="extra_active">
+              <ActivityLevelOption value="extra_active" label="Extra Active" />
             </SelectItem>
           </SelectContent>
         </Select>
