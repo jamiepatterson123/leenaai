@@ -23,6 +23,18 @@ interface IndividualMacroChartProps {
   unit: string;
 }
 
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    payload: {
+      date: string;
+      value: number;
+      average: number;
+    };
+  }>;
+}
+
 export const IndividualMacroChart = ({ 
   data, 
   title, 
@@ -52,7 +64,7 @@ export const IndividualMacroChart = ({
               }}
             />
             <Tooltip
-              content={({ active, payload }) => {
+              content={({ active, payload }: CustomTooltipProps) => {
                 if (active && payload && payload.length) {
                   return (
                     <div className="rounded-lg border bg-background p-2 shadow-sm">
