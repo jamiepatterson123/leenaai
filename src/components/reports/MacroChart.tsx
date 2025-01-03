@@ -44,6 +44,20 @@ export const MacroChart = ({ data }: MacroChartProps) => {
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
+            <defs>
+              <linearGradient id="proteinGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#0891b2" />
+                <stop offset="100%" stopColor="#22c55e" />
+              </linearGradient>
+              <linearGradient id="carbsGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#0891b2" />
+                <stop offset="100%" stopColor="#22c55e" />
+              </linearGradient>
+              <linearGradient id="fatGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#0891b2" />
+                <stop offset="100%" stopColor="#22c55e" />
+              </linearGradient>
+            </defs>
             <XAxis
               dataKey="date"
               stroke="#888888"
@@ -73,7 +87,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
                     <div className="rounded-lg border bg-background p-2 shadow-sm">
                       <div className="grid gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-[rgb(14,165,233)]" />
+                          <div className="h-2 w-2 rounded-full bg-[#0891b2]" />
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
                             Protein
                           </span>
@@ -84,7 +98,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-[rgb(34,197,94)]" />
+                          <div className="h-2 w-2 rounded-full bg-[#22c55e]" />
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
                             Carbohydrates
                           </span>
@@ -95,7 +109,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-[rgb(249,115,22)]" />
+                          <div className="h-2 w-2 rounded-full bg-[#0891b2]" />
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
                             Fat
                           </span>
@@ -114,7 +128,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
             />
             <Bar
               dataKey="protein"
-              fill="rgb(14, 165, 233)"
+              fill="url(#proteinGradient)"
               radius={[2, 2, 0, 0]}
               name="Protein"
               style={{ pointerEvents: 'none' }}
@@ -122,7 +136,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
             />
             <Bar
               dataKey="carbs"
-              fill="rgb(34, 197, 94)"
+              fill="url(#carbsGradient)"
               radius={[2, 2, 0, 0]}
               name="Carbohydrates"
               style={{ pointerEvents: 'none' }}
@@ -130,7 +144,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
             />
             <Bar
               dataKey="fat"
-              fill="rgb(249, 115, 22)"
+              fill="url(#fatGradient)"
               radius={[2, 2, 0, 0]}
               name="Fat"
               style={{ pointerEvents: 'none' }}
