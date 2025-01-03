@@ -11,7 +11,11 @@ import { ChartSettings, VisibleCharts } from "./ChartSettings";
 interface ReportsContentProps {
   weightData: any[];
   calorieData: any[];
-  macroData: any[];
+  macroData: {
+    protein: { date: string; value: number; average: number }[];
+    carbs: { date: string; value: number; average: number }[];
+    fat: { date: string; value: number; average: number }[];
+  };
   mealData: any[];
   isLoading: boolean;
 }
@@ -81,7 +85,7 @@ export const ReportsContent = ({
       {visibleCharts.macros && (
         <MacroChart data={macroData} />
       )}
-      {visibleCharts.macroTargets && (
+      {visibleCharts.macroTargets && macroData && (
         <MacroTargetsChart data={macroData} />
       )}
     </div>
