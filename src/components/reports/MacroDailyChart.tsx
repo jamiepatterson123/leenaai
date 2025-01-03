@@ -1,5 +1,13 @@
 import { Card } from "@/components/ui/card";
-import { NutritionBarChart } from "@/components/NutritionBarChart";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 interface MacroDailyChartProps {
   data: {
@@ -14,26 +22,15 @@ interface MacroDailyChartProps {
   type: "protein" | "carbs" | "fat";
 }
 
-export const MacroDailyChart = ({ data, targetProtein, targetCarbs, targetFat, type }: MacroDailyChartProps) => {
+export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
   const getTitle = () => {
     switch (type) {
       case "protein":
-        return "Daily Protein Intake";
+        return "Daily Protein Intake (g)";
       case "carbs":
-        return "Daily Carbohydrate Intake";
+        return "Daily Carbohydrate Intake (g)";
       case "fat":
-        return "Daily Fat Intake";
-    }
-  };
-
-  const getTarget = () => {
-    switch (type) {
-      case "protein":
-        return targetProtein;
-      case "carbs":
-        return targetCarbs;
-      case "fat":
-        return targetFat;
+        return "Daily Fat Intake (g)";
     }
   };
 
@@ -51,14 +48,44 @@ export const MacroDailyChart = ({ data, targetProtein, targetCarbs, targetFat, t
   const chartData = data.map((entry) => ({
     name: entry.date,
     value: entry[type],
-    target: getTarget(),
-    color: getColor(),
   }));
 
   return (
     <Card className="p-6">
       <h2 className="text-2xl font-semibold mb-6">{getTitle()}</h2>
-      <NutritionBarChart data={chartData} />
+      <div className="w-full h-[300px] mt-6">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <XAxis 
+              dataKey="name" 
+              className="text-xs font-medium"
+            />
+            <YAxis 
+              className="text-xs font-medium"
+            />
+            <Tooltip
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const data = payload[0].payload;
+                  return (
+                    <div className="bg-background border border-border/50 rounded-lg p-2 text-sm">
+                      <p className="font-medium">{data.name}</p>
+                      <p>Amount: {Math.round(data.value)}g</p>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+            <Bar
+              dataKey="value"
+              fill={getColor()}
+              radius={[4, 4, 0, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </Card>
   );
 };
