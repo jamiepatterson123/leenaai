@@ -70,7 +70,7 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
             </div>
             <Button 
               type="submit" 
-              className="w-full text-white bg-gradient-to-r from-gray-500 via-gray-700 to-gray-900 hover:from-gray-600 hover:via-gray-800 hover:to-gray-950 transition-all duration-200"
+              className="w-full text-white bg-black hover:bg-gray-900 transition-all duration-200"
               disabled={isSubmitting || !weight}
             >
               {isSubmitting ? "Updating..." : "Update Weight"}
