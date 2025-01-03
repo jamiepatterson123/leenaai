@@ -34,13 +34,13 @@ export const HomeDataSection = ({
     );
   }
 
-  // Transform macroData for MacroChart
-  const dailyMacroData: DailyMacroData[] = macroData.protein.map((item, index) => ({
+  // Safely transform macroData for MacroChart with null checks
+  const dailyMacroData: DailyMacroData[] = macroData?.protein?.map((item, index) => ({
     date: item.date,
-    protein: macroData.protein[index].value,
-    carbs: macroData.carbs[index].value,
-    fat: macroData.fat[index].value,
-  }));
+    protein: macroData.protein[index]?.value || 0,
+    carbs: macroData.carbs[index]?.value || 0,
+    fat: macroData.fat[index]?.value || 0,
+  })) || [];
 
   return (
     <div className="grid gap-8">
