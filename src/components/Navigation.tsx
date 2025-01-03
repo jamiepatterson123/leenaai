@@ -54,41 +54,39 @@ export const Navigation = () => {
     document.documentElement.classList.toggle("dark", checked);
   };
 
-  if (!isAuthenticated) {
-    return null;
-  }
-
   return (
     <>
-      <div className="border-b mb-6">
-        <div className="max-w-4xl mx-auto p-4 flex justify-between items-center">
-          <DesktopNav 
-            handleShare={handleShare}
-            handleSignOut={handleSignOut}
-            theme={theme}
-            toggleTheme={toggleTheme}
-          />
-          <div className="hidden md:flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Light</span>
-            <Switch
-              checked={theme === "dark"}
-              onCheckedChange={toggleTheme}
-              className="data-[state=checked]:bg-primary"
+      {isAuthenticated && (
+        <div className="border-b mb-6">
+          <div className="max-w-4xl mx-auto p-4 flex justify-between items-center">
+            <DesktopNav 
+              handleShare={handleShare}
+              handleSignOut={handleSignOut}
+              theme={theme}
+              toggleTheme={toggleTheme}
             />
-            <span className="text-sm text-muted-foreground">Dark</span>
+            <div className="hidden md:flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Light</span>
+              <Switch
+                checked={theme === "dark"}
+                onCheckedChange={toggleTheme}
+                className="data-[state=checked]:bg-primary"
+              />
+              <span className="text-sm text-muted-foreground">Dark</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSignOut}
+              className="text-gray-600"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              <span className="hidden md:inline">Sign Out</span>
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSignOut}
-            className="text-gray-600"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            <span className="hidden md:inline">Sign Out</span>
-          </Button>
         </div>
-      </div>
-      <MobileNav />
+      )}
+      <MobileNav isAuthenticated={isAuthenticated} />
     </>
   );
 };

@@ -15,7 +15,11 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export const MobileNav = () => {
+interface MobileNavProps {
+  isAuthenticated: boolean;
+}
+
+export const MobileNav = ({ isAuthenticated }: MobileNavProps) => {
   const location = useLocation();
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState(null);
@@ -58,6 +62,10 @@ export const MobileNav = () => {
       return data.value;
     },
   });
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t md:hidden z-50">
