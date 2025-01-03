@@ -26,6 +26,7 @@ interface CalorieTargetsChartProps {
 export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
   const { targets } = useNutritionTargets();
   
+  // Calculate average calories for the week
   const averageCalories = data.reduce((acc, day) => acc + day.calories, 0) / data.length;
 
   const chartData = [
@@ -33,9 +34,17 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
       name: "Calories",
       value: averageCalories,
       target: targets.calories,
+      color: "rgb(14, 165, 233)",
     }
   ];
 
+  const getBarColor = (value: number, target: number) => {
+    const percentage = (value / target) * 100;
+    if (percentage > 110) return "#ef4444"; // red
+    if (percentage >= 90 && percentage <= 110) return "#22c55e"; // green
+    return "#f97316"; // orange
+  };
+  
   return (
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-6">
@@ -58,16 +67,6 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
             data={chartData}
             margin={{ top: 20, right: 30, left: 80, bottom: 5 }}
           >
-            <defs>
-              <linearGradient id="targetGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#0891b2" />
-                <stop offset="100%" stopColor="#22c55e" />
-              </linearGradient>
-              <linearGradient id="averageGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#0891b2" />
-                <stop offset="100%" stopColor="#22c55e" />
-              </linearGradient>
-            </defs>
             <XAxis type="number" />
             <YAxis 
               type="category" 
@@ -79,14 +78,28 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
                 if (active && payload && payload.length) {
                   const data = payload[0].payload;
                   const percentage = (data.value / data.target) * 100;
+                  let status = "";
+                  let statusColor = "";
+
+                  if (percentage > 110) {
+                    status = "Over target";
+                    statusColor = "text-red-500";
+                  } else if (percentage >= 90 && percentage <= 110) {
+                    status = "Within target ✓";
+                    statusColor = "text-green-600";
+                  } else {
+                    status = "Under target";
+                    statusColor = "text-orange-500";
+                  }
+
                   return (
                     <div className="rounded-lg border bg-background p-2 shadow-sm">
                       <div className="grid gap-2">
                         <p className="font-medium">Weekly Average</p>
                         <p>Average: {data.value.toFixed(0)} kcal</p>
                         <p>Target: {data.target} kcal</p>
-                        <p className="text-[#0891b2]">
-                          {percentage.toFixed(0)}% of target
+                        <p className={statusColor}>
+                          {percentage.toFixed(0)}% of target - {status}
                         </p>
                       </div>
                     </div>
@@ -98,7 +111,7 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
             <Legend />
             <Bar
               dataKey="target"
-              fill="url(#targetGradient)"
+              fill="#94a3b8"
               name="Daily Target"
               barSize={20}
             />
@@ -106,7 +119,7 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
               dataKey="value"
               name="Weekly Average"
               barSize={20}
-              fill="url(#averageGradient)"
+              fill={getBarColor(averageCalories, targets.calories)}
             />
           </BarChart>
         </ResponsiveContainer>

@@ -33,7 +33,7 @@ export default {
           foreground: "hsl(var(--secondary-foreground))",
         },
         success: {
-          DEFAULT: "#EC4899",
+          DEFAULT: "#15803d",
           foreground: "#FFFFFF",
         },
         accent: {
@@ -44,10 +44,6 @@ export default {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
         },
-      },
-      backgroundImage: {
-        'gradient-primary': 'linear-gradient(to right, #EC4899, #FDE047)',
-        'gradient-hover': 'linear-gradient(to right, #EC4899, #FDE047)',
       },
       keyframes: {
         "fade-up": {
@@ -72,6 +68,9 @@ export default {
       animation: {
         "fade-up": "fade-up 0.5s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
+      },
+      backgroundImage: {
+        'gradient-primary': 'linear-gradient(to right, #FF69B4, #FFA07A, #FFD700)',
       },
     },
   },

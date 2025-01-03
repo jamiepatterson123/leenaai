@@ -80,7 +80,7 @@ export const Navigation = () => {
               onClick={handleSignOut}
               className="text-gray-600"
             >
-              <LogOut className="w-4 h-4 mr-2 bg-gradient-primary text-transparent bg-clip-text" />
+              <LogOut className="w-4 h-4 mr-2" />
               <span className="hidden md:inline">Sign Out</span>
             </Button>
           </div>

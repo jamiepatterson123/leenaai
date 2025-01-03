@@ -41,12 +41,6 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
-            <defs>
-              <linearGradient id="calorieGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#0891b2" />
-                <stop offset="100%" stopColor="#22c55e" />
-              </linearGradient>
-            </defs>
             <XAxis
               dataKey="date"
               stroke="#888888"
@@ -81,7 +75,7 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
             />
             <Bar
               dataKey="calories"
-              fill="url(#calorieGradient)"
+              fill="rgb(14, 165, 233)"
               radius={[2, 2, 0, 0]}
               name="Consumed"
               style={{ pointerEvents: 'none' }}

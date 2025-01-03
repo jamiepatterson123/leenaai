@@ -38,7 +38,7 @@ export const DesktopNav = ({
             <NavigationMenuItem key={item.to}>
               <Link to={item.to}>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <item.icon className="w-4 h-4 mr-2 bg-gradient-primary text-transparent bg-clip-text" />
+                  <item.icon className="w-4 h-4 mr-2" />
                   {item.text}
                 </NavigationMenuLink>
               </Link>
@@ -57,7 +57,7 @@ export const DesktopNav = ({
           onClick={handleShare}
           className="text-white"
         >
-          <Send className="w-4 h-4 bg-gradient-primary text-transparent bg-clip-text" />
+          <Send className="w-4 h-4" />
         </Button>
         <Link to="/api-settings">
           <Button
@@ -65,7 +65,7 @@ export const DesktopNav = ({
             size="icon"
             className="text-white"
           >
-            <Key className="w-4 h-4 bg-gradient-primary text-transparent bg-clip-text" />
+            <Key className="w-4 h-4" />
           </Button>
         </Link>
       </div>
