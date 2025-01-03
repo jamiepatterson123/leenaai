@@ -10,6 +10,9 @@ export type VisibleCharts = {
   calorieState: boolean;
   macros: boolean;
   macroTargets: boolean;
+  proteinDaily: boolean;
+  carbsDaily: boolean;
+  fatDaily: boolean;
 };
 
 interface ChartSettingsProps {
@@ -29,6 +32,9 @@ export const ChartSettings = ({
     { id: "calorieState", label: "Calorie State" },
     { id: "macros", label: "Macronutrients" },
     { id: "macroTargets", label: "Macro Targets" },
+    { id: "proteinDaily", label: "Daily Protein" },
+    { id: "carbsDaily", label: "Daily Carbs" },
+    { id: "fatDaily", label: "Daily Fat" },
   ] as const;
 
   return (

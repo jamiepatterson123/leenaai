@@ -6,6 +6,7 @@ import { MacroChart } from "./MacroChart";
 import { MacroTargetsChart } from "./MacroTargetsChart";
 import { MealDistributionChart } from "./MealDistributionChart";
 import { CalorieStateChart } from "./CalorieStateChart";
+import { MacroDailyChart } from "./MacroDailyChart";
 import { ChartSettings, VisibleCharts } from "./ChartSettings";
 
 interface ReportsContentProps {
@@ -31,6 +32,9 @@ export const ReportsContent = ({
     calorieState: true,
     macros: true,
     macroTargets: true,
+    proteinDaily: true,
+    carbsDaily: true,
+    fatDaily: true,
   });
 
   const handleToggleChart = (chart: keyof VisibleCharts) => {
@@ -49,6 +53,9 @@ export const ReportsContent = ({
       </div>
     );
   }
+
+  // Get the first macro data entry to extract target values
+  const targetValues = macroData[0] || { protein: 150, carbs: 200, fat: 70 };
 
   return (
     <div className="grid gap-8">
@@ -83,6 +90,33 @@ export const ReportsContent = ({
       )}
       {visibleCharts.macroTargets && (
         <MacroTargetsChart data={macroData} />
+      )}
+      {visibleCharts.proteinDaily && (
+        <MacroDailyChart 
+          data={macroData}
+          targetProtein={targetValues.protein}
+          targetCarbs={targetValues.carbs}
+          targetFat={targetValues.fat}
+          type="protein"
+        />
+      )}
+      {visibleCharts.carbsDaily && (
+        <MacroDailyChart 
+          data={macroData}
+          targetProtein={targetValues.protein}
+          targetCarbs={targetValues.carbs}
+          targetFat={targetValues.fat}
+          type="carbs"
+        />
+      )}
+      {visibleCharts.fatDaily && (
+        <MacroDailyChart 
+          data={macroData}
+          targetProtein={targetValues.protein}
+          targetCarbs={targetValues.carbs}
+          targetFat={targetValues.fat}
+          type="fat"
+        />
       )}
     </div>
   );
