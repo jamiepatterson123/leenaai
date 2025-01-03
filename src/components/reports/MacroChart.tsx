@@ -8,6 +8,13 @@ import {
   Legend,
 } from "recharts";
 import { Card } from "@/components/ui/card";
+import { Info } from "lucide-react";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface MacroChartProps {
   data: {
@@ -21,7 +28,19 @@ interface MacroChartProps {
 export const MacroChart = ({ data }: MacroChartProps) => {
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-semibold mb-6">Macronutrient Averages</h2>
+      <div className="flex items-center gap-2 mb-6">
+        <h2 className="text-2xl font-semibold">Macronutrient Averages</h2>
+        <TooltipProvider>
+          <UITooltip>
+            <TooltipTrigger>
+              <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="max-w-xs">Track your daily intake of protein, carbs, and fat. This helps ensure you're getting a balanced diet that supports your fitness goals, energy levels, and overall health.</p>
+            </TooltipContent>
+          </UITooltip>
+        </TooltipProvider>
+      </div>
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>

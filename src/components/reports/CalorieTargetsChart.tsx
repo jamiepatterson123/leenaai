@@ -9,6 +9,13 @@ import {
 } from "recharts";
 import { Card } from "@/components/ui/card";
 import { useNutritionTargets } from "@/components/nutrition/useNutritionTargets";
+import { Info } from "lucide-react";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface CalorieTargetsChartProps {
   data: {
@@ -37,10 +44,22 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
     if (percentage >= 90 && percentage <= 110) return "#22c55e"; // green
     return "#f97316"; // orange
   };
-
+  
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-semibold mb-6">Weekly Calorie Average vs Target</h2>
+      <div className="flex items-center gap-2 mb-6">
+        <h2 className="text-2xl font-semibold">Weekly Calorie Average vs Target</h2>
+        <TooltipProvider>
+          <UITooltip>
+            <TooltipTrigger>
+              <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="max-w-xs">Compare your weekly calorie intake against your target. This helps ensure you're maintaining the right energy balance for your goals, whether that's weight loss, maintenance, or muscle gain.</p>
+            </TooltipContent>
+          </UITooltip>
+        </TooltipProvider>
+      </div>
       <div className="h-[200px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart

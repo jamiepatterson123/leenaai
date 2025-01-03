@@ -10,6 +10,13 @@ import {
 } from "recharts";
 import { Card } from "@/components/ui/card";
 import { useNutritionTargets } from "@/components/nutrition/useNutritionTargets";
+import { Info } from "lucide-react";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface MacroTargetsChartProps {
   data: {
@@ -52,7 +59,19 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
 
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-semibold mb-6">Weekly Macro Averages vs Targets</h2>
+      <div className="flex items-center gap-2 mb-6">
+        <h2 className="text-2xl font-semibold">Weekly Macro Averages vs Targets</h2>
+        <TooltipProvider>
+          <UITooltip>
+            <TooltipTrigger>
+              <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="max-w-xs">Compare your weekly macronutrient intake against your targets. This helps you maintain the right balance of protein for muscle maintenance, carbs for energy, and fats for hormone health.</p>
+            </TooltipContent>
+          </UITooltip>
+        </TooltipProvider>
+      </div>
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart

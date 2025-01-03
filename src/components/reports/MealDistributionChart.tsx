@@ -1,4 +1,11 @@
 import { Card } from "@/components/ui/card";
+import { Info } from "lucide-react";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   PieChart,
   Pie,
@@ -43,7 +50,19 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
 
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-semibold mb-6">Calories by Meal</h2>
+      <div className="flex items-center gap-2 mb-6">
+        <h2 className="text-2xl font-semibold">Calories by Meal</h2>
+        <TooltipProvider>
+          <UITooltip>
+            <TooltipTrigger>
+              <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="max-w-xs">See how your calories are distributed across different meals. This helps you understand your eating patterns and make adjustments to better align with your nutritional goals and daily routine.</p>
+            </TooltipContent>
+          </UITooltip>
+        </TooltipProvider>
+      </div>
       <div className="h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>

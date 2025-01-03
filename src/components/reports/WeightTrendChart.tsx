@@ -7,6 +7,13 @@ import {
   YAxis,
 } from "recharts";
 import { Card } from "@/components/ui/card";
+import { Info } from "lucide-react";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface WeightTrendChartProps {
   data: {
@@ -16,7 +23,6 @@ interface WeightTrendChartProps {
 }
 
 export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
-  // Calculate 7-day moving average
   const movingAverageData = data.map((entry, index) => {
     const start = Math.max(0, index - 6);
     const values = data.slice(start, index + 1).map(d => d.weight);
@@ -30,7 +36,19 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
 
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-semibold mb-6">Weight Trend with 7-Day Average</h2>
+      <div className="flex items-center gap-2 mb-6">
+        <h2 className="text-2xl font-semibold">Weight Trend with 7-Day Average</h2>
+        <TooltipProvider>
+          <UITooltip>
+            <TooltipTrigger>
+              <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="max-w-xs">Track your weight changes over time with a 7-day moving average to smooth out daily fluctuations. This helps you identify true weight trends and monitor progress toward your goals more accurately.</p>
+            </TooltipContent>
+          </UITooltip>
+        </TooltipProvider>
+      </div>
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={movingAverageData}>

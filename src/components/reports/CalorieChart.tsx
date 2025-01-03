@@ -7,6 +7,13 @@ import {
   YAxis,
 } from "recharts";
 import { Card } from "@/components/ui/card";
+import { Info } from "lucide-react";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface CalorieChartProps {
   data: {
@@ -18,7 +25,19 @@ interface CalorieChartProps {
 export const CalorieChart = ({ data }: CalorieChartProps) => {
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-semibold mb-6">Calories Consumed</h2>
+      <div className="flex items-center gap-2 mb-6">
+        <h2 className="text-2xl font-semibold">Calories Consumed</h2>
+        <TooltipProvider>
+          <UITooltip>
+            <TooltipTrigger>
+              <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="max-w-xs">View your daily calorie intake to understand your eating patterns. This helps you maintain consistency and identify days where you might need to adjust your intake.</p>
+            </TooltipContent>
+          </UITooltip>
+        </TooltipProvider>
+      </div>
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>

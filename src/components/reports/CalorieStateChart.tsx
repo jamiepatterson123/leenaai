@@ -1,4 +1,11 @@
 import { Card } from "@/components/ui/card";
+import { Info } from "lucide-react";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   PieChart,
   Pie,
@@ -35,7 +42,19 @@ export const CalorieStateChart = ({ data }: CalorieStateChartProps) => {
 
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-semibold mb-6">Calories by State</h2>
+      <div className="flex items-center gap-2 mb-6">
+        <h2 className="text-2xl font-semibold">Calories by State</h2>
+        <TooltipProvider>
+          <UITooltip>
+            <TooltipTrigger>
+              <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="max-w-xs">Understand the balance between solid and liquid calories in your diet. This can help you make informed decisions about your food choices and ensure you're not consuming too many calories through drinks.</p>
+            </TooltipContent>
+          </UITooltip>
+        </TooltipProvider>
+      </div>
       <div className="h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
