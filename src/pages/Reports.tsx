@@ -214,7 +214,7 @@ const Reports = () => {
       <ReportsContent 
         weightData={weightData || []}
         calorieData={calorieData || []}
-        macroData={macroData ? [macroData] : []}
+        macroData={macroData || []}
         mealData={mealData || []}
         isLoading={isLoading}
       />
