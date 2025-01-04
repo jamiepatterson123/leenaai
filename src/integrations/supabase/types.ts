@@ -257,6 +257,30 @@ export type Database = {
         }
         Relationships: []
       }
+      water_consumption: {
+        Row: {
+          amount_ml: number
+          created_at: string
+          id: string
+          timestamp: string
+          user_id: string | null
+        }
+        Insert: {
+          amount_ml: number
+          created_at?: string
+          id?: string
+          timestamp?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount_ml?: number
+          created_at?: string
+          id?: string
+          timestamp?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       weight_history: {
         Row: {
           created_at: string

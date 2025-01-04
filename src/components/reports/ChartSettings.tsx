@@ -13,6 +13,7 @@ export type VisibleCharts = {
   proteinDaily: boolean;
   carbsDaily: boolean;
   fatDaily: boolean;
+  waterConsumption: boolean;
 };
 
 interface ChartSettingsProps {
@@ -35,6 +36,7 @@ export const ChartSettings = ({
     { id: "proteinDaily", label: "Daily Protein" },
     { id: "carbsDaily", label: "Daily Carbs" },
     { id: "fatDaily", label: "Daily Fat" },
+    { id: "waterConsumption", label: "Water Consumption" },
   ] as const;
 
   return (

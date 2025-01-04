@@ -7,6 +7,7 @@ import { MacroTargetsChart } from "./MacroTargetsChart";
 import { MealDistributionChart } from "./MealDistributionChart";
 import { CalorieStateChart } from "./CalorieStateChart";
 import { MacroDailyChart } from "./MacroDailyChart";
+import { WaterConsumptionChart } from "./WaterConsumptionChart";
 import { ChartSettings, VisibleCharts } from "./ChartSettings";
 import { TimeRange } from "./TimeRangeSelector";
 
@@ -15,6 +16,7 @@ interface ReportsContentProps {
   calorieData: any[];
   macroData: any[];
   mealData: any[];
+  waterData: any[];
   isLoading: boolean;
   timeRange: TimeRange;
 }
@@ -24,6 +26,7 @@ export const ReportsContent = ({
   calorieData, 
   macroData, 
   mealData,
+  waterData,
   isLoading,
   timeRange
 }: ReportsContentProps) => {
@@ -38,6 +41,7 @@ export const ReportsContent = ({
     proteinDaily: true,
     carbsDaily: true,
     fatDaily: true,
+    waterConsumption: true,
   });
 
   const handleToggleChart = (chart: keyof VisibleCharts) => {
@@ -111,6 +115,9 @@ export const ReportsContent = ({
           data={macroData}
           type="fat"
         />
+      )}
+      {visibleCharts.waterConsumption && (
+        <WaterConsumptionChart data={waterData} />
       )}
     </div>
   );
