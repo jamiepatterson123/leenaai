@@ -26,17 +26,21 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
     },
   });
 
+  // Watch for changes in calories to auto-adjust macros
   const watchCalories = watch("target_calories");
 
   React.useEffect(() => {
     if (watchCalories) {
+      // Protein: 30% of calories (4 calories per gram)
       const proteinCalories = watchCalories * 0.3;
       const protein = Math.round(proteinCalories / 4);
       
+      // Fat: 25% of calories (9 calories per gram)
       const fatCalories = watchCalories * 0.25;
       const fat = Math.round(fatCalories / 9);
       
-      const carbsCalories = watchCalories - proteinCalories - fatCalories;
+      // Remaining 45% goes to carbs (4 calories per gram)
+      const carbsCalories = watchCalories * 0.45;
       const carbs = Math.round(carbsCalories / 4);
 
       setValue("target_protein", protein);
@@ -62,7 +66,7 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
 
       if (error) throw error;
       
-      // Invalidate and refetch queries
+      // Invalidate and refetch queries to update all components
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
       
       toast.success("Macro targets updated successfully");
@@ -98,6 +102,7 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
                 id="target_protein"
                 type="number"
                 {...register("target_protein", { valueAsNumber: true })}
+                readOnly
               />
               <p className="text-xs text-muted-foreground">30% of calories</p>
             </div>
@@ -107,6 +112,7 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
                 id="target_carbs"
                 type="number"
                 {...register("target_carbs", { valueAsNumber: true })}
+                readOnly
               />
               <p className="text-xs text-muted-foreground">45% of calories</p>
             </div>
@@ -116,6 +122,7 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
                 id="target_fat"
                 type="number"
                 {...register("target_fat", { valueAsNumber: true })}
+                readOnly
               />
               <p className="text-xs text-muted-foreground">25% of calories</p>
             </div>
