@@ -12,14 +12,19 @@ const FoodDiaryPage = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState(null);
 
-  const { data: apiKey } = useQuery({
+  const { data: apiKey, isLoading } = useQuery({
     queryKey: ["openai-api-key"],
     queryFn: async () => {
+      console.log("Fetching API key from Supabase...");
+      
+      // First try localStorage
       const savedKey = localStorage.getItem("openai_api_key");
       if (savedKey) {
+        console.log("Found API key in localStorage");
         return savedKey;
       }
 
+      // If not in localStorage, try Supabase secrets
       const { data, error } = await supabase
         .from("secrets")
         .select("value")
@@ -27,18 +32,31 @@ const FoodDiaryPage = () => {
         .maybeSingle();
 
       if (error) {
+        console.error("Error fetching API key:", error);
         toast.error("Error fetching API key");
         throw error;
       }
 
-      if (!data) {
+      if (!data?.value) {
+        console.error("No API key found");
         toast.error("Please set your OpenAI API key in API Settings first");
         return null;
       }
 
+      console.log("Successfully retrieved API key from Supabase");
       return data.value;
     },
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="text-muted-foreground animate-pulse">
+          Loading...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
