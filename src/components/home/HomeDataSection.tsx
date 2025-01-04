@@ -6,9 +6,7 @@ import { FoodDiary } from "@/components/FoodDiary";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
-import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ReportsContent } from "@/components/reports/ReportsContent";
 import { CameraButton } from "@/components/home/CameraButton";
 import { useHomeData } from "@/components/home/useHomeData";
 
@@ -23,7 +21,7 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
   const isMobile = useIsMobile();
   const imageAnalysisSectionRef = React.useRef<any>(null);
 
-  const { weightData, calorieData, macroData, mealData, isLoading } = useHomeData();
+  const { isLoading } = useHomeData();
 
   const { data: hasTodayEntries } = useQuery({
     queryKey: ["hasTodayEntries"],
@@ -56,16 +54,6 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
       )}
 
       {isMobile && <CameraButton onFileSelect={handleFileSelect} />}
-
-      {!isMobile && (
-        <ReportsContent 
-          weightData={weightData || []}
-          calorieData={calorieData || []}
-          macroData={macroData || []}
-          mealData={mealData || []}
-          isLoading={isLoading}
-        />
-      )}
 
       <ImageAnalysisSection
         ref={imageAnalysisSectionRef}
