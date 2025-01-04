@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "../ui/button";
 import { Trash2, ChevronDown } from "lucide-react";
+import { format } from "date-fns";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,7 @@ interface FoodListProps {
     name: string;
     weight_g: number;
     category?: string;
+    created_at?: string;
     nutrition?: {
       calories: number;
       protein: number;
@@ -46,11 +48,16 @@ export const FoodList: React.FC<FoodListProps> = ({
       className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-secondary/30 rounded-lg backdrop-blur-sm border border-border/10 space-y-2 sm:space-y-0"
     >
       <div className="space-y-1.5">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between sm:justify-start gap-2">
           <span className="font-medium capitalize">{food.name}</span>
           <span className="text-sm text-muted-foreground">
             {food.weight_g}g
           </span>
+          {food.created_at && (
+            <span className="text-xs text-muted-foreground ml-auto sm:ml-2">
+              {format(new Date(food.created_at), "h:mm a")}
+            </span>
+          )}
         </div>
         {food.nutrition && (
           <div className="text-sm text-muted-foreground space-x-2">
