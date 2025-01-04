@@ -46,6 +46,21 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
     <div className="space-y-8">
       <StreakCounter />
       
+      {isMobile && (
+        <>
+          <CameraButton onFileSelect={handleFileSelect} />
+          <ImageAnalysisSection
+            ref={imageAnalysisSectionRef}
+            apiKey={apiKey}
+            analyzing={analyzing}
+            setAnalyzing={setAnalyzing}
+            nutritionData={nutritionData}
+            setNutritionData={setNutritionData}
+            selectedDate={new Date()}
+          />
+        </>
+      )}
+
       {hasTodayEntries && (
         <div className="animate-fade-up">
           <h2 className="text-2xl font-semibold mb-4">Today's Food Diary</h2>
@@ -53,17 +68,17 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
         </div>
       )}
 
-      {isMobile && <CameraButton onFileSelect={handleFileSelect} />}
-
-      <ImageAnalysisSection
-        ref={imageAnalysisSectionRef}
-        apiKey={apiKey}
-        analyzing={analyzing}
-        setAnalyzing={setAnalyzing}
-        nutritionData={nutritionData}
-        setNutritionData={setNutritionData}
-        selectedDate={new Date()}
-      />
+      {!isMobile && (
+        <ImageAnalysisSection
+          ref={imageAnalysisSectionRef}
+          apiKey={apiKey}
+          analyzing={analyzing}
+          setAnalyzing={setAnalyzing}
+          nutritionData={nutritionData}
+          setNutritionData={setNutritionData}
+          selectedDate={new Date()}
+        />
+      )}
       
       <WeightInput />
     </div>
