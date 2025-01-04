@@ -24,61 +24,25 @@ interface WeightTrendChartProps {
   timeRange: TimeRange;
 }
 
-const getAveragingPeriod = (timeRange: TimeRange): number => {
-  switch (timeRange) {
-    case "1w":
-    case "2w":
-      return 7;
-    case "1m":
-    case "2m":
-      return 14;
-    case "6m":
-    case "1y":
-      return 30;
-    default:
-      return 7;
-  }
-};
-
-const getAveragingPeriodLabel = (days: number): string => {
-  if (days === 30) return "30-Day";
-  if (days === 14) return "14-Day";
-  return "7-Day";
-};
-
-export const WeightTrendChart = ({ data, timeRange }: WeightTrendChartProps) => {
-  const averagingPeriod = getAveragingPeriod(timeRange);
-  const averageLabel = getAveragingPeriodLabel(averagingPeriod);
-
-  const movingAverageData = data.map((entry, index) => {
-    const start = Math.max(0, index - (averagingPeriod - 1));
-    const values = data.slice(start, index + 1).map(d => d.weight);
-    const average = values.reduce((a, b) => a + b, 0) / values.length;
-    
-    return {
-      ...entry,
-      movingAverage: Number(average.toFixed(1))
-    };
-  });
-
+export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
   return (
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-6">
-        <h2 className="text-2xl font-semibold">Weight Trend with {averageLabel} Average</h2>
+        <h2 className="text-2xl font-semibold">Weight Trend</h2>
         <TooltipProvider>
           <UITooltip>
             <TooltipTrigger>
               <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
             </TooltipTrigger>
             <TooltipContent>
-              <p className="max-w-xs">Track your weight changes over time with a {averageLabel.toLowerCase()} moving average to smooth out daily fluctuations. This helps you identify true weight trends and monitor progress toward your goals more accurately.</p>
+              <p className="max-w-xs">Track your weight changes over time to monitor progress toward your goals.</p>
             </TooltipContent>
           </UITooltip>
         </TooltipProvider>
       </div>
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={movingAverageData}>
+          <LineChart data={data}>
             <defs>
               <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="rgb(14, 165, 233)" stopOpacity={0.3} />
@@ -113,14 +77,6 @@ export const WeightTrendChart = ({ data, timeRange }: WeightTrendChartProps) => 
                             {payload[0].value}kg
                           </span>
                         </div>
-                        <div>
-                          <span className="text-[0.70rem] uppercase text-muted-foreground">
-                            {averageLabel} Average
-                          </span>
-                          <span className="ml-2 font-bold">
-                            {payload[1].value}kg
-                          </span>
-                        </div>
                       </div>
                     </div>
                   );
@@ -134,13 +90,6 @@ export const WeightTrendChart = ({ data, timeRange }: WeightTrendChartProps) => 
               stroke="rgb(14, 165, 233)"
               strokeWidth={2}
               dot={true}
-            />
-            <Line
-              type="monotone"
-              dataKey="movingAverage"
-              stroke="rgb(34, 197, 94)"
-              strokeWidth={2}
-              dot={false}
             />
           </LineChart>
         </ResponsiveContainer>
