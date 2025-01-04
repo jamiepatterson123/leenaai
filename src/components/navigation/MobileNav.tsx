@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Home, BookOpen, Plus, MessageSquare, Target } from "lucide-react";
+import { Home, BookOpen, Plus, Target, LayoutDashboard } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Dialog,
@@ -27,12 +27,6 @@ export const MobileNav = ({ isAuthenticated }: MobileNavProps) => {
   
   const isActive = (path: string) => {
     return location.pathname === path ? "text-primary" : "text-muted-foreground";
-  };
-
-  const handleHelpClick = () => {
-    if (typeof window !== 'undefined' && window.Tawk_API) {
-      window.Tawk_API.toggle();
-    }
   };
 
   const { data: apiKey } = useQuery({
@@ -119,17 +113,14 @@ export const MobileNav = ({ isAuthenticated }: MobileNavProps) => {
             </DialogContent>
           </Dialog>
           
-          <button 
-            onClick={handleHelpClick}
-            className="flex flex-col items-center text-muted-foreground"
-          >
-            <MessageSquare className="h-6 w-6" />
-            <span className="text-xs mt-1">Help</span>
-          </button>
-          
           <Link to="/profile" className={`flex flex-col items-center ${isActive('/profile')}`}>
             <Target className="h-6 w-6" />
             <span className="text-xs mt-1">Targets</span>
+          </Link>
+          
+          <Link to="/" className={`flex flex-col items-center ${isActive('/')}`}>
+            <LayoutDashboard className="h-6 w-6" />
+            <span className="text-xs mt-1">Dashboard</span>
           </Link>
         </nav>
       </div>
