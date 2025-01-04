@@ -15,7 +15,7 @@ const FoodDiaryPage = () => {
   const { data: apiKey, isLoading } = useQuery({
     queryKey: ["openai-api-key"],
     queryFn: async () => {
-      console.log("Fetching API key from Supabase...");
+      console.log("Starting API key fetch process...");
       
       // First try localStorage
       const savedKey = localStorage.getItem("openai_api_key");
@@ -24,12 +24,20 @@ const FoodDiaryPage = () => {
         return savedKey;
       }
 
+      // Check if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error("User not authenticated");
+        toast.error("Please log in to use this feature");
+        return null;
+      }
+
       // If not in localStorage, try Supabase secrets
       const { data, error } = await supabase
         .from("secrets")
         .select("value")
         .eq("name", "OPENAI_API_KEY")
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error("Error fetching API key:", error);
@@ -38,12 +46,14 @@ const FoodDiaryPage = () => {
       }
 
       if (!data?.value) {
-        console.error("No API key found");
+        console.error("No API key found in Supabase");
         toast.error("Please set your OpenAI API key in API Settings first");
         return null;
       }
 
       console.log("Successfully retrieved API key from Supabase");
+      // Save to localStorage for future use
+      localStorage.setItem("openai_api_key", data.value);
       return data.value;
     },
   });
