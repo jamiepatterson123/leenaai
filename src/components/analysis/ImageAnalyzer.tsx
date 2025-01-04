@@ -36,7 +36,7 @@ export const analyzeImage = async (
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "gpt-4-vision-preview",
         messages: [
           {
             role: "user",
@@ -76,11 +76,11 @@ export const analyzeImage = async (
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "gpt-4",
         messages: [
           {
             role: "system",
-            content: "You are a nutrition expert. Based on the food items and their portions, provide detailed nutritional information in this exact JSON format: { \"foods\": [ { \"name\": string, \"weight_g\": number, \"nutrition\": { \"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number }, \"state\": string } ] }"
+            content: "You are a nutrition expert. Based on the food items and their portions, provide detailed nutritional information in this exact JSON format, with no additional text or markdown formatting: { \"foods\": [ { \"name\": string, \"weight_g\": number, \"nutrition\": { \"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number }, \"state\": string } ] }"
           },
           {
             role: "user",
@@ -101,9 +101,8 @@ export const analyzeImage = async (
     console.log("Nutrition analysis result:", nutritionData);
 
     try {
-      // Extract JSON from the response content, removing any markdown formatting
-      const jsonContent = nutritionData.choices[0].message.content.replace(/```json\n|\n```/g, '');
-      const parsedContent = JSON.parse(jsonContent);
+      const content = nutritionData.choices[0].message.content;
+      const parsedContent = JSON.parse(content);
       console.log("Parsed nutrition content:", parsedContent);
       
       if (!parsedContent.foods || !Array.isArray(parsedContent.foods)) {
