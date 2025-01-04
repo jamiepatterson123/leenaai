@@ -31,17 +31,17 @@ const Reports = () => {
     queryKey: ["weightHistory", timeRange],
     queryFn: async () => {
       const startDate = getStartDate(timeRange);
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("weight_kg, updated_at")
-        .gte("updated_at", startDate.toISOString())
-        .order("updated_at", { ascending: true });
+      const { data: weightHistory, error } = await supabase
+        .from("weight_history")
+        .select("weight_kg, recorded_at")
+        .gte("recorded_at", startDate.toISOString())
+        .order("recorded_at", { ascending: true });
 
       if (error) throw error;
 
-      return profile.map((entry) => ({
+      return (weightHistory || []).map((entry) => ({
         weight: entry.weight_kg,
-        date: format(new Date(entry.updated_at), "MMM d"),
+        date: format(new Date(entry.recorded_at), "MMM d"),
       }));
     },
   });
