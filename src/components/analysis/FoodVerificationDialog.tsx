@@ -136,11 +136,11 @@ export const FoodVerificationDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Verify Food Items</DialogTitle>
         </DialogHeader>
-        <div className="space-y-6 py-4">
+        <div className="flex-1 overflow-y-auto py-4 space-y-6">
           {editedFoods.map((food, index) => (
             <div key={index} className="space-y-2">
               <div className="grid grid-cols-2 gap-4">
@@ -182,7 +182,7 @@ export const FoodVerificationDialog = ({
             </div>
           ))}
         </div>
-        <DialogFooter>
+        <DialogFooter className="sticky bottom-0 bg-background pt-2">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
