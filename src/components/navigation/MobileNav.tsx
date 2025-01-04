@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Home, BookOpen, Plus, Target, LayoutDashboard } from "lucide-react";
+import { Home, BookOpen, Plus, Target, ChartBar } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Dialog,
@@ -119,7 +119,7 @@ export const MobileNav = ({ isAuthenticated }: MobileNavProps) => {
           </Link>
           
           <Link to="/" className={`flex flex-col items-center ${isActive('/')}`}>
-            <LayoutDashboard className="h-6 w-6" />
+            <ChartBar className="h-6 w-6" />
             <span className="text-xs mt-1">Dashboard</span>
           </Link>
         </nav>
