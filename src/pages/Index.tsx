@@ -30,28 +30,29 @@ const Index = () => {
   const { data: apiKey } = useQuery({
     queryKey: ["openai-api-key"],
     queryFn: async () => {
-      const savedKey = localStorage.getItem("openai_api_key");
-      if (savedKey) {
-        return savedKey;
-      }
+      try {
+        // First try to get from Supabase secrets
+        const { data, error } = await supabase
+          .from("secrets")
+          .select("value")
+          .eq("name", "OPENAI_API_KEY")
+          .single();
 
-      const { data, error } = await supabase
-        .from("secrets")
-        .select("value")
-        .eq("name", "OPENAI_API_KEY")
-        .maybeSingle();
+        if (data?.value) {
+          return data.value;
+        }
 
-      if (error) {
-        toast.error("Error fetching API key");
-        throw error;
-      }
+        // Fallback to localStorage
+        const savedKey = localStorage.getItem("openai_api_key");
+        if (savedKey) {
+          return savedKey;
+        }
 
-      if (!data) {
-        toast.error("Please set your OpenAI API key in API Settings first");
+        return null;
+      } catch (error) {
+        console.error("Error fetching API key:", error);
         return null;
       }
-
-      return data.value;
     },
   });
 
