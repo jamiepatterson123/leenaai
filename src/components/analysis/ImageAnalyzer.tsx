@@ -101,26 +101,27 @@ Important guidelines:
       }),
     });
 
+    const responseData = await response.json();
+
     if (!response.ok) {
-      const error = await response.json();
-      console.error("OpenAI API error:", error);
+      console.error("OpenAI API error:", responseData);
       
       // Handle quota exceeded error specifically
-      if (error.error?.code === "insufficient_quota") {
+      if (responseData.error?.code === "insufficient_quota" || 
+          responseData.error?.type === "insufficient_quota") {
         toast.error("OpenAI API quota exceeded. Please check your billing details or try again later.", {
           duration: 5000,
         });
         throw new Error("OpenAI API quota exceeded. Please check your billing details.");
       }
       
-      throw new Error(error.error?.message || 'Error analyzing image');
+      throw new Error(responseData.error?.message || 'Error analyzing image');
     }
 
-    const data = await response.json();
-    console.log('OpenAI API Response:', data);
+    console.log('OpenAI API Response:', responseData);
     
     try {
-      const content = data.choices[0].message.content;
+      const content = responseData.choices[0].message.content;
       console.log('GPT Response:', content);
       
       const cleanedContent = content.replace(/```json\n|\n```/g, '');
@@ -144,7 +145,7 @@ Important guidelines:
       toast.success("Food analysis complete!");
       return result;
     } catch (error) {
-      console.error('Error parsing GPT response:', data.choices[0].message.content);
+      console.error('Error parsing GPT response:', responseData.choices[0].message.content);
       throw new Error('Invalid response format from GPT');
     }
   } catch (error) {
