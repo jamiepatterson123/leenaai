@@ -33,7 +33,7 @@ export const analyzeImage = async (
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: "gpt-4-vision-preview",
         messages: [
           {
             role: "system",
@@ -106,16 +106,19 @@ Important guidelines:
     if (!response.ok) {
       console.error("OpenAI API error:", responseData);
       
-      // Handle quota exceeded error specifically
+      // Check for quota exceeded error
       if (responseData.error?.code === "insufficient_quota" || 
           responseData.error?.type === "insufficient_quota") {
         toast.error("OpenAI API quota exceeded. Please check your billing details or try again later.", {
           duration: 5000,
         });
-        throw new Error("OpenAI API quota exceeded. Please check your billing details.");
+        throw new Error("OpenAI API quota exceeded");
       }
       
-      throw new Error(responseData.error?.message || 'Error analyzing image');
+      // Handle other API errors
+      const errorMessage = responseData.error?.message || 'Error analyzing image';
+      toast.error(errorMessage);
+      throw new Error(errorMessage);
     }
 
     console.log('OpenAI API Response:', responseData);
@@ -145,7 +148,8 @@ Important guidelines:
       toast.success("Food analysis complete!");
       return result;
     } catch (error) {
-      console.error('Error parsing GPT response:', responseData.choices[0].message.content);
+      console.error('Error parsing GPT response:', error);
+      toast.error('Failed to parse the analysis results');
       throw new Error('Invalid response format from GPT');
     }
   } catch (error) {
