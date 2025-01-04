@@ -8,6 +8,7 @@ import { MealDistributionChart } from "./MealDistributionChart";
 import { CalorieStateChart } from "./CalorieStateChart";
 import { MacroDailyChart } from "./MacroDailyChart";
 import { ChartSettings, VisibleCharts } from "./ChartSettings";
+import { TimeRange } from "./TimeRangeSelector";
 
 interface ReportsContentProps {
   weightData: any[];
@@ -15,6 +16,7 @@ interface ReportsContentProps {
   macroData: any[];
   mealData: any[];
   isLoading: boolean;
+  timeRange: TimeRange;
 }
 
 export const ReportsContent = ({ 
@@ -22,7 +24,8 @@ export const ReportsContent = ({
   calorieData, 
   macroData, 
   mealData,
-  isLoading 
+  isLoading,
+  timeRange
 }: ReportsContentProps) => {
   const [visibleCharts, setVisibleCharts] = useState<VisibleCharts>({
     weightTrend: true,
@@ -62,7 +65,10 @@ export const ReportsContent = ({
       />
       
       {visibleCharts.weightTrend && (
-        <WeightTrendChart data={weightData} />
+        <WeightTrendChart 
+          data={weightData}
+          timeRange={timeRange}
+        />
       )}
       {visibleCharts.calorieTargets && (
         <CalorieTargetsChart data={calorieData} />

@@ -14,17 +14,44 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { TimeRange } from "./TimeRangeSelector";
 
 interface WeightTrendChartProps {
   data: {
     weight: number;
     date: string;
   }[];
+  timeRange: TimeRange;
 }
 
-export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
+const getAveragingPeriod = (timeRange: TimeRange): number => {
+  switch (timeRange) {
+    case "1w":
+    case "2w":
+      return 7;
+    case "1m":
+    case "2m":
+      return 14;
+    case "6m":
+    case "1y":
+      return 30;
+    default:
+      return 7;
+  }
+};
+
+const getAveragingPeriodLabel = (days: number): string => {
+  if (days === 30) return "30-Day";
+  if (days === 14) return "14-Day";
+  return "7-Day";
+};
+
+export const WeightTrendChart = ({ data, timeRange }: WeightTrendChartProps) => {
+  const averagingPeriod = getAveragingPeriod(timeRange);
+  const averageLabel = getAveragingPeriodLabel(averagingPeriod);
+
   const movingAverageData = data.map((entry, index) => {
-    const start = Math.max(0, index - 6);
+    const start = Math.max(0, index - (averagingPeriod - 1));
     const values = data.slice(start, index + 1).map(d => d.weight);
     const average = values.reduce((a, b) => a + b, 0) / values.length;
     
@@ -37,14 +64,14 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
   return (
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-6">
-        <h2 className="text-2xl font-semibold">Weight Trend with 7-Day Average</h2>
+        <h2 className="text-2xl font-semibold">Weight Trend with {averageLabel} Average</h2>
         <TooltipProvider>
           <UITooltip>
             <TooltipTrigger>
               <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
             </TooltipTrigger>
             <TooltipContent>
-              <p className="max-w-xs">Track your weight changes over time with a 7-day moving average to smooth out daily fluctuations. This helps you identify true weight trends and monitor progress toward your goals more accurately.</p>
+              <p className="max-w-xs">Track your weight changes over time with a {averageLabel.toLowerCase()} moving average to smooth out daily fluctuations. This helps you identify true weight trends and monitor progress toward your goals more accurately.</p>
             </TooltipContent>
           </UITooltip>
         </TooltipProvider>
@@ -88,7 +115,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
                         </div>
                         <div>
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
-                            7-Day Average
+                            {averageLabel} Average
                           </span>
                           <span className="ml-2 font-bold">
                             {payload[1].value}kg

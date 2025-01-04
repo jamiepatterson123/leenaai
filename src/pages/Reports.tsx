@@ -156,6 +156,7 @@ const Reports = () => {
         macroData={macroData || []}
         mealData={mealData || []}
         isLoading={isLoading}
+        timeRange={timeRange}
       />
     </div>
   );
