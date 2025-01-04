@@ -33,7 +33,7 @@ export const analyzeImage = async (
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: "gpt-4-vision-preview",
         messages: [
           {
             role: "system",
@@ -77,15 +77,7 @@ Provide output in this exact JSON format:
             }
         }
     ]
-}
-
-Important guidelines:
-- Be specific with food names (e.g., "chicken breast" not just "chicken")
-- Use only "liquid" or "solid" for state
-- All numerical values should be numbers, not strings
-- Round weights to nearest gram
-- Include all visible food items
-- Use standard nutritional databases for calculations`
+}`
               },
               {
                 type: "image_url",
@@ -96,7 +88,7 @@ Important guidelines:
             ]
           }
         ],
-        max_tokens: 1000,
+        max_tokens: 4096,
         temperature: 0.7
       }),
     });
