@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
 
 interface FoodItem {
   name: string;
@@ -134,6 +135,12 @@ export const FoodVerificationDialog = ({
     }
   };
 
+  const handleDeleteFood = (index: number) => {
+    setEditedFoods(prev => prev.filter((_, i) => i !== index));
+    setTempNames(prev => prev.filter((_, i) => i !== index));
+    toast.success("Food item removed");
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
@@ -165,19 +172,29 @@ export const FoodVerificationDialog = ({
                   />
                 </div>
               </div>
-              <div className="text-sm text-muted-foreground">
-                {updating === index ? (
-                  <div className="text-primary animate-pulse">
-                    Updating nutrition info...
-                  </div>
-                ) : (
-                  <>
-                    Calories: {Math.round(food.nutrition.calories)} kcal | 
-                    Protein: {food.nutrition.protein.toFixed(1)}g | 
-                    Carbs: {food.nutrition.carbs.toFixed(1)}g | 
-                    Fat: {food.nutrition.fat.toFixed(1)}g
-                  </>
-                )}
+              <div className="flex justify-between items-center">
+                <div className="text-sm text-muted-foreground">
+                  {updating === index ? (
+                    <div className="text-primary animate-pulse">
+                      Updating nutrition info...
+                    </div>
+                  ) : (
+                    <>
+                      Calories: {Math.round(food.nutrition.calories)} kcal | 
+                      Protein: {food.nutrition.protein.toFixed(1)}g | 
+                      Carbs: {food.nutrition.carbs.toFixed(1)}g | 
+                      Fat: {food.nutrition.fat.toFixed(1)}g
+                    </>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleDeleteFood(index)}
+                  className="h-8 w-8 text-destructive hover:text-destructive/90"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           ))}
@@ -188,7 +205,7 @@ export const FoodVerificationDialog = ({
           </Button>
           <Button 
             onClick={() => onConfirm(editedFoods)}
-            disabled={updating !== null}
+            disabled={updating !== null || editedFoods.length === 0}
           >
             Add to Diary
           </Button>
