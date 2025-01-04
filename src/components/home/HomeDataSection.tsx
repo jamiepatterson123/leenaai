@@ -43,7 +43,7 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
   };
 
   return (
-    <div className="space-y-8 md:pt-0 pt-16">
+    <div className="space-y-8 md:pt-0 pt-16 pb-16">
       <StreakCounter />
       
       {isMobile && (
