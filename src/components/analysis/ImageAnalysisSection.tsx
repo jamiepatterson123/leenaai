@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -28,7 +28,7 @@ interface ImageAnalysisSectionProps {
   onSuccess?: () => void;
 }
 
-export const ImageAnalysisSection = ({
+export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>(({
   apiKey,
   analyzing,
   setAnalyzing,
@@ -36,7 +36,7 @@ export const ImageAnalysisSection = ({
   setNutritionData,
   selectedDate,
   onSuccess,
-}: ImageAnalysisSectionProps) => {
+}, ref) => {
   const [resetUpload, setResetUpload] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [analyzedFoods, setAnalyzedFoods] = useState([]);
@@ -79,6 +79,10 @@ export const ImageAnalysisSection = ({
       setAnalyzing(false);
     }
   };
+
+  useImperativeHandle(ref, () => ({
+    handleImageSelect
+  }));
 
   const handleConfirmUpload = () => {
     setShowConfirmation(false);
@@ -141,4 +145,6 @@ export const ImageAnalysisSection = ({
       </AlertDialog>
     </div>
   );
-};
+});
+
+ImageAnalysisSection.displayName = "ImageAnalysisSection";

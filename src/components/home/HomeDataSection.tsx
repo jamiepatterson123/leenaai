@@ -21,6 +21,7 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
   const [nutritionData, setNutritionData] = React.useState<any>(null);
   const today = format(new Date(), "yyyy-MM-dd");
   const isMobile = useIsMobile();
+  const imageAnalysisSectionRef = React.useRef<any>(null);
 
   const { weightData, calorieData, macroData, mealData, isLoading } = useHomeData();
 
@@ -38,8 +39,9 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
   });
 
   const handleFileSelect = (file: File) => {
-    const event = new CustomEvent('imageSelected', { detail: file });
-    window.dispatchEvent(event);
+    if (imageAnalysisSectionRef.current) {
+      imageAnalysisSectionRef.current.handleImageSelect(file);
+    }
   };
 
   return (
@@ -67,6 +69,7 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
       )}
 
       <ImageAnalysisSection
+        ref={imageAnalysisSectionRef}
         apiKey={apiKey}
         analyzing={analyzing}
         setAnalyzing={setAnalyzing}
