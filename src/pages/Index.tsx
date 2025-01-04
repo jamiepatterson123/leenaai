@@ -27,10 +27,12 @@ const Index = () => {
     },
   });
 
-  const { data: apiKey } = useQuery({
+  const { data: apiKey, isLoading: isLoadingApiKey } = useQuery({
     queryKey: ["openai-api-key"],
     queryFn: async () => {
       try {
+        console.log("Fetching API key...");
+        
         // First try to get from Supabase secrets
         const { data, error } = await supabase
           .from("secrets")
@@ -38,16 +40,23 @@ const Index = () => {
           .eq("name", "OPENAI_API_KEY")
           .single();
 
+        if (error) {
+          console.error("Error fetching from Supabase:", error);
+        }
+
         if (data?.value) {
+          console.log("API key found in Supabase");
           return data.value;
         }
 
         // Fallback to localStorage
         const savedKey = localStorage.getItem("openai_api_key");
         if (savedKey) {
+          console.log("API key found in localStorage");
           return savedKey;
         }
 
+        console.log("No API key found");
         return null;
       } catch (error) {
         console.error("Error fetching API key:", error);
