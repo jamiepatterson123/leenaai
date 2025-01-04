@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 
-interface ImageAnalyzerProps {
+interface AnalyzeImageOptions {
   apiKey: string;
   setNutritionData: (data: any) => void;
   saveFoodEntries: (foods: any[]) => Promise<void>;
@@ -8,24 +8,26 @@ interface ImageAnalyzerProps {
 
 export const analyzeImage = async (
   image: File,
-  { apiKey, setNutritionData, saveFoodEntries }: ImageAnalyzerProps
+  { apiKey, setNutritionData, saveFoodEntries }: AnalyzeImageOptions
 ) => {
-  console.log("Starting image analysis with file:", image.name, image.type, image.size);
-  
-  const base64Image = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
-      resolve(base64String.split(',')[1]);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(image);
-  });
-
-  console.log("Image converted to base64");
-
   try {
-    console.log("Sending request to OpenAI API");
+    console.log("Starting image analysis...");
+    
+    // Convert image to base64
+    const base64Image = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        // Extract the base64 data after the data URL prefix
+        const base64Data = result.split(',')[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(image);
+    });
+
+    console.log("Image converted to base64, making API call...");
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -33,117 +35,71 @@ export const analyzeImage = async (
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "gpt-4",
         messages: [
           {
             role: "system",
-            content: "You are an expert nutritionist and image recognition specialist analyzing food photos."
+            content: "You are a nutrition expert. Analyze the food in the image and provide detailed nutritional information in a structured JSON format. Include calories, protein, carbs, and fat content. If multiple foods are present, list them separately."
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: `Analyze this meal photo following these steps carefully:
-
-1. Food Identification:
-   - Identify all visible items
-   - Categorize each food item specifically (e.g., chicken breast vs. whole chicken)
-
-2. Weight Estimation:
-   - Estimate weight in grams for each item
-   - Use reasonable portion sizes based on visible cues
-
-3. Nutritional Information:
-   - Calculate macronutrients based on weight
-   - Use standard nutritional values
-
-4. Contextual Consistency:
-   - Assume standard preparation methods
-   - Default to healthier preparation when ambiguous
-
-Provide output in this exact JSON format:
-{
-    "foods": [
-        {
-            "name": "food name",
-            "weight_g": number,
-            "state": "liquid|solid",
-            "nutrition": {
-                "calories": number,
-                "protein": number,
-                "carbs": number,
-                "fat": number
-            }
-        }
-    ]
-}`
+                text: "What food items do you see in this image? Please provide nutritional information for each item."
               },
               {
                 type: "image_url",
                 image_url: {
-                  "url": `data:image/jpeg;base64,${base64Image}`
+                  url: `data:image/jpeg;base64,${base64Image}`
                 }
               }
             ]
           }
         ],
-        max_tokens: 4096,
-        temperature: 0.7
-      }),
+        max_tokens: 4096
+      })
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error("OpenAI API error:", errorData);
+      console.error("API Error:", errorData);
       
-      if (errorData.error?.code === "insufficient_quota" || 
-          errorData.error?.type === "insufficient_quota") {
-        toast.error("OpenAI API quota exceeded. Please check your billing details or try again later.", {
-          duration: 5000,
-        });
-        throw new Error("OpenAI API quota exceeded");
+      if (response.status === 429) {
+        toast.error("API quota exceeded. Please check your OpenAI account.");
+      } else {
+        toast.error(`API Error: ${errorData.error?.message || 'Unknown error'}`);
       }
-      
-      const errorMessage = errorData.error?.message || 'Error analyzing image';
-      toast.error(errorMessage);
-      throw new Error(errorMessage);
+      throw new Error(errorData.error?.message || 'API request failed');
     }
 
-    const responseData = await response.json();
-    console.log('OpenAI API Response:', responseData);
-    
+    const data = await response.json();
+    console.log("API Response:", data);
+
+    if (!data.choices?.[0]?.message?.content) {
+      throw new Error('Invalid response format from API');
+    }
+
+    const content = data.choices[0].message.content;
+    console.log("Response content:", content);
+
     try {
-      const content = responseData.choices[0].message.content;
-      console.log('GPT Response:', content);
+      const parsedContent = JSON.parse(content);
+      console.log("Parsed content:", parsedContent);
       
-      const cleanedContent = content.replace(/```json\n|\n```/g, '');
-      const result = JSON.parse(cleanedContent);
-      
-      if (!result.foods || !Array.isArray(result.foods)) {
+      if (!parsedContent.foods || !Array.isArray(parsedContent.foods)) {
         throw new Error('Invalid response format: missing foods array');
       }
 
-      result.foods.forEach((food: any, index: number) => {
-        if (!food.name || typeof food.weight_g !== 'number' || !food.nutrition) {
-          throw new Error(`Invalid food item at index ${index}`);
-        }
-        if (food.state !== 'liquid' && food.state !== 'solid') {
-          food.state = 'solid'; // Default to solid if invalid
-        }
-      });
-
-      setNutritionData(result);
-      await saveFoodEntries(result.foods);
-      toast.success("Food analysis complete!");
-      return result;
-    } catch (error) {
-      console.error('Error parsing GPT response:', error);
-      toast.error('Failed to parse the analysis results');
-      throw new Error('Invalid response format from GPT');
+      setNutritionData(parsedContent);
+      return parsedContent;
+    } catch (parseError) {
+      console.error("Error parsing response:", parseError);
+      toast.error("Error processing the response from OpenAI");
+      throw parseError;
     }
   } catch (error) {
-    console.error('Error in analyzeImage:', error);
+    console.error("Error in analyzeImage:", error);
     throw error;
   }
 };
