@@ -14,6 +14,7 @@ import {
   CartesianGrid,
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
+  ReferenceLine,
 } from "recharts";
 
 interface MacroDailyChartProps {
@@ -41,11 +42,11 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
   const getColor = () => {
     switch (type) {
       case "protein":
-        return "#0ea5e9"; // sky-500
+        return "#9b87f5"; // Primary purple
       case "carbs":
-        return "#22c55e"; // green-500
+        return "#7E69AB"; // Secondary purple
       case "fat":
-        return "#f97316"; // orange-500
+        return "#8E9196"; // Neutral gray
     }
   };
 
@@ -64,6 +65,9 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
     name: entry.date,
     value: entry[type],
   }));
+
+  // Calculate the average
+  const average = chartData.reduce((sum, entry) => sum + entry.value, 0) / chartData.length;
 
   return (
     <Card className="p-6">
@@ -99,16 +103,29 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
                     <div className="bg-background border border-border/50 rounded-lg p-2 text-sm">
                       <p className="font-medium">{data.name}</p>
                       <p>Amount: {Math.round(data.value)}g</p>
+                      <p className="text-muted-foreground">Average: {Math.round(average)}g</p>
                     </div>
                   );
                 }
                 return null;
               }}
             />
+            <ReferenceLine
+              y={average}
+              stroke={getColor()}
+              strokeDasharray="3 3"
+              label={{
+                value: `Avg: ${Math.round(average)}g`,
+                fill: getColor(),
+                fontSize: 12,
+                position: 'right',
+              }}
+            />
             <Bar
               dataKey="value"
               fill={getColor()}
               radius={[4, 4, 0, 0]}
+              barSize={40}
             />
           </BarChart>
         </ResponsiveContainer>
