@@ -44,11 +44,22 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
+  const validateApiKey = (key: string) => {
+    if (!key) {
+      toast.error("Please set your OpenAI API key in API Settings first");
+      return false;
+    }
+    if (!key.startsWith('sk-')) {
+      toast.error("Invalid OpenAI API key format");
+      return false;
+    }
+    return true;
+  };
+
   const handleImageSelect = async (image: File) => {
     console.log("handleImageSelect called with image:", image);
     
-    if (!apiKey) {
-      toast.error("Please set your OpenAI API key in API Settings first");
+    if (!validateApiKey(apiKey)) {
       return;
     }
 
@@ -61,7 +72,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     setResetUpload(false);
     
     try {
-      console.log("Starting image analysis...");
+      console.log("Starting image analysis with API key:", apiKey ? "Present" : "Missing");
       const result = await analyzeImage(image, {
         apiKey,
         setNutritionData,
@@ -80,7 +91,17 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       }
     } catch (error) {
       console.error("Error analyzing image:", error);
-      toast.error(error instanceof Error ? error.message : "Error analyzing image");
+      const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
+      toast.error(errorMessage);
+      
+      // Additional error logging for debugging
+      if (error instanceof Error) {
+        console.error("Error details:", {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        });
+      }
     } finally {
       setAnalyzing(false);
     }
