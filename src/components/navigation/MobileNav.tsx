@@ -118,7 +118,7 @@ export const MobileNav = ({ isAuthenticated }: MobileNavProps) => {
             <span className="text-xs mt-1">Targets</span>
           </Link>
           
-          <Link to="/" className={`flex flex-col items-center ${isActive('/')}`}>
+          <Link to="/reports" className={`flex flex-col items-center ${isActive('/reports')}`}>
             <ChartBar className="h-6 w-6" />
             <span className="text-xs mt-1">Dashboard</span>
           </Link>
