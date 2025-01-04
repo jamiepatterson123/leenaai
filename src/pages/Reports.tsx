@@ -142,7 +142,26 @@ const Reports = () => {
     },
   });
 
-  const isLoading = weightLoading || caloriesLoading || macrosLoading || mealsLoading;
+  const { data: waterData, isLoading: waterLoading } = useQuery({
+    queryKey: ["waterConsumption", timeRange],
+    queryFn: async () => {
+      const endDate = new Date();
+      const startDate = getStartDate(timeRange);
+      
+      const { data, error } = await supabase
+        .from("water_consumption")
+        .select("amount_ml, timestamp")
+        .gte("timestamp", startDate.toISOString())
+        .lte("timestamp", endDate.toISOString())
+        .order("timestamp", { ascending: true });
+
+      if (error) throw error;
+
+      return data || [];
+    },
+  });
+
+  const isLoading = weightLoading || caloriesLoading || macrosLoading || mealsLoading || waterLoading;
 
   return (
     <div className="container max-w-4xl mx-auto p-4 space-y-8">
@@ -155,6 +174,7 @@ const Reports = () => {
         calorieData={calorieData || []}
         macroData={macroData || []}
         mealData={mealData || []}
+        waterData={waterData || []}
         isLoading={isLoading}
         timeRange={timeRange}
       />
