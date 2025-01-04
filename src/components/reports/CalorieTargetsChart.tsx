@@ -34,14 +34,14 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
       name: "Calories",
       value: averageCalories,
       target: targets.calories,
-      color: "rgb(14, 165, 233)",
+      color: "#9b87f5",
     }
   ];
 
   const getBarColor = (value: number, target: number) => {
     const percentage = (value / target) * 100;
     if (percentage > 110) return "#ef4444"; // red
-    if (percentage >= 90 && percentage <= 110) return "#22c55e"; // green
+    if (percentage >= 90 && percentage <= 110) return "#9b87f5"; // primary purple
     return "#f97316"; // orange
   };
   
@@ -63,7 +63,6 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
       <div className="h-[200px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            layout="vertical"
             data={chartData}
             margin={{ top: 20, right: 30, left: 80, bottom: 5 }}
           >
@@ -86,7 +85,7 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
                     statusColor = "text-red-500";
                   } else if (percentage >= 90 && percentage <= 110) {
                     status = "Within target ✓";
-                    statusColor = "text-green-600";
+                    statusColor = "text-[#9b87f5]";
                   } else {
                     status = "Under target";
                     statusColor = "text-orange-500";
@@ -111,7 +110,7 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
             <Legend />
             <Bar
               dataKey="target"
-              fill="#94a3b8"
+              fill="#8E9196"
               name="Daily Target"
               barSize={20}
             />

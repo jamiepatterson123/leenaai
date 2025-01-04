@@ -73,7 +73,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
                     <div className="rounded-lg border bg-background p-2 shadow-sm">
                       <div className="grid gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-[rgb(14,165,233)]" />
+                          <div className="h-2 w-2 rounded-full bg-[#9b87f5]" />
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
                             Protein
                           </span>
@@ -84,7 +84,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-[rgb(34,197,94)]" />
+                          <div className="h-2 w-2 rounded-full bg-[#7E69AB]" />
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
                             Carbohydrates
                           </span>
@@ -95,7 +95,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-[rgb(249,115,22)]" />
+                          <div className="h-2 w-2 rounded-full bg-[#8E9196]" />
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
                             Fat
                           </span>
@@ -114,27 +114,24 @@ export const MacroChart = ({ data }: MacroChartProps) => {
             />
             <Bar
               dataKey="protein"
-              fill="rgb(14, 165, 233)"
-              radius={[2, 2, 0, 0]}
+              fill="#9b87f5"
+              radius={[4, 4, 0, 0]}
               name="Protein"
-              style={{ pointerEvents: 'none' }}
-              barSize={6}
+              barSize={20}
             />
             <Bar
               dataKey="carbs"
-              fill="rgb(34, 197, 94)"
-              radius={[2, 2, 0, 0]}
+              fill="#7E69AB"
+              radius={[4, 4, 0, 0]}
               name="Carbohydrates"
-              style={{ pointerEvents: 'none' }}
-              barSize={6}
+              barSize={20}
             />
             <Bar
               dataKey="fat"
-              fill="rgb(249, 115, 22)"
-              radius={[2, 2, 0, 0]}
+              fill="#8E9196"
+              radius={[4, 4, 0, 0]}
               name="Fat"
-              style={{ pointerEvents: 'none' }}
-              barSize={6}
+              barSize={20}
             />
           </BarChart>
         </ResponsiveContainer>

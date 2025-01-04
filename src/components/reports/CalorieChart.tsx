@@ -75,11 +75,10 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
             />
             <Bar
               dataKey="calories"
-              fill="rgb(14, 165, 233)"
-              radius={[2, 2, 0, 0]}
+              fill="#9b87f5"
+              radius={[4, 4, 0, 0]}
               name="Consumed"
-              style={{ pointerEvents: 'none' }}
-              barSize={6}
+              barSize={20}
             />
           </BarChart>
         </ResponsiveContainer>

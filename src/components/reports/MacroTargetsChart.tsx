@@ -41,19 +41,19 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
       name: "Protein",
       value: averages.protein / data.length,
       target: targets.protein,
-      color: "rgb(14, 165, 233)",
+      color: "#9b87f5",
     },
     {
       name: "Carbohydrates",
       value: averages.carbs / data.length,
       target: targets.carbs,
-      color: "rgb(34, 197, 94)",
+      color: "#7E69AB",
     },
     {
       name: "Fat",
       value: averages.fat / data.length,
       target: targets.fat,
-      color: "rgb(249, 115, 22)",
+      color: "#8E9196",
     },
   ];
 
@@ -75,7 +75,6 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            layout="vertical"
             data={weeklyData}
             margin={{ top: 20, right: 30, left: 80, bottom: 5 }}
           >
@@ -107,7 +106,7 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
             <Legend />
             <Bar
               dataKey="target"
-              fill="#94a3b8"
+              fill="#8E9196"
               name="Target"
               barSize={20}
             />
