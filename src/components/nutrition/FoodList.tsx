@@ -43,25 +43,28 @@ export const FoodList: React.FC<FoodListProps> = ({
   const FoodItem = ({ food }: { food: typeof foods[0] }) => (
     <div
       key={food.id}
-      className="flex justify-between items-center p-4 bg-secondary/30 rounded-lg backdrop-blur-sm border border-border/10"
+      className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-secondary/30 rounded-lg backdrop-blur-sm border border-border/10 space-y-2 sm:space-y-0"
     >
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         <div className="flex items-center gap-2">
-          <span className="capitalize">{food.name}</span>
+          <span className="font-medium capitalize">{food.name}</span>
           <span className="text-sm text-muted-foreground">
             {food.weight_g}g
           </span>
         </div>
         {food.nutrition && (
-          <span className="text-sm text-muted-foreground">
-            {food.nutrition.protein}g protein, {food.nutrition.carbs}g carbs,{" "}
-            {food.nutrition.fat}g fat
-          </span>
+          <div className="text-sm text-muted-foreground space-x-2">
+            <span>{food.nutrition.protein}g protein</span>
+            <span>•</span>
+            <span>{food.nutrition.carbs}g carbs</span>
+            <span>•</span>
+            <span>{food.nutrition.fat}g fat</span>
+          </div>
         )}
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-end gap-3">
         {food.nutrition && (
-          <span className="text-sm">{food.nutrition.calories} kcal</span>
+          <span className="text-sm font-medium">{food.nutrition.calories} kcal</span>
         )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -93,23 +96,27 @@ export const FoodList: React.FC<FoodListProps> = ({
   );
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {Object.entries(foodsByCategory).map(([category, categoryFoods]) => (
-        <div key={category} className="space-y-2">
-          <div className="flex justify-between items-center p-4 bg-secondary/50 rounded-lg backdrop-blur-sm border border-border/10">
-            <span className="font-medium">{category}</span>
-            <span>
-              {categoryFoods.reduce(
-                (total, food) => total + (food.nutrition?.calories || 0),
-                0
-              )}{" "}
-              kcal
-            </span>
+        categoryFoods.length > 0 && (
+          <div key={category} className="space-y-2">
+            <div className="flex justify-between items-center p-3 bg-secondary/50 rounded-lg backdrop-blur-sm border border-border/10">
+              <span className="font-medium">{category}</span>
+              <span className="text-sm">
+                {categoryFoods.reduce(
+                  (total, food) => total + (food.nutrition?.calories || 0),
+                  0
+                )}{" "}
+                kcal
+              </span>
+            </div>
+            <div className="space-y-2">
+              {categoryFoods.map((food) => (
+                <FoodItem key={food.id} food={food} />
+              ))}
+            </div>
           </div>
-          {categoryFoods.map((food) => (
-            <FoodItem key={food.id} food={food} />
-          ))}
-        </div>
+        )
       ))}
     </div>
   );
