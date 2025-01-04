@@ -24,7 +24,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background pb-16 md:pb-0">
           <Navigation />
           <Routes>
             <Route path="/auth" element={<AuthPage />} />

@@ -68,7 +68,7 @@ export const MobileNav = ({ isAuthenticated }: MobileNavProps) => {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background border-t md:hidden z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-background border-t md:hidden">
       <nav className="flex items-center justify-between px-6 h-16">
         <Link to="/" className={`flex flex-col items-center ${isActive('/')}`}>
           <Home className="h-6 w-6" />
