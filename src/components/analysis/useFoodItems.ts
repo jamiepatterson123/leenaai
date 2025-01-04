@@ -25,15 +25,24 @@ export const useFoodItems = (initialFoods: FoodItem[]) => {
 
   const updateNutritionInfo = async (index: number, newName: string) => {
     setUpdating(index);
+    const apiKey = localStorage.getItem('openai_api_key');
+    
+    if (!apiKey) {
+      toast.error('OpenAI API key not found');
+      setUpdating(null);
+      return;
+    }
+
     try {
+      console.log('Updating nutrition info for:', newName);
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('openai_api_key')}`,
+          'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "gpt-4",
+          model: "gpt-4o",
           messages: [
             {
               role: "system",
@@ -54,6 +63,12 @@ export const useFoodItems = (initialFoods: FoodItem[]) => {
           ],
         }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('API Error:', errorData);
+        throw new Error(errorData.error?.message || 'Failed to update nutrition information');
+      }
 
       const data = await response.json();
       const content = data.choices[0].message.content;
