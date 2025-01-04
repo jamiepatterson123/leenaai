@@ -24,14 +24,14 @@ export const CameraButton = ({ onFileSelect }: CameraButtonProps) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center">
       <Button 
         onClick={handleCameraClick}
         size="lg"
-        className="w-full max-w-md flex items-center justify-center gap-2"
+        className="w-full flex items-center justify-center gap-2"
       >
         <Camera className="w-5 h-5" />
-        Take Photo
+        Take Food Photo
       </Button>
       <input
         type="file"

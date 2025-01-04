@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CameraButton } from "@/components/home/CameraButton";
 import { useHomeData } from "@/components/home/useHomeData";
+import { Card } from "@/components/ui/card";
 
 interface HomeDataSectionProps {
   apiKey: string | null;
@@ -43,12 +44,14 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
   };
 
   return (
-    <div className="space-y-8 md:pt-0 pt-16 pb-16">
+    <div className="space-y-6">
       <StreakCounter />
       
       {isMobile && (
-        <>
-          <CameraButton onFileSelect={handleFileSelect} />
+        <div className="space-y-6">
+          <Card className="p-4">
+            <CameraButton onFileSelect={handleFileSelect} />
+          </Card>
           <ImageAnalysisSection
             ref={imageAnalysisSectionRef}
             apiKey={apiKey}
@@ -58,13 +61,15 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
             setNutritionData={setNutritionData}
             selectedDate={new Date()}
           />
-        </>
+        </div>
       )}
 
       {hasTodayEntries && (
         <div className="animate-fade-up">
-          <h2 className="text-2xl font-semibold mb-4">Today's Food Diary</h2>
-          <FoodDiary selectedDate={new Date()} />
+          <Card className="p-4">
+            <h2 className="text-xl font-semibold mb-4">Today's Food Diary</h2>
+            <FoodDiary selectedDate={new Date()} />
+          </Card>
         </div>
       )}
 
@@ -80,7 +85,9 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
         />
       )}
       
-      <WeightInput />
+      <Card className="p-4">
+        <WeightInput />
+      </Card>
     </div>
   );
 };
