@@ -104,6 +104,15 @@ Important guidelines:
     if (!response.ok) {
       const error = await response.json();
       console.error("OpenAI API error:", error);
+      
+      // Handle quota exceeded error specifically
+      if (error.error?.code === "insufficient_quota") {
+        toast.error("OpenAI API quota exceeded. Please check your billing details or try again later.", {
+          duration: 5000,
+        });
+        throw new Error("OpenAI API quota exceeded. Please check your billing details.");
+      }
+      
       throw new Error(error.error?.message || 'Error analyzing image');
     }
 
