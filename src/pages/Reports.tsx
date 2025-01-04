@@ -164,7 +164,7 @@ const Reports = () => {
   const isLoading = weightLoading || caloriesLoading || macrosLoading || mealsLoading || waterLoading;
 
   return (
-    <div className="container max-w-4xl mx-auto p-4 space-y-8">
+    <div className="container max-w-4xl mx-auto px-4 pb-20 md:pb-4 space-y-6">
       <ReportsHeader 
         timeRange={timeRange} 
         onTimeRangeChange={setTimeRange} 

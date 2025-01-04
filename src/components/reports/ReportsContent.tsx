@@ -55,14 +55,14 @@ export const ReportsContent = ({
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-muted-foreground animate-pulse">
-          Loading reports...
+          Loading dashboard...
         </div>
       </div>
     );
   }
 
   return (
-    <div className="grid gap-8">
+    <div className="grid gap-4 md:gap-8">
       <ChartSettings 
         visibleCharts={visibleCharts} 
         onToggleChart={handleToggleChart}
@@ -81,7 +81,7 @@ export const ReportsContent = ({
         <CalorieChart data={calorieData} />
       )}
       {visibleCharts.mealDistribution && visibleCharts.calorieState && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-4">
           <MealDistributionChart data={mealData} />
           <CalorieStateChart data={mealData} />
         </div>
