@@ -28,25 +28,22 @@ export const analyzeImage = async (
 
     console.log("Image converted to base64, making API call...");
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // First, analyze the image using the vision model
+    const visionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: "gpt-4-vision-preview",
         messages: [
-          {
-            role: "system",
-            content: "You are a nutrition expert. Analyze the food in the image and provide detailed nutritional information in a structured JSON format. Include calories, protein, carbs, and fat content. If multiple foods are present, list them separately."
-          },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "What food items do you see in this image? Please provide nutritional information for each item."
+                text: "What food items do you see in this image? Please list them with their approximate portion sizes in grams. Format your response as a simple list of items and weights."
               },
               {
                 type: "image_url",
@@ -61,31 +58,51 @@ export const analyzeImage = async (
       })
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("API Error:", errorData);
-      
-      if (response.status === 429) {
-        toast.error("API quota exceeded. Please check your OpenAI account.");
-      } else {
-        toast.error(`API Error: ${errorData.error?.message || 'Unknown error'}`);
-      }
-      throw new Error(errorData.error?.message || 'API request failed');
+    if (!visionResponse.ok) {
+      const errorData = await visionResponse.json();
+      console.error("Vision API Error:", errorData);
+      throw new Error(errorData.error?.message || 'Vision API request failed');
     }
 
-    const data = await response.json();
-    console.log("API Response:", data);
+    const visionData = await visionResponse.json();
+    const foodList = visionData.choices[0].message.content;
+    console.log("Vision analysis result:", foodList);
 
-    if (!data.choices?.[0]?.message?.content) {
-      throw new Error('Invalid response format from API');
+    // Now get nutritional information using GPT-4
+    const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4",
+        messages: [
+          {
+            role: "system",
+            content: "You are a nutrition expert. Based on the food items and their portions, provide detailed nutritional information in this exact JSON format: { \"foods\": [ { \"name\": string, \"weight_g\": number, \"nutrition\": { \"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number }, \"state\": string } ] }"
+          },
+          {
+            role: "user",
+            content: `Please analyze these food items and provide nutritional information: ${foodList}`
+          }
+        ],
+        max_tokens: 4096
+      })
+    });
+
+    if (!nutritionResponse.ok) {
+      const errorData = await nutritionResponse.json();
+      console.error("Nutrition API Error:", errorData);
+      throw new Error(errorData.error?.message || 'Nutrition API request failed');
     }
 
-    const content = data.choices[0].message.content;
-    console.log("Response content:", content);
+    const nutritionData = await nutritionResponse.json();
+    console.log("Nutrition analysis result:", nutritionData);
 
     try {
-      const parsedContent = JSON.parse(content);
-      console.log("Parsed content:", parsedContent);
+      const parsedContent = JSON.parse(nutritionData.choices[0].message.content);
+      console.log("Parsed nutrition content:", parsedContent);
       
       if (!parsedContent.foods || !Array.isArray(parsedContent.foods)) {
         throw new Error('Invalid response format: missing foods array');
@@ -94,8 +111,8 @@ export const analyzeImage = async (
       setNutritionData(parsedContent);
       return parsedContent;
     } catch (parseError) {
-      console.error("Error parsing response:", parseError);
-      toast.error("Error processing the response from OpenAI");
+      console.error("Error parsing nutrition response:", parseError);
+      toast.error("Error processing the nutritional information");
       throw parseError;
     }
   } catch (error) {
