@@ -34,7 +34,6 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
       name: "Calories",
       value: averageCalories,
       target: targets.calories,
-      color: "#9b87f5",
     }
   ];
 
@@ -60,17 +59,20 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
           </UITooltip>
         </TooltipProvider>
       </div>
-      <div className="h-[200px] w-full">
+      <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
             margin={{ top: 20, right: 30, left: 80, bottom: 5 }}
           >
-            <XAxis type="number" />
-            <YAxis 
+            <XAxis 
               type="category" 
-              dataKey="name" 
-              width={100}
+              dataKey="name"
+              className="text-xs font-medium"
+            />
+            <YAxis 
+              type="number"
+              className="text-xs font-medium"
             />
             <Tooltip
               content={({ active, payload }) => {
@@ -107,17 +109,20 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
                 return null;
               }}
             />
-            <Legend />
+            <Legend 
+              verticalAlign="top"
+              height={36}
+            />
             <Bar
               dataKey="target"
               fill="#8E9196"
               name="Daily Target"
-              barSize={20}
+              barSize={40}
             />
             <Bar
               dataKey="value"
               name="Weekly Average"
-              barSize={20}
+              barSize={40}
               fill={getBarColor(averageCalories, targets.calories)}
             />
           </BarChart>
