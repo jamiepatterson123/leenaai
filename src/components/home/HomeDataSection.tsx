@@ -64,6 +64,10 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
         </div>
       )}
 
+      <Card className="p-4">
+        <WeightInput />
+      </Card>
+
       {hasTodayEntries && (
         <div className="animate-fade-up">
           <Card className="p-4">
@@ -84,10 +88,6 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
           selectedDate={new Date()}
         />
       )}
-      
-      <Card className="p-4">
-        <WeightInput />
-      </Card>
     </div>
   );
 };
