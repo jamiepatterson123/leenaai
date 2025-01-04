@@ -23,10 +23,11 @@ export const ApiKeyInput: React.FC<ApiKeyInputProps> = ({ onApiKeySet }) => {
           .from("secrets")
           .select("value")
           .eq("name", "OPENAI_API_KEY")
-          .single();
+          .maybeSingle(); // Changed from single() to maybeSingle()
 
         if (secretError) {
           console.error("Error fetching from secrets:", secretError);
+          // Don't throw here, continue to localStorage fallback
         }
 
         if (secretData?.value) {
