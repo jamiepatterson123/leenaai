@@ -8,15 +8,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { FoodVerificationDialog } from "./FoodVerificationDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 
 interface ImageAnalysisSectionProps {
   apiKey: string;
@@ -40,7 +31,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const [resetUpload, setResetUpload] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [analyzedFoods, setAnalyzedFoods] = useState([]);
-  const [showConfirmation, setShowConfirmation] = useState(false);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
@@ -83,18 +73,13 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       
       if (result?.foods) {
         setAnalyzedFoods(result.foods);
-        if (isMobile) {
-          setShowConfirmation(true);
-        } else {
-          setShowVerification(true);
-        }
+        setShowVerification(true);
       }
     } catch (error) {
       console.error("Error analyzing image:", error);
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
       
-      // Additional error logging for debugging
       if (error instanceof Error) {
         console.error("Error details:", {
           message: error.message,
@@ -110,17 +95,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   useImperativeHandle(ref, () => ({
     handleImageSelect
   }));
-
-  const handleConfirmUpload = () => {
-    setShowConfirmation(false);
-    setShowVerification(true);
-  };
-
-  const handleCancelUpload = () => {
-    setShowConfirmation(false);
-    setResetUpload(true);
-    setAnalyzedFoods([]);
-  };
 
   const handleConfirmFoods = async (foods: any[]) => {
     try {
@@ -152,24 +126,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
         foods={analyzedFoods}
         onConfirm={handleConfirmFoods}
       />
-      <AlertDialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Finished uploading?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you happy with the analyzed results?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <Button variant="outline" onClick={handleCancelUpload}>
-              No, retake
-            </Button>
-            <Button onClick={handleConfirmUpload}>
-              Yes, continue
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 });
