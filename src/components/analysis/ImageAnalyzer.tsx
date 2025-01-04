@@ -10,6 +10,8 @@ export const analyzeImage = async (
   image: File,
   { apiKey, setNutritionData, saveFoodEntries }: ImageAnalyzerProps
 ) => {
+  console.log("Starting image analysis with file:", image.name, image.type, image.size);
+  
   const base64Image = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -20,7 +22,10 @@ export const analyzeImage = async (
     reader.readAsDataURL(image);
   });
 
+  console.log("Image converted to base64");
+
   try {
+    console.log("Sending request to OpenAI API");
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -98,10 +103,13 @@ Important guidelines:
 
     if (!response.ok) {
       const error = await response.json();
+      console.error("OpenAI API error:", error);
       throw new Error(error.error?.message || 'Error analyzing image');
     }
 
     const data = await response.json();
+    console.log('OpenAI API Response:', data);
+    
     try {
       const content = data.choices[0].message.content;
       console.log('GPT Response:', content);
@@ -109,12 +117,10 @@ Important guidelines:
       const cleanedContent = content.replace(/```json\n|\n```/g, '');
       const result = JSON.parse(cleanedContent);
       
-      // Validate the response format
       if (!result.foods || !Array.isArray(result.foods)) {
         throw new Error('Invalid response format: missing foods array');
       }
 
-      // Validate each food item
       result.foods.forEach((food: any, index: number) => {
         if (!food.name || typeof food.weight_g !== 'number' || !food.nutrition) {
           throw new Error(`Invalid food item at index ${index}`);

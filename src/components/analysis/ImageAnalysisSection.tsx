@@ -45,6 +45,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const isMobile = useIsMobile();
 
   const handleImageSelect = async (image: File) => {
+    console.log("handleImageSelect called with image:", image);
+    
     if (!apiKey) {
       toast.error("Please set your OpenAI API key in API Settings first");
       return;
@@ -57,12 +59,16 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
 
     setAnalyzing(true);
     setResetUpload(false);
+    
     try {
+      console.log("Starting image analysis...");
       const result = await analyzeImage(image, {
         apiKey,
         setNutritionData,
         saveFoodEntries: async () => {}, // Don't save immediately
       });
+      
+      console.log("Analysis result:", result);
       
       if (result?.foods) {
         setAnalyzedFoods(result.foods);
@@ -73,8 +79,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
         }
       }
     } catch (error) {
+      console.error("Error analyzing image:", error);
       toast.error(error instanceof Error ? error.message : "Error analyzing image");
-      console.error(error);
     } finally {
       setAnalyzing(false);
     }
