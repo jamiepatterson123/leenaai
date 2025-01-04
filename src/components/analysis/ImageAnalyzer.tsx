@@ -33,7 +33,7 @@ export const analyzeImage = async (
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "gpt-4",
         messages: [
           {
             role: "system",
@@ -101,26 +101,24 @@ Important guidelines:
       }),
     });
 
-    const responseData = await response.json();
-
     if (!response.ok) {
-      console.error("OpenAI API error:", responseData);
+      const errorData = await response.json();
+      console.error("OpenAI API error:", errorData);
       
-      // Check for quota exceeded error
-      if (responseData.error?.code === "insufficient_quota" || 
-          responseData.error?.type === "insufficient_quota") {
+      if (errorData.error?.code === "insufficient_quota" || 
+          errorData.error?.type === "insufficient_quota") {
         toast.error("OpenAI API quota exceeded. Please check your billing details or try again later.", {
           duration: 5000,
         });
         throw new Error("OpenAI API quota exceeded");
       }
       
-      // Handle other API errors
-      const errorMessage = responseData.error?.message || 'Error analyzing image';
+      const errorMessage = errorData.error?.message || 'Error analyzing image';
       toast.error(errorMessage);
       throw new Error(errorMessage);
     }
 
+    const responseData = await response.json();
     console.log('OpenAI API Response:', responseData);
     
     try {
