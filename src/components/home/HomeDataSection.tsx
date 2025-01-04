@@ -55,17 +55,16 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
         </div>
       )}
 
-      {isMobile && (
-        <>
-          <ReportsContent 
-            weightData={weightData || []}
-            calorieData={calorieData || []}
-            macroData={macroData || []}
-            mealData={mealData || []}
-            isLoading={isLoading}
-          />
-          <CameraButton onFileSelect={handleFileSelect} />
-        </>
+      {isMobile && <CameraButton onFileSelect={handleFileSelect} />}
+
+      {!isMobile && (
+        <ReportsContent 
+          weightData={weightData || []}
+          calorieData={calorieData || []}
+          macroData={macroData || []}
+          mealData={mealData || []}
+          isLoading={isLoading}
+        />
       )}
 
       <ImageAnalysisSection
