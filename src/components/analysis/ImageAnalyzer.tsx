@@ -101,7 +101,9 @@ export const analyzeImage = async (
     console.log("Nutrition analysis result:", nutritionData);
 
     try {
-      const parsedContent = JSON.parse(nutritionData.choices[0].message.content);
+      // Extract JSON from the response content, removing any markdown formatting
+      const jsonContent = nutritionData.choices[0].message.content.replace(/```json\n|\n```/g, '');
+      const parsedContent = JSON.parse(jsonContent);
       console.log("Parsed nutrition content:", parsedContent);
       
       if (!parsedContent.foods || !Array.isArray(parsedContent.foods)) {
