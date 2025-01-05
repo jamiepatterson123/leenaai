@@ -27,28 +27,10 @@ const Index = () => {
     },
   });
 
-  const { data: apiKey } = useQuery({
-    queryKey: ["openai-api-key"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("secrets")
-        .select("value")
-        .eq("name", "OPENAI_API_KEY")
-        .single();
-
-      if (error) {
-        console.error("Error fetching API key:", error);
-        throw error;
-      }
-
-      return data?.value;
-    },
-  });
-
   return (
     <div className="max-w-4xl mx-auto px-4 pb-24 md:pb-8">
       <ProfileHeader profile={profile} />
-      <HomeDataSection apiKey={apiKey} />
+      <HomeDataSection />
     </div>
   );
 };

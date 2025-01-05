@@ -1,24 +1,38 @@
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AnalyzeImageOptions {
-  apiKey: string;
   setNutritionData: (data: any) => void;
   saveFoodEntries: (foods: any[]) => Promise<void>;
 }
 
 export const analyzeImage = async (
   image: File,
-  { apiKey, setNutritionData, saveFoodEntries }: AnalyzeImageOptions
+  { setNutritionData, saveFoodEntries }: AnalyzeImageOptions
 ) => {
   try {
     console.log("Starting image analysis...");
+    
+    // Fetch API key from Supabase
+    const { data: secretData, error: secretError } = await supabase
+      .from('secrets')
+      .select('value')
+      .eq('name', 'OPENAI_API_KEY')
+      .maybeSingle();
+
+    if (secretError || !secretData) {
+      console.error('Error fetching API key:', secretError);
+      toast.error('Failed to access OpenAI API key');
+      return;
+    }
+
+    const apiKey = secretData.value;
     
     // Convert image to base64
     const base64Image = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
         const result = reader.result as string;
-        // Extract the base64 data after the data URL prefix
         const base64Data = result.split(',')[1];
         resolve(base64Data);
       };

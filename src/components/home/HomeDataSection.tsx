@@ -9,11 +9,7 @@ import { format } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHomeData } from "@/components/home/useHomeData";
 
-interface HomeDataSectionProps {
-  apiKey: string | null;
-}
-
-export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
+export const HomeDataSection = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
   const [nutritionData, setNutritionData] = React.useState<any>(null);
   const today = format(new Date(), "yyyy-MM-dd");
@@ -44,7 +40,6 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
       <div className="p-4">
         <ImageAnalysisSection
           ref={imageAnalysisSectionRef}
-          apiKey={apiKey}
           analyzing={analyzing}
           setAnalyzing={setAnalyzing}
           nutritionData={nutritionData}
