@@ -36,7 +36,7 @@ export const analyzeImage = async (
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "gpt-4-vision-preview",
         messages: [
           {
             role: "user",
@@ -53,7 +53,8 @@ export const analyzeImage = async (
               }
             ]
           }
-        ]
+        ],
+        max_tokens: 300
       })
     });
 
@@ -75,7 +76,7 @@ export const analyzeImage = async (
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "gpt-4",
         messages: [
           {
             role: "system",
@@ -85,7 +86,8 @@ export const analyzeImage = async (
             role: "user",
             content: `Please analyze these food items and provide nutritional information: ${foodList}`
           }
-        ]
+        ],
+        max_tokens: 500
       })
     });
 
