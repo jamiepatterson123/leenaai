@@ -13,12 +13,12 @@ export const analyzeImage = async (
   try {
     console.log("Starting image analysis...");
     
-    // First get the API key
+    // First check if the API key exists
     const { data: secretData, error: secretError } = await supabase
       .from('secrets')
       .select('value')
       .eq('name', 'OPENAI_API_KEY')
-      .single();
+      .maybeSingle();
 
     if (secretError) {
       console.error('Error fetching API key:', secretError);
@@ -26,13 +26,19 @@ export const analyzeImage = async (
       throw new Error('Failed to access OpenAI API key');
     }
 
-    if (!secretData || !secretData.value) {
-      console.error('No API key found');
-      toast.error('OpenAI API key not found');
-      throw new Error('OpenAI API key not found');
+    if (!secretData) {
+      console.error('No API key found in secrets table');
+      toast.error('Please configure your OpenAI API key in settings');
+      throw new Error('OpenAI API key not configured');
     }
 
     const apiKey = secretData.value;
+    if (!apiKey || apiKey.trim() === '') {
+      console.error('API key is empty');
+      toast.error('OpenAI API key is not properly configured');
+      throw new Error('OpenAI API key is empty');
+    }
+
     console.log("Successfully retrieved API key");
     
     // Convert image to base64
@@ -107,7 +113,8 @@ export const analyzeImage = async (
             role: "user",
             content: `Please analyze these food items and provide nutritional information: ${foodList}`
           }
-        ]
+        ],
+        max_tokens: 4096
       })
     });
 
