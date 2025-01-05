@@ -18,7 +18,7 @@ export const analyzeImage = async (
       .from('secrets')
       .select('*')
       .eq('name', 'OPENAI_API_KEY')
-      .maybeSingle();
+      .single();
 
     if (secretError) {
       console.error('Error fetching API key:', secretError);
@@ -32,8 +32,8 @@ export const analyzeImage = async (
       throw new Error('OpenAI API key not configured');
     }
 
-    const apiKey = secretData.value?.trim();
-    if (!apiKey) {
+    const apiKey = secretData.value;
+    if (!apiKey || apiKey.trim() === '') {
       console.error('API key is empty');
       toast.error('OpenAI API key is empty. Please configure it in settings.');
       throw new Error('OpenAI API key is empty');
@@ -115,7 +115,6 @@ export const analyzeImage = async (
             content: `Please analyze these food items and provide nutritional information: ${foodList}`
           }
         ],
-        max_tokens: 4096
       })
     });
 
