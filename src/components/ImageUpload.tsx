@@ -39,7 +39,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPr
     <div className="w-full max-w-md mx-auto">
       <label
         htmlFor="image-upload"
-        className="relative block w-full h-64 border border-solid border-gray-200 dark:border-gray-800 rounded-lg cursor-pointer hover:border-gray-300 dark:hover:border-gray-700 transition-colors"
+        className="relative block w-full h-64 cursor-pointer"
       >
         <input
           id="image-upload"
