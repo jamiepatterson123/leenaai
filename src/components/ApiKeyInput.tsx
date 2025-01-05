@@ -23,39 +23,26 @@ export const ApiKeyInput: React.FC<ApiKeyInputProps> = ({ onApiKeySet }) => {
           .from("secrets")
           .select("value")
           .eq("name", "OPENAI_API_KEY")
-          .maybeSingle(); // Changed from single() to maybeSingle()
+          .maybeSingle();
 
         if (secretError) {
           console.error("Error fetching from secrets:", secretError);
-          // Don't throw here, continue to localStorage fallback
+          toast.error("Error loading API key");
+          return;
         }
 
         if (secretData?.value) {
           console.log("API key found in Supabase");
           setApiKey(secretData.value);
           onApiKeySet(secretData.value);
-          setLoading(false);
           return;
-        }
-
-        // Fallback to localStorage if no secret found
-        const savedKey = localStorage.getItem("openai_api_key");
-        if (savedKey) {
-          console.log("API key found in localStorage");
-          setApiKey(savedKey);
-          onApiKeySet(savedKey);
-          
-          // Also save to Supabase for persistence
-          const { error } = await supabase
-            .from("secrets")
-            .upsert({ name: "OPENAI_API_KEY", value: savedKey }, { onConflict: "name" });
-          
-          if (error) {
-            console.error("Error saving API key to Supabase:", error);
-          }
+        } else {
+          console.log("No API key found in Supabase");
+          toast.error("Please set your OpenAI API key");
         }
       } catch (error) {
         console.error("Error loading API key:", error);
+        toast.error("Error loading API key");
       } finally {
         setLoading(false);
       }
@@ -73,17 +60,16 @@ export const ApiKeyInput: React.FC<ApiKeyInputProps> = ({ onApiKeySet }) => {
     try {
       console.log("Saving API key...");
       
-      // Save to both Supabase and localStorage for redundancy
       const { error } = await supabase
         .from("secrets")
         .upsert({ name: "OPENAI_API_KEY", value: apiKey }, { onConflict: "name" });
 
       if (error) {
         console.error("Error saving to Supabase:", error);
-        throw error;
+        toast.error("Failed to save API key");
+        return;
       }
 
-      localStorage.setItem("openai_api_key", apiKey);
       onApiKeySet(apiKey);
       toast.success("API key saved successfully");
     } catch (error) {
