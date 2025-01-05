@@ -10,6 +10,7 @@ import { useHomeData } from "@/components/home/useHomeData";
 import { CameraButton } from "./CameraButton";
 import { ImageAnalyzer } from "../analysis/ImageAnalyzer";
 import { Button } from "../ui/button";
+import { toast } from "sonner";
 
 export const HomeDataSection = () => {
   const today = format(new Date(), "yyyy-MM-dd");
