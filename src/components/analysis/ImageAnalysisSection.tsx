@@ -1,6 +1,5 @@
 import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { analyzeImage } from "./ImageAnalyzer";
 import { saveFoodEntries } from "./FoodEntrySaver";
@@ -10,7 +9,6 @@ import { FoodVerificationDialog } from "./FoodVerificationDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ImageAnalysisSectionProps {
-  apiKey: string;
   analyzing: boolean;
   setAnalyzing: (analyzing: boolean) => void;
   nutritionData: any;
@@ -20,7 +18,6 @@ interface ImageAnalysisSectionProps {
 }
 
 export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>(({
-  apiKey,
   analyzing,
   setAnalyzing,
   nutritionData,
@@ -34,25 +31,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
-  const validateApiKey = (key: string) => {
-    if (!key) {
-      toast.error("Please set your OpenAI API key in API Settings first");
-      return false;
-    }
-    if (!key.startsWith('sk-')) {
-      toast.error("Invalid OpenAI API key format");
-      return false;
-    }
-    return true;
-  };
-
   const handleImageSelect = async (image: File) => {
     console.log("handleImageSelect called with image:", image);
     
-    if (!validateApiKey(apiKey)) {
-      return;
-    }
-
     if (analyzing) {
       toast.error("Please wait for the current analysis to complete");
       return;
@@ -62,9 +43,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     setResetUpload(false);
     
     try {
-      console.log("Starting image analysis with API key:", apiKey ? "Present" : "Missing");
+      console.log("Starting image analysis...");
       const result = await analyzeImage(image, {
-        apiKey,
         setNutritionData,
         saveFoodEntries: async () => {}, // Don't save immediately
       });
