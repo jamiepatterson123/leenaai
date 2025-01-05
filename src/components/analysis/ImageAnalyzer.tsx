@@ -17,7 +17,7 @@ export const analyzeImage = async (
     const { data: secretData, error: secretError } = await supabase
       .from('secrets')
       .select('*')
-      .eq('name', 'OPENAI_API_KEY')
+      .eq('name', 'OpenAI')
       .single();
 
     if (secretError) {
@@ -80,8 +80,7 @@ export const analyzeImage = async (
               }
             ]
           }
-        ],
-        max_tokens: 4096
+        ]
       })
     });
 
