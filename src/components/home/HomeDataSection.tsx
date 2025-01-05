@@ -8,7 +8,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHomeData } from "@/components/home/useHomeData";
-import { Card } from "@/components/ui/card";
 
 interface HomeDataSectionProps {
   apiKey: string | null;
@@ -38,21 +37,11 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
 
   return (
     <div className="space-y-6">
-      <StreakCounter />
+      <div className="bg-primary/5 p-4 rounded-lg">
+        <StreakCounter />
+      </div>
 
-      {isMobile ? (
-        <Card className="p-4">
-          <ImageAnalysisSection
-            ref={imageAnalysisSectionRef}
-            apiKey={apiKey}
-            analyzing={analyzing}
-            setAnalyzing={setAnalyzing}
-            nutritionData={nutritionData}
-            setNutritionData={setNutritionData}
-            selectedDate={new Date()}
-          />
-        </Card>
-      ) : (
+      <div className="p-4">
         <ImageAnalysisSection
           ref={imageAnalysisSectionRef}
           apiKey={apiKey}
@@ -62,18 +51,16 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
           setNutritionData={setNutritionData}
           selectedDate={new Date()}
         />
-      )}
+      </div>
 
-      <Card className="p-4">
+      <div className="p-4">
         <WeightInput />
-      </Card>
+      </div>
       
       {hasTodayEntries && (
-        <div className="animate-fade-up">
-          <Card className="p-4">
-            <h2 className="text-xl font-semibold mb-4">Today's Food Diary</h2>
-            <FoodDiary selectedDate={new Date()} />
-          </Card>
+        <div className="animate-fade-up p-4">
+          <h2 className="text-xl font-semibold mb-4">Today's Food Diary</h2>
+          <FoodDiary selectedDate={new Date()} />
         </div>
       )}
     </div>
