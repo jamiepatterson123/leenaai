@@ -16,7 +16,7 @@ export const analyzeImage = async (
     // First check if the API key exists
     const { data: secretData, error: secretError } = await supabase
       .from('secrets')
-      .select('value')
+      .select('*')
       .eq('name', 'OPENAI_API_KEY')
       .maybeSingle();
 
@@ -26,13 +26,19 @@ export const analyzeImage = async (
       throw new Error('Failed to access OpenAI API key');
     }
 
-    if (!secretData?.value) {
-      console.error('No API key found or key is empty');
-      toast.error('Please configure your OpenAI API key in settings');
+    if (!secretData || !secretData.value) {
+      console.error('API key not found or empty:', secretData);
+      toast.error('OpenAI API key not found or empty. Please configure it in settings.');
       throw new Error('OpenAI API key not configured');
     }
 
-    const apiKey = secretData.value;
+    const apiKey = secretData.value.trim();
+    if (apiKey === '') {
+      console.error('API key is empty after trimming');
+      toast.error('OpenAI API key is empty');
+      throw new Error('OpenAI API key is empty');
+    }
+
     console.log("Successfully retrieved API key");
     
     // Convert image to base64
@@ -47,7 +53,7 @@ export const analyzeImage = async (
       reader.readAsDataURL(image);
     });
 
-    console.log("Image converted to base64, making API call...");
+    console.log("Image converted to base64, making Vision API call...");
 
     // First, analyze the image using the vision model
     const visionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -82,6 +88,7 @@ export const analyzeImage = async (
     if (!visionResponse.ok) {
       const errorData = await visionResponse.json();
       console.error("Vision API Error:", errorData);
+      toast.error(errorData.error?.message || 'Vision API request failed');
       throw new Error(errorData.error?.message || 'Vision API request failed');
     }
 
@@ -115,6 +122,7 @@ export const analyzeImage = async (
     if (!nutritionResponse.ok) {
       const errorData = await nutritionResponse.json();
       console.error("Nutrition API Error:", errorData);
+      toast.error(errorData.error?.message || 'Nutrition API request failed');
       throw new Error(errorData.error?.message || 'Nutrition API request failed');
     }
 
