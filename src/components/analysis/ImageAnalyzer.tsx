@@ -26,16 +26,16 @@ export const analyzeImage = async (
       throw new Error('Failed to access OpenAI API key');
     }
 
-    if (!secretData || !secretData.value) {
-      console.error('API key not found or empty:', secretData);
-      toast.error('OpenAI API key not found or empty. Please configure it in settings.');
+    if (!secretData) {
+      console.error('API key not found');
+      toast.error('OpenAI API key not found. Please configure it in settings.');
       throw new Error('OpenAI API key not configured');
     }
 
-    const apiKey = secretData.value.trim();
-    if (apiKey === '') {
-      console.error('API key is empty after trimming');
-      toast.error('OpenAI API key is empty');
+    const apiKey = secretData.value?.trim();
+    if (!apiKey) {
+      console.error('API key is empty');
+      toast.error('OpenAI API key is empty. Please configure it in settings.');
       throw new Error('OpenAI API key is empty');
     }
 
