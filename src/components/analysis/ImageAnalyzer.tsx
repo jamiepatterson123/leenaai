@@ -14,11 +14,11 @@ export const analyzeImage = async (
     console.log("Starting image analysis...");
     
     // Fetch the API key with better error handling
-    const { data: secretData, error: secretError } = await supabase
+    const { data: secrets, error: secretError } = await supabase
       .from('secrets')
       .select('value')
       .eq('name', 'OpenAI')
-      .single();
+      .maybeSingle();
 
     if (secretError) {
       console.error('Error fetching API key:', secretError);
@@ -26,13 +26,13 @@ export const analyzeImage = async (
       throw new Error('Failed to access OpenAI API key');
     }
 
-    if (!secretData?.value) {
-      console.error('API key not found or empty');
-      toast.error('OpenAI API key not configured. Please add it in settings.');
+    if (!secrets?.value) {
+      console.error('API key not found');
+      toast.error('OpenAI API key not found. Please add it in settings.');
       throw new Error('OpenAI API key not configured');
     }
 
-    const apiKey = secretData.value;
+    const apiKey = secrets.value;
     console.log("Successfully retrieved API key");
     
     // Convert image to base64
