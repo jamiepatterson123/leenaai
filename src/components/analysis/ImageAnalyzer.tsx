@@ -18,7 +18,7 @@ export const analyzeImage = async (
       .from('secrets')
       .select('*')
       .eq('name', 'OpenAI')
-      .single();
+      .maybeSingle();
 
     if (secretError) {
       console.error('Error fetching API key:', secretError);
