@@ -1,6 +1,5 @@
 import React from "react";
 import { WeightInput } from "@/components/WeightInput";
-import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
 import { StreakCounter } from "@/components/StreakCounter";
 import { FoodDiary } from "@/components/FoodDiary";
 import { useQuery } from "@tanstack/react-query";
@@ -10,11 +9,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useHomeData } from "@/components/home/useHomeData";
 
 export const HomeDataSection = () => {
-  const [analyzing, setAnalyzing] = React.useState(false);
-  const [nutritionData, setNutritionData] = React.useState<any>(null);
   const today = format(new Date(), "yyyy-MM-dd");
   const isMobile = useIsMobile();
-  const imageAnalysisSectionRef = React.useRef<any>(null);
 
   const { isLoading } = useHomeData();
 
@@ -35,17 +31,6 @@ export const HomeDataSection = () => {
     <div className="space-y-6">
       <div className="bg-primary/5 p-4 rounded-lg">
         <StreakCounter />
-      </div>
-
-      <div className="p-4">
-        <ImageAnalysisSection
-          ref={imageAnalysisSectionRef}
-          analyzing={analyzing}
-          setAnalyzing={setAnalyzing}
-          nutritionData={nutritionData}
-          setNutritionData={setNutritionData}
-          selectedDate={new Date()}
-        />
       </div>
 
       <div className="p-4">
