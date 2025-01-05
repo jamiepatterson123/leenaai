@@ -20,6 +20,12 @@ export const analyzeImage = async (
       .eq('name', 'OpenAI')
       .maybeSingle();
 
+    console.log("API key fetch response:", { 
+      hasData: !!secrets, 
+      hasError: !!secretError,
+      errorMessage: secretError?.message
+    });
+
     if (secretError) {
       console.error('Error fetching API key:', secretError);
       toast.error('Failed to access OpenAI API key. Please check your settings.');
@@ -27,7 +33,7 @@ export const analyzeImage = async (
     }
 
     if (!secrets?.value) {
-      console.error('API key not found');
+      console.error('API key not found in secrets');
       toast.error('OpenAI API key not found. Please add it in settings.');
       throw new Error('OpenAI API key not configured');
     }
@@ -57,7 +63,7 @@ export const analyzeImage = async (
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4-vision-preview",
+        model: "gpt-4o",
         messages: [
           {
             role: "user",
@@ -97,7 +103,7 @@ export const analyzeImage = async (
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
