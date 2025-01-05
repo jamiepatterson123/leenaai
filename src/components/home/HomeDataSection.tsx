@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { WeightInput } from "@/components/WeightInput";
+import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
 import { StreakCounter } from "@/components/StreakCounter";
 import { FoodDiary } from "@/components/FoodDiary";
 import { useQuery } from "@tanstack/react-query";
@@ -7,15 +8,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHomeData } from "@/components/home/useHomeData";
-import { CameraButton } from "./CameraButton";
-import { ImageAnalyzer } from "../analysis/ImageAnalyzer";
-import { Button } from "../ui/button";
-import { toast } from "sonner";
 
-export const HomeDataSection = () => {
+interface HomeDataSectionProps {
+  apiKey: string | null;
+}
+
+export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
+  const [analyzing, setAnalyzing] = React.useState(false);
+  const [nutritionData, setNutritionData] = React.useState<any>(null);
   const today = format(new Date(), "yyyy-MM-dd");
   const isMobile = useIsMobile();
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const imageAnalysisSectionRef = React.useRef<any>(null);
 
   const { isLoading } = useHomeData();
 
@@ -32,48 +35,6 @@ export const HomeDataSection = () => {
     },
   });
 
-  const handleFileSelect = (file: File) => {
-    setSelectedFile(file);
-  };
-
-  const handleAnalysisComplete = async (foods: Array<{
-    name: string;
-    weight_g: number;
-    nutrition: {
-      calories: number;
-      protein: number;
-      carbs: number;
-      fat: number;
-    };
-  }>) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
-      for (const food of foods) {
-        const { error } = await supabase
-          .from('food_diary')
-          .insert({
-            user_id: user.id,
-            food_name: food.name,
-            weight_g: food.weight_g,
-            calories: food.nutrition.calories,
-            protein: food.nutrition.protein,
-            carbs: food.nutrition.carbs,
-            fat: food.nutrition.fat,
-            date: today,
-          });
-
-        if (error) throw error;
-      }
-
-      setSelectedFile(null);
-    } catch (error) {
-      console.error('Error saving food entries:', error);
-      toast.error('Failed to save food entries');
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="bg-primary/5 p-4 rounded-lg">
@@ -81,15 +42,15 @@ export const HomeDataSection = () => {
       </div>
 
       <div className="p-4">
-        {selectedFile ? (
-          <ImageAnalyzer
-            imageFile={selectedFile}
-            onAnalysisComplete={handleAnalysisComplete}
-            onCancel={() => setSelectedFile(null)}
-          />
-        ) : (
-          <CameraButton onFileSelect={handleFileSelect} />
-        )}
+        <ImageAnalysisSection
+          ref={imageAnalysisSectionRef}
+          apiKey={apiKey}
+          analyzing={analyzing}
+          setAnalyzing={setAnalyzing}
+          nutritionData={nutritionData}
+          setNutritionData={setNutritionData}
+          selectedDate={new Date()}
+        />
       </div>
 
       <div className="p-4">

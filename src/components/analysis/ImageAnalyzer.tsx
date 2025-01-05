@@ -1,172 +1,123 @@
-import { useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 
-interface ImageAnalyzerProps {
-  imageFile: File;
-  onAnalysisComplete: (foods: Array<{
-    name: string;
-    weight_g: number;
-    nutrition: {
-      calories: number;
-      protein: number;
-      carbs: number;
-      fat: number;
-    };
-  }>) => void;
-  onCancel: () => void;
+interface AnalyzeImageOptions {
+  apiKey: string;
+  setNutritionData: (data: any) => void;
+  saveFoodEntries: (foods: any[]) => Promise<void>;
 }
 
-export const ImageAnalyzer = ({ 
-  imageFile, 
-  onAnalysisComplete,
-  onCancel 
-}: ImageAnalyzerProps) => {
-  const [analyzing, setAnalyzing] = useState(false);
+export const analyzeImage = async (
+  image: File,
+  { apiKey, setNutritionData, saveFoodEntries }: AnalyzeImageOptions
+) => {
+  try {
+    console.log("Starting image analysis...");
+    
+    // Convert image to base64
+    const base64Image = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        // Extract the base64 data after the data URL prefix
+        const base64Data = result.split(',')[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(image);
+    });
 
-  const analyzeImage = async () => {
-    setAnalyzing(true);
-    try {
-      const { data, error } = await supabase
-        .from('secrets')
-        .select('value')
-        .eq('name', 'OPENAI_API_KEY')
-        .maybeSingle();
+    console.log("Image converted to base64, making API call...");
 
-      if (error) {
-        throw error;
-      }
-
-      if (!data) {
-        toast.error('OpenAI API key not found. Please set it up in API Settings.');
-        return;
-      }
-
-      const apiKey = data.value;
-
-      // Convert image to base64
-      const base64Image = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(imageFile);
-      });
-
-      // First API call to analyze the image
-      const visionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4-vision-preview",
-          messages: [
-            {
-              role: "user",
-              content: [
-                {
-                  type: "text",
-                  text: "What food items do you see in this image? List each item on a new line with its estimated weight in grams."
-                },
-                {
-                  type: "image_url",
-                  image_url: base64Image
-                }
-              ]
-            }
-          ],
-          max_tokens: 300,
-        }),
-      });
-
-      if (!visionResponse.ok) {
-        throw new Error('Failed to analyze image');
-      }
-
-      const visionData = await visionResponse.json();
-      const foodList = visionData.choices[0].message.content;
-
-      // Second API call to get nutritional information
-      const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4",
-          messages: [
-            {
-              role: "system",
-              content: "You are a nutrition expert. Provide accurate nutritional information for the specified foods."
-            },
-            {
-              role: "user",
-              content: `Provide nutritional information for these foods in JSON format:
-              ${foodList}
-              
-              Return in this exact format:
+    // First, analyze the image using the vision model
+    const visionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "user",
+            content: [
               {
-                "foods": [
-                  {
-                    "name": "food name",
-                    "weight_g": number,
-                    "nutrition": {
-                      "calories": number,
-                      "protein": number,
-                      "carbs": number,
-                      "fat": number
-                    }
-                  }
-                ]
-              }`
-            }
-          ],
-          max_tokens: 500,
-        }),
-      });
+                type: "text",
+                text: "What food items do you see in this image? Please list them with their approximate portion sizes in grams. Format your response as a simple list of items and weights."
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/jpeg;base64,${base64Image}`
+                }
+              }
+            ]
+          }
+        ],
+        max_tokens: 4096
+      })
+    });
 
-      if (!nutritionResponse.ok) {
-        throw new Error('Failed to get nutrition information');
+    if (!visionResponse.ok) {
+      const errorData = await visionResponse.json();
+      console.error("Vision API Error:", errorData);
+      throw new Error(errorData.error?.message || 'Vision API request failed');
+    }
+
+    const visionData = await visionResponse.json();
+    const foodList = visionData.choices[0].message.content;
+    console.log("Vision analysis result:", foodList);
+
+    // Now get nutritional information using GPT-4
+    const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are a nutrition expert. Based on the food items and their portions, provide detailed nutritional information in this exact JSON format, with no additional text or markdown formatting: { \"foods\": [ { \"name\": string, \"weight_g\": number, \"nutrition\": { \"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number }, \"state\": string } ] }"
+          },
+          {
+            role: "user",
+            content: `Please analyze these food items and provide nutritional information: ${foodList}`
+          }
+        ],
+        max_tokens: 4096
+      })
+    });
+
+    if (!nutritionResponse.ok) {
+      const errorData = await nutritionResponse.json();
+      console.error("Nutrition API Error:", errorData);
+      throw new Error(errorData.error?.message || 'Nutrition API request failed');
+    }
+
+    const nutritionData = await nutritionResponse.json();
+    console.log("Nutrition analysis result:", nutritionData);
+
+    try {
+      const content = nutritionData.choices[0].message.content;
+      const parsedContent = JSON.parse(content);
+      console.log("Parsed nutrition content:", parsedContent);
+      
+      if (!parsedContent.foods || !Array.isArray(parsedContent.foods)) {
+        throw new Error('Invalid response format: missing foods array');
       }
 
-      const nutritionData = await nutritionResponse.json();
-      const result = JSON.parse(nutritionData.choices[0].message.content);
-      
-      onAnalysisComplete(result.foods);
-      toast.success('Food analysis complete!');
-    } catch (error) {
-      console.error('Error analyzing image:', error);
-      toast.error('Failed to analyze image. Please make sure your OpenAI API key is set up correctly.');
-    } finally {
-      setAnalyzing(false);
+      setNutritionData(parsedContent);
+      return parsedContent;
+    } catch (parseError) {
+      console.error("Error parsing nutrition response:", parseError);
+      toast.error("Error processing the nutritional information");
+      throw parseError;
     }
-  };
-
-  return (
-    <div className="space-y-4">
-      <img 
-        src={URL.createObjectURL(imageFile)} 
-        alt="Food preview" 
-        className="w-full h-48 object-cover rounded-lg"
-      />
-      <div className="flex justify-between gap-2">
-        <Button 
-          variant="outline" 
-          onClick={onCancel}
-          className="flex-1"
-        >
-          Cancel
-        </Button>
-        <Button 
-          onClick={analyzeImage} 
-          disabled={analyzing}
-          className="flex-1"
-        >
-          {analyzing ? 'Analyzing...' : 'Analyze'}
-        </Button>
-      </div>
-    </div>
-  );
+  } catch (error) {
+    console.error("Error in analyzeImage:", error);
+    throw error;
+  }
 };

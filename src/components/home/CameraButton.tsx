@@ -24,27 +24,23 @@ export const CameraButton = ({ onFileSelect }: CameraButtonProps) => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
-      <div className="flex flex-col items-center justify-center h-64 p-4">
-        <Camera className="h-12 w-12 text-primary mb-4" strokeWidth={1} />
-        <h3 className="text-lg font-semibold mb-4">Upload Food Photo</h3>
-        <div className="w-full max-w-xs">
-          <Button 
-            onClick={handleCameraClick}
-            className="w-full text-white bg-green-600 hover:bg-green-700 transition-all duration-200"
-          >
-            Take Photo
-          </Button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            accept="image/*"
-            capture="environment"
-            onChange={handleFileChange}
-          />
-        </div>
-      </div>
+    <div className="flex flex-col items-center">
+      <Button 
+        onClick={handleCameraClick}
+        size="lg"
+        className="w-full flex items-center justify-center gap-2"
+      >
+        <Camera className="w-5 h-5" />
+        Take Food Photo
+      </Button>
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        accept="image/*"
+        capture="environment"
+        onChange={handleFileChange}
+      />
     </div>
   );
 };

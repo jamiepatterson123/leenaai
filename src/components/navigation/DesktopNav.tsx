@@ -1,43 +1,74 @@
+import React from "react";
 import { Link } from "react-router-dom";
-import { Share2 } from "lucide-react";
+import { Home, UtensilsCrossed, Target, ClipboardList, UserCheck, Send, Key } from "lucide-react";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
+import { MoreDropdown } from "./MoreDropdown";
 
-interface DesktopNavProps {
+export const DesktopNav = ({ 
+  handleShare, 
+  handleSignOut,
+  theme,
+  toggleTheme 
+}: { 
   handleShare: () => void;
   handleSignOut: () => void;
   theme: "light" | "dark";
   toggleTheme: (checked: boolean) => void;
-}
+}) => {
+  const mainNavigationItems = [
+    { icon: Home, text: "Home", to: "/" },
+    { icon: UtensilsCrossed, text: "Nutrition", to: "/food-diary" },
+    { icon: Target, text: "Targets", to: "/profile" },
+    { icon: ClipboardList, text: "Dashboard", to: "/reports" },
+    { icon: UserCheck, text: "Coach", to: "/coach" },
+  ];
 
-export const DesktopNav = ({
-  handleShare,
-}: DesktopNavProps) => {
   return (
-    <nav className="hidden md:flex items-center space-x-6">
-      <Link to="/" className="text-foreground hover:text-foreground/80">
-        Home
-      </Link>
-      <Link to="/food-diary" className="text-foreground hover:text-foreground/80">
-        Food Diary
-      </Link>
-      <Link to="/reports" className="text-foreground hover:text-foreground/80">
-        Reports
-      </Link>
-      <Link to="/coach" className="text-foreground hover:text-foreground/80">
-        Coach
-      </Link>
-      <Link to="/api-settings" className="text-foreground hover:text-foreground/80">
-        API Settings
-      </Link>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleShare}
-        className="text-gray-600"
-      >
-        <Share2 className="w-4 h-4 mr-2" />
-        Share
-      </Button>
-    </nav>
+    <div className="hidden md:flex items-center gap-4 relative z-50">
+      <NavigationMenu>
+        <NavigationMenuList>
+          {mainNavigationItems.map((item) => (
+            <NavigationMenuItem key={item.to}>
+              <Link to={item.to}>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <item.icon className="w-4 h-4 mr-2" />
+                  {item.text}
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+          ))}
+          <NavigationMenuItem>
+            <MoreDropdown />
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleShare}
+          className="text-white"
+        >
+          <Send className="w-4 h-4" />
+        </Button>
+        <Link to="/api-settings">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-white"
+          >
+            <Key className="w-4 h-4" />
+          </Button>
+        </Link>
+      </div>
+    </div>
   );
 };
