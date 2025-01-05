@@ -28,16 +28,22 @@ export const ImageAnalyzer = ({
   const analyzeImage = async () => {
     setAnalyzing(true);
     try {
-      const { data: { value: apiKey } } = await supabase
+      const { data, error } = await supabase
         .from('secrets')
         .select('value')
         .eq('name', 'OPENAI_API_KEY')
-        .single();
+        .maybeSingle();
 
-      if (!apiKey) {
-        toast.error('OpenAI API key not found');
+      if (error) {
+        throw error;
+      }
+
+      if (!data) {
+        toast.error('OpenAI API key not found. Please set it up in API Settings.');
         return;
       }
+
+      const apiKey = data.value;
 
       // Convert image to base64
       const base64Image = await new Promise<string>((resolve) => {
@@ -54,7 +60,7 @@ export const ImageAnalyzer = ({
           'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "gpt-4o",
+          model: "gpt-4-vision-preview",
           messages: [
             {
               role: "user",
@@ -69,7 +75,8 @@ export const ImageAnalyzer = ({
                 }
               ]
             }
-          ]
+          ],
+          max_tokens: 300,
         }),
       });
 
@@ -88,7 +95,7 @@ export const ImageAnalyzer = ({
           'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "gpt-4o",
+          model: "gpt-4",
           messages: [
             {
               role: "system",
@@ -116,6 +123,7 @@ export const ImageAnalyzer = ({
               }`
             }
           ],
+          max_tokens: 500,
         }),
       });
 
@@ -130,7 +138,7 @@ export const ImageAnalyzer = ({
       toast.success('Food analysis complete!');
     } catch (error) {
       console.error('Error analyzing image:', error);
-      toast.error('Failed to analyze image');
+      toast.error('Failed to analyze image. Please make sure your OpenAI API key is set up correctly.');
     } finally {
       setAnalyzing(false);
     }
