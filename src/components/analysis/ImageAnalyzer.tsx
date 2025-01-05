@@ -53,8 +53,7 @@ export const analyzeImage = async (
               }
             ]
           }
-        ],
-        max_tokens: 4096
+        ]
       })
     });
 
@@ -86,8 +85,7 @@ export const analyzeImage = async (
             role: "user",
             content: `Please analyze these food items and provide nutritional information: ${foodList}`
           }
-        ],
-        max_tokens: 4096
+        ]
       })
     });
 
