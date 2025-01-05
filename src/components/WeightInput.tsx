@@ -50,31 +50,33 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
   };
 
   return (
-    <div className="relative block w-full h-64 border border-solid border-gray-200 dark:border-gray-800 rounded-lg hover:border-gray-300 dark:hover:border-gray-700 transition-colors">
-      <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-        <Scale className="h-12 w-12 text-primary mb-4" strokeWidth={1} />
-        <h3 className="text-lg font-semibold mb-4">Update Your Weight</h3>
-        <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-4">
-          <div className="flex items-center gap-2">
-            <Input
-              type="number"
-              step="0.1"
-              min="0"
-              placeholder="Enter weight in kg"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-              className="flex-1"
-            />
-            <span className="text-sm text-muted-foreground">kg</span>
-          </div>
-          <Button 
-            type="submit" 
-            className="w-full text-white bg-green-600 hover:bg-green-700 transition-all duration-200"
-            disabled={isSubmitting || !weight}
-          >
-            {isSubmitting ? "Updating..." : "Update Weight"}
-          </Button>
-        </form>
+    <div className="w-full max-w-md mx-auto">
+      <div className="relative block w-full h-64 border border-solid border-gray-200 dark:border-gray-800 rounded-lg cursor-pointer hover:border-gray-300 dark:hover:border-gray-700 transition-colors">
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+          <Scale className="h-12 w-12 text-primary mb-4" strokeWidth={1} />
+          <h3 className="text-lg font-semibold mb-4">Update Your Weight</h3>
+          <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-4">
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                step="0.1"
+                min="0"
+                placeholder="Enter weight in kg"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                className="flex-1"
+              />
+              <span className="text-sm text-muted-foreground">kg</span>
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full text-white bg-green-600 hover:bg-green-700 transition-all duration-200"
+              disabled={isSubmitting || !weight}
+            >
+              {isSubmitting ? "Updating..." : "Update Weight"}
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   );
