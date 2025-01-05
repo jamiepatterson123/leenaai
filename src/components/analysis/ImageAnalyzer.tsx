@@ -18,7 +18,7 @@ export const analyzeImage = async (
       .from('secrets')
       .select('value')
       .eq('name', 'OPENAI_API_KEY')
-      .maybeSingle();
+      .single();
 
     if (secretError) {
       console.error('Error fetching API key:', secretError);
@@ -26,13 +26,20 @@ export const analyzeImage = async (
       throw new Error('Failed to access OpenAI API key');
     }
 
-    if (!secretData?.value) {
-      console.error('API key not found in secrets');
-      toast.error('OpenAI API key not configured');
-      throw new Error('OpenAI API key not configured');
+    if (!secretData) {
+      console.error('No API key found in secrets');
+      toast.error('OpenAI API key not found');
+      throw new Error('OpenAI API key not found');
+    }
+
+    if (!secretData.value || secretData.value.trim() === '') {
+      console.error('API key is empty');
+      toast.error('OpenAI API key is not properly configured');
+      throw new Error('OpenAI API key is not properly configured');
     }
 
     const apiKey = secretData.value;
+    console.log("Successfully retrieved API key");
     
     // Convert image to base64
     const base64Image = await new Promise<string>((resolve, reject) => {
