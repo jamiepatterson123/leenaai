@@ -26,6 +26,9 @@ export const DesktopNav = ({
       <Link to="/coach" className="text-foreground hover:text-foreground/80">
         Coach
       </Link>
+      <Link to="/api-settings" className="text-foreground hover:text-foreground/80">
+        API Settings
+      </Link>
       <Button
         variant="ghost"
         size="sm"
