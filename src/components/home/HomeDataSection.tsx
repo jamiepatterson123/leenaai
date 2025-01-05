@@ -46,6 +46,10 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
   return (
     <div className="space-y-6">
       <StreakCounter />
+
+      <Card className="p-4">
+        <WeightInput />
+      </Card>
       
       {isMobile && (
         <div className="space-y-6">
@@ -63,10 +67,6 @@ export const HomeDataSection: React.FC<HomeDataSectionProps> = ({ apiKey }) => {
           />
         </div>
       )}
-
-      <Card className="p-4">
-        <WeightInput />
-      </Card>
 
       {hasTodayEntries && (
         <div className="animate-fade-up">
