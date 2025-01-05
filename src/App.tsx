@@ -8,7 +8,6 @@ import Profile from "@/pages/Profile";
 import FoodDiary from "@/pages/FoodDiary";
 import Reports from "@/pages/Reports";
 import Coach from "@/pages/Coach";
-import ApiSettings from "@/pages/ApiSettings";
 import "./App.css";
 
 const queryClient = new QueryClient();
@@ -26,7 +25,6 @@ function App() {
             <Route path="/food-diary" element={<FoodDiary />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/coach" element={<Coach />} />
-            <Route path="/api-settings" element={<ApiSettings />} />
           </Routes>
         </div>
         <Toaster position="top-center" />

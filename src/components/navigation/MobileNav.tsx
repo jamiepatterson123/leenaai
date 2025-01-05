@@ -29,34 +29,6 @@ export const MobileNav = ({ isAuthenticated }: MobileNavProps) => {
     return location.pathname === path ? "text-primary" : "text-muted-foreground";
   };
 
-  const { data: apiKey } = useQuery({
-    queryKey: ["openai-api-key"],
-    queryFn: async () => {
-      const savedKey = localStorage.getItem("openai_api_key");
-      if (savedKey) {
-        return savedKey;
-      }
-
-      const { data, error } = await supabase
-        .from("secrets")
-        .select("value")
-        .eq("name", "OPENAI_API_KEY")
-        .maybeSingle();
-
-      if (error) {
-        toast.error("Error fetching API key");
-        throw error;
-      }
-
-      if (!data) {
-        toast.error("Please set your OpenAI API key in API Settings first");
-        return null;
-      }
-
-      return data.value;
-    },
-  });
-
   if (!isAuthenticated) {
     return null;
   }
@@ -97,7 +69,6 @@ export const MobileNav = ({ isAuthenticated }: MobileNavProps) => {
                 </TabsList>
                 <TabsContent value="food" className="mt-4">
                   <ImageAnalysisSection
-                    apiKey={apiKey}
                     analyzing={analyzing}
                     setAnalyzing={setAnalyzing}
                     nutritionData={nutritionData}
