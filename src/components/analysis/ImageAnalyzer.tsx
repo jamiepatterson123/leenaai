@@ -13,17 +13,23 @@ export const analyzeImage = async (
   try {
     console.log("Starting image analysis...");
     
-    // Fetch API key from Supabase
+    // Fetch API key from Supabase with improved error handling
     const { data: secretData, error: secretError } = await supabase
       .from('secrets')
       .select('value')
       .eq('name', 'OPENAI_API_KEY')
       .maybeSingle();
 
-    if (secretError || !secretData) {
+    if (secretError) {
       console.error('Error fetching API key:', secretError);
       toast.error('Failed to access OpenAI API key');
-      return;
+      throw new Error('Failed to access OpenAI API key');
+    }
+
+    if (!secretData?.value) {
+      console.error('API key not found in secrets');
+      toast.error('OpenAI API key not configured');
+      throw new Error('OpenAI API key not configured');
     }
 
     const apiKey = secretData.value;
@@ -50,7 +56,7 @@ export const analyzeImage = async (
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "gpt-4-vision-preview",
         messages: [
           {
             role: "user",
@@ -90,7 +96,7 @@ export const analyzeImage = async (
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "gpt-4",
         messages: [
           {
             role: "system",
