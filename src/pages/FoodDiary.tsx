@@ -3,31 +3,11 @@ import { FoodDiary } from "@/components/FoodDiary";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 const FoodDiaryPage = () => {
   const [date, setDate] = useState<Date>(new Date());
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState(null);
-
-  const { data: apiKey } = useQuery({
-    queryKey: ["openai-api-key"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("secrets")
-        .select("value")
-        .eq("name", "OPENAI_API_KEY")
-        .single();
-
-      if (error) {
-        console.error("Error fetching API key:", error);
-        throw error;
-      }
-
-      return data?.value;
-    },
-  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
@@ -48,7 +28,6 @@ const FoodDiaryPage = () => {
             />
           </Card>
           <ImageAnalysisSection
-            apiKey={apiKey}
             analyzing={analyzing}
             setAnalyzing={setAnalyzing}
             nutritionData={nutritionData}
