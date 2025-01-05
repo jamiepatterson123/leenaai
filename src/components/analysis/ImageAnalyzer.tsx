@@ -13,32 +13,26 @@ export const analyzeImage = async (
   try {
     console.log("Starting image analysis...");
     
-    // First check if the API key exists
+    // Fetch the API key with better error handling
     const { data: secretData, error: secretError } = await supabase
       .from('secrets')
       .select('value')
       .eq('name', 'OpenAI')
-      .maybeSingle();
+      .single();
 
     if (secretError) {
       console.error('Error fetching API key:', secretError);
-      toast.error('Failed to access OpenAI API key');
+      toast.error('Failed to access OpenAI API key. Please check your settings.');
       throw new Error('Failed to access OpenAI API key');
     }
 
-    if (!secretData) {
-      console.error('API key not found');
-      toast.error('OpenAI API key not found. Please configure it in settings.');
+    if (!secretData?.value) {
+      console.error('API key not found or empty');
+      toast.error('OpenAI API key not configured. Please add it in settings.');
       throw new Error('OpenAI API key not configured');
     }
 
     const apiKey = secretData.value;
-    if (!apiKey || apiKey.trim() === '') {
-      console.error('API key is empty');
-      toast.error('OpenAI API key is empty. Please configure it in settings.');
-      throw new Error('OpenAI API key is empty');
-    }
-
     console.log("Successfully retrieved API key");
     
     // Convert image to base64
@@ -87,7 +81,7 @@ export const analyzeImage = async (
     if (!visionResponse.ok) {
       const errorData = await visionResponse.json();
       console.error("Vision API Error:", errorData);
-      toast.error(errorData.error?.message || 'Vision API request failed');
+      toast.error(errorData.error?.message || 'Failed to analyze image');
       throw new Error(errorData.error?.message || 'Vision API request failed');
     }
 
@@ -120,7 +114,7 @@ export const analyzeImage = async (
     if (!nutritionResponse.ok) {
       const errorData = await nutritionResponse.json();
       console.error("Nutrition API Error:", errorData);
-      toast.error(errorData.error?.message || 'Nutrition API request failed');
+      toast.error(errorData.error?.message || 'Failed to get nutritional information');
       throw new Error(errorData.error?.message || 'Nutrition API request failed');
     }
 
