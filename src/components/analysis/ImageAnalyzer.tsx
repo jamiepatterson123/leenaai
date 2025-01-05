@@ -16,7 +16,7 @@ export const analyzeImage = async (
     // First check if the API key exists
     const { data: secretData, error: secretError } = await supabase
       .from('secrets')
-      .select('*')
+      .select('value')
       .eq('name', 'OpenAI')
       .maybeSingle();
 
@@ -113,7 +113,7 @@ export const analyzeImage = async (
             role: "user",
             content: `Please analyze these food items and provide nutritional information: ${foodList}`
           }
-        ],
+        ]
       })
     });
 
