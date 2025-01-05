@@ -26,19 +26,13 @@ export const analyzeImage = async (
       throw new Error('Failed to access OpenAI API key');
     }
 
-    if (!secretData) {
-      console.error('No API key found in secrets table');
+    if (!secretData?.value) {
+      console.error('No API key found or key is empty');
       toast.error('Please configure your OpenAI API key in settings');
       throw new Error('OpenAI API key not configured');
     }
 
     const apiKey = secretData.value;
-    if (!apiKey || apiKey.trim() === '') {
-      console.error('API key is empty');
-      toast.error('OpenAI API key is not properly configured');
-      throw new Error('OpenAI API key is empty');
-    }
-
     console.log("Successfully retrieved API key");
     
     // Convert image to base64
