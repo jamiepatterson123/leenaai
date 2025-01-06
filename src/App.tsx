@@ -18,16 +18,14 @@ function App() {
       <Router>
         <div className="min-h-screen pb-20 md:pb-0">
           <Navigation />
-          <div className="mt-16 md:mt-0">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/food-diary" element={<FoodDiary />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/coach" element={<Coach />} />
-            </Routes>
-          </div>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/food-diary" element={<FoodDiary />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/coach" element={<Coach />} />
+          </Routes>
         </div>
         <Toaster position="top-center" />
       </Router>
