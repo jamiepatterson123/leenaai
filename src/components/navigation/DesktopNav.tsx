@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Home, UtensilsCrossed, Target, ClipboardList, UserCheck, Send, Key } from "lucide-react";
+import { Home, UtensilsCrossed, Target, ClipboardList, UserCheck, Send } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -55,19 +55,10 @@ export const DesktopNav = ({
           variant="ghost"
           size="icon"
           onClick={handleShare}
-          className="text-white"
+          className="text-muted-foreground"
         >
           <Send className="w-4 h-4" />
         </Button>
-        <Link to="/api-settings">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-white"
-          >
-            <Key className="w-4 h-4" />
-          </Button>
-        </Link>
       </div>
     </div>
   );

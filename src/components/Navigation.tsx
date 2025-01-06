@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -56,36 +56,34 @@ export const Navigation = () => {
 
   return (
     <>
-      {isAuthenticated && (
-        <div className="border-b mb-6 relative z-50">
-          <div className="max-w-4xl mx-auto p-4 flex justify-between items-center">
-            <DesktopNav 
-              handleShare={handleShare}
-              handleSignOut={handleSignOut}
-              theme={theme}
-              toggleTheme={toggleTheme}
+      <div className="border-b mb-6 relative z-50">
+        <div className="max-w-4xl mx-auto p-4 flex justify-between items-center">
+          <DesktopNav 
+            handleShare={handleShare}
+            handleSignOut={handleSignOut}
+            theme={theme}
+            toggleTheme={toggleTheme}
+          />
+          <div className="hidden md:flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Light</span>
+            <Switch
+              checked={theme === "dark"}
+              onCheckedChange={toggleTheme}
+              className="data-[state=checked]:bg-primary"
             />
-            <div className="hidden md:flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Light</span>
-              <Switch
-                checked={theme === "dark"}
-                onCheckedChange={toggleTheme}
-                className="data-[state=checked]:bg-primary"
-              />
-              <span className="text-sm text-muted-foreground">Dark</span>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSignOut}
-              className="text-gray-600"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              <span className="hidden md:inline">Sign Out</span>
-            </Button>
+            <span className="text-sm text-muted-foreground">Dark</span>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSignOut}
+            className="text-muted-foreground"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            <span className="hidden md:inline">Sign Out</span>
+          </Button>
         </div>
-      )}
+      </div>
       <MobileNav isAuthenticated={isAuthenticated} />
     </>
   );
