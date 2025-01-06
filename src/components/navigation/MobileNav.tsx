@@ -11,9 +11,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
 import { WeightInput } from "@/components/WeightInput";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 interface MobileNavProps {
   isAuthenticated: boolean;
