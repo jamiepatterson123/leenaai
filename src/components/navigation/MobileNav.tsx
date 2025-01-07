@@ -2,16 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { Home, LineChart, User, Book, Users } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
-import { WeightInput } from "@/components/WeightInput";
 
-interface MobileNavProps {
-  isAuthenticated: boolean;
-}
-
-export const MobileNav = ({ isAuthenticated }: MobileNavProps) => {
+export const MobileNav = () => {
   const location = useLocation();
 
   const isActive = (path: string) => {
@@ -21,37 +13,33 @@ export const MobileNav = ({ isAuthenticated }: MobileNavProps) => {
   };
 
   return (
-    <>
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t z-50">
-        <nav className="flex items-center justify-between px-6 h-16">
-          <Link to="/" className={`flex flex-col items-center ${isActive('/')}`}>
-            <Home className="h-6 w-6" />
-            <span className="text-xs mt-1">Home</span>
-          </Link>
-          
-          <Link to="/reports" className={`flex flex-col items-center ${isActive('/reports')}`}>
-            <LineChart className="h-6 w-6" />
-            <span className="text-xs mt-1">Reports</span>
-          </Link>
-          
-          <Link to="/learn" className={`flex flex-col items-center ${isActive('/learn')}`}>
-            <Book className="h-6 w-6" />
-            <span className="text-xs mt-1">Learn</span>
-          </Link>
-          
-          <Link to="/community" className={`flex flex-col items-center ${isActive('/community')}`}>
-            <Users className="h-6 w-6" />
-            <span className="text-xs mt-1">Community</span>
-          </Link>
-          
-          {isAuthenticated && (
-            <Link to="/profile" className={`flex flex-col items-center ${isActive('/profile')}`}>
-              <User className="h-6 w-6" />
-              <span className="text-xs mt-1">Profile</span>
-            </Link>
-          )}
-        </nav>
-      </div>
-    </>
+    <div className="fixed bottom-0 left-0 right-0 bg-background border-t z-50">
+      <nav className="flex items-center justify-between px-6 py-2 h-16">
+        <Link to="/" className={`flex flex-col items-center ${isActive('/')}`}>
+          <Home className="h-6 w-6" />
+          <span className="text-xs mt-1">Home</span>
+        </Link>
+        
+        <Link to="/reports" className={`flex flex-col items-center ${isActive('/reports')}`}>
+          <LineChart className="h-6 w-6" />
+          <span className="text-xs mt-1">Reports</span>
+        </Link>
+        
+        <Link to="/food-diary" className={`flex flex-col items-center ${isActive('/food-diary')}`}>
+          <Book className="h-6 w-6" />
+          <span className="text-xs mt-1">Diary</span>
+        </Link>
+        
+        <Link to="/coach" className={`flex flex-col items-center ${isActive('/coach')}`}>
+          <Users className="h-6 w-6" />
+          <span className="text-xs mt-1">Coach</span>
+        </Link>
+        
+        <Link to="/profile" className={`flex flex-col items-center ${isActive('/profile')}`}>
+          <User className="h-6 w-6" />
+          <span className="text-xs mt-1">Profile</span>
+        </Link>
+      </nav>
+    </div>
   );
 };

@@ -7,11 +7,7 @@ import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection
 import { WeightInput } from "@/components/WeightInput";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-interface NavigationProps {
-  isAuthenticated: boolean;
-}
-
-export const Navigation = ({ isAuthenticated }: NavigationProps) => {
+export const Navigation = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = React.useState<any>(null);
@@ -39,10 +35,7 @@ export const Navigation = ({ isAuthenticated }: NavigationProps) => {
     <>
       <div className="border-b mb-6">
         <div className="max-w-4xl mx-auto p-4 flex justify-between items-center">
-          <DesktopNav 
-            handleShare={handleShare}
-            isAuthenticated={isAuthenticated} 
-          />
+          <DesktopNav handleShare={handleShare} />
           <Button
             onClick={() => setShowAddDialog(true)}
             className="bg-green-600 hover:bg-green-700 text-white"
@@ -72,9 +65,7 @@ export const Navigation = ({ isAuthenticated }: NavigationProps) => {
         </DialogContent>
       </Dialog>
 
-      <div className="md:hidden">
-        <MobileNav isAuthenticated={isAuthenticated} />
-      </div>
+      <MobileNav />
     </>
   );
 };
