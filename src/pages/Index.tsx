@@ -29,11 +29,6 @@ const Index = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 pb-24 md:pb-8">
-      <div className="bg-white py-8 mb-6">
-        <h1 className="text-5xl md:text-6xl font-cursive text-center">
-          Leena.ai
-        </h1>
-      </div>
       <ProfileHeader profile={profile} />
       <HomeDataSection />
     </div>
