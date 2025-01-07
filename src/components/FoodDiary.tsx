@@ -32,6 +32,9 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
       console.log("Fetched food entries:", data);
       return data || [];
     },
+    staleTime: 1000, // Add staleTime to prevent unnecessary refetches
+    refetchOnMount: true, // Ensure data is fresh when component mounts
+    refetchOnWindowFocus: true, // Refresh data when window regains focus
   });
 
   const handleDelete = async (id: string) => {
@@ -94,11 +97,13 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
   console.log("Transformed foods data:", foods);
 
   return (
-    <NutritionCard 
-      foods={foods} 
-      onDelete={handleDelete} 
-      onUpdateCategory={handleUpdateCategory}
-      selectedDate={selectedDate}
-    />
+    <div className="w-full max-w-full overflow-x-hidden">
+      <NutritionCard 
+        foods={foods} 
+        onDelete={handleDelete} 
+        onUpdateCategory={handleUpdateCategory}
+        selectedDate={selectedDate}
+      />
+    </div>
   );
 };

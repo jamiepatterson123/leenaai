@@ -71,12 +71,12 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
   };
 
   return (
-    <Card className="p-6 bg-background border-border/5 shadow-lg animate-fade-up">
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+    <Card className="p-4 md:p-6 bg-background border-border/5 shadow-lg animate-fade-up w-full">
+      <div className="space-y-4 md:space-y-6">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <ChevronLeft className="w-6 h-6 text-primary cursor-pointer hover:text-primary/80" />
-            <h2 className="text-2xl font-bold">{getDateDisplay(selectedDate)}</h2>
+            <h2 className="text-xl md:text-2xl font-bold">{getDateDisplay(selectedDate)}</h2>
             <ChevronRight className="w-6 h-6 text-primary cursor-pointer hover:text-primary/80" />
           </div>
           <span className="text-sm text-muted-foreground">
@@ -84,7 +84,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
           </span>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {macros.map((macro) => (
             <MacroProgressBar
               key={macro.name}
@@ -96,11 +96,13 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
           ))}
         </div>
 
-        <FoodList 
-          foods={foods} 
-          onDelete={onDelete} 
-          onUpdateCategory={onUpdateCategory}
-        />
+        <div className="mt-4">
+          <FoodList 
+            foods={foods} 
+            onDelete={onDelete} 
+            onUpdateCategory={onUpdateCategory}
+          />
+        </div>
       </div>
     </Card>
   );
