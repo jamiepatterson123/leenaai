@@ -16,6 +16,7 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
   const { data: foodEntries, isLoading } = useQuery({
     queryKey: ["foodDiary", formattedDate],
     queryFn: async () => {
+      console.log("Fetching food entries for date:", formattedDate);
       const { data, error } = await supabase
         .from("food_diary")
         .select("*")
@@ -23,10 +24,12 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
         .order("created_at", { ascending: false });
 
       if (error) {
+        console.error("Error fetching food entries:", error);
         toast.error("Failed to load food diary");
         throw error;
       }
 
+      console.log("Fetched food entries:", data);
       return data || [];
     },
   });
@@ -75,7 +78,7 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
     );
   }
 
-  const foods = foodEntries.map((entry) => ({
+  const foods = foodEntries?.map((entry) => ({
     id: entry.id,
     name: entry.food_name,
     weight_g: entry.weight_g,
@@ -86,7 +89,9 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
       carbs: entry.carbs,
       fat: entry.fat,
     },
-  }));
+  })) || [];
+
+  console.log("Transformed foods data:", foods);
 
   return (
     <NutritionCard 
