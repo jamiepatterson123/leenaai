@@ -3,7 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { Navigation } from "@/components/Navigation";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
 import Profile from "@/pages/Profile";
@@ -12,7 +12,14 @@ import Reports from "@/pages/Reports";
 import Coach from "@/pages/Coach";
 import "./App.css";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   return (
@@ -27,6 +34,8 @@ function App() {
             <Route path="/food-diary" element={<FoodDiary />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/coach" element={<Coach />} />
+            {/* Redirect undefined routes to home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
         <Toaster position="top-center" />
