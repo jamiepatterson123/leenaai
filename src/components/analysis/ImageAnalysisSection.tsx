@@ -79,7 +79,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const handleConfirmFoods = async (foods: any[]) => {
     try {
       await saveFoodEntries(foods, selectedDate);
-      queryClient.invalidateQueries({ 
+      // Invalidate the food diary query to trigger a refresh
+      await queryClient.invalidateQueries({ 
         queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
       });
       setResetUpload(true);

@@ -27,6 +27,7 @@ export const saveFoodEntries = async (foods: any[], selectedDate: Date) => {
   );
 
   if (error) {
+    console.error("Error saving food entries:", error);
     toast.error("Failed to save food entries");
     throw error;
   }
