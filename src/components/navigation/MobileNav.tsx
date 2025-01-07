@@ -18,7 +18,7 @@ export const MobileNav = () => {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t z-50 md:hidden">
-      <nav className="flex items-center justify-between px-6 py-2 h-16 relative">
+      <nav className="flex items-center justify-between px-6 py-2 h-16">
         <Link to="/" className={`flex flex-col items-center ${isActive('/')}`}>
           <Home className="h-6 w-6" />
           <span className="text-xs mt-1">Home</span>
@@ -29,15 +29,13 @@ export const MobileNav = () => {
           <span className="text-xs mt-1">Reports</span>
         </Link>
         
-        <div className="relative -mt-8">
-          <div className="absolute left-1/2 -translate-x-1/2 -top-1">
-            <button 
-              onClick={() => {}} 
-              className="bg-black rounded-full p-4 shadow-lg hover:bg-gray-800 transition-colors border-4 border-white dark:border-gray-900"
-            >
-              <Plus className="h-6 w-6 text-white" />
-            </button>
-          </div>
+        <div className="flex flex-col items-center">
+          <button 
+            onClick={() => {}} 
+            className="bg-black rounded-full p-4 hover:bg-gray-800 transition-colors"
+          >
+            <Plus className="h-6 w-6 text-white" />
+          </button>
         </div>
         
         <Link to="/food-diary" className={`flex flex-col items-center ${isActive('/food-diary')}`}>
