@@ -45,7 +45,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
         </Link>
         
         <Link to="/food-diary" className={`flex flex-col items-center ${isActive('/food-diary')}`}>
-          <LineChart className="h-6 w-6" />
+          <Book className="h-6 w-6" />
         </Link>
         
         <div className="flex flex-col items-center">
@@ -66,7 +66,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
         </div>
         
         <Link to="/reports" className={`flex flex-col items-center ${isActive('/reports')}`}>
-          <Book className="h-6 w-6" />
+          <LineChart className="h-6 w-6" />
         </Link>
         
         <Link to="/profile" className={`flex flex-col items-center ${isActive('/profile')}`}>
