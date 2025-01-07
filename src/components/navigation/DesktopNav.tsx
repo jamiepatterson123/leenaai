@@ -1,13 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Home, UtensilsCrossed, Target, ClipboardList, UserCheck, Send } from "lucide-react";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+import { Home, UtensilsCrossed, Target, ClipboardList, UserCheck, Send, Search, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MoreDropdown } from "./MoreDropdown";
 
@@ -24,40 +17,35 @@ export const DesktopNav = ({
 }) => {
   const mainNavigationItems = [
     { icon: Home, text: "Home", to: "/" },
-    { icon: UtensilsCrossed, text: "Nutrition", to: "/food-diary" },
+    { icon: UtensilsCrossed, text: "Foods", to: "/food-diary" },
     { icon: Target, text: "Targets", to: "/profile" },
-    { icon: ClipboardList, text: "Dashboard", to: "/reports" },
-    { icon: UserCheck, text: "Coach", to: "/coach" },
+    { icon: Search, text: "Search", to: "/reports" },
+    { icon: HelpCircle, text: "Support", to: "/coach" },
   ];
 
   return (
-    <div className="hidden md:flex items-center gap-4 relative z-50">
-      <NavigationMenu>
-        <NavigationMenuList>
-          {mainNavigationItems.map((item) => (
-            <NavigationMenuItem key={item.to}>
-              <Link to={item.to}>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <item.icon className="w-4 h-4 mr-2" />
-                  {item.text}
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-          ))}
-          <NavigationMenuItem>
-            <MoreDropdown />
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
-
-      <div className="flex items-center gap-4">
+    <div className="flex-1">
+      <nav className="space-y-1 p-4">
+        {mainNavigationItems.map((item) => (
+          <Link
+            key={item.to}
+            to={item.to}
+            className="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground"
+          >
+            <item.icon className="h-5 w-5" />
+            <span>{item.text}</span>
+          </Link>
+        ))}
+      </nav>
+      
+      <div className="mt-auto p-4">
         <Button
           variant="ghost"
-          size="icon"
-          onClick={handleShare}
-          className="text-muted-foreground"
+          size="sm"
+          onClick={handleSignOut}
+          className="w-full justify-start"
         >
-          <Send className="w-4 h-4" />
+          Sign out
         </Button>
       </div>
     </div>
