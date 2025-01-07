@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, LineChart, User, Book, Plus } from "lucide-react";
+import { Home, Book, User, LineChart, Plus } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MobileNavProps {
@@ -44,7 +44,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
           <Home className="h-6 w-6" />
         </Link>
         
-        <Link to="/reports" className={`flex flex-col items-center ${isActive('/reports')}`}>
+        <Link to="/food-diary" className={`flex flex-col items-center ${isActive('/food-diary')}`}>
           <LineChart className="h-6 w-6" />
         </Link>
         
@@ -65,7 +65,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
           />
         </div>
         
-        <Link to="/food-diary" className={`flex flex-col items-center ${isActive('/food-diary')}`}>
+        <Link to="/reports" className={`flex flex-col items-center ${isActive('/reports')}`}>
           <Book className="h-6 w-6" />
         </Link>
         
