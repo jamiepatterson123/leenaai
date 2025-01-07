@@ -36,10 +36,10 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPr
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
+    <div className="w-full max-w-md mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
       <label
         htmlFor="image-upload"
-        className="relative block w-full md:h-64 h-[70vh] cursor-pointer"
+        className="relative block w-full h-64 cursor-pointer"
       >
         <input
           id="image-upload"
@@ -53,7 +53,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPr
             <img
               src={preview}
               alt="Preview"
-              className="w-full h-full object-contain rounded-lg animate-fade-in"
+              className="w-full h-full object-cover rounded-lg animate-fade-in"
             />
           ) : (
             <div className="text-center">
