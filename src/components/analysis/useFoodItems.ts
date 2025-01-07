@@ -42,7 +42,7 @@ export const useFoodItems = (initialFoods: FoodItem[]) => {
           'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "gpt-4o",
+          model: "gpt-4",
           messages: [
             {
               role: "system",
@@ -107,7 +107,11 @@ export const useFoodItems = (initialFoods: FoodItem[]) => {
 
   const handleWeightChange = (index: number, newWeight: string) => {
     const weight = parseFloat(newWeight);
-    if (!isNaN(weight)) {
+    if (!isNaN(weight) && weight >= 0) {
+      const originalFood = editedFoods[index];
+      const originalWeight = originalFood.weight_g;
+      const ratio = weight / originalWeight;
+      
       setEditedFoods((prev) =>
         prev.map((food, i) =>
           i === index
@@ -115,10 +119,10 @@ export const useFoodItems = (initialFoods: FoodItem[]) => {
                 ...food,
                 weight_g: weight,
                 nutrition: {
-                  calories: (weight / food.weight_g) * food.nutrition.calories,
-                  protein: (weight / food.weight_g) * food.nutrition.protein,
-                  carbs: (weight / food.weight_g) * food.nutrition.carbs,
-                  fat: (weight / food.weight_g) * food.nutrition.fat,
+                  calories: ratio * food.nutrition.calories,
+                  protein: ratio * food.nutrition.protein,
+                  carbs: ratio * food.nutrition.carbs,
+                  fat: ratio * food.nutrition.fat,
                 },
               }
             : food

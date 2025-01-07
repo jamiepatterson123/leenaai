@@ -50,9 +50,12 @@ export const FoodItemForm = ({
           <Input
             id={`food-weight-${index}`}
             type="number"
+            min="0"
+            step="1"
             value={weight}
             onChange={(e) => onWeightChange(index, e.target.value)}
             disabled={isUpdating}
+            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
         </div>
       </div>
