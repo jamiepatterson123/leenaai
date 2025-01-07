@@ -43,19 +43,22 @@ export const Navigation = () => {
 
   return (
     <>
-      {!isMobile && (
-        <div className="fixed left-0 top-0 h-full w-64 bg-background border-r flex flex-col">
-          <div className="p-4 border-b">
-            <h1 className="text-2xl font-bold text-primary">Leena.ai</h1>
-          </div>
+      <div className={`border-b mb-6 ${isMobile ? 'hidden' : 'sticky top-0 bg-background z-50'}`}>
+        <div className="max-w-4xl mx-auto p-4 flex justify-between items-center">
           <DesktopNav 
             handleShare={handleShare}
             handleSignOut={handleSignOut}
             theme={theme}
             toggleTheme={toggleTheme}
           />
+          <Button
+            onClick={() => setShowAddDialog(true)}
+            className="bg-green-600 hover:bg-green-700 text-white"
+          >
+            Add Entry
+          </Button>
         </div>
-      )}
+      </div>
 
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-2xl">

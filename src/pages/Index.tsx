@@ -4,11 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ProfileHeader } from "@/components/home/ProfileHeader";
 import { HomeDataSection } from "@/components/home/HomeDataSection";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
-  const isMobile = useIsMobile();
-  
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -31,11 +28,9 @@ const Index = () => {
   });
 
   return (
-    <div className={`${!isMobile ? 'ml-64' : ''} min-h-screen`}>
-      <div className="max-w-4xl mx-auto px-4 pb-24 md:pb-8">
-        <ProfileHeader profile={profile} />
-        <HomeDataSection />
-      </div>
+    <div className="max-w-4xl mx-auto px-4 pb-24 md:pb-8">
+      <ProfileHeader profile={profile} />
+      <HomeDataSection />
     </div>
   );
 };
