@@ -12,25 +12,40 @@ export const saveFoodEntries = async (foods: any[], selectedDate: Date) => {
 
   const formattedDate = format(selectedDate, 'yyyy-MM-dd');
 
-  const { error } = await supabase.from("food_diary").insert(
-    foods.map((food) => ({
-      user_id: user.id,
-      food_name: food.name,
-      weight_g: food.weight_g,
-      calories: food.nutrition.calories,
-      protein: food.nutrition.protein,
-      carbs: food.nutrition.carbs,
-      fat: food.nutrition.fat,
-      date: formattedDate,
-      state: food.state,
-    }))
-  );
+  try {
+    const { error } = await supabase.from("food_diary").insert(
+      foods.map((food) => ({
+        user_id: user.id,
+        food_name: food.name,
+        weight_g: food.weight_g,
+        calories: food.nutrition.calories,
+        protein: food.nutrition.protein,
+        carbs: food.nutrition.carbs,
+        fat: food.nutrition.fat,
+        date: formattedDate,
+        state: food.state,
+        category: food.category || 'uncategorized',
+      }))
+    );
 
-  if (error) {
-    console.error("Error saving food entries:", error);
+    if (error) {
+      console.error("Error saving food entries:", error);
+      toast.error("Failed to save food entries");
+      throw error;
+    }
+
+    // Invalidate the queries to refresh the data
+    await Promise.all([
+      supabase.from('food_diary')
+        .select('*')
+        .eq('date', formattedDate)
+        .eq('user_id', user.id),
+    ]);
+
+    toast.success("Food entries saved to diary!");
+  } catch (error) {
+    console.error("Error in saveFoodEntries:", error);
     toast.error("Failed to save food entries");
     throw error;
   }
-
-  toast.success("Food entries saved to diary!");
 };

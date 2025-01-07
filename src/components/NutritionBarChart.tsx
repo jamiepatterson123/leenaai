@@ -23,9 +23,9 @@ interface NutritionChartProps {
 export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
   const getBarColor = (value: number, target: number) => {
     const percentage = (value / target) * 100;
-    if (percentage > 110) return "url(#redGradient)"; // Over target gradient
-    if (percentage >= 90 && percentage <= 110) return "url(#greenGradient)"; // Within target gradient
-    return "url(#orangeGradient)"; // Under target gradient
+    if (percentage > 110) return "url(#redGradient)";
+    if (percentage >= 90 && percentage <= 110) return "url(#greenGradient)";
+    return "url(#orangeGradient)";
   };
 
   return (
@@ -92,7 +92,7 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
                 return (
                   <div className="bg-background border border-border/50 rounded-lg p-2 text-sm">
                     <p className="font-medium">{data.name}</p>
-                    <p>Consumed: {data.value}</p>
+                    <p>Consumed: {data.value.toFixed(1)}</p>
                     <p>Daily Target: {data.target}</p>
                     <p className={statusColor}>
                       {Math.round(percentage)}% - {status}

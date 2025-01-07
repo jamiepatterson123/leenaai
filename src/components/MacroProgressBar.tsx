@@ -14,7 +14,7 @@ export const MacroProgressBar: React.FC<MacroProgressBarProps> = ({
   target,
   color,
 }) => {
-  const percentage = Math.round((current / target) * 100);
+  const percentage = Math.min(Math.round((current / target) * 100), 100);
 
   return (
     <div className="space-y-2">

@@ -5,6 +5,7 @@ import { FoodList } from "./nutrition/FoodList";
 import { useNutritionTargets } from "./nutrition/useNutritionTargets";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format, formatDistanceToNow, isToday } from "date-fns";
+import { MacroProgressBar } from "./MacroProgressBar";
 
 interface NutritionInfo {
   calories: number;
@@ -40,25 +41,25 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
       name: "Energy",
       current: totalNutrition.calories,
       target: targets.calories,
-      unit: "kcal"
+      color: "bg-primary"
     },
     {
       name: "Protein",
       current: totalNutrition.protein,
       target: targets.protein,
-      unit: "g"
+      color: "bg-green-500"
     },
     {
       name: "Net Carbs",
       current: totalNutrition.carbs,
       target: targets.carbs,
-      unit: "g"
+      color: "bg-yellow-500"
     },
     {
       name: "Fat",
       current: totalNutrition.fat,
       target: targets.fat,
-      unit: "g"
+      color: "bg-red-500"
     },
   ];
 
@@ -85,24 +86,13 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
 
         <div className="space-y-6">
           {macros.map((macro) => (
-            <div key={macro.name} className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-base">
-                  {macro.name} - {macro.current.toFixed(1)} / {macro.target.toFixed(1)} {macro.unit}
-                </span>
-                <span className="text-base">
-                  {Math.round((macro.current / macro.target) * 100)}%
-                </span>
-              </div>
-              <div className="h-2 bg-secondary/50 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary transition-all duration-500"
-                  style={{ 
-                    width: `${Math.min((macro.current / macro.target) * 100, 100)}%`,
-                  }}
-                />
-              </div>
-            </div>
+            <MacroProgressBar
+              key={macro.name}
+              label={macro.name}
+              current={macro.current}
+              target={macro.target}
+              color={macro.color}
+            />
           ))}
         </div>
 
