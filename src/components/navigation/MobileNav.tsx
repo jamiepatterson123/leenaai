@@ -30,10 +30,10 @@ export const MobileNav = () => {
         </Link>
         
         <div className="relative -mt-8">
-          <div className="absolute left-1/2 -translate-x-1/2">
+          <div className="absolute left-1/2 -translate-x-1/2 -top-1">
             <button 
               onClick={() => {}} 
-              className="bg-black rounded-full p-4 shadow-lg hover:bg-gray-800 transition-colors"
+              className="bg-black rounded-full p-4 shadow-lg hover:bg-gray-800 transition-colors border-4 border-background"
             >
               <Plus className="h-6 w-6 text-white" />
             </button>
