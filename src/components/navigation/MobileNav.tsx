@@ -1,10 +1,13 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Home, LineChart, User, Book, Plus } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-export const MobileNav = () => {
+interface MobileNavProps {
+  onAddClick: () => void;
+}
+
+export const MobileNav = ({ onAddClick }: MobileNavProps) => {
   const location = useLocation();
   const isMobile = useIsMobile();
 
@@ -31,7 +34,7 @@ export const MobileNav = () => {
         
         <div className="flex flex-col items-center">
           <button 
-            onClick={() => {}} 
+            onClick={onAddClick} 
             className="bg-black rounded-full p-4 hover:bg-gray-800 transition-colors"
           >
             <Plus className="h-6 w-6 text-white" />
