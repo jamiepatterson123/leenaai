@@ -1,82 +1,82 @@
 import React, { useState } from "react";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
-import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
-import { WeightInput } from "@/components/WeightInput";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { supabase } from "@/integrations/supabase/client";
+import { ImageAnalysisSection } from "./analysis/ImageAnalysisSection";
+import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 
 export const Navigation = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
-  const [nutritionData, setNutritionData] = React.useState<any>(null);
-  const [activeTab, setActiveTab] = useState("food");
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-  const isMobile = useIsMobile();
-  const imageAnalysisSectionRef = React.useRef<any>(null);
-
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: "Check out this app!",
-        text: "Track your nutrition and fitness goals",
-        url: window.location.origin,
-      }).catch(console.error);
-    }
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-  };
-
-  const toggleTheme = (checked: boolean) => {
-    setTheme(checked ? "dark" : "light");
-  };
+  const [nutritionData, setNutritionData] = useState(null);
+  const queryClient = useQueryClient();
+  const selectedDate = new Date(); // Default to current date for food entries
 
   const handleFileSelect = async (file: File) => {
+    setShowAddDialog(false); // Close dialog if it was open
+    setAnalyzing(true);
+
+    // Create a ref to the ImageAnalysisSection
+    const imageAnalysisSectionRef = React.createRef<any>();
+
+    // Create and mount a temporary ImageAnalysisSection
+    const tempComponent = (
+      <ImageAnalysisSection
+        ref={imageAnalysisSectionRef}
+        analyzing={analyzing}
+        setAnalyzing={setAnalyzing}
+        nutritionData={nutritionData}
+        setNutritionData={setNutritionData}
+        selectedDate={selectedDate}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ 
+            queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
+          });
+        }}
+      />
+    );
+
+    // Create a temporary container
+    const tempContainer = document.createElement('div');
+    document.body.appendChild(tempContainer);
+
+    // Render the component
+    const root = React.createRoot(tempContainer);
+    root.render(tempComponent);
+
+    // Wait for the component to mount
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    // Call handleImageSelect on the mounted component
     if (imageAnalysisSectionRef.current) {
       await imageAnalysisSectionRef.current.handleImageSelect(file);
     }
+
+    // Cleanup
+    root.unmount();
+    document.body.removeChild(tempContainer);
   };
 
   return (
     <>
-      <div className={`border-b mb-6 ${isMobile ? 'hidden' : 'sticky top-0 bg-background z-50'}`}>
-        <div className="max-w-4xl mx-auto p-4 flex justify-between items-center">
-          <DesktopNav 
-            handleShare={handleShare}
-            handleSignOut={handleSignOut}
-            theme={theme}
-            toggleTheme={toggleTheme}
-          />
-          <Button
-            onClick={() => setShowAddDialog(true)}
-            className="bg-green-600 hover:bg-green-700 text-white"
-          >
-            Add Entry
-          </Button>
-        </div>
-      </div>
-
+      <DesktopNav onAddClick={() => setShowAddDialog(true)} />
+      
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="max-w-2xl">
-          <div className="space-y-4">
-            {activeTab === "food" ? (
-              <ImageAnalysisSection
-                ref={imageAnalysisSectionRef}
-                analyzing={analyzing}
-                setAnalyzing={setAnalyzing}
-                nutritionData={nutritionData}
-                setNutritionData={setNutritionData}
-                selectedDate={new Date()}
-                onSuccess={() => setShowAddDialog(false)}
-              />
-            ) : (
-              <WeightInput onSuccess={() => setShowAddDialog(false)} />
-            )}
-          </div>
+        <DialogContent className="max-w-md">
+          <ImageAnalysisSection
+            analyzing={analyzing}
+            setAnalyzing={setAnalyzing}
+            nutritionData={nutritionData}
+            setNutritionData={setNutritionData}
+            selectedDate={selectedDate}
+            onSuccess={() => {
+              setShowAddDialog(false);
+              queryClient.invalidateQueries({ 
+                queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
+              });
+            }}
+          />
         </DialogContent>
       </Dialog>
 
