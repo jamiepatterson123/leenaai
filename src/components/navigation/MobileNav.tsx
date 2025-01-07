@@ -11,9 +11,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
 import { WeightInput } from "@/components/WeightInput";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 interface MobileNavProps {
   isAuthenticated: boolean;
@@ -35,12 +32,7 @@ export const MobileNav = ({ isAuthenticated }: MobileNavProps) => {
 
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 bg-background border-b md:hidden z-50">
-        <div className="p-4">
-          <h1 className="text-lg font-semibold text-center">Leena.ai</h1>
-        </div>
-      </div>
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t md:hidden z-50">
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t z-50">
         <nav className="flex items-center justify-between px-6 h-16">
           <Link to="/" className={`flex flex-col items-center ${isActive('/')}`}>
             <Home className="h-6 w-6" />

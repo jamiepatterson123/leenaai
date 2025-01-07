@@ -56,7 +56,7 @@ export const Navigation = () => {
 
   return (
     <>
-      <div className="border-b mb-6 relative z-50">
+      <div className="border-b mb-6">
         <div className="max-w-4xl mx-auto p-4 flex justify-between items-center">
           <DesktopNav 
             handleShare={handleShare}
@@ -84,7 +84,9 @@ export const Navigation = () => {
           </Button>
         </div>
       </div>
-      <MobileNav isAuthenticated={isAuthenticated} />
+      <div className="md:hidden">
+        <MobileNav isAuthenticated={isAuthenticated} />
+      </div>
     </>
   );
 };
