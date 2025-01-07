@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Home, UtensilsCrossed, Target, ClipboardList, UserCheck, Send, Search, HelpCircle } from "lucide-react";
+import { Home, UtensilsCrossed, Target, Search, HelpCircle, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MoreDropdown } from "./MoreDropdown";
 
@@ -24,7 +24,7 @@ export const DesktopNav = ({
   ];
 
   return (
-    <div className="flex-1">
+    <div className="flex flex-col h-full">
       <nav className="space-y-1 p-4">
         {mainNavigationItems.map((item) => (
           <Link
@@ -38,14 +38,15 @@ export const DesktopNav = ({
         ))}
       </nav>
       
-      <div className="mt-auto p-4">
+      <div className="mt-auto p-4 border-t">
         <Button
           variant="ghost"
           size="sm"
           onClick={handleSignOut}
-          className="w-full justify-start"
+          className="w-full justify-between text-muted-foreground hover:text-foreground"
         >
-          Sign out
+          <span>Sign out</span>
+          <LogOut className="h-4 w-4" />
         </Button>
       </div>
     </div>
