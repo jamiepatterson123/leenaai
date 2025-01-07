@@ -1,20 +1,38 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, LineChart, User, Book, Plus } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MobileNavProps {
   onAddClick: () => void;
+  onFileSelect?: (file: File) => void;
 }
 
-export const MobileNav = ({ onAddClick }: MobileNavProps) => {
+export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
   const location = useLocation();
   const isMobile = useIsMobile();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isActive = (path: string) => {
     return location.pathname === path
       ? "text-primary"
       : "text-muted-foreground hover:text-primary transition-colors";
+  };
+
+  const handlePlusClick = (e: React.MouseEvent) => {
+    if (onFileSelect) {
+      fileInputRef.current?.click();
+    } else {
+      onAddClick();
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && onFileSelect) {
+      onFileSelect(file);
+      e.target.value = '';
+    }
   };
 
   if (!isMobile) return null;
@@ -34,11 +52,19 @@ export const MobileNav = ({ onAddClick }: MobileNavProps) => {
         
         <div className="flex flex-col items-center">
           <button 
-            onClick={onAddClick} 
+            onClick={handlePlusClick}
             className="bg-black rounded-full p-4 hover:bg-gray-800 transition-colors"
           >
             <Plus className="h-6 w-6 text-white" />
           </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+            capture="environment"
+          />
         </div>
         
         <Link to="/food-diary" className={`flex flex-col items-center ${isActive('/food-diary')}`}>

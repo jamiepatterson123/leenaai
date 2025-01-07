@@ -80,7 +80,10 @@ export const Navigation = () => {
         </DialogContent>
       </Dialog>
 
-      <MobileNav onAddClick={() => setShowAddDialog(true)} />
+      <MobileNav 
+        onAddClick={() => setShowAddDialog(true)} 
+        onFileSelect={handleFileSelect}
+      />
     </>
   );
 };
