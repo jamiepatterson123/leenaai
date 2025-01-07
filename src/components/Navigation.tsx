@@ -1,57 +1,38 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { toast } from "sonner";
-import { MobileNav } from "./navigation/MobileNav";
+import React, { useState } from "react";
 import { DesktopNav } from "./navigation/DesktopNav";
+import { MobileNav } from "./navigation/MobileNav";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
+import { WeightInput } from "@/components/WeightInput";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-export const Navigation = () => {
-  const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+interface NavigationProps {
+  isAuthenticated: boolean;
+}
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsAuthenticated(!!session);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setIsAuthenticated(!!session);
-    });
-
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle("dark", savedTheme === "dark");
-    }
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/auth");
-  };
+export const Navigation = ({ isAuthenticated }: NavigationProps) => {
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [nutritionData, setNutritionData] = React.useState<any>(null);
+  const [activeTab, setActiveTab] = useState("food");
+  const isMobile = useIsMobile();
+  const imageAnalysisSectionRef = React.useRef<any>(null);
 
   const handleShare = () => {
-    try {
-      const instagramUrl = `https://www.instagram.com/create/story?url=${encodeURIComponent(window.location.origin)}`;
-      window.open(instagramUrl, '_blank');
-      toast.success("Opening Instagram Stories...");
-    } catch (error) {
-      console.error('Error sharing:', error);
-      toast.error("Couldn't open Instagram Stories. Please try again.");
+    if (navigator.share) {
+      navigator.share({
+        title: "Check out this app!",
+        text: "Track your nutrition and fitness goals",
+        url: window.location.origin,
+      }).catch(console.error);
     }
   };
 
-  const toggleTheme = (checked: boolean) => {
-    const newTheme = checked ? "dark" : "light";
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.documentElement.classList.toggle("dark", checked);
+  const handleFileSelect = async (file: File) => {
+    if (imageAnalysisSectionRef.current) {
+      await imageAnalysisSectionRef.current.handleImageSelect(file);
+    }
   };
 
   return (
@@ -60,30 +41,37 @@ export const Navigation = () => {
         <div className="max-w-4xl mx-auto p-4 flex justify-between items-center">
           <DesktopNav 
             handleShare={handleShare}
-            handleSignOut={handleSignOut}
-            theme={theme}
-            toggleTheme={toggleTheme}
+            isAuthenticated={isAuthenticated} 
           />
-          <div className="hidden md:flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Light</span>
-            <Switch
-              checked={theme === "dark"}
-              onCheckedChange={toggleTheme}
-              className="data-[state=checked]:bg-primary"
-            />
-            <span className="text-sm text-muted-foreground">Dark</span>
-          </div>
           <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSignOut}
-            className="text-muted-foreground"
+            onClick={() => setShowAddDialog(true)}
+            className="bg-green-600 hover:bg-green-700 text-white"
           >
-            <LogOut className="w-4 h-4 mr-2" />
-            <span className="hidden md:inline">Sign Out</span>
+            Add Entry
           </Button>
         </div>
       </div>
+
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="max-w-2xl">
+          <div className="space-y-4">
+            {activeTab === "food" ? (
+              <ImageAnalysisSection
+                ref={imageAnalysisSectionRef}
+                analyzing={analyzing}
+                setAnalyzing={setAnalyzing}
+                nutritionData={nutritionData}
+                setNutritionData={setNutritionData}
+                selectedDate={new Date()}
+                onSuccess={() => setShowAddDialog(false)}
+              />
+            ) : (
+              <WeightInput onSuccess={() => setShowAddDialog(false)} />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <div className="md:hidden">
         <MobileNav isAuthenticated={isAuthenticated} />
       </div>
