@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createRoot } from 'react-dom/client'; // Import createRoot from react-dom/client
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -12,6 +13,20 @@ export const Navigation = () => {
   const [nutritionData, setNutritionData] = useState(null);
   const queryClient = useQueryClient();
   const selectedDate = new Date(); // Default to current date for food entries
+
+  // Mock functions for DesktopNav props
+  const handleShare = () => {
+    // Implement share functionality
+  };
+
+  const handleSignOut = () => {
+    // Implement sign out functionality
+  };
+
+  const theme = "light" as const; // or "dark"
+  const toggleTheme = (checked: boolean) => {
+    // Implement theme toggle functionality
+  };
 
   const handleFileSelect = async (file: File) => {
     setShowAddDialog(false); // Close dialog if it was open
@@ -42,7 +57,7 @@ export const Navigation = () => {
     document.body.appendChild(tempContainer);
 
     // Render the component
-    const root = React.createRoot(tempContainer);
+    const root = createRoot(tempContainer);
     root.render(tempComponent);
 
     // Wait for the component to mount
@@ -60,7 +75,12 @@ export const Navigation = () => {
 
   return (
     <>
-      <DesktopNav onAddClick={() => setShowAddDialog(true)} />
+      <DesktopNav 
+        handleShare={handleShare}
+        handleSignOut={handleSignOut}
+        theme={theme}
+        toggleTheme={toggleTheme}
+      />
       
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-md">
