@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHomeData } from "@/components/home/useHomeData";
+import { HabitTracker } from "@/components/habits/HabitTracker";
 
 export const HomeDataSection = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
@@ -35,6 +36,10 @@ export const HomeDataSection = () => {
     <div className="space-y-6">
       <div className="bg-primary/5 p-4 rounded-lg">
         <StreakCounter />
+      </div>
+
+      <div className="p-4">
+        <HabitTracker />
       </div>
 
       <div className="p-4">
