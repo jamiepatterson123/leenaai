@@ -1,16 +1,14 @@
 import React, { useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Book, User, LineChart, Plus, LogOut } from "lucide-react";
+import { Home, Book, User, LineChart, Plus } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Button } from "../ui/button";
 
 interface MobileNavProps {
   onAddClick: () => void;
   onFileSelect?: (file: File) => void;
-  onSignOut?: () => void;
 }
 
-export const MobileNav = ({ onAddClick, onFileSelect, onSignOut }: MobileNavProps) => {
+export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -22,7 +20,7 @@ export const MobileNav = ({ onAddClick, onFileSelect, onSignOut }: MobileNavProp
   };
 
   const handlePlusClick = () => {
-    fileInputRef.current?.click();
+    fileInputRef.current?.click(); // Always trigger file input
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,16 +68,6 @@ export const MobileNav = ({ onAddClick, onFileSelect, onSignOut }: MobileNavProp
         <Link to="/profile" className={`flex flex-col items-center ${isActive('/profile')}`}>
           <User className="h-6 w-6" />
         </Link>
-
-        {onSignOut && (
-          <Button
-            variant="ghost"
-            onClick={onSignOut}
-            className="text-muted-foreground"
-          >
-            <LogOut className="h-6 w-6" />
-          </Button>
-        )}
       </div>
     </nav>
   );

@@ -70,7 +70,6 @@ export const Navigation = () => {
       <MobileNav 
         onAddClick={() => {}} 
         onFileSelect={handleFileSelect}
-        onSignOut={handleSignOut}
       />
     </>
   );
