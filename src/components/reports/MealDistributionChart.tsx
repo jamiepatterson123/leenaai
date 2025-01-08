@@ -33,7 +33,7 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
 
     return {
       name: category,
-      value: totalCalories || 0, // Ensure we always have at least 0
+      value: totalCalories || 0,
     };
   });
 
@@ -41,17 +41,16 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
   const totalCalories = processedData.reduce((sum, entry) => sum + entry.value, 0);
 
   // Ensure we always have a minimum size for the chart to prevent label overlap
-  const minValue = 50; // Minimum value to ensure spacing
+  const minValue = 50;
   const chartData = processedData.map(entry => ({
     ...entry,
-    // If all values are 0, give each category an equal minimum value
     value: totalCalories === 0 ? minValue : (entry.value || minValue/4)
   }));
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <h2 className="text-2xl font-semibold">Calories by Meal</h2>
+    <Card className="p-4 sm:p-6">
+      <div className="flex items-center gap-2 mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-semibold">Calories by Meal</h2>
         <TooltipProvider>
           <UITooltip>
             <TooltipTrigger>
@@ -63,14 +62,14 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
           </UITooltip>
         </TooltipProvider>
       </div>
-      <div className="h-[300px] w-full">
+      <div className="h-[300px] sm:h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={chartData}
               cx="50%"
               cy="50%"
-              labelLine={true}
+              labelLine={false}
               label={({
                 cx,
                 cy,
@@ -78,30 +77,43 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
                 innerRadius,
                 outerRadius,
                 name,
-                value
+                value,
+                percent
               }) => {
                 const RADIAN = Math.PI / 180;
-                const radius = outerRadius * 1.4;
+                const radius = outerRadius * 1.35; // Increased radius for better spacing
                 const x = cx + radius * Math.cos(-midAngle * RADIAN);
                 const y = cy + radius * Math.sin(-midAngle * RADIAN);
                 
                 const actualValue = processedData.find(d => d.name === name)?.value || 0;
-                const percent = totalCalories ? ((actualValue / totalCalories) * 100).toFixed(0) : "0";
+                const percentage = totalCalories ? ((actualValue / totalCalories) * 100).toFixed(0) : "0";
+
+                // Adjust label position based on angle
+                const textAnchor = x > cx ? "start" : "end";
+                const labelX = x > cx ? x + 5 : x - 5;
 
                 return (
-                  <text
-                    x={x}
-                    y={y}
-                    fill="currentColor"
-                    textAnchor={x > cx ? "start" : "end"}
-                    dominantBaseline="central"
-                    className="text-sm"
-                  >
-                    {`${name} (${percent}%)`}
-                  </text>
+                  <g>
+                    {/* Draw a white background behind the text for better readability */}
+                    <text
+                      x={labelX}
+                      y={y}
+                      fill="currentColor"
+                      textAnchor={textAnchor}
+                      dominantBaseline="central"
+                      className="text-[10px] sm:text-sm font-medium"
+                      style={{
+                        filter: "drop-shadow(0px 0px 2px rgba(255, 255, 255, 0.9))"
+                      }}
+                    >
+                      {`${name} (${percentage}%)`}
+                    </text>
+                  </g>
                 );
               }}
-              outerRadius={80}
+              outerRadius={({ chartWidth, chartHeight }) => 
+                Math.min(chartWidth, chartHeight) * 0.35
+              }
               dataKey="value"
             >
               {chartData.map((entry, index) => (
@@ -132,8 +144,12 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
               }}
             />
             <Legend 
-              verticalAlign="bottom" 
+              verticalAlign="bottom"
               height={36}
+              wrapperStyle={{
+                fontSize: "12px",
+                paddingTop: "20px"
+              }}
             />
           </PieChart>
         </ResponsiveContainer>
