@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subMonths, addMonths } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 
 export const HabitTracker = () => {
   const [currentDate, setCurrentDate] = React.useState(new Date());
@@ -41,6 +40,7 @@ export const HabitTracker = () => {
   return (
     <div className="w-full max-w-md mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
       <div className="p-4">
+        <h2 className="text-xl font-semibold mb-4 text-center">Your Consistency</h2>
         <div className="flex items-center justify-between mb-4">
           <Button
             variant="ghost"
@@ -50,9 +50,9 @@ export const HabitTracker = () => {
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <h2 className="text-lg font-semibold">
+          <h3 className="text-lg font-semibold">
             {format(currentDate, "MMMM yyyy")}
-          </h2>
+          </h3>
           <Button
             variant="ghost"
             size="icon"
