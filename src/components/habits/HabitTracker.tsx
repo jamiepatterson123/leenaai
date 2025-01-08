@@ -4,9 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subMonths, addMonths, lastDayOfMonth } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export const HabitTracker = () => {
   const [currentDate, setCurrentDate] = React.useState(new Date());
+  const navigate = useNavigate();
   
   const { data: loggedDays } = useQuery({
     queryKey: ["habit-tracker", format(currentDate, "yyyy-MM")],
@@ -35,6 +37,10 @@ export const HabitTracker = () => {
 
   const handleNextMonth = () => {
     setCurrentDate(prev => addMonths(prev, 1));
+  };
+
+  const handleDateClick = (date: Date) => {
+    navigate(`/food-diary?date=${format(date, "yyyy-MM-dd")}`);
   };
 
   // Get the days from previous month that should appear in the calendar
@@ -97,14 +103,15 @@ export const HabitTracker = () => {
 
         <div className="grid grid-cols-7 gap-1">
           {getPreviousMonthDays().map(({ date }) => (
-            <div
+            <button
               key={date.toISOString()}
-              className="aspect-square rounded-sm border border-border/50 flex items-center justify-center"
+              onClick={() => handleDateClick(date)}
+              className="aspect-square rounded-sm border border-border/50 flex items-center justify-center hover:bg-accent/50 transition-colors"
             >
               <span className="text-xs text-muted-foreground/50">
                 {format(date, "d")}
               </span>
-            </div>
+            </button>
           ))}
           
           {days.map(day => {
@@ -113,30 +120,32 @@ export const HabitTracker = () => {
             );
             
             return (
-              <div
+              <button
                 key={day.toISOString()}
+                onClick={() => handleDateClick(day)}
                 className={`
                   aspect-square rounded-sm border flex items-center justify-center
                   ${isLogged ? 'bg-success/20 border-success/30' : 'border-border/50'}
-                  transition-colors duration-200
+                  hover:bg-accent/50 transition-colors duration-200
                 `}
               >
                 <span className="text-xs text-muted-foreground">
                   {format(day, "d")}
                 </span>
-              </div>
+              </button>
             );
           })}
 
           {getNextMonthDays().map(({ date }) => (
-            <div
+            <button
               key={date.toISOString()}
-              className="aspect-square rounded-sm border border-border/50 flex items-center justify-center"
+              onClick={() => handleDateClick(date)}
+              className="aspect-square rounded-sm border border-border/50 flex items-center justify-center hover:bg-accent/50 transition-colors"
             >
               <span className="text-xs text-muted-foreground/50">
                 {format(date, "d")}
               </span>
-            </div>
+            </button>
           ))}
         </div>
       </div>
