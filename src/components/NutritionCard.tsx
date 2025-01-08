@@ -98,11 +98,13 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
 
         <div className="mt-6">
           <h3 className="text-lg font-semibold mb-4">Food Diary</h3>
-          <FoodList 
-            foods={foods} 
-            onDelete={onDelete} 
-            onUpdateCategory={onUpdateCategory}
-          />
+          <div className="space-y-4">
+            <FoodList 
+              foods={foods} 
+              onDelete={onDelete} 
+              onUpdateCategory={onUpdateCategory}
+            />
+          </div>
         </div>
       </div>
     </Card>

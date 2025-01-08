@@ -39,7 +39,7 @@ export const FoodList: React.FC<FoodListProps> = ({
     Lunch: foods.filter(food => food.category === "Lunch"),
     Dinner: foods.filter(food => food.category === "Dinner"),
     Snacks: foods.filter(food => food.category === "Snacks"),
-    Uncategorized: foods.filter(food => !food.category),
+    Uncategorized: foods.filter(food => !food.category || food.category === "uncategorized"),
   };
 
   const FoodItem = ({ food }: { food: typeof foods[0] }) => (
