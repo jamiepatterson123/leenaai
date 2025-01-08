@@ -94,7 +94,6 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
 
                 return (
                   <g>
-                    {/* Draw a white background behind the text for better readability */}
                     <text
                       x={labelX}
                       y={y}
@@ -111,9 +110,7 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
                   </g>
                 );
               }}
-              outerRadius={({ chartWidth, chartHeight }) => 
-                Math.min(chartWidth, chartHeight) * 0.35
-              }
+              outerRadius={100}
               dataKey="value"
             >
               {chartData.map((entry, index) => (
