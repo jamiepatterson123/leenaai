@@ -63,6 +63,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       if (result?.foods) {
         setAnalyzedFoods(result.foods);
         setShowVerification(true);
+        setAnalyzing(false); // Hide analyzing overlay once we have results
       } else {
         throw new Error("Invalid analysis result");
       }
@@ -70,8 +71,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       console.error("Error analyzing image:", error);
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
-    } finally {
-      setAnalyzing(false);
+      setAnalyzing(false); // Make sure to hide analyzing overlay on error
     }
   };
 
@@ -93,7 +93,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       });
       setResetUpload(true);
       setShowVerification(false);
-      setAnalyzing(false); // Ensure analyzing state is reset
       toast.success("Food added to diary!");
       onSuccess?.();
     } catch (error) {
@@ -117,7 +116,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
           open={showVerification}
           onOpenChange={() => {
             setShowVerification(false);
-            setAnalyzing(false); // Ensure analyzing state is reset when dialog is closed
           }}
           foods={analyzedFoods}
           onConfirm={handleConfirmFoods}
