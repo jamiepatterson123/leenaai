@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useImperativeHandle } from "react";
+import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "sonner";
 import { analyzeImage } from "./ImageAnalyzer";
@@ -65,30 +65,27 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
 
     if (analyzing) {
-      cleanupStates(); // Reset states if there's an ongoing analysis
+      cleanupStates();
     }
 
     setAnalyzing(true);
     setShowLoadingScreen(true);
     setResetUpload(false);
-    setShowVerification(false); // Reset verification dialog
+    setShowVerification(false);
 
     analysisTimeoutRef.current = setTimeout(() => {
       handleAnalysisError();
     }, 30000);
     
     try {
-      console.log("Starting image analysis...");
       const result = await analyzeImage(image, {
         setNutritionData,
-        saveFoodEntries: async () => {}, // Don't save immediately
+        saveFoodEntries: async () => {},
       });
       
       if (analysisTimeoutRef.current) {
         clearTimeout(analysisTimeoutRef.current);
       }
-      
-      console.log("Analysis result:", result);
       
       if (result?.foods && Array.isArray(result.foods) && result.foods.length > 0) {
         setAnalyzedFoods(result.foods);
@@ -107,7 +104,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     handleImageSelect
   }));
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (componentRef.current) {
       (componentRef.current as any).handleImageSelect = handleImageSelect;
     }
@@ -128,7 +125,10 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       toast.success("Food added to diary!");
       
       if (isMobile) {
-        navigate("/food-diary", { state: { fromVerification: true } });
+        navigate("/food-diary", { 
+          state: { fromVerification: true },
+          replace: true 
+        });
       } else {
         onSuccess?.();
       }

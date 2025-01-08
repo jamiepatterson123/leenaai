@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FoodDiary } from "@/components/FoodDiary";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
@@ -6,14 +6,30 @@ import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const FoodDiaryPage = () => {
   const [date, setDate] = useState<Date>(new Date());
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState(null);
   const location = useLocation();
-  const showImageAnalysis = !location.state?.fromVerification;
+  const navigate = useNavigate();
+  const [showImageAnalysis, setShowImageAnalysis] = useState(false);
+
+  // Effect to handle the visibility of ImageAnalysisSection
+  useEffect(() => {
+    // If we're coming from verification, don't show the analysis section
+    if (location.state?.fromVerification) {
+      setShowImageAnalysis(false);
+    } else {
+      setShowImageAnalysis(true);
+    }
+
+    // Reset the location state
+    if (location.state?.fromVerification) {
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.state, navigate, location.pathname]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
