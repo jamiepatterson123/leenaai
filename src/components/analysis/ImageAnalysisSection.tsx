@@ -34,9 +34,10 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const componentRef = React.useRef<HTMLDivElement>(null);
   const location = useLocation();
 
-  // Reset analyzing state on route change
+  // Reset analyzing state on route change and component unmount
   useEffect(() => {
     setAnalyzing(false);
+    return () => setAnalyzing(false);
   }, [location.pathname, setAnalyzing]);
 
   const handleImageSelect = async (image: File) => {
@@ -70,7 +71,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       if (result?.foods) {
         setAnalyzedFoods(result.foods);
         setShowVerification(true);
-        setAnalyzing(false); // Hide analyzing overlay once we have results
       } else {
         throw new Error("Invalid analysis result");
       }
@@ -78,7 +78,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       console.error("Error analyzing image:", error);
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
-      setAnalyzing(false); // Make sure to hide analyzing overlay on error
+    } finally {
+      setAnalyzing(false);
     }
   };
 
