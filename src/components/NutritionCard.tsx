@@ -96,7 +96,8 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
           ))}
         </div>
 
-        <div className="mt-4">
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold mb-4">Food Diary</h3>
           <FoodList 
             foods={foods} 
             onDelete={onDelete} 
