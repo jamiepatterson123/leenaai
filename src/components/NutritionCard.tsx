@@ -4,7 +4,7 @@ import { TotalNutrition } from "./nutrition/TotalNutrition";
 import { FoodList } from "./nutrition/FoodList";
 import { useNutritionTargets } from "./nutrition/useNutritionTargets";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { format, formatDistanceToNow, isToday, addDays, subDays } from "date-fns";
+import { format, addDays, subDays } from "date-fns";
 import { MacroProgressBar } from "./MacroProgressBar";
 import { useNavigate } from "react-router-dom";
 
@@ -73,13 +73,6 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
     },
   ];
 
-  const getDateDisplay = (date: Date) => {
-    if (isToday(date)) {
-      return "Today";
-    }
-    return formatDistanceToNow(date, { addSuffix: true });
-  };
-
   return (
     <Card className="p-4 md:p-6 bg-background border-border/5 shadow-lg animate-fade-up w-full">
       <div className="space-y-4 md:space-y-6">
@@ -89,7 +82,9 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
               className="w-6 h-6 text-primary cursor-pointer hover:text-primary/80" 
               onClick={() => handleDateChange('prev')}
             />
-            <h2 className="text-xl md:text-2xl font-bold">{getDateDisplay(selectedDate)}</h2>
+            <h2 className="text-xl md:text-2xl font-bold">
+              {format(selectedDate, "MMMM d, yyyy")}
+            </h2>
             <ChevronRight 
               className="w-6 h-6 text-primary cursor-pointer hover:text-primary/80" 
               onClick={() => handleDateChange('next')}
