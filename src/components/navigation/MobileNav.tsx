@@ -21,9 +21,9 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
 
   const handlePlusClick = () => {
     if (location.pathname === '/food-diary') {
-      onAddClick(); // Open dialog for manual entry when on food diary page
-    } else if (onFileSelect) {
-      fileInputRef.current?.click(); // Trigger file input for image upload
+      fileInputRef.current?.click(); // Always trigger file input on food diary page
+    } else {
+      onAddClick(); // Use dialog for other pages
     }
   };
 
