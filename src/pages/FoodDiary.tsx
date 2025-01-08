@@ -14,19 +14,13 @@ const FoodDiaryPage = () => {
   const [nutritionData, setNutritionData] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const [showImageAnalysis, setShowImageAnalysis] = useState(false);
+  const [showImageAnalysis, setShowImageAnalysis] = useState(true);
 
   // Effect to handle the visibility of ImageAnalysisSection
   useEffect(() => {
-    // If we're coming from verification, don't show the analysis section
     if (location.state?.fromVerification) {
       setShowImageAnalysis(false);
-    } else {
-      setShowImageAnalysis(true);
-    }
-
-    // Reset the location state
-    if (location.state?.fromVerification) {
+      // Clear the location state immediately
       navigate(location.pathname, { replace: true });
     }
   }, [location.state, navigate, location.pathname]);

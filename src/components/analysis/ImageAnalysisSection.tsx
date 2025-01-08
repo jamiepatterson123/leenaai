@@ -54,7 +54,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     cleanupStates();
     toast.error("Failed to analyze image. Please try again.");
     if (isMobile) {
-      navigate("/");
+      navigate("/", { replace: true });
     }
   };
 
@@ -136,7 +136,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       console.error("Error saving food entries:", error);
       toast.error("Failed to save food entries");
       if (isMobile) {
-        navigate("/");
+        navigate("/", { replace: true });
       }
     }
   };
@@ -167,7 +167,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
         onClose={() => {
           cleanupStates();
           if (isMobile) {
-            navigate("/");
+            navigate("/", { replace: true });
           }
         }}
         foods={analyzedFoods}
