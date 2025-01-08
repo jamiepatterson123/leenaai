@@ -5,7 +5,7 @@ import { Toaster } from "sonner";
 import Index from "./pages/Index";
 import FoodDiary from "./pages/FoodDiary";
 import Profile from "./pages/Profile";
-import Reports from "./pages/Reports";
+import { Reports } from "./pages/Reports";
 import { Navigation } from "./components/Navigation";
 
 // Create a client
