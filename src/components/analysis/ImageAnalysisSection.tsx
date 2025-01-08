@@ -43,11 +43,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       return;
     }
 
-    if (analyzing) {
-      toast.error("Please wait for the current analysis to complete");
-      return;
-    }
-
     setAnalyzing(true);
     setResetUpload(false);
     
@@ -63,7 +58,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       if (result?.foods) {
         setAnalyzedFoods(result.foods);
         setShowVerification(true);
-        setAnalyzing(false); // Hide analyzing overlay once we have results
       } else {
         throw new Error("Invalid analysis result");
       }
@@ -71,7 +65,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       console.error("Error analyzing image:", error);
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
-      setAnalyzing(false); // Make sure to hide analyzing overlay on error
+    } finally {
+      setAnalyzing(false); // Always hide analyzing overlay after API call
     }
   };
 
@@ -103,7 +98,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
 
   return (
     <>
-      {analyzing && (
+      {analyzing && !isMobile && (
         <div className="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
           <div className="text-2xl text-gray-700 animate-pulse">
             Analyzing...
@@ -114,8 +109,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
         <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
         <FoodVerificationDialog
           open={showVerification}
-          onOpenChange={() => {
-            setShowVerification(false);
+          onOpenChange={(open) => {
+            setShowVerification(open);
+            if (!open) setAnalyzing(false); // Ensure analyzing is false when dialog is closed
           }}
           foods={analyzedFoods}
           onConfirm={handleConfirmFoods}
