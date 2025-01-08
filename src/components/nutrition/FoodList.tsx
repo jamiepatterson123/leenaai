@@ -112,7 +112,7 @@ export const FoodList: React.FC<FoodListProps> = ({
               {foodsByCategory[category]?.reduce(
                 (total, food) => total + (food.nutrition?.calories || 0),
                 0
-              )}{" "}
+              ) || 0}{" "}
               kcal
             </span>
           </div>
