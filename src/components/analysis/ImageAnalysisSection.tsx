@@ -30,6 +30,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const [analyzedFoods, setAnalyzedFoods] = useState([]);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+  const componentRef = React.useRef<HTMLDivElement>(null);
 
   const handleImageSelect = async (image: File) => {
     if (!image) {
@@ -75,10 +76,16 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     handleImageSelect
   }));
 
+  // Expose handleImageSelect to the window for the mobile navigation
+  React.useEffect(() => {
+    if (componentRef.current) {
+      (componentRef.current as any).handleImageSelect = handleImageSelect;
+    }
+  }, []);
+
   const handleConfirmFoods = async (foods: any[]) => {
     try {
       await saveFoodEntries(foods, selectedDate);
-      // Invalidate the food diary query to trigger a refresh
       await queryClient.invalidateQueries({ 
         queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
       });
@@ -93,7 +100,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" ref={componentRef} data-image-analysis>
       <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
       {analyzing && (
         <p className="text-center text-gray-600 animate-pulse">

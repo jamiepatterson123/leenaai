@@ -1,5 +1,4 @@
 import React from "react";
-import { createRoot } from 'react-dom/client';
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -39,47 +38,21 @@ export const Navigation = () => {
       return;
     }
 
-    setShowAddDialog(false);
+    // Instead of creating a temporary component, we'll use the dialog
+    setShowAddDialog(true);
     setAnalyzing(true);
 
-    try {
-      const imageAnalysisSectionRef = React.createRef<any>();
-
-      const tempComponent = (
-        <ImageAnalysisSection
-          ref={imageAnalysisSectionRef}
-          analyzing={analyzing}
-          setAnalyzing={setAnalyzing}
-          nutritionData={nutritionData}
-          setNutritionData={setNutritionData}
-          selectedDate={selectedDate}
-          onSuccess={() => {
-            queryClient.invalidateQueries({ 
-              queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
-            });
-          }}
-        />
-      );
-
-      const tempContainer = document.createElement('div');
-      document.body.appendChild(tempContainer);
-
-      const root = createRoot(tempContainer);
-      root.render(tempComponent);
-
-      await new Promise(resolve => setTimeout(resolve, 0));
-
-      if (imageAnalysisSectionRef.current) {
-        await imageAnalysisSectionRef.current.handleImageSelect(file);
+    // Use setTimeout to ensure the dialog is rendered before we trigger the analysis
+    setTimeout(() => {
+      const imageAnalysisSection = document.querySelector('[data-image-analysis]');
+      if (imageAnalysisSection && 'handleImageSelect' in imageAnalysisSection) {
+        (imageAnalysisSection as any).handleImageSelect(file);
+      } else {
+        console.error("Image analysis section not found");
+        toast.error("Failed to analyze image");
+        setAnalyzing(false);
       }
-
-      root.unmount();
-      document.body.removeChild(tempContainer);
-    } catch (error) {
-      console.error("Error in handleFileSelect:", error);
-      toast.error("Failed to analyze image");
-      setAnalyzing(false);
-    }
+    }, 100);
   };
 
   return (
