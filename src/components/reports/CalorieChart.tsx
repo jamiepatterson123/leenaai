@@ -26,7 +26,7 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
   return (
     <Card className="p-4 sm:p-6 w-full">
       <div className="flex items-center gap-2 mb-4 sm:mb-6">
-        <h2 className="text-xl sm:text-2xl font-semibold">Calories Consumed</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold">Daily Calories</h2>
         <TooltipProvider>
           <UITooltip>
             <TooltipTrigger>
