@@ -4,8 +4,9 @@ import { TotalNutrition } from "./nutrition/TotalNutrition";
 import { FoodList } from "./nutrition/FoodList";
 import { useNutritionTargets } from "./nutrition/useNutritionTargets";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { format, formatDistanceToNow, isToday } from "date-fns";
+import { format, formatDistanceToNow, isToday, addDays, subDays } from "date-fns";
 import { MacroProgressBar } from "./MacroProgressBar";
+import { useNavigate } from "react-router-dom";
 
 interface NutritionInfo {
   calories: number;
@@ -35,6 +36,15 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
 }) => {
   const totalNutrition = TotalNutrition({ foods });
   const { targets } = useNutritionTargets();
+  const navigate = useNavigate();
+
+  const handleDateChange = (direction: 'prev' | 'next') => {
+    const newDate = direction === 'prev' 
+      ? subDays(selectedDate, 1)
+      : addDays(selectedDate, 1);
+    
+    navigate(`/food-diary?date=${format(newDate, 'yyyy-MM-dd')}`);
+  };
 
   const macros = [
     {
@@ -75,9 +85,15 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
       <div className="space-y-4 md:space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <ChevronLeft className="w-6 h-6 text-primary cursor-pointer hover:text-primary/80" />
+            <ChevronLeft 
+              className="w-6 h-6 text-primary cursor-pointer hover:text-primary/80" 
+              onClick={() => handleDateChange('prev')}
+            />
             <h2 className="text-xl md:text-2xl font-bold">{getDateDisplay(selectedDate)}</h2>
-            <ChevronRight className="w-6 h-6 text-primary cursor-pointer hover:text-primary/80" />
+            <ChevronRight 
+              className="w-6 h-6 text-primary cursor-pointer hover:text-primary/80" 
+              onClick={() => handleDateChange('next')}
+            />
           </div>
           <span className="text-sm text-muted-foreground">
             {format(selectedDate, "EEEE - 'Default Macronutrient Targets'")}
