@@ -106,7 +106,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       toast.success("Food added to diary!");
       
       if (isMobile) {
-        navigate("/food-diary");
+        navigate("/food-diary", { state: { fromVerification: true } });
       } else {
         onSuccess?.();
       }

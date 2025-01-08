@@ -6,11 +6,14 @@ import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useLocation } from "react-router-dom";
 
 const FoodDiaryPage = () => {
   const [date, setDate] = useState<Date>(new Date());
   const [analyzing, setAnalyzing] = useState(false);
   const [nutritionData, setNutritionData] = useState(null);
+  const location = useLocation();
+  const showImageAnalysis = !location.state?.fromVerification;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
@@ -30,13 +33,15 @@ const FoodDiaryPage = () => {
               className="rounded-md"
             />
           </Card>
-          <ImageAnalysisSection
-            analyzing={analyzing}
-            setAnalyzing={setAnalyzing}
-            nutritionData={nutritionData}
-            setNutritionData={setNutritionData}
-            selectedDate={date}
-          />
+          {showImageAnalysis && (
+            <ImageAnalysisSection
+              analyzing={analyzing}
+              setAnalyzing={setAnalyzing}
+              nutritionData={nutritionData}
+              setNutritionData={setNutritionData}
+              selectedDate={date}
+            />
+          )}
         </div>
       </div>
     </div>
