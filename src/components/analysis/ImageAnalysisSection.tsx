@@ -35,8 +35,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const componentRef = React.useRef<HTMLDivElement>(null);
-
-  // Add timeout handling
   const analysisTimeoutRef = React.useRef<NodeJS.Timeout>();
 
   const cleanupStates = () => {
@@ -47,7 +45,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     setNutritionData(null);
     setAnalyzedFoods([]);
     
-    // Clear any pending timeouts
     if (analysisTimeoutRef.current) {
       clearTimeout(analysisTimeoutRef.current);
     }
@@ -67,21 +64,18 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       return;
     }
 
-    console.log("handleImageSelect called with image:", image);
-    
     if (analyzing) {
-      toast.error("Please wait for the current analysis to complete");
-      return;
+      cleanupStates(); // Reset states if there's an ongoing analysis
     }
 
     setAnalyzing(true);
     setShowLoadingScreen(true);
     setResetUpload(false);
+    setShowVerification(false); // Reset verification dialog
 
-    // Set a timeout for the analysis
     analysisTimeoutRef.current = setTimeout(() => {
       handleAnalysisError();
-    }, 30000); // 30 second timeout
+    }, 30000);
     
     try {
       console.log("Starting image analysis...");
@@ -90,7 +84,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
         saveFoodEntries: async () => {}, // Don't save immediately
       });
       
-      // Clear the timeout as analysis succeeded
       if (analysisTimeoutRef.current) {
         clearTimeout(analysisTimeoutRef.current);
       }
@@ -119,11 +112,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       (componentRef.current as any).handleImageSelect = handleImageSelect;
     }
 
-    // Cleanup function
     return () => {
-      if (analysisTimeoutRef.current) {
-        clearTimeout(analysisTimeoutRef.current);
-      }
+      cleanupStates();
     };
   }, []);
 
@@ -176,6 +166,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
         isOpen={showVerification}
         onClose={() => {
           cleanupStates();
+          if (isMobile) {
+            navigate("/");
+          }
         }}
         foods={analyzedFoods}
         onConfirm={handleConfirmFoods}
