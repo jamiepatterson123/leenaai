@@ -104,26 +104,24 @@ export const FoodList: React.FC<FoodListProps> = ({
 
   return (
     <div className="space-y-4">
-      {Object.entries(foodsByCategory).map(([category, categoryFoods]) => (
-        categoryFoods.length > 0 && (
-          <div key={category} className="space-y-2">
-            <div className="flex justify-between items-center p-3 bg-secondary/50 rounded-lg backdrop-blur-sm border border-border/10">
-              <span className="font-medium">{category}</span>
-              <span className="text-sm">
-                {categoryFoods.reduce(
-                  (total, food) => total + (food.nutrition?.calories || 0),
-                  0
-                )}{" "}
-                kcal
-              </span>
-            </div>
-            <div className="space-y-2">
-              {categoryFoods.map((food) => (
-                <FoodItem key={food.id} food={food} />
-              ))}
-            </div>
+      {[...mealCategories, "Uncategorized"].map((category) => (
+        <div key={category} className="space-y-2">
+          <div className="flex justify-between items-center p-3 bg-secondary/50 rounded-lg backdrop-blur-sm border border-border/10">
+            <span className="font-medium">{category}</span>
+            <span className="text-sm">
+              {foodsByCategory[category]?.reduce(
+                (total, food) => total + (food.nutrition?.calories || 0),
+                0
+              )}{" "}
+              kcal
+            </span>
           </div>
-        )
+          <div className="space-y-2">
+            {foodsByCategory[category]?.map((food) => (
+              <FoodItem key={food.id} food={food} />
+            ))}
+          </div>
+        </div>
       ))}
     </div>
   );
