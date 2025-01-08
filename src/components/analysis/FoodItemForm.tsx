@@ -140,7 +140,7 @@ export const FoodItemForm: React.FC<FoodItemFormProps> = ({
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onConfirm={handleSave}
-        foodData={foodData}
+        foodData={[foodData]} // Wrap the single food item in an array
       />
     </div>
   );
