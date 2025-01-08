@@ -85,12 +85,17 @@ export const HabitTracker = () => {
                   <Info className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent 
+                side="bottom"
+                align="center"
+                className="max-w-[250px] text-center"
+              >
                 <p>Any day you log your food will be shaded in green. Try to make the entire calendar green by the end of the month!</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
+        
         <div className="flex items-center justify-between mb-4">
           <Button
             variant="ghost"

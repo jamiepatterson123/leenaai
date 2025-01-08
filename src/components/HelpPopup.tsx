@@ -41,7 +41,8 @@ export const HelpPopup = () => {
         </HoverCardTrigger>
         <HoverCardContent 
           align="end" 
-          className="w-80 p-4"
+          side="top"
+          className="w-80 p-4 mb-2"
           sideOffset={16}
         >
           <div className="space-y-2">
