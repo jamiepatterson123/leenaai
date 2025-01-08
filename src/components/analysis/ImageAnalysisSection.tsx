@@ -101,7 +101,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
 
   if (analyzing && isMobile) {
     return (
-      <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-white flex items-center justify-center z-[100]">
         <div className="text-center space-y-6 px-4">
           <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
           <p className="text-2xl font-semibold text-gray-900 animate-pulse">
@@ -113,7 +113,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   }
 
   return (
-    <div className="space-y-8" ref={componentRef} data-image-analysis>
+    <div className={`space-y-8 ${analyzing && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
       <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
       {analyzing && !isMobile && (
         <p className="text-center text-gray-600 animate-pulse">
