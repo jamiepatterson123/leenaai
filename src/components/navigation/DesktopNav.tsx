@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Home, UtensilsCrossed, Target, ClipboardList, UserCheck, Send } from "lucide-react";
+import { Home, UtensilsCrossed, Target, ClipboardList, UserCheck, Send, LogOut } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -58,6 +58,14 @@ export const DesktopNav = ({
           className="text-muted-foreground"
         >
           <Send className="w-4 h-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={handleSignOut}
+          className="text-muted-foreground"
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Sign out
         </Button>
       </div>
     </div>
