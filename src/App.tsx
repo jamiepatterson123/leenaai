@@ -30,8 +30,8 @@ function App() {
           <Route path="/reports" element={<Reports />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <Toaster position="top-center" richColors />
       </BrowserRouter>
-      <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );
 }
