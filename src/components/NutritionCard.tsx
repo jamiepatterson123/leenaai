@@ -38,7 +38,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
 
   const macros = [
     {
-      name: "Energy",
+      name: "Calories",
       current: totalNutrition.calories,
       target: targets.calories,
       color: "bg-primary"
