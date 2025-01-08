@@ -93,7 +93,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       });
       setResetUpload(true);
       setShowVerification(false);
-      setAnalyzing(false); // Ensure analyzing state is reset
+      setAnalyzing(false);
+      setNutritionData(null); // Reset nutrition data
       toast.success("Food added to diary!");
       
       if (isMobile) {
@@ -107,7 +108,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
   };
 
-  if (analyzing && isMobile) {
+  // Only show loading state if analyzing is true and verification dialog is not shown
+  if (analyzing && !showVerification && isMobile) {
     return (
       <div className="fixed inset-0 bg-white flex items-center justify-center z-[100]">
         <div className="text-center space-y-6 px-4">
@@ -121,9 +123,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   }
 
   return (
-    <div className={`space-y-8 ${analyzing && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
+    <div className={`space-y-8 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
       <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
-      {analyzing && !isMobile && (
+      {analyzing && !showVerification && !isMobile && (
         <p className="text-center text-gray-600 animate-pulse">
           Analyzing your meal...
         </p>
