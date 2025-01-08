@@ -32,6 +32,11 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const isMobile = useIsMobile();
 
   const handleImageSelect = async (image: File) => {
+    if (!image) {
+      toast.error("No image selected");
+      return;
+    }
+
     console.log("handleImageSelect called with image:", image);
     
     if (analyzing) {
@@ -54,19 +59,13 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       if (result?.foods) {
         setAnalyzedFoods(result.foods);
         setShowVerification(true);
+      } else {
+        throw new Error("Invalid analysis result");
       }
     } catch (error) {
       console.error("Error analyzing image:", error);
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
-      
-      if (error instanceof Error) {
-        console.error("Error details:", {
-          message: error.message,
-          stack: error.stack,
-          name: error.name
-        });
-      }
     } finally {
       setAnalyzing(false);
     }
@@ -88,8 +87,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       toast.success("Food added to diary!");
       onSuccess?.();
     } catch (error) {
+      console.error("Error saving food entries:", error);
       toast.error("Failed to save food entries");
-      console.error(error);
     }
   };
 
