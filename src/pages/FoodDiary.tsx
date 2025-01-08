@@ -1,23 +1,29 @@
-import React, { useState } from "react";
+import React from "react";
 import { FoodDiary } from "@/components/FoodDiary";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { useSearchParams } from "react-router-dom";
+import { parse } from "date-fns";
 
 const FoodDiaryPage = () => {
-  const [date, setDate] = useState<Date>(new Date());
-  const [analyzing, setAnalyzing] = useState(false);
-  const [nutritionData, setNutritionData] = useState(null);
+  const [searchParams] = useSearchParams();
+  const dateParam = searchParams.get('date');
+  
+  // Parse the date from URL or use current date as fallback
+  const selectedDate = dateParam 
+    ? parse(dateParam, 'yyyy-MM-dd', new Date())
+    : new Date();
+
+  const [analyzing, setAnalyzing] = React.useState(false);
+  const [nutritionData, setNutritionData] = React.useState(null);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       <div className="grid grid-cols-1 md:grid-cols-[1fr,300px] gap-6">
         {/* Main content area - nutrition info */}
         <div className="order-1 md:order-1">
-          <FoodDiary selectedDate={date} />
+          <FoodDiary selectedDate={selectedDate} />
         </div>
         
         {/* Sidebar - calendar and image analysis */}
@@ -25,8 +31,8 @@ const FoodDiaryPage = () => {
           <Card className="p-4">
             <Calendar
               mode="single"
-              selected={date}
-              onSelect={(newDate) => newDate && setDate(newDate)}
+              selected={selectedDate}
+              onSelect={(newDate) => newDate && setSearchParams({ date: format(newDate, 'yyyy-MM-dd') })}
               className="rounded-md"
             />
           </Card>
@@ -35,7 +41,7 @@ const FoodDiaryPage = () => {
             setAnalyzing={setAnalyzing}
             nutritionData={nutritionData}
             setNutritionData={setNutritionData}
-            selectedDate={date}
+            selectedDate={selectedDate}
           />
         </div>
       </div>
