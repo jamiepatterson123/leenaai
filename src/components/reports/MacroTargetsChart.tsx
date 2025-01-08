@@ -41,19 +41,19 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
       name: "Protein",
       value: averages.protein / data.length,
       target: targets.protein,
-      color: "#ef4444",
+      color: "#9b87f5",
     },
     {
       name: "Carbs",
       value: averages.carbs / data.length,
       target: targets.carbs,
-      color: "#eab308",
+      color: "#7E69AB",
     },
     {
       name: "Fat",
       value: averages.fat / data.length,
       target: targets.fat,
-      color: "#3b82f6",
+      color: "#8E9196",
     },
   ];
 
@@ -118,7 +118,7 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
             />
             <Bar
               dataKey="target"
-              fill="hsl(var(--primary))"
+              fill="#8E9196"
               name="Target"
               barSize={20}
             />

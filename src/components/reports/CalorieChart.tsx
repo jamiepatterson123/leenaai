@@ -40,44 +40,35 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
       </div>
       <div className="w-full aspect-[4/3] max-h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart 
-            data={data}
-            layout="vertical"
-            margin={{ top: 5, right: 30, left: 80, bottom: 5 }}
-          >
+          <BarChart data={data}>
             <XAxis
-              type="number"
-              stroke="#888888"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-            />
-            <YAxis
-              type="category"
               dataKey="date"
               stroke="#888888"
               fontSize={12}
               tickLine={false}
               axisLine={false}
+              interval="preserveStartEnd"
               tickMargin={8}
-              width={75}
+            />
+            <YAxis
+              stroke="#888888"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
             />
             <Tooltip
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   return (
                     <div className="rounded-lg border bg-background p-2 shadow-sm">
-                      <div className="grid gap-2">
-                        <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-primary" />
-                          <span className="text-[0.70rem] uppercase text-muted-foreground">
-                            Calories
-                          </span>
-                          <span className="font-bold text-muted-foreground">
-                            {payload[0].value} kcal
-                          </span>
-                        </div>
+                      <div className="flex flex-col">
+                        <span className="text-[0.70rem] uppercase text-muted-foreground">
+                          Calories
+                        </span>
+                        <span className="font-bold text-muted-foreground">
+                          {payload[0].value} kcal
+                        </span>
                       </div>
                     </div>
                   );
@@ -87,7 +78,7 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
             />
             <Bar
               dataKey="calories"
-              fill="hsl(var(--primary))"
+              fill="#9b87f5"
               radius={[4, 4, 0, 0]}
               name="Consumed"
               barSize={20}
