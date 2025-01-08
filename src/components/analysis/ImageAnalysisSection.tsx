@@ -71,7 +71,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
     } finally {
-      setAnalyzing(false);
+      if (!showVerification) {
+        setAnalyzing(false);
+      }
     }
   };
 
@@ -91,13 +93,21 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       await queryClient.invalidateQueries({ 
         queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
       });
+      
+      // Reset all states before navigation
       setResetUpload(true);
       setShowVerification(false);
-      setAnalyzing(false); // Ensure analyzing state is reset
+      setAnalyzing(false);
+      setNutritionData(null);
+      setAnalyzedFoods([]);
+      
       toast.success("Food added to diary!");
       
       if (isMobile) {
-        navigate("/food-diary"); // Redirect to food diary on mobile
+        // Ensure all UI elements are hidden before navigation
+        setTimeout(() => {
+          navigate("/food-diary");
+        }, 0);
       } else {
         onSuccess?.();
       }
@@ -130,7 +140,10 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       )}
       <FoodVerificationDialog
         isOpen={showVerification}
-        onClose={() => setShowVerification(false)}
+        onClose={() => {
+          setShowVerification(false);
+          setAnalyzing(false);
+        }}
         foods={analyzedFoods}
         onConfirm={handleConfirmFoods}
       />
