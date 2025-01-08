@@ -43,22 +43,25 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       return;
     }
 
+    if (analyzing) {
+      toast.error("Please wait for the current analysis to complete");
+      return;
+    }
+
     setAnalyzing(true);
     setResetUpload(false);
-    setShowVerification(false);
     
     try {
       console.log("Starting image analysis...");
       const result = await analyzeImage(image, {
         setNutritionData,
-        saveFoodEntries: async () => {},
+        saveFoodEntries: async () => {}, // Don't save immediately
       });
       
       console.log("Analysis result:", result);
       
       if (result?.foods) {
         setAnalyzedFoods(result.foods);
-        setAnalyzing(false);
         setShowVerification(true);
       } else {
         throw new Error("Invalid analysis result");
@@ -67,6 +70,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       console.error("Error analyzing image:", error);
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
+    } finally {
       setAnalyzing(false);
     }
   };
@@ -97,30 +101,26 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
   };
 
-  return (
-    <>
-      {analyzing && !isMobile && (
-        <div className="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
-          <div className="text-2xl text-gray-700 animate-pulse">
-            Analyzing...
-          </div>
+  if (analyzing) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[300px] bg-white p-8">
+        <div className="text-xl text-gray-700 mb-4 animate-pulse">
+          Analyzing...
         </div>
-      )}
-      <div className="space-y-8" ref={componentRef} data-image-analysis>
-        {!analyzing && (
-          <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
-        )}
-        <FoodVerificationDialog
-          open={showVerification}
-          onOpenChange={(open) => {
-            setShowVerification(open);
-            if (!open) setAnalyzing(false);
-          }}
-          foods={analyzedFoods}
-          onConfirm={handleConfirmFoods}
-        />
       </div>
-    </>
+    );
+  }
+
+  return (
+    <div className="space-y-8" ref={componentRef} data-image-analysis>
+      <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
+      <FoodVerificationDialog
+        open={showVerification}
+        onOpenChange={() => setShowVerification(false)}
+        foods={analyzedFoods}
+        onConfirm={handleConfirmFoods}
+      />
+    </div>
   );
 });
 
