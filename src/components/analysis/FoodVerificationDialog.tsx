@@ -67,20 +67,15 @@ export const FoodVerificationDialog = ({
             />
           ))}
         </div>
-        <DialogFooter className="bg-background pt-2 flex-col-reverse sm:flex-row gap-3">
+        <DialogFooter className="bg-background pt-2">
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button 
             onClick={() => onConfirm(editedFoods)}
             disabled={updating !== null || editedFoods.length === 0}
-            className="w-full sm:w-auto order-2 sm:order-1"
           >
             Add to Diary
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={onClose} 
-            className="w-full sm:w-auto order-1 sm:order-2"
-          >
-            Cancel
           </Button>
         </DialogFooter>
       </DialogContent>
