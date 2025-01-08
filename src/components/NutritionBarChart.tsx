@@ -53,6 +53,14 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
               <stop offset="0%" stopColor="#1e293b" />
               <stop offset="100%" stopColor="#334155" />
             </linearGradient>
+            <linearGradient id="proteinGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#ef4444" />
+              <stop offset="100%" stopColor="#dc2626" />
+            </linearGradient>
+            <linearGradient id="fatGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#22c55e" />
+              <stop offset="100%" stopColor="#15803d" />
+            </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
           <XAxis type="number" className="text-xs font-medium" />
@@ -116,12 +124,20 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
             radius={[0, 4, 4, 0]}
             barSize={30}
           >
-            {data.map((entry, index) => (
-              <Cell 
-                key={`cell-${index}`} 
-                fill={getBarColor(entry.value, entry.target)}
-              />
-            ))}
+            {data.map((entry, index) => {
+              let fillColor = getBarColor(entry.value, entry.target);
+              if (entry.name === "Protein") {
+                fillColor = "url(#proteinGradient)";
+              } else if (entry.name === "Fat") {
+                fillColor = "url(#fatGradient)";
+              }
+              return (
+                <Cell 
+                  key={`cell-${index}`} 
+                  fill={fillColor}
+                />
+              );
+            })}
           </Bar>
         </BarChart>
       </ResponsiveContainer>

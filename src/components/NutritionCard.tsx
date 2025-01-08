@@ -47,7 +47,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
       name: "Protein",
       current: totalNutrition.protein,
       target: targets.protein,
-      color: "bg-green-500"
+      color: "bg-red-500"
     },
     {
       name: "Carbs",
@@ -59,7 +59,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
       name: "Fat",
       current: totalNutrition.fat,
       target: targets.fat,
-      color: "bg-red-500"
+      color: "bg-green-500"
     },
   ];
 
