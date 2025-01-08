@@ -101,10 +101,10 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
 
   if (analyzing && isMobile) {
     return (
-      <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
-        <div className="text-center space-y-6 px-4">
-          <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
-          <p className="text-2xl font-semibold text-gray-900 animate-pulse">
+      <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+          <p className="text-xl font-semibold animate-pulse">
             Analyzing your meal...
           </p>
         </div>
