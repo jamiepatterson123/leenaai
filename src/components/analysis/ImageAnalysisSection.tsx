@@ -88,11 +88,13 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       });
       setResetUpload(true);
       setShowVerification(false);
+      setAnalyzing(false); // Ensure analyzing is false after saving
       toast.success("Food added to diary!");
       onSuccess?.();
     } catch (error) {
       console.error("Error saving food entries:", error);
       toast.error("Failed to save food entries");
+      setAnalyzing(false); // Ensure analyzing is false on error
     }
   };
 
