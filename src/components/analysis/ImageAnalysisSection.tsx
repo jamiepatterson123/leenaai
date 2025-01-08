@@ -20,10 +20,9 @@ interface ImageAnalysisSectionProps {
 }
 
 const loadingMessages = [
-  "Analyzing your meal...",
   "Counting calories...",
-  "Calculating protein...",
   "Calculating carbs...",
+  "Calculating protein...",
   "Calculating fats..."
 ];
 
@@ -135,7 +134,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       <div className="fixed inset-0 bg-white flex items-center justify-center z-[100]">
         <div className="text-center space-y-6 px-4">
           <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
-          <p className="text-2xl font-semibold text-gray-500 animate-fade-in">
+          <p className="text-2xl font-light text-gray-500 animate-fade-in">
             {loadingMessages[currentMessageIndex]}
           </p>
         </div>
@@ -147,7 +146,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     <div className={`space-y-8 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
       <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
       {analyzing && !showVerification && !isMobile && (
-        <p className="text-center text-gray-500 animate-fade-in">
+        <p className="text-center text-gray-500 animate-fade-in font-light">
           {loadingMessages[currentMessageIndex]}
         </p>
       )}
