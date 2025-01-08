@@ -1,7 +1,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subMonths, addMonths } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subMonths, addMonths, lastDayOfMonth } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -35,6 +35,30 @@ export const HabitTracker = () => {
 
   const handleNextMonth = () => {
     setCurrentDate(prev => addMonths(prev, 1));
+  };
+
+  // Get the days from previous month that should appear in the calendar
+  const getPreviousMonthDays = () => {
+    const firstDayOfMonth = startOfMonth(currentDate);
+    const daysFromPreviousMonth = firstDayOfMonth.getDay();
+    const previousMonth = subMonths(firstDayOfMonth, 1);
+    const lastDayOfPreviousMonth = lastDayOfMonth(previousMonth);
+    
+    return Array.from({ length: daysFromPreviousMonth }, (_, i) => {
+      const day = lastDayOfPreviousMonth.getDate() - daysFromPreviousMonth + i + 1;
+      return { date: new Date(previousMonth.getFullYear(), previousMonth.getMonth(), day), isPreviousMonth: true };
+    });
+  };
+
+  // Get the days from next month that should appear in the calendar
+  const getNextMonthDays = () => {
+    const lastDayOfMonth = endOfMonth(currentDate);
+    const remainingDays = 6 - lastDayOfMonth.getDay();
+    const nextMonth = addMonths(currentDate, 1);
+    
+    return Array.from({ length: remainingDays }, (_, i) => {
+      return { date: new Date(nextMonth.getFullYear(), nextMonth.getMonth(), i + 1), isNextMonth: true };
+    });
   };
 
   return (
@@ -72,8 +96,15 @@ export const HabitTracker = () => {
         </div>
 
         <div className="grid grid-cols-7 gap-1">
-          {Array.from({ length: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay() }).map((_, i) => (
-            <div key={`empty-${i}`} className="aspect-square" />
+          {getPreviousMonthDays().map(({ date }) => (
+            <div
+              key={date.toISOString()}
+              className="aspect-square rounded-sm border border-border/50 flex items-center justify-center"
+            >
+              <span className="text-xs text-muted-foreground/50">
+                {format(date, "d")}
+              </span>
+            </div>
           ))}
           
           {days.map(day => {
@@ -96,6 +127,17 @@ export const HabitTracker = () => {
               </div>
             );
           })}
+
+          {getNextMonthDays().map(({ date }) => (
+            <div
+              key={date.toISOString()}
+              className="aspect-square rounded-sm border border-border/50 flex items-center justify-center"
+            >
+              <span className="text-xs text-muted-foreground/50">
+                {format(date, "d")}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
