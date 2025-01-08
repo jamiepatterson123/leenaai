@@ -4,10 +4,10 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
 import { useSearchParams } from "react-router-dom";
-import { parse } from "date-fns";
+import { parse, format } from "date-fns";
 
 const FoodDiaryPage = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const dateParam = searchParams.get('date');
   
   // Parse the date from URL or use current date as fallback
