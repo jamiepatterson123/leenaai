@@ -103,8 +103,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
 
   if (analyzing) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[300px] bg-white p-8">
-        <div className="text-xl text-gray-700 mb-4 animate-pulse">
+      <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div className="text-2xl text-gray-700 animate-pulse">
           Analyzing...
         </div>
       </div>
