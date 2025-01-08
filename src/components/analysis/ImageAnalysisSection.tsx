@@ -93,6 +93,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       });
       setResetUpload(true);
       setShowVerification(false);
+      setAnalyzing(false); // Ensure analyzing state is reset
       toast.success("Food added to diary!");
       onSuccess?.();
     } catch (error) {
@@ -101,26 +102,28 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
   };
 
-  if (analyzing) {
-    return (
-      <div className="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
-        <div className="text-2xl text-gray-700 animate-pulse">
-          Analyzing...
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-8" ref={componentRef} data-image-analysis>
-      <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
-      <FoodVerificationDialog
-        open={showVerification}
-        onOpenChange={() => setShowVerification(false)}
-        foods={analyzedFoods}
-        onConfirm={handleConfirmFoods}
-      />
-    </div>
+    <>
+      {analyzing && (
+        <div className="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
+          <div className="text-2xl text-gray-700 animate-pulse">
+            Analyzing...
+          </div>
+        </div>
+      )}
+      <div className="space-y-8" ref={componentRef} data-image-analysis>
+        <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
+        <FoodVerificationDialog
+          open={showVerification}
+          onOpenChange={() => {
+            setShowVerification(false);
+            setAnalyzing(false); // Ensure analyzing state is reset when dialog is closed
+          }}
+          foods={analyzedFoods}
+          onConfirm={handleConfirmFoods}
+        />
+      </div>
+    </>
   );
 });
 
