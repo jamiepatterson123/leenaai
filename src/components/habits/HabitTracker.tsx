@@ -39,38 +39,38 @@ export const HabitTracker = () => {
   };
 
   return (
-    <Card className="p-4 animate-fade-up">
-      <div className="flex items-center justify-between mb-4">
+    <Card className="p-3 animate-fade-up">
+      <div className="flex items-center justify-between mb-2">
         <Button
           variant="ghost"
           size="icon"
           onClick={handlePreviousMonth}
-          className="h-8 w-8"
+          className="h-6 w-6"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-3 w-3" />
         </Button>
-        <h2 className="text-lg font-semibold">
+        <h2 className="text-sm font-semibold">
           {format(currentDate, "MMMM yyyy")}
         </h2>
         <Button
           variant="ghost"
           size="icon"
           onClick={handleNextMonth}
-          className="h-8 w-8"
+          className="h-6 w-6"
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-3 w-3" />
         </Button>
       </div>
       
-      <div className="grid grid-cols-7 gap-1 text-center mb-2">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
-          <div key={day} className="text-xs text-muted-foreground">
+      <div className="grid grid-cols-7 gap-0.5 text-center mb-1">
+        {["S", "M", "T", "W", "T", "F", "S"].map(day => (
+          <div key={day} className="text-[10px] text-muted-foreground">
             {day}
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-0.5">
         {Array.from({ length: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay() }).map((_, i) => (
           <div key={`empty-${i}`} className="aspect-square" />
         ))}
@@ -84,12 +84,12 @@ export const HabitTracker = () => {
             <div
               key={day.toISOString()}
               className={`
-                aspect-square rounded-sm border
+                aspect-square rounded-[2px] border text-center flex items-center justify-center
                 ${isLogged ? 'bg-success/20 border-success/30' : 'border-border/50'}
                 transition-colors duration-200
               `}
             >
-              <span className="text-xs text-muted-foreground">
+              <span className="text-[9px] text-muted-foreground">
                 {format(day, "d")}
               </span>
             </div>
