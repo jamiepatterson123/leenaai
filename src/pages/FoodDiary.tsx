@@ -3,9 +3,6 @@ import { FoodDiary } from "@/components/FoodDiary";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const FoodDiaryPage = () => {
@@ -14,13 +11,18 @@ const FoodDiaryPage = () => {
   const [nutritionData, setNutritionData] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const [showImageAnalysis, setShowImageAnalysis] = useState(true);
+  // Initialize to false by default - only show when explicitly needed
+  const [showImageAnalysis, setShowImageAnalysis] = useState(false);
 
-  // Effect to handle the visibility of ImageAnalysisSection
   useEffect(() => {
+    // Show image analysis only if we're not coming from verification
+    if (!location.state?.fromVerification) {
+      setShowImageAnalysis(true);
+    }
+
+    // Clear location state if coming from verification
     if (location.state?.fromVerification) {
       setShowImageAnalysis(false);
-      // Clear the location state immediately
       navigate(location.pathname, { replace: true });
     }
   }, [location.state, navigate, location.pathname]);
