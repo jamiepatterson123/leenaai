@@ -40,22 +40,28 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
       </div>
       <div className="w-full aspect-[4/3] max-h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data}>
+          <BarChart 
+            data={data}
+            layout="vertical"
+            margin={{ top: 5, right: 30, left: 80, bottom: 5 }}
+          >
             <XAxis
+              type="number"
+              stroke="#888888"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+            />
+            <YAxis
+              type="category"
               dataKey="date"
               stroke="#888888"
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              interval="preserveStartEnd"
               tickMargin={8}
-            />
-            <YAxis
-              stroke="#888888"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
+              width={75}
             />
             <Tooltip
               content={({ active, payload }) => {
