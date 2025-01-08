@@ -36,6 +36,31 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const navigate = useNavigate();
   const componentRef = React.useRef<HTMLDivElement>(null);
 
+  // Add timeout handling
+  const analysisTimeoutRef = React.useRef<NodeJS.Timeout>();
+
+  const cleanupStates = () => {
+    setResetUpload(true);
+    setShowVerification(false);
+    setAnalyzing(false);
+    setShowLoadingScreen(false);
+    setNutritionData(null);
+    setAnalyzedFoods([]);
+    
+    // Clear any pending timeouts
+    if (analysisTimeoutRef.current) {
+      clearTimeout(analysisTimeoutRef.current);
+    }
+  };
+
+  const handleAnalysisError = () => {
+    cleanupStates();
+    toast.error("Failed to analyze image. Please try again.");
+    if (isMobile) {
+      navigate("/");
+    }
+  };
+
   const handleImageSelect = async (image: File) => {
     if (!image) {
       toast.error("No image selected");
@@ -52,6 +77,11 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     setAnalyzing(true);
     setShowLoadingScreen(true);
     setResetUpload(false);
+
+    // Set a timeout for the analysis
+    analysisTimeoutRef.current = setTimeout(() => {
+      handleAnalysisError();
+    }, 30000); // 30 second timeout
     
     try {
       console.log("Starting image analysis...");
@@ -60,19 +90,23 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
         saveFoodEntries: async () => {}, // Don't save immediately
       });
       
+      // Clear the timeout as analysis succeeded
+      if (analysisTimeoutRef.current) {
+        clearTimeout(analysisTimeoutRef.current);
+      }
+      
       console.log("Analysis result:", result);
       
-      if (result?.foods) {
+      if (result?.foods && Array.isArray(result.foods) && result.foods.length > 0) {
         setAnalyzedFoods(result.foods);
+        setShowLoadingScreen(false);
         setShowVerification(true);
       } else {
         throw new Error("Invalid analysis result");
       }
     } catch (error) {
       console.error("Error analyzing image:", error);
-      const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
-      toast.error(errorMessage);
-      setShowLoadingScreen(false);
+      handleAnalysisError();
     }
   };
 
@@ -84,16 +118,14 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     if (componentRef.current) {
       (componentRef.current as any).handleImageSelect = handleImageSelect;
     }
-  }, []);
 
-  const cleanupStates = () => {
-    setResetUpload(true);
-    setShowVerification(false);
-    setAnalyzing(false);
-    setShowLoadingScreen(false);
-    setNutritionData(null);
-    setAnalyzedFoods([]);
-  };
+    // Cleanup function
+    return () => {
+      if (analysisTimeoutRef.current) {
+        clearTimeout(analysisTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleConfirmFoods = async (foods: any[]) => {
     try {
@@ -113,6 +145,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     } catch (error) {
       console.error("Error saving food entries:", error);
       toast.error("Failed to save food entries");
+      if (isMobile) {
+        navigate("/");
+      }
     }
   };
 
