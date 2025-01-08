@@ -15,6 +15,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { TimeRange } from "./TimeRangeSelector";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface WeightTrendChartProps {
   data: {
@@ -25,6 +27,35 @@ interface WeightTrendChartProps {
 }
 
 export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
+  // Fetch user's preferred units
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("preferred_units")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      return data;
+    },
+  });
+
+  const preferredUnits = profile?.preferred_units || 'metric';
+  
+  // Convert weight data based on preferred units
+  const convertedData = data.map(entry => ({
+    ...entry,
+    weight: preferredUnits === 'imperial' 
+      ? Math.round(entry.weight * 2.20462 * 10) / 10 // kg to lbs with 1 decimal
+      : entry.weight
+  }));
+
+  const unitLabel = preferredUnits === 'imperial' ? 'lbs' : 'kg';
+
   return (
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-6">
@@ -42,7 +73,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
       </div>
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
+          <LineChart data={convertedData}>
             <defs>
               <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="rgb(14, 165, 233)" stopOpacity={0.3} />
@@ -61,7 +92,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => `${value}kg`}
+              tickFormatter={(value) => `${value}${unitLabel}`}
             />
             <Tooltip
               content={({ active, payload }) => {
@@ -74,7 +105,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
                             Weight
                           </span>
                           <span className="ml-2 font-bold">
-                            {payload[0].value}kg
+                            {payload[0].value}{unitLabel}
                           </span>
                         </div>
                       </div>
