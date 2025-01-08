@@ -4,19 +4,28 @@ import { MobileNav } from "./navigation/MobileNav";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 export const Navigation = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
   const [nutritionData, setNutritionData] = React.useState(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const selectedDate = new Date();
 
   const handleShare = () => {
     // Implement share functionality
   };
 
-  const handleSignOut = () => {
-    // Implement sign out functionality
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate("/auth");
+      toast.success("Signed out successfully");
+    } catch (error) {
+      toast.error("Error signing out");
+    }
   };
 
   const theme = "light" as const;
@@ -37,7 +46,6 @@ export const Navigation = () => {
 
     setAnalyzing(true);
 
-    // Use setTimeout to ensure the analysis section is rendered
     setTimeout(() => {
       const imageAnalysisSection = document.querySelector('[data-image-analysis]');
       if (imageAnalysisSection && 'handleImageSelect' in imageAnalysisSection) {
