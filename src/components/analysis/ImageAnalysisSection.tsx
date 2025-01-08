@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
+import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "sonner";
 import { analyzeImage } from "./ImageAnalyzer";
@@ -8,7 +8,6 @@ import { format } from "date-fns";
 import { FoodVerificationDialog } from "./FoodVerificationDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 interface ImageAnalysisSectionProps {
   analyzing: boolean;
@@ -30,33 +29,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const [resetUpload, setResetUpload] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [analyzedFoods, setAnalyzedFoods] = useState([]);
-  const [showLoadingScreen, setShowLoadingScreen] = useState(false);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
   const componentRef = React.useRef<HTMLDivElement>(null);
-  const analysisTimeoutRef = React.useRef<NodeJS.Timeout>();
-
-  const cleanupStates = () => {
-    setResetUpload(true);
-    setShowVerification(false);
-    setAnalyzing(false);
-    setShowLoadingScreen(false);
-    setNutritionData(null);
-    setAnalyzedFoods([]);
-    
-    if (analysisTimeoutRef.current) {
-      clearTimeout(analysisTimeoutRef.current);
-    }
-  };
-
-  const handleAnalysisError = () => {
-    cleanupStates();
-    toast.error("Failed to analyze image. Please try again.");
-    if (isMobile) {
-      navigate("/", { replace: true });
-    }
-  };
 
   const handleImageSelect = async (image: File) => {
     if (!image) {
@@ -64,39 +39,37 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       return;
     }
 
+    console.log("handleImageSelect called with image:", image);
+    
     if (analyzing) {
-      cleanupStates();
+      toast.error("Please wait for the current analysis to complete");
+      return;
     }
 
     setAnalyzing(true);
-    setShowLoadingScreen(true);
     setResetUpload(false);
-    setShowVerification(false);
-
-    analysisTimeoutRef.current = setTimeout(() => {
-      handleAnalysisError();
-    }, 30000);
     
     try {
+      console.log("Starting image analysis...");
       const result = await analyzeImage(image, {
         setNutritionData,
-        saveFoodEntries: async () => {},
+        saveFoodEntries: async () => {}, // Don't save immediately
       });
       
-      if (analysisTimeoutRef.current) {
-        clearTimeout(analysisTimeoutRef.current);
-      }
+      console.log("Analysis result:", result);
       
-      if (result?.foods && Array.isArray(result.foods) && result.foods.length > 0) {
+      if (result?.foods) {
         setAnalyzedFoods(result.foods);
-        setShowLoadingScreen(false);
         setShowVerification(true);
       } else {
         throw new Error("Invalid analysis result");
       }
     } catch (error) {
       console.error("Error analyzing image:", error);
-      handleAnalysisError();
+      const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
+      toast.error(errorMessage);
+    } finally {
+      setAnalyzing(false);
     }
   };
 
@@ -104,44 +77,29 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     handleImageSelect
   }));
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (componentRef.current) {
       (componentRef.current as any).handleImageSelect = handleImageSelect;
     }
-
-    return () => {
-      cleanupStates();
-    };
   }, []);
 
-  const handleConfirmFoods = async () => {
+  const handleConfirmFoods = async (foods: any[]) => {
     try {
-      await saveFoodEntries(analyzedFoods, selectedDate);
+      await saveFoodEntries(foods, selectedDate);
       await queryClient.invalidateQueries({ 
         queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
       });
-      
-      cleanupStates();
+      setResetUpload(true);
+      setShowVerification(false);
       toast.success("Food added to diary!");
-      
-      if (isMobile) {
-        navigate("/food-diary", { 
-          state: { fromVerification: true },
-          replace: true 
-        });
-      } else {
-        onSuccess?.();
-      }
+      onSuccess?.();
     } catch (error) {
       console.error("Error saving food entries:", error);
       toast.error("Failed to save food entries");
-      if (isMobile) {
-        navigate("/", { replace: true });
-      }
     }
   };
 
-  if (showLoadingScreen && isMobile) {
+  if (analyzing && isMobile) {
     return (
       <div className="fixed inset-0 bg-white flex items-center justify-center z-[100]">
         <div className="text-center space-y-6 px-4">
@@ -163,9 +121,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
         </p>
       )}
       <FoodVerificationDialog
-        open={showVerification}
-        onOpenChange={setShowVerification}
-        foodData={analyzedFoods}
+        isOpen={showVerification}
+        onClose={() => setShowVerification(false)}
+        foods={analyzedFoods}
         onConfirm={handleConfirmFoods}
       />
     </div>
