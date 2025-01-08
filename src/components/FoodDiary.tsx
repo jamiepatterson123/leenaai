@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { NutritionCard } from "./NutritionCard";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { useEffect } from "react";
 
 interface FoodDiaryProps {
   selectedDate: Date;
@@ -12,6 +13,34 @@ interface FoodDiaryProps {
 export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
   const queryClient = useQueryClient();
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
+
+  // Set up real-time listeners for food diary changes
+  useEffect(() => {
+    const foodDiaryChannel = supabase
+      .channel('food_diary_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'food_diary'
+        },
+        () => {
+          // Invalidate and refetch all relevant queries
+          queryClient.invalidateQueries({ queryKey: ['foodDiary'] });
+          queryClient.invalidateQueries({ queryKey: ['calorieHistory'] });
+          queryClient.invalidateQueries({ queryKey: ['macroHistory'] });
+          queryClient.invalidateQueries({ queryKey: ['mealDistribution'] });
+          console.log('Food diary data updated, refreshing queries...');
+        }
+      )
+      .subscribe();
+
+    // Cleanup function
+    return () => {
+      supabase.removeChannel(foodDiaryChannel);
+    };
+  }, [queryClient]);
 
   const { data: foodEntries, isLoading } = useQuery({
     queryKey: ["foodDiary", formattedDate],
@@ -32,9 +61,9 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
       console.log("Fetched food entries:", data);
       return data || [];
     },
-    staleTime: 1000, // Add staleTime to prevent unnecessary refetches
-    refetchOnMount: true, // Ensure data is fresh when component mounts
-    refetchOnWindowFocus: true, // Refresh data when window regains focus
+    staleTime: 1000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const handleDelete = async (id: string) => {
