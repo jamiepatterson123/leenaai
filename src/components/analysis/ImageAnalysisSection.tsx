@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
+import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "sonner";
 import { analyzeImage } from "./ImageAnalyzer";
@@ -7,7 +7,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { FoodVerificationDialog } from "./FoodVerificationDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useLocation } from "react-router-dom";
 
 interface ImageAnalysisSectionProps {
   analyzing: boolean;
@@ -32,13 +31,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const componentRef = React.useRef<HTMLDivElement>(null);
-  const location = useLocation();
-
-  // Reset analyzing state on route change and component unmount
-  useEffect(() => {
-    setAnalyzing(false);
-    return () => setAnalyzing(false);
-  }, [location.pathname, setAnalyzing]);
 
   const handleImageSelect = async (image: File) => {
     if (!image) {
@@ -71,6 +63,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       if (result?.foods) {
         setAnalyzedFoods(result.foods);
         setShowVerification(true);
+        setAnalyzing(false); // Hide analyzing overlay once we have results
       } else {
         throw new Error("Invalid analysis result");
       }
@@ -78,8 +71,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       console.error("Error analyzing image:", error);
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
-    } finally {
-      setAnalyzing(false);
+      setAnalyzing(false); // Make sure to hide analyzing overlay on error
     }
   };
 
@@ -111,7 +103,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
 
   return (
     <>
-      {analyzing && !isMobile && (
+      {analyzing && (
         <div className="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
           <div className="text-2xl text-gray-700 animate-pulse">
             Analyzing...
