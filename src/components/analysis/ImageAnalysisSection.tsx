@@ -7,6 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { FoodVerificationDialog } from "./FoodVerificationDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Loader2 } from "lucide-react";
 
 interface ImageAnalysisSectionProps {
   analyzing: boolean;
@@ -76,7 +77,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     handleImageSelect
   }));
 
-  // Expose handleImageSelect to the window for the mobile navigation
   React.useEffect(() => {
     if (componentRef.current) {
       (componentRef.current as any).handleImageSelect = handleImageSelect;
@@ -99,10 +99,23 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
   };
 
+  if (analyzing && isMobile) {
+    return (
+      <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+          <p className="text-xl font-semibold animate-pulse">
+            Analyzing your meal...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8" ref={componentRef} data-image-analysis>
       <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
-      {analyzing && (
+      {analyzing && !isMobile && (
         <p className="text-center text-gray-600 animate-pulse">
           Analyzing your meal...
         </p>
