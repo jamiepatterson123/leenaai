@@ -30,7 +30,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const [resetUpload, setResetUpload] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [analyzedFoods, setAnalyzedFoods] = useState([]);
-  const [showLoadingScreen, setShowLoadingScreen] = useState(false);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -50,7 +49,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
 
     setAnalyzing(true);
-    setShowLoadingScreen(true);
     setResetUpload(false);
     
     try {
@@ -72,7 +70,10 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       console.error("Error analyzing image:", error);
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
-      setShowLoadingScreen(false);
+    } finally {
+      if (!showVerification) {
+        setAnalyzing(false);
+      }
     }
   };
 
@@ -86,15 +87,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
   }, []);
 
-  const cleanupStates = () => {
-    setResetUpload(true);
-    setShowVerification(false);
-    setAnalyzing(false);
-    setShowLoadingScreen(false);
-    setNutritionData(null);
-    setAnalyzedFoods([]);
-  };
-
   const handleConfirmFoods = async (foods: any[]) => {
     try {
       await saveFoodEntries(foods, selectedDate);
@@ -102,11 +94,20 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
         queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
       });
       
-      cleanupStates();
+      // Reset all states before navigation
+      setResetUpload(true);
+      setShowVerification(false);
+      setAnalyzing(false);
+      setNutritionData(null);
+      setAnalyzedFoods([]);
+      
       toast.success("Food added to diary!");
       
       if (isMobile) {
-        navigate("/food-diary");
+        // Ensure all UI elements are hidden before navigation
+        setTimeout(() => {
+          navigate("/food-diary");
+        }, 0);
       } else {
         onSuccess?.();
       }
@@ -116,7 +117,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
   };
 
-  if (showLoadingScreen && isMobile) {
+  if (analyzing && isMobile) {
     return (
       <div className="fixed inset-0 bg-white flex items-center justify-center z-[100]">
         <div className="text-center space-y-6 px-4">
@@ -140,7 +141,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       <FoodVerificationDialog
         isOpen={showVerification}
         onClose={() => {
-          cleanupStates();
+          setShowVerification(false);
+          setAnalyzing(false);
         }}
         foods={analyzedFoods}
         onConfirm={handleConfirmFoods}
