@@ -2,9 +2,15 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subMonths, addMonths, lastDayOfMonth } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const HabitTracker = () => {
   const [currentDate, setCurrentDate] = React.useState(new Date());
@@ -70,7 +76,21 @@ export const HabitTracker = () => {
   return (
     <div className="w-full max-w-md mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
       <div className="p-4">
-        <h2 className="text-xl font-semibold mb-4 text-center">Consistency Is Key</h2>
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <h2 className="text-xl font-semibold">Consistency Is Key</h2>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-6 w-6">
+                  <Info className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Any day you log your food will be shaded in green. Try to make the entire calendar green by the end of the month!</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <div className="flex items-center justify-between mb-4">
           <Button
             variant="ghost"
