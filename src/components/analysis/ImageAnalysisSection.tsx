@@ -171,7 +171,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
           }
         }}
         foods={analyzedFoods}
-        onConfirm={handleConfirmFoods}
+        onConfirm={() => handleConfirmFoods(analyzedFoods)}
       />
     </div>
   );
