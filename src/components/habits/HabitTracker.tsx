@@ -40,7 +40,7 @@ export const HabitTracker = () => {
   return (
     <div className="w-full max-w-md mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
       <div className="flex flex-col items-center justify-center h-64 p-4">
-        <div className="flex items-center justify-between w-full mb-6">
+        <div className="flex items-center justify-between w-full mb-4">
           <Button
             variant="ghost"
             size="icon"
@@ -62,7 +62,7 @@ export const HabitTracker = () => {
           </Button>
         </div>
         
-        <div className="w-full max-w-[300px]">
+        <div className="w-full">
           <div className="grid grid-cols-7 gap-2 text-center mb-3">
             {["S", "M", "T", "W", "T", "F", "S"].map(day => (
               <div key={day} className="text-xs font-medium text-muted-foreground">
