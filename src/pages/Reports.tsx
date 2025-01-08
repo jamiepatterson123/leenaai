@@ -4,7 +4,8 @@ import { format, subDays, subMonths, subYears, eachDayOfInterval } from "date-fn
 import { TimeRange } from "@/components/reports/TimeRangeSelector";
 import { ReportsHeader } from "@/components/reports/ReportsHeader";
 import { ReportsContent } from "@/components/reports/ReportsContent";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const getStartDate = (timeRange: TimeRange) => {
   const now = new Date();
@@ -26,6 +27,34 @@ const getStartDate = (timeRange: TimeRange) => {
 
 const Reports = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>("1w");
+  const queryClient = useQueryClient();
+
+  // Set up real-time listeners
+  useEffect(() => {
+    // Channel for food diary changes
+    const foodDiaryChannel = supabase
+      .channel('food_diary_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'food_diary'
+        },
+        () => {
+          // Invalidate and refetch all relevant queries
+          queryClient.invalidateQueries({ queryKey: ['calorieHistory'] });
+          queryClient.invalidateQueries({ queryKey: ['macroHistory'] });
+          queryClient.invalidateQueries({ queryKey: ['mealDistribution'] });
+        }
+      )
+      .subscribe();
+
+    // Cleanup function
+    return () => {
+      supabase.removeChannel(foodDiaryChannel);
+    };
+  }, [queryClient]);
 
   const { data: weightData, isLoading: weightLoading } = useQuery({
     queryKey: ["weightHistory", timeRange],
