@@ -38,8 +38,11 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       return;
     }
 
-    console.log("handleImageSelect called with image:", image);
-    
+    if (!image.type.startsWith("image/")) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
     if (analyzing) {
       toast.error("Please wait for the current analysis to complete");
       return;
@@ -76,7 +79,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     handleImageSelect
   }));
 
-  // Expose handleImageSelect to the window for the mobile navigation
   React.useEffect(() => {
     if (componentRef.current) {
       (componentRef.current as any).handleImageSelect = handleImageSelect;
@@ -99,17 +101,22 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
   };
 
+  if (analyzing) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[300px] bg-white p-8">
+        <div className="text-xl text-gray-700 mb-4 animate-pulse">
+          Analyzing...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8" ref={componentRef} data-image-analysis>
       <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
-      {analyzing && (
-        <p className="text-center text-gray-600 animate-pulse">
-          Analyzing your meal...
-        </p>
-      )}
       <FoodVerificationDialog
-        isOpen={showVerification}
-        onClose={() => setShowVerification(false)}
+        open={showVerification}
+        onOpenChange={() => setShowVerification(false)}
         foods={analyzedFoods}
         onConfirm={handleConfirmFoods}
       />
