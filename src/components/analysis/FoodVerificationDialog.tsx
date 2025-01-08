@@ -22,7 +22,7 @@ interface FoodVerificationDialogProps {
       carbs: number;
       fat: number;
     };
-  };
+  }[];
 }
 
 export const FoodVerificationDialog: React.FC<FoodVerificationDialogProps> = ({
@@ -42,17 +42,21 @@ export const FoodVerificationDialog: React.FC<FoodVerificationDialogProps> = ({
         </DialogHeader>
         
         <div className="space-y-4">
-          <div>
-            <p className="font-medium">Food: {foodData.name}</p>
-            <p>Weight: {foodData.weight_g}g</p>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <p>Calories: {foodData.nutrition.calories}</p>
-            <p>Protein: {foodData.nutrition.protein}g</p>
-            <p>Carbs: {foodData.nutrition.carbs}g</p>
-            <p>Fat: {foodData.nutrition.fat}g</p>
-          </div>
+          {foodData?.map((food, index) => (
+            <div key={index} className="border-b pb-4 last:border-b-0">
+              <div>
+                <p className="font-medium">Food: {food.name}</p>
+                <p>Weight: {food.weight_g}g</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2 text-sm mt-2">
+                <p>Calories: {food.nutrition.calories}</p>
+                <p>Protein: {food.nutrition.protein}g</p>
+                <p>Carbs: {food.nutrition.carbs}g</p>
+                <p>Fat: {food.nutrition.fat}g</p>
+              </div>
+            </div>
+          ))}
         </div>
 
         <DialogFooter className="flex space-x-2 sm:space-x-0">

@@ -114,9 +114,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     };
   }, []);
 
-  const handleConfirmFoods = async (foods: any[]) => {
+  const handleConfirmFoods = async () => {
     try {
-      await saveFoodEntries(foods, selectedDate);
+      await saveFoodEntries(analyzedFoods, selectedDate);
       await queryClient.invalidateQueries({ 
         queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
       });
@@ -165,8 +165,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       <FoodVerificationDialog
         open={showVerification}
         onOpenChange={setShowVerification}
-        foods={analyzedFoods}
-        onConfirm={() => handleConfirmFoods(analyzedFoods)}
+        foodData={analyzedFoods}
+        onConfirm={handleConfirmFoods}
       />
     </div>
   );
