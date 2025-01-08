@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useImperativeHandle } from "react";
+import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "sonner";
 import { analyzeImage } from "./ImageAnalyzer";
@@ -7,6 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { FoodVerificationDialog } from "./FoodVerificationDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLocation } from "react-router-dom";
 
 interface ImageAnalysisSectionProps {
   analyzing: boolean;
@@ -31,6 +32,12 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const componentRef = React.useRef<HTMLDivElement>(null);
+  const location = useLocation();
+
+  // Reset analyzing state on route change
+  useEffect(() => {
+    setAnalyzing(false);
+  }, [location.pathname, setAnalyzing]);
 
   const handleImageSelect = async (image: File) => {
     if (!image) {
