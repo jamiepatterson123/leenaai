@@ -64,7 +64,7 @@ export const HabitTracker = () => {
   return (
     <div className="w-full max-w-md mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
       <div className="p-4">
-        <h2 className="text-xl font-semibold mb-4 text-center">Consistency Is Key To Success</h2>
+        <h2 className="text-xl font-semibold mb-4 text-center">Consistency Is Key</h2>
         <div className="flex items-center justify-between mb-4">
           <Button
             variant="ghost"
