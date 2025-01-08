@@ -40,7 +40,7 @@ export const HabitTracker = () => {
   return (
     <div className="w-full max-w-md mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
       <div className="flex flex-col items-center justify-center h-64 p-4">
-        <div className="flex items-center justify-between w-full mb-4">
+        <div className="flex items-center justify-between w-full mb-6">
           <Button
             variant="ghost"
             size="icon"
@@ -49,7 +49,7 @@ export const HabitTracker = () => {
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <h2 className="text-sm font-semibold">
+          <h2 className="text-base font-medium">
             {format(currentDate, "MMMM yyyy")}
           </h2>
           <Button
@@ -62,16 +62,16 @@ export const HabitTracker = () => {
           </Button>
         </div>
         
-        <div className="w-full max-w-[280px]">
-          <div className="grid grid-cols-7 gap-1 text-center mb-2">
+        <div className="w-full max-w-[300px]">
+          <div className="grid grid-cols-7 gap-2 text-center mb-3">
             {["S", "M", "T", "W", "T", "F", "S"].map(day => (
-              <div key={day} className="text-[10px] font-medium text-muted-foreground">
+              <div key={day} className="text-xs font-medium text-muted-foreground">
                 {day}
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-1">
+          <div className="grid grid-cols-7 gap-2">
             {Array.from({ length: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay() }).map((_, i) => (
               <div key={`empty-${i}`} className="aspect-square" />
             ))}
@@ -85,12 +85,12 @@ export const HabitTracker = () => {
                 <div
                   key={day.toISOString()}
                   className={`
-                    aspect-square rounded-sm border text-center flex items-center justify-center
-                    ${isLogged ? 'bg-success/20 border-success/30' : 'border-border/50'}
+                    aspect-square rounded-md border text-center flex items-center justify-center
+                    ${isLogged ? 'bg-success/10 border-success/20' : 'border-gray-100 dark:border-gray-800'}
                     transition-colors duration-200
                   `}
                 >
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="text-sm text-muted-foreground">
                     {format(day, "d")}
                   </span>
                 </div>
