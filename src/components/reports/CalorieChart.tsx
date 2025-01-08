@@ -24,9 +24,9 @@ interface CalorieChartProps {
 
 export const CalorieChart = ({ data }: CalorieChartProps) => {
   return (
-    <Card className="p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <h2 className="text-2xl font-semibold">Calories Consumed</h2>
+    <Card className="p-4 sm:p-6 w-full">
+      <div className="flex items-center gap-2 mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-semibold">Calories Consumed</h2>
         <TooltipProvider>
           <UITooltip>
             <TooltipTrigger>
@@ -38,7 +38,7 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
           </UITooltip>
         </TooltipProvider>
       </div>
-      <div className="h-[400px] w-full">
+      <div className="w-full aspect-[4/3] max-h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
             <XAxis
@@ -47,12 +47,15 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
               fontSize={12}
               tickLine={false}
               axisLine={false}
+              interval="preserveStartEnd"
+              tickMargin={8}
             />
             <YAxis
               stroke="#888888"
               fontSize={12}
               tickLine={false}
               axisLine={false}
+              tickMargin={8}
             />
             <Tooltip
               content={({ active, payload }) => {

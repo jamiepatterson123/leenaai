@@ -37,10 +37,7 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
     };
   });
 
-  // Calculate total calories for percentage
   const totalCalories = processedData.reduce((sum, entry) => sum + entry.value, 0);
-
-  // Ensure we always have a minimum size for the chart to prevent label overlap
   const minValue = 50;
   const chartData = processedData.map(entry => ({
     ...entry,
@@ -48,7 +45,7 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
   }));
 
   return (
-    <Card className="p-4 sm:p-6">
+    <Card className="p-4 sm:p-6 w-full">
       <div className="flex items-center gap-2 mb-4 sm:mb-6">
         <h2 className="text-xl sm:text-2xl font-semibold">Calories by Meal</h2>
         <TooltipProvider>
@@ -62,7 +59,7 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
           </UITooltip>
         </TooltipProvider>
       </div>
-      <div className="h-[300px] sm:h-[400px] w-full">
+      <div className="w-full aspect-square max-h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -78,17 +75,15 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
                 outerRadius,
                 name,
                 value,
-                percent
               }) => {
                 const RADIAN = Math.PI / 180;
-                const radius = outerRadius * 1.35; // Increased radius for better spacing
+                const radius = outerRadius * 1.35;
                 const x = cx + radius * Math.cos(-midAngle * RADIAN);
                 const y = cy + radius * Math.sin(-midAngle * RADIAN);
                 
                 const actualValue = processedData.find(d => d.name === name)?.value || 0;
                 const percentage = totalCalories ? ((actualValue / totalCalories) * 100).toFixed(0) : "0";
 
-                // Adjust label position based on angle
                 const textAnchor = x > cx ? "start" : "end";
                 const labelX = x > cx ? x + 5 : x - 5;
 

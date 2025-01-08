@@ -62,63 +62,65 @@ export const ReportsContent = ({
   }
 
   return (
-    <div className="grid gap-4 md:gap-8">
+    <div className="grid gap-4 md:gap-6">
       <ChartSettings 
         visibleCharts={visibleCharts} 
         onToggleChart={handleToggleChart}
       />
       
-      {visibleCharts.weightTrend && (
-        <WeightTrendChart 
-          data={weightData}
-          timeRange={timeRange}
-        />
-      )}
-      {visibleCharts.calorieTargets && (
-        <CalorieTargetsChart data={calorieData} />
-      )}
-      {visibleCharts.calories && (
-        <CalorieChart data={calorieData} />
-      )}
-      {visibleCharts.mealDistribution && visibleCharts.calorieState && (
-        <div className="grid grid-cols-1 gap-4">
-          <MealDistributionChart data={mealData} />
+      <div className="grid gap-4 md:gap-6">
+        {visibleCharts.weightTrend && (
+          <WeightTrendChart 
+            data={weightData}
+            timeRange={timeRange}
+          />
+        )}
+        {visibleCharts.calorieTargets && (
+          <CalorieTargetsChart data={calorieData} />
+        )}
+        {visibleCharts.calories && (
+          <CalorieChart data={calorieData} />
+        )}
+        {visibleCharts.mealDistribution && visibleCharts.calorieState && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <MealDistributionChart data={mealData} />
+            <CalorieStateChart data={mealData} />
+          </div>
+        )}
+        {!visibleCharts.mealDistribution && visibleCharts.calorieState && (
           <CalorieStateChart data={mealData} />
-        </div>
-      )}
-      {!visibleCharts.mealDistribution && visibleCharts.calorieState && (
-        <CalorieStateChart data={mealData} />
-      )}
-      {visibleCharts.mealDistribution && !visibleCharts.calorieState && (
-        <MealDistributionChart data={mealData} />
-      )}
-      {visibleCharts.macros && (
-        <MacroChart data={macroData} />
-      )}
-      {visibleCharts.macroTargets && (
-        <MacroTargetsChart data={macroData} />
-      )}
-      {visibleCharts.proteinDaily && (
-        <MacroDailyChart 
-          data={macroData}
-          type="protein"
-        />
-      )}
-      {visibleCharts.carbsDaily && (
-        <MacroDailyChart 
-          data={macroData}
-          type="carbs"
-        />
-      )}
-      {visibleCharts.fatDaily && (
-        <MacroDailyChart 
-          data={macroData}
-          type="fat"
-        />
-      )}
-      {visibleCharts.waterConsumption && (
-        <WaterConsumptionChart data={waterData} />
-      )}
+        )}
+        {visibleCharts.mealDistribution && !visibleCharts.calorieState && (
+          <MealDistributionChart data={mealData} />
+        )}
+        {visibleCharts.macros && (
+          <MacroChart data={macroData} />
+        )}
+        {visibleCharts.macroTargets && (
+          <MacroTargetsChart data={macroData} />
+        )}
+        {visibleCharts.proteinDaily && (
+          <MacroDailyChart 
+            data={macroData}
+            type="protein"
+          />
+        )}
+        {visibleCharts.carbsDaily && (
+          <MacroDailyChart 
+            data={macroData}
+            type="carbs"
+          />
+        )}
+        {visibleCharts.fatDaily && (
+          <MacroDailyChart 
+            data={macroData}
+            type="fat"
+          />
+        )}
+        {visibleCharts.waterConsumption && (
+          <WaterConsumptionChart data={waterData} />
+        )}
+      </div>
     </div>
   );
 };
