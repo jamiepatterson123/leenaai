@@ -101,13 +101,13 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     <>
       {analyzing && !isMobile && (
         <div className="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
-          <div className="text-2xl text-gray-700 animate-pulse">
+          <div className="text-3xl text-gray-500 animate-pulse">
             Analyzing...
           </div>
         </div>
       )}
       <div className="space-y-8" ref={componentRef} data-image-analysis>
-        {!analyzing && (
+        {!analyzing && !showVerification && (
           <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
         )}
         <FoodVerificationDialog
