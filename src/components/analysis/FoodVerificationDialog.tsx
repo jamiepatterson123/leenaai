@@ -23,15 +23,15 @@ interface FoodItem {
 }
 
 interface FoodVerificationDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   foods: FoodItem[];
   onConfirm: (foods: FoodItem[]) => void;
 }
 
 export const FoodVerificationDialog = ({
-  isOpen,
-  onClose,
+  open,
+  onOpenChange,
   foods,
   onConfirm,
 }: FoodVerificationDialogProps) => {
@@ -46,7 +46,7 @@ export const FoodVerificationDialog = ({
   } = useFoodItems(foods);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Verify Food Items</DialogTitle>
@@ -68,7 +68,7 @@ export const FoodVerificationDialog = ({
           ))}
         </div>
         <DialogFooter className="bg-background pt-2">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button 
