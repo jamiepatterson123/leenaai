@@ -50,7 +50,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
       color: "bg-green-500"
     },
     {
-      name: "Net Carbs",
+      name: "Carbs",
       current: totalNutrition.carbs,
       target: targets.carbs,
       color: "bg-yellow-500"
