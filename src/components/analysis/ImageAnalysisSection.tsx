@@ -43,22 +43,22 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       return;
     }
 
-    setAnalyzing(true); // Show analyzing overlay when starting analysis
+    setAnalyzing(true);
     setResetUpload(false);
-    setShowVerification(false); // Ensure verification dialog is closed
+    setShowVerification(false);
     
     try {
       console.log("Starting image analysis...");
       const result = await analyzeImage(image, {
         setNutritionData,
-        saveFoodEntries: async () => {}, // Don't save immediately
+        saveFoodEntries: async () => {},
       });
       
       console.log("Analysis result:", result);
       
       if (result?.foods) {
         setAnalyzedFoods(result.foods);
-        setAnalyzing(false); // Hide analyzing overlay before showing verification
+        setAnalyzing(false);
         setShowVerification(true);
       } else {
         throw new Error("Invalid analysis result");
@@ -67,7 +67,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       console.error("Error analyzing image:", error);
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
-      setAnalyzing(false); // Hide analyzing overlay on error
+      setAnalyzing(false);
     }
   };
 
@@ -107,12 +107,14 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
         </div>
       )}
       <div className="space-y-8" ref={componentRef} data-image-analysis>
-        <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
+        {!analyzing && (
+          <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
+        )}
         <FoodVerificationDialog
           open={showVerification}
           onOpenChange={(open) => {
             setShowVerification(open);
-            if (!open) setAnalyzing(false); // Ensure analyzing is false when dialog is closed
+            if (!open) setAnalyzing(false);
           }}
           foods={analyzedFoods}
           onConfirm={handleConfirmFoods}
