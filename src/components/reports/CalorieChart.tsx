@@ -68,13 +68,16 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
                 if (active && payload && payload.length) {
                   return (
                     <div className="rounded-lg border bg-background p-2 shadow-sm">
-                      <div className="flex flex-col">
-                        <span className="text-[0.70rem] uppercase text-muted-foreground">
-                          Calories
-                        </span>
-                        <span className="font-bold text-muted-foreground">
-                          {payload[0].value} kcal
-                        </span>
+                      <div className="grid gap-2">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-primary" />
+                          <span className="text-[0.70rem] uppercase text-muted-foreground">
+                            Calories
+                          </span>
+                          <span className="font-bold text-muted-foreground">
+                            {payload[0].value} kcal
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );
@@ -84,7 +87,7 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
             />
             <Bar
               dataKey="calories"
-              fill="#9b87f5"
+              fill="hsl(var(--primary))"
               radius={[4, 4, 0, 0]}
               name="Consumed"
               barSize={20}
