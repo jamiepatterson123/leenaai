@@ -9,6 +9,7 @@ export interface ProfileFormData {
   target_protein?: number;
   target_carbs?: number;
   target_fat?: number;
+  preferred_units: string;
 }
 
 export interface TargetCalculations {
