@@ -44,7 +44,7 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
       color: "#9b87f5",
     },
     {
-      name: "Carbohydrates",
+      name: "Carbs",
       value: averages.carbs / data.length,
       target: targets.carbs,
       color: "#7E69AB",
@@ -58,9 +58,9 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
   ];
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <h2 className="text-2xl font-semibold">Weekly Macro Averages vs Targets</h2>
+    <Card className="p-4 sm:p-6">
+      <div className="flex items-center gap-2 mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-semibold">Weekly Macro Averages vs Targets</h2>
         <TooltipProvider>
           <UITooltip>
             <TooltipTrigger>
@@ -72,17 +72,30 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
           </UITooltip>
         </TooltipProvider>
       </div>
-      <div className="h-[400px] w-full">
+      <div className="h-[300px] sm:h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={weeklyData}
-            margin={{ top: 20, right: 30, left: 80, bottom: 5 }}
+            margin={{ top: 20, right: 30, left: 60, bottom: 5 }}
+            layout="vertical"
           >
-            <XAxis type="number" />
+            <XAxis 
+              type="number"
+              tick={{ fontSize: 12 }}
+            />
             <YAxis 
               type="category" 
               dataKey="name" 
-              width={100}
+              width={80}
+              tick={{ fontSize: 12 }}
+            />
+            <Legend 
+              verticalAlign="top"
+              height={36}
+              wrapperStyle={{
+                paddingBottom: "20px",
+                fontSize: "12px"
+              }}
             />
             <Tooltip
               content={({ active, payload }) => {
@@ -103,7 +116,6 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
                 return null;
               }}
             />
-            <Legend />
             <Bar
               dataKey="target"
               fill="#8E9196"
