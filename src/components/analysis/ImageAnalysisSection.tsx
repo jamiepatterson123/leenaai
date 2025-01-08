@@ -163,13 +163,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
         </p>
       )}
       <FoodVerificationDialog
-        isOpen={showVerification}
-        onClose={() => {
-          cleanupStates();
-          if (isMobile) {
-            navigate("/", { replace: true });
-          }
-        }}
+        open={showVerification}
+        onOpenChange={setShowVerification}
         foods={analyzedFoods}
         onConfirm={() => handleConfirmFoods(analyzedFoods)}
       />
