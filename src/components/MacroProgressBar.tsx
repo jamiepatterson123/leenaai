@@ -25,7 +25,12 @@ export const MacroProgressBar: React.FC<MacroProgressBarProps> = ({
           <span className="ml-2">{percentage}%</span>
         </div>
       </div>
-      <Progress value={percentage} className={`h-3 ${color}`} />
+      <div className="h-3 w-full bg-muted rounded-full overflow-hidden">
+        <div 
+          className={`h-full ${color} transition-all duration-300 rounded-full`}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
     </div>
   );
 };
