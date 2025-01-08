@@ -7,6 +7,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { FoodVerificationDialog } from "./FoodVerificationDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface ImageAnalysisSectionProps {
   analyzing: boolean;
@@ -28,8 +30,10 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const [resetUpload, setResetUpload] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [analyzedFoods, setAnalyzedFoods] = useState([]);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(false);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const componentRef = React.useRef<HTMLDivElement>(null);
 
   const handleImageSelect = async (image: File) => {
@@ -38,17 +42,15 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       return;
     }
 
-    if (!image.type.startsWith("image/")) {
-      toast.error("Please upload an image file");
-      return;
-    }
-
+    console.log("handleImageSelect called with image:", image);
+    
     if (analyzing) {
       toast.error("Please wait for the current analysis to complete");
       return;
     }
 
     setAnalyzing(true);
+    setShowLoadingScreen(true);
     setResetUpload(false);
     
     try {
@@ -70,8 +72,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       console.error("Error analyzing image:", error);
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
-    } finally {
-      setAnalyzing(false);
+      setShowLoadingScreen(false);
     }
   };
 
@@ -85,38 +86,62 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
   }, []);
 
+  const cleanupStates = () => {
+    setResetUpload(true);
+    setShowVerification(false);
+    setAnalyzing(false);
+    setShowLoadingScreen(false);
+    setNutritionData(null);
+    setAnalyzedFoods([]);
+  };
+
   const handleConfirmFoods = async (foods: any[]) => {
     try {
       await saveFoodEntries(foods, selectedDate);
       await queryClient.invalidateQueries({ 
         queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
       });
-      setResetUpload(true);
-      setShowVerification(false);
+      
+      cleanupStates();
       toast.success("Food added to diary!");
-      onSuccess?.();
+      
+      if (isMobile) {
+        navigate("/food-diary");
+      } else {
+        onSuccess?.();
+      }
     } catch (error) {
       console.error("Error saving food entries:", error);
       toast.error("Failed to save food entries");
     }
   };
 
-  if (analyzing) {
+  if (showLoadingScreen && isMobile) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[300px] bg-white p-8">
-        <div className="text-xl text-gray-700 mb-4 animate-pulse">
-          Analyzing...
+      <div className="fixed inset-0 bg-white flex items-center justify-center z-[100]">
+        <div className="text-center space-y-6 px-4">
+          <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
+          <p className="text-2xl font-semibold text-gray-900 animate-pulse">
+            Analyzing your meal...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8" ref={componentRef} data-image-analysis>
+    <div className={`space-y-8 ${analyzing && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
       <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
+      {analyzing && !isMobile && (
+        <p className="text-center text-gray-600 animate-pulse">
+          Analyzing your meal...
+        </p>
+      )}
       <FoodVerificationDialog
-        open={showVerification}
-        onOpenChange={() => setShowVerification(false)}
+        isOpen={showVerification}
+        onClose={() => {
+          cleanupStates();
+        }}
         foods={analyzedFoods}
         onConfirm={handleConfirmFoods}
       />
