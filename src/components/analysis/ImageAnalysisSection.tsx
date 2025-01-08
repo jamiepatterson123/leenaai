@@ -43,8 +43,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       return;
     }
 
-    setAnalyzing(true);
+    setAnalyzing(true); // Show analyzing overlay when starting analysis
     setResetUpload(false);
+    setShowVerification(false); // Ensure verification dialog is closed
     
     try {
       console.log("Starting image analysis...");
@@ -57,6 +58,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       
       if (result?.foods) {
         setAnalyzedFoods(result.foods);
+        setAnalyzing(false); // Hide analyzing overlay before showing verification
         setShowVerification(true);
       } else {
         throw new Error("Invalid analysis result");
@@ -65,8 +67,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       console.error("Error analyzing image:", error);
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
-    } finally {
-      setAnalyzing(false); // Always hide analyzing overlay after API call
+      setAnalyzing(false); // Hide analyzing overlay on error
     }
   };
 
@@ -88,13 +89,11 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       });
       setResetUpload(true);
       setShowVerification(false);
-      setAnalyzing(false); // Ensure analyzing is false after saving
       toast.success("Food added to diary!");
       onSuccess?.();
     } catch (error) {
       console.error("Error saving food entries:", error);
       toast.error("Failed to save food entries");
-      setAnalyzing(false); // Ensure analyzing is false on error
     }
   };
 
