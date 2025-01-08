@@ -8,6 +8,7 @@ import { format } from "date-fns";
 import { FoodVerificationDialog } from "./FoodVerificationDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface ImageAnalysisSectionProps {
   analyzing: boolean;
@@ -31,6 +32,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const [analyzedFoods, setAnalyzedFoods] = useState([]);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const componentRef = React.useRef<HTMLDivElement>(null);
 
   const handleImageSelect = async (image: File) => {
@@ -91,8 +93,14 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       });
       setResetUpload(true);
       setShowVerification(false);
+      setAnalyzing(false); // Ensure analyzing state is reset
       toast.success("Food added to diary!");
-      onSuccess?.();
+      
+      if (isMobile) {
+        navigate("/food-diary"); // Redirect to food diary on mobile
+      } else {
+        onSuccess?.();
+      }
     } catch (error) {
       console.error("Error saving food entries:", error);
       toast.error("Failed to save food entries");
