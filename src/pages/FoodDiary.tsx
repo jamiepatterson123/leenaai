@@ -11,21 +11,24 @@ const FoodDiaryPage = () => {
   const [nutritionData, setNutritionData] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
-  // Initialize to false by default - only show when explicitly needed
   const [showImageAnalysis, setShowImageAnalysis] = useState(false);
 
   useEffect(() => {
-    // Show image analysis only if we're not coming from verification
-    if (!location.state?.fromVerification) {
+    // Only show image analysis on fresh visits to the page
+    const isFromVerification = location.state?.fromVerification;
+    
+    if (!isFromVerification) {
       setShowImageAnalysis(true);
     }
 
-    // Clear location state if coming from verification
-    if (location.state?.fromVerification) {
-      setShowImageAnalysis(false);
-      navigate(location.pathname, { replace: true });
+    // Clear location state only if we came from verification
+    if (isFromVerification) {
+      // Use a timeout to ensure state updates happen in correct order
+      setTimeout(() => {
+        navigate(location.pathname, { replace: true });
+      }, 0);
     }
-  }, [location.state, navigate, location.pathname]);
+  }, [location.pathname]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
