@@ -4,6 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface WeightInputProps {
   onSuccess?: () => void;
@@ -11,7 +18,13 @@ interface WeightInputProps {
 
 export const WeightInput = ({ onSuccess }: WeightInputProps) => {
   const [weight, setWeight] = useState<string>("");
+  const [unit, setUnit] = useState<"kg" | "lbs">("kg");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const convertToKg = (value: number, fromUnit: "kg" | "lbs"): number => {
+    if (fromUnit === "kg") return value;
+    return value * 0.45359237; // Convert lbs to kg
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,12 +32,14 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
 
     setIsSubmitting(true);
     try {
+      const weightInKg = convertToKg(parseFloat(weight), unit);
+      
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
       const { error: profileError } = await supabase
         .from("profiles")
-        .update({ weight_kg: parseFloat(weight) })
+        .update({ weight_kg: weightInKg })
         .eq("user_id", user.id);
 
       if (profileError) throw profileError;
@@ -33,7 +48,7 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
         .from("weight_history")
         .insert({
           user_id: user.id,
-          weight_kg: parseFloat(weight),
+          weight_kg: weightInKg,
         });
 
       if (historyError) throw historyError;
@@ -60,12 +75,20 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
               type="number"
               step="0.1"
               min="0"
-              placeholder="Enter weight in kg"
+              placeholder={`Enter weight in ${unit}`}
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
               className="flex-1"
             />
-            <span className="text-sm text-muted-foreground">kg</span>
+            <Select value={unit} onValueChange={(value) => setUnit(value as "kg" | "lbs")}>
+              <SelectTrigger className="w-24">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="kg">kg</SelectItem>
+                <SelectItem value="lbs">lbs</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <Button 
             type="submit" 

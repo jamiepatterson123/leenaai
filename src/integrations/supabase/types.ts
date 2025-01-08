@@ -190,6 +190,7 @@ export type Database = {
           gender: string | null
           height_cm: number | null
           id: string
+          preferred_units: string | null
           target_calories: number | null
           target_carbs: number | null
           target_fat: number | null
@@ -208,6 +209,7 @@ export type Database = {
           gender?: string | null
           height_cm?: number | null
           id?: string
+          preferred_units?: string | null
           target_calories?: number | null
           target_carbs?: number | null
           target_fat?: number | null
@@ -226,6 +228,7 @@ export type Database = {
           gender?: string | null
           height_cm?: number | null
           id?: string
+          preferred_units?: string | null
           target_calories?: number | null
           target_carbs?: number | null
           target_fat?: number | null

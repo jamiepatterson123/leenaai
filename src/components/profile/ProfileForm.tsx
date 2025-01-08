@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ProfileFormData } from "@/utils/profileCalculations";
 import { BasicInfoFields } from "./BasicInfoFields";
 import { SelectFields } from "./SelectFields";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProfileFormProps {
   initialData?: Partial<ProfileFormData>;
@@ -20,16 +21,64 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
     defaultValues: initialData,
   });
 
+  const [preferredUnits, setPreferredUnits] = React.useState(initialData?.preferred_units || 'metric');
+
   const formData = watch();
 
   React.useEffect(() => {
     onChange(formData);
   }, [formData, onChange]);
 
+  const handleUnitsChange = async (value: string) => {
+    setPreferredUnits(value);
+    
+    // Convert existing values when switching units
+    const currentHeight = formData.height_cm;
+    const currentWeight = formData.weight_kg;
+
+    if (currentHeight) {
+      if (value === 'imperial') {
+        setValue('height_cm', Math.round(currentHeight / 2.54 * 10) / 10); // cm to inches
+      } else {
+        setValue('height_cm', Math.round(currentHeight * 2.54 * 10) / 10); // inches to cm
+      }
+    }
+
+    if (currentWeight) {
+      if (value === 'imperial') {
+        setValue('weight_kg', Math.round(currentWeight * 2.20462 * 10) / 10); // kg to lbs
+      } else {
+        setValue('weight_kg', Math.round(currentWeight / 2.20462 * 10) / 10); // lbs to kg
+      }
+    }
+
+    // Update preferred units in the database
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from('profiles')
+        .update({ preferred_units: value })
+        .eq('user_id', user.id);
+    }
+  };
+
+  const handleFormSubmit = (data: ProfileFormData) => {
+    // Convert measurements back to metric if using imperial
+    if (preferredUnits === 'imperial') {
+      data.height_cm = data.height_cm * 2.54; // inches to cm
+      data.weight_kg = data.weight_kg / 2.20462; // lbs to kg
+    }
+    onSubmit(data);
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <BasicInfoFields register={register} />
+        <BasicInfoFields 
+          register={register} 
+          preferredUnits={preferredUnits}
+          onUnitsChange={handleUnitsChange}
+        />
         <SelectFields
           gender={formData.gender || ""}
           activityLevel={formData.activity_level || ""}
