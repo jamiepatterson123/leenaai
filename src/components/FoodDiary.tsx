@@ -76,6 +76,40 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
     refetchOnWindowFocus: true,
   });
 
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("food_diary")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast.success("Food entry deleted");
+      queryClient.invalidateQueries({ queryKey: ["foodDiary", formattedDate] });
+    } catch (error) {
+      toast.error("Failed to delete food entry");
+      console.error("Error deleting food entry:", error);
+    }
+  };
+
+  const handleUpdateCategory = async (id: string, category: string) => {
+    try {
+      const { error } = await supabase
+        .from("food_diary")
+        .update({ category })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast.success(`Moved to ${category}`);
+      queryClient.invalidateQueries({ queryKey: ["foodDiary", formattedDate] });
+    } catch (error) {
+      toast.error("Failed to update food category");
+      console.error("Error updating food category:", error);
+    }
+  };
+
   // Log any query errors
   if (error) {
     console.error("Query error:", error);
