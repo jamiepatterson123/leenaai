@@ -58,9 +58,9 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
   ];
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <h2 className="text-2xl font-semibold">Weekly Macro Averages vs Targets</h2>
+    <Card className="p-4 sm:p-6 w-full">
+      <div className="flex items-center gap-2 mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-semibold">Weekly Macro Averages vs Targets</h2>
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="ghost" size="icon" className="h-5 w-5 p-0">
@@ -86,6 +86,7 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
             <YAxis
               type="number"
               tick={{ fontSize: 12 }}
+              width={50}
             />
             <Legend 
               verticalAlign="top"

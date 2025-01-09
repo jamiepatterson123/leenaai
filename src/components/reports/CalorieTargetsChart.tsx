@@ -45,7 +45,7 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
   };
   
   return (
-    <Card className="p-4 sm:p-6">
+    <Card className="p-4 sm:p-6 w-full">
       <div className="flex items-center gap-2 mb-4 sm:mb-6">
         <h2 className="text-xl sm:text-2xl font-semibold">Weekly Calorie Average vs Target</h2>
         <Dialog>
@@ -59,21 +59,19 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="h-[400px] sm:h-[400px] w-full">
+      <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
-            margin={{ top: 20, right: 30, left: 30, bottom: 5 }}
+            margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
           >
             <XAxis 
               type="category" 
               dataKey="name"
-              className="text-xs font-medium"
               tick={{ fontSize: 12 }}
             />
             <YAxis 
               type="number"
-              className="text-xs font-medium"
               tick={{ fontSize: 12 }}
               width={50}
             />
@@ -124,12 +122,12 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
               dataKey="target"
               fill="#8E9196"
               name="Daily Target"
-              barSize={60}
+              barSize={40}
             />
             <Bar
               dataKey="value"
               name="Weekly Average"
-              barSize={60}
+              barSize={40}
               fill={getBarColor(averageCalories, targets.calories)}
             />
           </BarChart>
