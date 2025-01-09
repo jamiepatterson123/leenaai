@@ -23,11 +23,19 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 
   const [preferredUnits, setPreferredUnits] = React.useState(initialData?.preferred_units || 'metric');
 
+  // Watch form data changes
   const formData = watch();
 
   React.useEffect(() => {
     onChange(formData);
   }, [formData, onChange]);
+
+  // Effect to sync preferred units with initialData
+  React.useEffect(() => {
+    if (initialData?.preferred_units) {
+      setPreferredUnits(initialData.preferred_units);
+    }
+  }, [initialData?.preferred_units]);
 
   const handleUnitsChange = async (value: string) => {
     setPreferredUnits(value);
@@ -55,10 +63,14 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
     // Update preferred units in the database
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({ preferred_units: value })
         .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error updating preferred units:', error);
+      }
     }
   };
 
