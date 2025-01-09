@@ -86,12 +86,6 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
             <YAxis
               type="number"
               tick={{ fontSize: 12 }}
-              label={{ 
-                value: 'Grams (g)', 
-                angle: -90, 
-                position: 'insideLeft',
-                style: { textAnchor: 'middle' }
-              }}
             />
             <Legend 
               verticalAlign="top"
