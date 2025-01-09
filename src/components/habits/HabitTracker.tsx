@@ -150,7 +150,7 @@ export const HabitTracker = () => {
                 onClick={() => handleDateClick(day)}
                 className={`
                   aspect-square rounded-sm border flex items-center justify-center
-                  ${isLogged ? 'bg-success/20 border-success/30' : 'border-border/50'}
+                  ${isLogged ? 'bg-[#15803d]/20 border-[#15803d]/30' : 'border-border/50'}
                   hover:bg-accent/50 transition-colors duration-200
                 `}
               >

@@ -20,7 +20,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
   };
 
   const handlePlusClick = () => {
-    fileInputRef.current?.click(); // Always trigger file input
+    fileInputRef.current?.click();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,7 +47,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
         <div className="flex flex-col items-center">
           <button 
             onClick={handlePlusClick}
-            className="bg-black rounded-full p-4 hover:bg-gray-800 transition-colors"
+            className="bg-primary rounded-full p-4 hover:bg-primary/90 transition-colors"
           >
             <Plus className="h-6 w-6 text-white" />
           </button>
