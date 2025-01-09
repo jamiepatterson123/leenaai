@@ -48,7 +48,7 @@ export const ReportsContent = ({
     proteinDaily: true,
     carbsDaily: true,
     fatDaily: true,
-    waterConsumption: false, // Set to false by default now
+    waterConsumption: false,
   });
 
   const handleToggleChart = (chart: keyof VisibleCharts) => {
@@ -85,11 +85,10 @@ export const ReportsContent = ({
       startDate = startOfDay(subDays(endDate, 7));
   }
 
-  // Process data with date range
+  // Process data for charts with date range
   const processedWeightData = processWeightData(weightData, startDate, endDate);
   const processedCalorieData = processCalorieData(calorieData, startDate, endDate);
   const processedMacroData = processMacroData(macroData, startDate, endDate);
-  const processedWaterData = processWaterData(waterData, startDate, endDate);
   const processedMealData = processMealData(mealData, startDate, endDate);
 
   if (isLoading) {
@@ -101,6 +100,11 @@ export const ReportsContent = ({
       </div>
     );
   }
+
+  console.log('Weight Data:', processedWeightData);
+  console.log('Calorie Data:', processedCalorieData);
+  console.log('Macro Data:', processedMacroData);
+  console.log('Meal Data:', processedMealData);
 
   return (
     <div className="grid gap-4 md:gap-6">
@@ -114,7 +118,6 @@ export const ReportsContent = ({
         {visibleCharts.weightTrend && (
           <WeightTrendChart 
             data={processedWeightData}
-            timeRange={timeRange}
           />
         )}
         

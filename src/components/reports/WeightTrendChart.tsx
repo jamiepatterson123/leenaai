@@ -53,10 +53,6 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
       : null
   }));
 
-  const lastValidWeight = [...convertedData]
-    .reverse()
-    .find(entry => entry.weight !== null)?.weight;
-
   const unitLabel = preferredUnits === 'imperial' ? 'lbs' : 'kg';
 
   return (
