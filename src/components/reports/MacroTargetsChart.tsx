@@ -17,7 +17,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MacroTargetsChartProps {
   data: {
@@ -29,7 +28,6 @@ interface MacroTargetsChartProps {
 
 export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
   const { targets } = useNutritionTargets();
-  const isMobile = useIsMobile();
   
   // Calculate averages for the week
   const averages = data.reduce((acc, day) => ({
@@ -78,36 +76,19 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={weeklyData}
-            margin={{ top: 20, right: 30, left: isMobile ? 30 : 60, bottom: isMobile ? 60 : 5 }}
-            layout={isMobile ? "vertical" : "horizontal"}
+            margin={{ top: 20, right: 30, left: 30, bottom: 60 }}
+            layout="vertical"
           >
-            {isMobile ? (
-              <>
-                <XAxis 
-                  type="number"
-                  tick={{ fontSize: 12 }}
-                />
-                <YAxis 
-                  type="category" 
-                  dataKey="name" 
-                  width={80}
-                  tick={{ fontSize: 12 }}
-                />
-              </>
-            ) : (
-              <>
-                <XAxis 
-                  type="category" 
-                  dataKey="name" 
-                  tick={{ fontSize: 12 }}
-                  height={50}
-                />
-                <YAxis 
-                  type="number"
-                  tick={{ fontSize: 12 }}
-                />
-              </>
-            )}
+            <XAxis 
+              type="number"
+              tick={{ fontSize: 12 }}
+            />
+            <YAxis 
+              type="category" 
+              dataKey="name" 
+              width={80}
+              tick={{ fontSize: 12 }}
+            />
             <Legend 
               verticalAlign="top"
               height={36}
