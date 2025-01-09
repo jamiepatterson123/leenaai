@@ -45,7 +45,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={data} 
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
           >
             <XAxis
               dataKey="date"

@@ -24,16 +24,16 @@ interface CalorieChartProps {
 
 export const CalorieChart = ({ data }: CalorieChartProps) => {
   return (
-    <Card className="p-4 sm:p-6 w-full">
-      <div className="flex items-center gap-2 mb-4 sm:mb-6">
-        <h2 className="text-xl sm:text-2xl font-semibold">Daily Calories</h2>
+    <Card className="p-6">
+      <div className="flex items-center gap-2 mb-6">
+        <h2 className="text-2xl font-semibold">Daily Calories</h2>
         <TooltipProvider>
           <UITooltip>
             <TooltipTrigger>
               <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
             </TooltipTrigger>
             <TooltipContent>
-              <p className="max-w-xs">View your daily calorie intake to understand your eating patterns. This helps you maintain consistency and identify days where you might need to adjust your intake.</p>
+              <p className="max-w-xs">Track your daily caloric intake to ensure you're meeting your energy needs and supporting your fitness goals.</p>
             </TooltipContent>
           </UITooltip>
         </TooltipProvider>
@@ -42,7 +42,7 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={data}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
           >
             <XAxis
               dataKey="date"
@@ -50,7 +50,6 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              interval="preserveStartEnd"
               tickMargin={8}
             />
             <YAxis
@@ -65,13 +64,16 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
                 if (active && payload && payload.length) {
                   return (
                     <div className="rounded-lg border bg-background p-2 shadow-sm">
-                      <div className="flex flex-col">
-                        <span className="text-[0.70rem] uppercase text-muted-foreground">
-                          Calories
-                        </span>
-                        <span className="font-bold text-muted-foreground">
-                          {payload[0].value} kcal
-                        </span>
+                      <div className="grid gap-2">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-[#0ea5e9]" />
+                          <span className="text-[0.70rem] uppercase text-muted-foreground">
+                            Calories
+                          </span>
+                          <span className="font-bold text-muted-foreground">
+                            {payload[0].value} kcal
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );
@@ -81,10 +83,8 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
             />
             <Bar
               dataKey="calories"
-              fill="#9b87f5"
+              fill="#0ea5e9"
               radius={[4, 4, 0, 0]}
-              name="Consumed"
-              barSize={20}
             />
           </BarChart>
         </ResponsiveContainer>

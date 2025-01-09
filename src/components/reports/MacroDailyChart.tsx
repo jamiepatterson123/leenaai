@@ -88,15 +88,17 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={chartData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis 
               dataKey="name" 
               className="text-xs font-medium"
+              tickMargin={8}
             />
             <YAxis 
               className="text-xs font-medium"
+              tickMargin={8}
             />
             <RechartsTooltip
               content={({ active, payload }) => {
