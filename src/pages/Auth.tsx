@@ -61,10 +61,6 @@ const AuthPage = () => {
         appearance={{ theme: ThemeSupa }}
         providers={["google"]}
         redirectTo={window.location.origin}
-        onError={(error) => {
-          console.error("Auth UI error:", error);
-          setErrorMessage(getErrorMessage(error));
-        }}
       />
     </div>
   );
