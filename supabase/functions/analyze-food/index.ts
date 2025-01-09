@@ -45,7 +45,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "You are a nutrition expert. Based on the visual appearance of the meal and your knowledge of plate and bowl sizes, estimate the types of food, ingredients, and their weights directly from what you see. Consider standard preparation methods and average values from established nutrition databases. Format your response as a simple list of items and weights."
+                text: "You are a nutrition expert. Based on the visual appearance of the meal and your knowledge of plate and bowl sizes, estimate the types of food, ingredients, and their weights directly from what you see. Consider standard preparation methods and average values from established nutrition databases. Format your response as a JSON array of objects with 'name' and 'weight_g' properties."
               },
               {
                 type: "image_url",
@@ -66,8 +66,17 @@ serve(async (req) => {
     }
 
     const visionData = await visionResponse.json();
-    const foodList = visionData.choices[0].message.content;
-    console.log("Vision analysis result:", foodList);
+    console.log("Vision API raw response:", visionData);
+    
+    let foodList;
+    try {
+      foodList = JSON.parse(visionData.choices[0].message.content);
+      console.log("Parsed food list:", foodList);
+    } catch (parseError) {
+      console.error("Error parsing vision response:", parseError);
+      console.log("Raw content:", visionData.choices[0].message.content);
+      throw new Error('Failed to parse food list from vision response');
+    }
 
     // Now get nutritional information using GPT-4
     console.log("Calling OpenAI for nutrition analysis...");
@@ -82,11 +91,11 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a nutrition expert. Based on the food items and their weights, provide accurate nutritional information using standard preparation methods and average values from established nutrition databases. Round values to the nearest whole number for clarity."
+            content: "You are a nutrition expert. Based on the food items and their weights, provide accurate nutritional information using standard preparation methods and average values from established nutrition databases. Round values to the nearest whole number for clarity. Return ONLY a JSON object with a 'foods' array containing objects with properties: name, weight_g, nutrition (containing calories, protein, carbs, fat)."
           },
           {
             role: "user",
-            content: `Please analyze these food items and provide nutritional information: ${foodList}`
+            content: `Please analyze these food items and provide nutritional information: ${JSON.stringify(foodList)}`
           }
         ],
       })
@@ -99,13 +108,18 @@ serve(async (req) => {
     }
 
     const nutritionData = await nutritionResponse.json();
-    console.log("Nutrition analysis result:", nutritionData);
+    console.log("Nutrition analysis raw response:", nutritionData);
 
     try {
       const content = nutritionData.choices[0].message.content;
+      console.log("Raw nutrition content:", content);
       const parsedContent = JSON.parse(content);
       console.log("Parsed nutrition content:", parsedContent);
       
+      if (!parsedContent.foods || !Array.isArray(parsedContent.foods)) {
+        throw new Error('Invalid response format: missing foods array');
+      }
+
       return new Response(JSON.stringify(parsedContent), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -117,7 +131,8 @@ serve(async (req) => {
     console.error("Error in analyze-food function:", error);
     return new Response(JSON.stringify({ 
       error: error.message,
-      details: error.stack
+      details: error.stack,
+      timestamp: new Date().toISOString()
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
