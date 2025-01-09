@@ -24,7 +24,8 @@ interface MealDistributionChartProps {
 
 export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
   const mealCategories = ["Breakfast", "Lunch", "Dinner", "Snacks"];
-  const colors = ["#3b82f6", "#22c55e", "#f97316", "#8b5cf6"];
+  // Updated colors to match food diary colors
+  const colors = ["#f97316", "#FFD700", "#06b6d4", "#8b5cf6"];
 
   const processedData = mealCategories.map((category) => {
     const totalCalories = data
