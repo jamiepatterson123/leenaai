@@ -45,7 +45,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "Analyze this image and return ONLY a JSON array of objects. Each object must have exactly two properties: 'name' (string) and 'weight_g' (number). Example format: [{\"name\": \"apple\", \"weight_g\": 100}, {\"name\": \"bread\", \"weight_g\": 30}]. Do not include any other text or explanation."
+                text: "Look at this image of food and return a JSON array. Format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}]. ONLY return the JSON array, no other text. Example: [{\"name\": \"apple\", \"weight_g\": 100}]. Use realistic portion sizes in grams."
               },
               {
                 type: "image_url",
@@ -66,18 +66,33 @@ serve(async (req) => {
     }
 
     const visionData = await visionResponse.json();
-    console.log("Vision API raw response:", visionData);
+    console.log("Vision API response received");
     
     let foodList;
     try {
       const content = visionData.choices[0].message.content.trim();
       console.log("Raw vision content:", content);
-      foodList = JSON.parse(content);
+      
+      // Try to extract JSON if there's any extra text
+      const jsonMatch = content.match(/\[.*\]/s);
+      if (!jsonMatch) {
+        throw new Error('No JSON array found in response');
+      }
+      
+      foodList = JSON.parse(jsonMatch[0]);
       console.log("Parsed food list:", foodList);
       
       if (!Array.isArray(foodList)) {
         throw new Error('Vision response is not an array');
       }
+
+      // Validate food list structure
+      foodList.forEach((item: any, index: number) => {
+        if (!item.name || typeof item.weight_g !== 'number') {
+          throw new Error(`Invalid food item at index ${index}`);
+        }
+      });
+
     } catch (parseError) {
       console.error("Error parsing vision response:", parseError);
       console.log("Raw content:", visionData.choices[0].message.content);
@@ -97,11 +112,11 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a nutrition expert. You must return ONLY a JSON object in this exact format, with no additional text: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. Round all numbers to integers."
+            content: "You are a nutrition expert. Return ONLY a JSON object in this format: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. Round all numbers to integers. NO additional text."
           },
           {
             role: "user",
-            content: `Analyze the nutritional content for these foods: ${JSON.stringify(foodList)}`
+            content: `Calculate nutrition for: ${JSON.stringify(foodList)}`
           }
         ],
       })
@@ -114,12 +129,19 @@ serve(async (req) => {
     }
 
     const nutritionData = await nutritionResponse.json();
-    console.log("Nutrition analysis raw response:", nutritionData);
+    console.log("Nutrition analysis response received");
 
     try {
       const content = nutritionData.choices[0].message.content.trim();
       console.log("Raw nutrition content:", content);
-      const parsedContent = JSON.parse(content);
+      
+      // Try to extract JSON if there's any extra text
+      const jsonMatch = content.match(/\{.*\}/s);
+      if (!jsonMatch) {
+        throw new Error('No JSON object found in response');
+      }
+      
+      const parsedContent = JSON.parse(jsonMatch[0]);
       console.log("Parsed nutrition content:", parsedContent);
       
       if (!parsedContent.foods || !Array.isArray(parsedContent.foods)) {
