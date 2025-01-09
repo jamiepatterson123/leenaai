@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { format, parseISO } from "date-fns";
 
 interface MacroChartProps {
   data: {
@@ -61,6 +62,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
               axisLine={false}
               hide={false}
               dy={10}
+              tickFormatter={(value) => format(parseISO(value), "d. MMM")}
             />
             <YAxis
               stroke="#888888"

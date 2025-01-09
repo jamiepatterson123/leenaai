@@ -16,6 +16,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
+import { format, parseISO } from "date-fns";
 
 interface MacroDailyChartProps {
   data: {
@@ -103,6 +104,7 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
               tickLine={false}
               axisLine={false}
               dy={10}
+              tickFormatter={(value) => format(parseISO(value), "d. MMM")}
             />
             <YAxis 
               className="text-xs font-medium"
@@ -117,7 +119,7 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
                   const data = payload[0].payload;
                   return (
                     <div className="bg-background border border-border/50 rounded-lg p-2 text-sm">
-                      <p className="font-medium">{data.date}</p>
+                      <p className="font-medium">{format(parseISO(data.date), "d. MMM")}</p>
                       <p>Amount: {Math.round(data.value)}g</p>
                       <p className="text-muted-foreground">Average: {Math.round(average)}g</p>
                     </div>
