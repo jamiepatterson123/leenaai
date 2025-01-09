@@ -49,7 +49,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
             onClick={handlePlusClick}
             className="bg-primary rounded-full p-4 hover:bg-primary/90 transition-colors"
           >
-            <Plus className="h-6 w-6 text-white" />
+            <Plus className="h-6 w-6 text-black" />
           </button>
           <input
             ref={fileInputRef}
