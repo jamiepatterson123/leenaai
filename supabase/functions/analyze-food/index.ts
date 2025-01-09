@@ -12,14 +12,25 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Starting analyze-food function");
+    
     const { image } = await req.json();
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
     if (!openAIApiKey) {
+      console.error('OpenAI API key not configured');
       throw new Error('OpenAI API key not configured');
     }
 
+    if (!image) {
+      console.error('No image data received');
+      throw new Error('No image data received');
+    }
+
+    console.log("Image data received, length:", image.length);
+
     // First, analyze the image using the vision model
+    console.log("Calling OpenAI Vision API...");
     const visionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -51,7 +62,7 @@ serve(async (req) => {
     if (!visionResponse.ok) {
       const errorData = await visionResponse.json();
       console.error("Vision API Error:", errorData);
-      throw new Error(errorData.error?.message || 'Vision API request failed');
+      throw new Error(`Vision API request failed: ${errorData.error?.message || 'Unknown error'}`);
     }
 
     const visionData = await visionResponse.json();
@@ -59,6 +70,7 @@ serve(async (req) => {
     console.log("Vision analysis result:", foodList);
 
     // Now get nutritional information using GPT-4
+    console.log("Calling OpenAI for nutrition analysis...");
     const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -83,7 +95,7 @@ serve(async (req) => {
     if (!nutritionResponse.ok) {
       const errorData = await nutritionResponse.json();
       console.error("Nutrition API Error:", errorData);
-      throw new Error(errorData.error?.message || 'Nutrition API request failed');
+      throw new Error(`Nutrition API request failed: ${errorData.error?.message || 'Unknown error'}`);
     }
 
     const nutritionData = await nutritionResponse.json();
@@ -103,7 +115,10 @@ serve(async (req) => {
     }
   } catch (error) {
     console.error("Error in analyze-food function:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      details: error.stack
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
