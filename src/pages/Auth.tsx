@@ -1,7 +1,6 @@
-import { Auth } from "@supabase/auth-ui-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
@@ -9,21 +8,19 @@ import { Button } from "@/components/ui/button";
 
 const AuthPage = () => {
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("Auth event:", event);
-        if (event === 'SIGNED_IN' && session) {
+        console.log("Auth state change event:", event);
+        console.log("Session:", session);
+
+        if (event === "SIGNED_IN" && session) {
           navigate("/");
-        } else if (event === 'USER_UPDATED') {
-          const { error } = await supabase.auth.getSession();
-          if (error) {
-            setErrorMessage(getErrorMessage(error));
-          }
-        } else if (event === 'SIGNED_OUT') {
-          setErrorMessage(""); // Clear errors on sign out
+        }
+        if (event === "SIGNED_OUT") {
+          setErrorMessage("");
         }
       }
     );
@@ -33,15 +30,19 @@ const AuthPage = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      console.log("Initiating Google sign in...");
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
           },
         },
       });
+      
+      console.log("Sign in response data:", data);
       
       if (error) {
         console.error("Google sign in error:", error);
@@ -54,26 +55,33 @@ const AuthPage = () => {
   };
 
   const getErrorMessage = (error: AuthError) => {
-    console.error("Auth error:", error);
-    
+    console.error("Auth error details:", {
+      name: error.name,
+      message: error.message,
+      status: error instanceof AuthApiError ? error.status : 'unknown',
+      code: error instanceof AuthApiError ? error.code : 'unknown'
+    });
+
     if (error instanceof AuthApiError) {
-      switch (error.status) {
-        case 400:
-          return 'Invalid credentials or email not confirmed.';
-        case 422:
-          return 'Email already registered or invalid email format.';
-        case 401:
-          return 'Invalid credentials.';
+      switch (error.code) {
+        case 'invalid_credentials':
+          return 'Invalid email or password. Please check your credentials and try again.';
+        case 'email_not_confirmed':
+          return 'Please verify your email address before signing in.';
+        case 'user_not_found':
+          return 'No user found with these credentials.';
+        case 'invalid_grant':
+          return 'Invalid login credentials.';
         default:
           return `Authentication error: ${error.message}`;
       }
     }
-    return error.message;
+    return `Unexpected error: ${error.message}`;
   };
 
   return (
-    <div className="max-w-md mx-auto px-8 py-12">
-      <h1 className="text-2xl font-bold text-center mb-8">Sign In</h1>
+    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl font-bold mb-6 text-center">Welcome</h1>
       {errorMessage && (
         <Alert variant="destructive" className="mb-4">
           <AlertDescription>{errorMessage}</AlertDescription>
@@ -83,6 +91,7 @@ const AuthPage = () => {
         <Button 
           onClick={handleGoogleSignIn}
           className="w-full flex items-center justify-center gap-2"
+          variant="outline"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
