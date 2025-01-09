@@ -10,6 +10,14 @@ import { MacroDailyChart } from "./MacroDailyChart";
 import { WaterConsumptionChart } from "./WaterConsumptionChart";
 import { ChartSettings, VisibleCharts } from "./ChartSettings";
 import { TimeRange } from "./TimeRangeSelector";
+import { 
+  processWeightData, 
+  processCalorieData, 
+  processMacroData, 
+  processWaterData,
+  processMealData 
+} from "./DataProcessor";
+import { startOfDay, endOfDay, subDays, subWeeks, subMonths } from "date-fns";
 
 interface ReportsContentProps {
   weightData: any[];
@@ -51,6 +59,40 @@ export const ReportsContent = ({
     }));
   };
 
+  // Calculate date range based on timeRange
+  const endDate = endOfDay(new Date());
+  let startDate;
+  
+  switch (timeRange) {
+    case "1w":
+      startDate = startOfDay(subWeeks(endDate, 1));
+      break;
+    case "2w":
+      startDate = startOfDay(subWeeks(endDate, 2));
+      break;
+    case "1m":
+      startDate = startOfDay(subMonths(endDate, 1));
+      break;
+    case "2m":
+      startDate = startOfDay(subMonths(endDate, 2));
+      break;
+    case "6m":
+      startDate = startOfDay(subMonths(endDate, 6));
+      break;
+    case "1y":
+      startDate = startOfDay(subMonths(endDate, 12));
+      break;
+    default:
+      startDate = startOfDay(subDays(endDate, 7));
+  }
+
+  // Process data with date range
+  const processedWeightData = processWeightData(weightData, startDate, endDate);
+  const processedCalorieData = processCalorieData(calorieData, startDate, endDate);
+  const processedMacroData = processMacroData(macroData, startDate, endDate);
+  const processedWaterData = processWaterData(waterData, startDate, endDate);
+  const processedMealData = processMealData(mealData, startDate, endDate);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
@@ -72,60 +114,60 @@ export const ReportsContent = ({
         {/* Weight Trend */}
         {visibleCharts.weightTrend && (
           <WeightTrendChart 
-            data={weightData}
+            data={processedWeightData}
             timeRange={timeRange}
           />
         )}
         
         {/* Calories per day */}
         {visibleCharts.calories && (
-          <CalorieChart data={calorieData} />
+          <CalorieChart data={processedCalorieData} />
         )}
         
         {/* Macronutrients daily charts */}
         {visibleCharts.proteinDaily && (
           <MacroDailyChart 
-            data={macroData}
+            data={processedMacroData}
             type="protein"
           />
         )}
         {visibleCharts.carbsDaily && (
           <MacroDailyChart 
-            data={macroData}
+            data={processedMacroData}
             type="carbs"
           />
         )}
         {visibleCharts.fatDaily && (
           <MacroDailyChart 
-            data={macroData}
+            data={processedMacroData}
             type="fat"
           />
         )}
         
         {/* Water consumption */}
         {visibleCharts.waterConsumption && (
-          <WaterConsumptionChart data={waterData} />
+          <WaterConsumptionChart data={processedWaterData} />
         )}
         
         {/* Calories per meal and state */}
         {visibleCharts.mealDistribution && (
-          <MealDistributionChart data={mealData} />
+          <MealDistributionChart data={processedMealData} />
         )}
         {visibleCharts.calorieState && (
-          <CalorieStateChart data={mealData} />
+          <CalorieStateChart data={processedMealData} />
         )}
         
         {/* Macronutrient averages */}
         {visibleCharts.macros && (
-          <MacroChart data={macroData} />
+          <MacroChart data={processedMacroData} />
         )}
         
         {/* Weekly averages vs targets */}
         {visibleCharts.calorieTargets && (
-          <CalorieTargetsChart data={calorieData} />
+          <CalorieTargetsChart data={processedCalorieData} />
         )}
         {visibleCharts.macroTargets && (
-          <MacroTargetsChart data={macroData} />
+          <MacroTargetsChart data={processedMacroData} />
         )}
       </div>
     </div>

@@ -1,45 +1,77 @@
-import { FoodDiaryEntry } from "@/types/food";
+import { startOfDay, eachDayOfInterval, format, parseISO } from "date-fns";
 
-export const processCalorieData = (foodData: FoodDiaryEntry[]) => {
-  const processedData = foodData.reduce((acc: Record<string, number>, entry) => {
-    const date = entry.date;
-    if (!acc[date]) {
-      acc[date] = 0;
-    }
-    acc[date] += entry.calories;
-    return acc;
-  }, {});
-
-  return Object.entries(processedData).map(([date, calories]) => ({
-    date,
-    calories: Math.round(calories),
-  }));
+export const processWeightData = (data: any[], startDate: Date, endDate: Date) => {
+  const dateRange = eachDayOfInterval({ start: startDate, end: endDate });
+  
+  return dateRange.map(date => {
+    const formattedDate = format(date, 'yyyy-MM-dd');
+    const entry = data.find(d => d.date === formattedDate);
+    
+    return {
+      date: formattedDate,
+      weight: entry?.weight || null
+    };
+  });
 };
 
-export const processMacroData = (foodData: FoodDiaryEntry[]) => {
-  const processedData = foodData.reduce((acc: Record<string, { protein: number; carbs: number; fat: number }>, entry) => {
-    const date = entry.date;
-    if (!acc[date]) {
-      acc[date] = { protein: 0, carbs: 0, fat: 0 };
-    }
-    acc[date].protein += entry.protein;
-    acc[date].carbs += entry.carbs;
-    acc[date].fat += entry.fat;
-    return acc;
-  }, {});
-
-  return Object.entries(processedData).map(([date, macros]) => ({
-    date,
-    protein: Math.round(macros.protein),
-    carbs: Math.round(macros.carbs),
-    fat: Math.round(macros.fat),
-  }));
+export const processCalorieData = (data: any[], startDate: Date, endDate: Date) => {
+  const dateRange = eachDayOfInterval({ start: startDate, end: endDate });
+  
+  return dateRange.map(date => {
+    const formattedDate = format(date, 'yyyy-MM-dd');
+    const entriesForDay = data.filter(d => d.date === formattedDate);
+    const totalCalories = entriesForDay.reduce((sum, entry) => sum + entry.calories, 0);
+    
+    return {
+      date: formattedDate,
+      calories: totalCalories || 0
+    };
+  });
 };
 
-export const processMealData = (foodData: FoodDiaryEntry[]) => {
-  return foodData.map(entry => ({
-    calories: entry.calories,
-    category: entry.category || 'uncategorized',
-    state: entry.state || 'solid',
-  }));
+export const processMacroData = (data: any[], startDate: Date, endDate: Date) => {
+  const dateRange = eachDayOfInterval({ start: startDate, end: endDate });
+  
+  return dateRange.map(date => {
+    const formattedDate = format(date, 'yyyy-MM-dd');
+    const entriesForDay = data.filter(d => d.date === formattedDate);
+    
+    return {
+      date: formattedDate,
+      protein: entriesForDay.reduce((sum, entry) => sum + entry.protein, 0),
+      carbs: entriesForDay.reduce((sum, entry) => sum + entry.carbs, 0),
+      fat: entriesForDay.reduce((sum, entry) => sum + entry.fat, 0)
+    };
+  });
+};
+
+export const processWaterData = (data: any[], startDate: Date, endDate: Date) => {
+  const dateRange = eachDayOfInterval({ start: startDate, end: endDate });
+  
+  return dateRange.map(date => {
+    const formattedDate = format(date, 'yyyy-MM-dd');
+    const entriesForDay = data.filter(d => format(parseISO(d.timestamp), 'yyyy-MM-dd') === formattedDate);
+    const totalAmount = entriesForDay.reduce((sum, entry) => sum + entry.amount_ml, 0);
+    
+    return {
+      timestamp: formattedDate,
+      amount_ml: totalAmount || 0
+    };
+  });
+};
+
+export const processMealData = (data: any[], startDate: Date, endDate: Date) => {
+  const dateRange = eachDayOfInterval({ start: startDate, end: endDate });
+  const allData = dateRange.flatMap(date => {
+    const formattedDate = format(date, 'yyyy-MM-dd');
+    const entriesForDay = data.filter(d => d.date === formattedDate);
+    return entriesForDay.length > 0 ? entriesForDay : [{
+      date: formattedDate,
+      calories: 0,
+      category: 'No data',
+      state: 'No data'
+    }];
+  });
+
+  return allData;
 };
