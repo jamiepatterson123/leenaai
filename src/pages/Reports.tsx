@@ -43,7 +43,7 @@ export const Reports = () => {
   const mealData = foodData ? processMealData(foodData, startDate, endDate) : [];
 
   return (
-    <div className="container max-w-7xl mx-auto p-4 space-y-4">
+    <div className="container max-w-7xl mx-auto p-4 space-y-4 pb-40">
       <ReportsHeader 
         timeRange={timeRange}
         onTimeRangeChange={setTimeRange}
