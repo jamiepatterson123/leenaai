@@ -16,7 +16,7 @@ import {
 
 const InfoMessage = () => (
   <p className="text-sm text-center">
-    Any day you log your food will be shaded in gold. Try to make the entire calendar gold by the end of the month!
+    Any day you log your food will be shaded in green. Try to make the entire calendar green by the end of the month!
   </p>
 );
 
