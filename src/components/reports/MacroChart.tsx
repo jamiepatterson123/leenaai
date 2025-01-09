@@ -46,7 +46,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={data} 
-            margin={{ top: 20, right: 20, left: -25, bottom: 5 }}
+            margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
           >
             <CartesianGrid 
               strokeDasharray="3 3" 
@@ -67,7 +67,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              width={30}
+              width={50}
             />
             <Legend 
               verticalAlign="bottom"
@@ -130,21 +130,21 @@ export const MacroChart = ({ data }: MacroChartProps) => {
               fill="#22c55e"
               radius={[4, 4, 0, 0]}
               name="Protein"
-              barSize={20}
+              barSize={40}
             />
             <Bar
               dataKey="carbs"
               fill="#06b6d4"
               radius={[4, 4, 0, 0]}
               name="Carbohydrates"
-              barSize={20}
+              barSize={40}
             />
             <Bar
               dataKey="fat"
               fill="#f97316"
               radius={[4, 4, 0, 0]}
               name="Fat"
-              barSize={20}
+              barSize={40}
             />
           </BarChart>
         </ResponsiveContainer>

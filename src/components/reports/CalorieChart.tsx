@@ -43,7 +43,7 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={data}
-            margin={{ top: 20, right: 20, left: -25, bottom: 5 }}
+            margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
           >
             <CartesianGrid 
               strokeDasharray="3 3" 
@@ -64,7 +64,7 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              width={30}
+              width={50}
             />
             <Tooltip
               content={({ active, payload }) => {
@@ -92,6 +92,7 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
               dataKey="calories"
               fill="#0ea5e9"
               radius={[4, 4, 0, 0]}
+              barSize={40}
             />
           </BarChart>
         </ResponsiveContainer>
