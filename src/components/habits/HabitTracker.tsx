@@ -1,27 +1,13 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subMonths, addMonths, lastDayOfMonth } from "date-fns";
-import { ChevronLeft, ChevronRight, Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, subMonths, addMonths, lastDayOfMonth } from "date-fns";
+import { HabitTrackerHeader } from "./HabitTrackerHeader";
+import { MonthNavigation } from "./MonthNavigation";
+import { CalendarGrid } from "./CalendarGrid";
 
 export const HabitTracker = () => {
   const [currentDate, setCurrentDate] = React.useState(new Date());
-  const navigate = useNavigate();
-  const isMobile = useIsMobile();
   
   const { data: loggedDays } = useQuery({
     queryKey: ["habit-tracker", format(currentDate, "yyyy-MM")],
@@ -39,12 +25,6 @@ export const HabitTracker = () => {
     },
   });
 
-  const InfoMessage = () => (
-    <p className="text-sm text-center">
-      Any day you log your food will be shaded in gold. Try to make the entire calendar gold by the end of the month!
-    </p>
-  );
-
   // Get the days from previous month that should appear in the calendar
   const getPreviousMonthDays = () => {
     const firstDayOfMonth = startOfMonth(currentDate);
@@ -60,8 +40,8 @@ export const HabitTracker = () => {
 
   // Get the days from next month that should appear in the calendar
   const getNextMonthDays = () => {
-    const lastDayOfMonth = endOfMonth(currentDate);
-    const remainingDays = 6 - lastDayOfMonth.getDay();
+    const lastDayOfCurrentMonth = endOfMonth(currentDate);
+    const remainingDays = 6 - lastDayOfCurrentMonth.getDay();
     const nextMonth = addMonths(currentDate, 1);
     
     return Array.from({ length: remainingDays }, (_, i) => {
@@ -77,126 +57,28 @@ export const HabitTracker = () => {
     setCurrentDate(prev => addMonths(prev, 1));
   };
 
-  const handleDateClick = (date: Date) => {
-    navigate(`/food-diary?date=${format(date, "yyyy-MM-dd")}`);
-  };
+  const allDays = [
+    ...getPreviousMonthDays(),
+    ...eachDayOfInterval({
+      start: startOfMonth(currentDate),
+      end: endOfMonth(currentDate),
+    }).map(date => ({ date })),
+    ...getNextMonthDays(),
+  ];
 
   return (
     <div className="w-full max-w-md mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
       <div className="p-4">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <h2 className="text-xl font-semibold">Consistency Is Key</h2>
-          {isMobile ? (
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6">
-                  <Info className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <InfoMessage />
-              </DialogContent>
-            </Dialog>
-          ) : (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-6 w-6">
-                    <Info className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent 
-                  side="bottom"
-                  align="center"
-                  className="max-w-[250px] text-center"
-                >
-                  <InfoMessage />
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-        
-        <div className="flex items-center justify-between mb-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handlePreviousMonth}
-            className="h-8 w-8"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <h3 className="text-lg font-semibold">
-            {format(currentDate, "MMMM yyyy")}
-          </h3>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleNextMonth}
-            className="h-8 w-8"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-        
-        <div className="grid grid-cols-7 gap-0 text-center mb-2">
-          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
-            <div key={day} className="text-xs text-muted-foreground">
-              {day}
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-7 gap-0">
-          {getPreviousMonthDays().map(({ date }) => (
-            <button
-              key={date.toISOString()}
-              onClick={() => handleDateClick(date)}
-              className="aspect-square border border-border/50 flex items-center justify-center hover:bg-accent/50 transition-colors"
-            >
-              <span className="text-xs text-muted-foreground/50">
-                {format(date, "d")}
-              </span>
-            </button>
-          ))}
-          
-          {eachDayOfInterval({
-            start: startOfMonth(currentDate),
-            end: endOfMonth(currentDate),
-          }).map(day => {
-            const isLogged = loggedDays?.some(loggedDate => 
-              isSameDay(new Date(loggedDate), day)
-            );
-            
-            return (
-              <button
-                key={day.toISOString()}
-                onClick={() => handleDateClick(day)}
-                className={`
-                  aspect-square border flex items-center justify-center
-                  ${isLogged ? 'bg-[#F59E0B] border-[#F59E0B]/30' : 'border-border/50'}
-                  hover:bg-accent/50 transition-colors duration-200
-                `}
-              >
-                <span className="text-xs text-muted-foreground">
-                  {format(day, "d")}
-                </span>
-              </button>
-            );
-          })}
-
-          {getNextMonthDays().map(({ date }) => (
-            <button
-              key={date.toISOString()}
-              onClick={() => handleDateClick(date)}
-              className="aspect-square border border-border/50 flex items-center justify-center hover:bg-accent/50 transition-colors"
-            >
-              <span className="text-xs text-muted-foreground/50">
-                {format(date, "d")}
-              </span>
-            </button>
-          ))}
-        </div>
+        <HabitTrackerHeader />
+        <MonthNavigation
+          currentDate={currentDate}
+          onPreviousMonth={handlePreviousMonth}
+          onNextMonth={handleNextMonth}
+        />
+        <CalendarGrid
+          days={allDays}
+          loggedDays={loggedDays || []}
+        />
       </div>
     </div>
   );
