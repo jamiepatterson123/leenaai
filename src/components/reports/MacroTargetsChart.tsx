@@ -76,18 +76,22 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={weeklyData}
-            margin={{ top: 20, right: 30, left: 30, bottom: 60 }}
-            layout="vertical"
+            margin={{ top: 20, right: 30, left: 60, bottom: 20 }}
           >
             <XAxis 
-              type="number"
+              type="category" 
+              dataKey="name"
               tick={{ fontSize: 12 }}
             />
-            <YAxis 
-              type="category" 
-              dataKey="name" 
-              width={80}
+            <YAxis
+              type="number"
               tick={{ fontSize: 12 }}
+              label={{ 
+                value: 'Grams (g)', 
+                angle: -90, 
+                position: 'insideLeft',
+                style: { textAnchor: 'middle' }
+              }}
             />
             <Legend 
               verticalAlign="top"
@@ -120,12 +124,12 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
               dataKey="target"
               fill="#8E9196"
               name="Target"
-              barSize={20}
+              barSize={40}
             />
             <Bar
               dataKey="value"
               name="Average"
-              barSize={20}
+              barSize={40}
             >
               {weeklyData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
