@@ -27,7 +27,6 @@ interface WeightTrendChartProps {
 }
 
 export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
-  // Fetch user's preferred units
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
