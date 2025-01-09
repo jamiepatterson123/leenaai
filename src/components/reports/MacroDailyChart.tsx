@@ -45,7 +45,7 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
       case "protein":
         return "#ea384c";
       case "carbs":
-        return "#FEF7CD"; // Updated to match food diary yellow
+        return "#FFD700"; // Updated to a bold, strong yellow (Golden Yellow)
       case "fat":
         return "#f97316";
     }
