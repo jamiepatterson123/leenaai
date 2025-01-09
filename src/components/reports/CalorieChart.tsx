@@ -73,7 +73,7 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
                     <div className="rounded-lg border bg-background p-2 shadow-sm">
                       <div className="grid gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-[#0ea5e9]" />
+                          <div className="h-2 w-2 rounded-full bg-[#15803d]" />
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
                             Calories
                           </span>
@@ -90,7 +90,7 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
             />
             <Bar
               dataKey="calories"
-              fill="#0ea5e9"
+              fill="#15803d"
               radius={[4, 4, 0, 0]}
               barSize={40}
             />
