@@ -30,15 +30,11 @@ serve(async (req) => {
         model: "gpt-4o-mini",
         messages: [
           {
-            role: "system",
-            content: "You are a precise nutrition expert focused on accurate food identification and portion estimation. Use standard serving sizes and USDA database values for consistency."
-          },
-          {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "Analyze this food image. List each visible food item with its estimated weight in grams. Consider visible portion sizes, standard servings, and common plating. Be precise but concise."
+                text: "What food items do you see in this image? Please list them with their approximate portion sizes in grams. Format your response as a simple list of items and weights."
               },
               {
                 type: "image_url",
@@ -74,11 +70,11 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a nutrition database expert. Use USDA standard values and provide precise nutritional calculations based on given weights. Round to nearest whole number for clarity."
+            content: "You are a nutrition expert. Based on the food items and their portions, provide detailed nutritional information in this exact JSON format, with no additional text or markdown formatting: { \"foods\": [ { \"name\": string, \"weight_g\": number, \"nutrition\": { \"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number }, \"state\": string } ] }"
           },
           {
             role: "user",
-            content: `Calculate accurate nutritional values for these items using USDA database values: ${foodList}. Respond only with the JSON array, no explanations.`
+            content: `Please analyze these food items and provide nutritional information: ${foodList}`
           }
         ],
       })
