@@ -5,6 +5,7 @@ import { ProfileFormData } from "@/utils/profileCalculations";
 import { BasicInfoFields } from "./BasicInfoFields";
 import { SelectFields } from "./SelectFields";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 interface ProfileFormProps {
   initialData?: Partial<ProfileFormData>;
@@ -21,7 +22,26 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
     defaultValues: initialData,
   });
 
-  const [preferredUnits, setPreferredUnits] = React.useState(initialData?.preferred_units || 'metric');
+  // Use React Query to manage the preferred units state
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("preferred_units")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    initialData: { preferred_units: initialData?.preferred_units || 'metric' }
+  });
+
+  const [preferredUnits, setPreferredUnits] = React.useState(profile.preferred_units);
 
   // Watch form data changes
   const formData = watch();
@@ -30,12 +50,12 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
     onChange(formData);
   }, [formData, onChange]);
 
-  // Effect to sync preferred units with initialData
+  // Effect to sync preferred units with profile data
   React.useEffect(() => {
-    if (initialData?.preferred_units) {
-      setPreferredUnits(initialData.preferred_units);
+    if (profile?.preferred_units) {
+      setPreferredUnits(profile.preferred_units);
     }
-  }, [initialData?.preferred_units]);
+  }, [profile?.preferred_units]);
 
   const handleUnitsChange = async (value: string) => {
     setPreferredUnits(value);
@@ -64,9 +84,9 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       const { error } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({ preferred_units: value })
-        .eq('user_id', user.id);
+        .eq("user_id", user.id);
 
       if (error) {
         console.error('Error updating preferred units:', error);
