@@ -118,7 +118,7 @@ export const HabitTracker = () => {
           </Button>
         </div>
         
-        <div className="grid grid-cols-7 gap-1 text-center mb-2">
+        <div className="grid grid-cols-7 gap-0 text-center mb-2">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
             <div key={day} className="text-xs text-muted-foreground">
               {day}
@@ -126,12 +126,12 @@ export const HabitTracker = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-0">
           {getPreviousMonthDays().map(({ date }) => (
             <button
               key={date.toISOString()}
               onClick={() => handleDateClick(date)}
-              className="aspect-square rounded-sm border border-border/50 flex items-center justify-center hover:bg-accent/50 transition-colors"
+              className="aspect-square border border-border/50 flex items-center justify-center hover:bg-accent/50 transition-colors"
             >
               <span className="text-xs text-muted-foreground/50">
                 {format(date, "d")}
@@ -149,7 +149,7 @@ export const HabitTracker = () => {
                 key={day.toISOString()}
                 onClick={() => handleDateClick(day)}
                 className={`
-                  aspect-square rounded-sm border flex items-center justify-center
+                  aspect-square border flex items-center justify-center
                   ${isLogged ? 'bg-[#F59E0B] border-[#F59E0B]/30' : 'border-border/50'}
                   hover:bg-accent/50 transition-colors duration-200
                 `}
@@ -165,7 +165,7 @@ export const HabitTracker = () => {
             <button
               key={date.toISOString()}
               onClick={() => handleDateClick(date)}
-              className="aspect-square rounded-sm border border-border/50 flex items-center justify-center hover:bg-accent/50 transition-colors"
+              className="aspect-square border border-border/50 flex items-center justify-center hover:bg-accent/50 transition-colors"
             >
               <span className="text-xs text-muted-foreground/50">
                 {format(date, "d")}
