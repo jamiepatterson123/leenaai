@@ -1,11 +1,11 @@
 import { Card } from "@/components/ui/card";
 import { Info } from "lucide-react";
 import {
-  Tooltip as UITooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   PieChart,
   Pie,
@@ -48,67 +48,65 @@ export const CalorieStateChart = ({ data }: CalorieStateChartProps) => {
     <Card className="p-4 sm:p-6 w-full">
       <div className="flex items-center gap-2 mb-4 sm:mb-6">
         <h2 className="text-xl sm:text-2xl font-semibold">Calories by State</h2>
-        <TooltipProvider>
-          <UITooltip>
-            <TooltipTrigger>
-              <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="max-w-xs">Track the distribution of your calories between solid and liquid foods. This can help you understand how much of your caloric intake comes from drinks versus solid meals.</p>
-            </TooltipContent>
-          </UITooltip>
-        </TooltipProvider>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-5 w-5 p-0">
+              <Info className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-xs">
+            <p>Track the distribution of your calories between solid and liquid foods. This can help you understand how much of your caloric intake comes from drinks versus solid meals.</p>
+          </DialogContent>
+        </Dialog>
       </div>
-      <div className="h-[300px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart margin={{ top: 0, right: 0, bottom: 20, left: 0 }}>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={false}
-              outerRadius={100}
-              dataKey="value"
-            >
-              {chartData.map((entry, index) => (
-                <Cell 
-                  key={`cell-${index}`} 
-                  fill={colors[index % colors.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const data = payload[0].payload;
-                  const actualValue = processedData.find(d => d.name === data.name)?.value || 0;
-                  return (
-                    <div className="rounded-lg border bg-background p-2 shadow-sm">
-                      <div className="grid gap-2">
-                        <p className="font-medium">{data.name}</p>
-                        <p>{actualValue.toFixed(0)} kcal</p>
-                        {totalCalories > 0 && (
-                          <p>{((actualValue / totalCalories) * 100).toFixed(0)}% of total</p>
-                        )}
-                      </div>
+      <ResponsiveContainer width="100%" height={300}>
+        <PieChart>
+          <Pie
+            data={chartData}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            label={false}
+            outerRadius={100}
+            dataKey="value"
+          >
+            {chartData.map((entry, index) => (
+              <Cell 
+                key={`cell-${index}`} 
+                fill={colors[index % colors.length]}
+              />
+            ))}
+          </Pie>
+          <Tooltip
+            content={({ active, payload }) => {
+              if (active && payload && payload.length) {
+                const data = payload[0].payload;
+                const actualValue = processedData.find(d => d.name === data.name)?.value || 0;
+                return (
+                  <div className="rounded-lg border bg-background p-2 shadow-sm">
+                    <div className="grid gap-2">
+                      <p className="font-medium">{data.name}</p>
+                      <p>{actualValue.toFixed(0)} kcal</p>
+                      {totalCalories > 0 && (
+                        <p>{((actualValue / totalCalories) * 100).toFixed(0)}% of total</p>
+                      )}
                     </div>
-                  );
-                }
-                return null;
-              }}
-            />
-            <Legend 
-              verticalAlign="bottom"
-              height={36}
-              wrapperStyle={{
-                fontSize: "12px",
-                paddingTop: "20px"
-              }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
+                  </div>
+                );
+              }
+              return null;
+            }}
+          />
+          <Legend 
+            verticalAlign="bottom"
+            height={36}
+            wrapperStyle={{
+              fontSize: "12px",
+              paddingTop: "20px"
+            }}
+          />
+        </PieChart>
+      </ResponsiveContainer>
     </Card>
   );
 };

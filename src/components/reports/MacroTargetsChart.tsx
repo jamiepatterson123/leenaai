@@ -12,11 +12,11 @@ import { Card } from "@/components/ui/card";
 import { useNutritionTargets } from "@/components/nutrition/useNutritionTargets";
 import { Info } from "lucide-react";
 import {
-  Tooltip as UITooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface MacroTargetsChartProps {
   data: {
@@ -61,16 +61,16 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-6">
         <h2 className="text-2xl font-semibold">Weekly Macro Averages vs Targets</h2>
-        <TooltipProvider>
-          <UITooltip>
-            <TooltipTrigger>
-              <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="max-w-xs">Compare your weekly macronutrient intake against your targets. This helps ensure you're maintaining the right balance for your goals.</p>
-            </TooltipContent>
-          </UITooltip>
-        </TooltipProvider>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-5 w-5 p-0">
+              <Info className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-xs">
+            <p>Compare your weekly macronutrient intake against your targets. This helps ensure you're maintaining the right balance for your goals.</p>
+          </DialogContent>
+        </Dialog>
       </div>
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">

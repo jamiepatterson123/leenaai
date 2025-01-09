@@ -1,11 +1,11 @@
 import { Card } from "@/components/ui/card";
 import { Info } from "lucide-react";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   BarChart,
   Bar,
@@ -74,16 +74,16 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-6">
         <h2 className="text-2xl font-semibold">{getTitle()}</h2>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="max-w-xs">{getTooltipContent()}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-5 w-5 p-0">
+              <Info className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-xs">
+            <p>{getTooltipContent()}</p>
+          </DialogContent>
+        </Dialog>
       </div>
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">

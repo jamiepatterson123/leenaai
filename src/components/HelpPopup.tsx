@@ -1,10 +1,10 @@
 import React from "react";
 import { MessageSquare } from "lucide-react";
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 export const HelpPopup = () => {
@@ -23,14 +23,14 @@ export const HelpPopup = () => {
       case "/coach":
         return "Get personalized guidance on:\n- Meal planning\n- Nutrition goals\n- Diet optimization";
       default:
-        return "Need help? Hover over this icon for context-sensitive help about the current page.";
+        return "Need help? Click this icon for context-sensitive help about the current page.";
     }
   };
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      <HoverCard>
-        <HoverCardTrigger asChild>
+      <Dialog>
+        <DialogTrigger asChild>
           <Button
             variant="outline"
             size="icon"
@@ -38,21 +38,16 @@ export const HelpPopup = () => {
           >
             <MessageSquare className="h-6 w-6" />
           </Button>
-        </HoverCardTrigger>
-        <HoverCardContent 
-          align="end" 
-          side="top"
-          className="w-80 p-4 mb-2"
-          sideOffset={16}
-        >
+        </DialogTrigger>
+        <DialogContent className="w-80 p-4">
           <div className="space-y-2">
             <h4 className="font-medium">Help & Support</h4>
             <p className="text-sm text-muted-foreground whitespace-pre-line">
               {getCurrentPageHelp()}
             </p>
           </div>
-        </HoverCardContent>
-      </HoverCard>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
