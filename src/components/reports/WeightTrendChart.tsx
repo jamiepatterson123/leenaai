@@ -9,12 +9,12 @@ import {
 import { Card } from "@/components/ui/card";
 import { Info } from "lucide-react";
 import {
-  Tooltip as UITooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { TimeRange } from "./TimeRangeSelector";
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -45,17 +45,15 @@ export const WeightTrendChart = ({ data, timeRange }: WeightTrendChartProps) => 
 
   const preferredUnits = profile?.preferred_units || 'metric';
   
-  // Convert weight data based on preferred units and filter out null values for the line
   const convertedData = data.map(entry => ({
     ...entry,
     weight: entry.weight !== null 
       ? preferredUnits === 'imperial' 
-        ? Math.round(entry.weight * 2.20462 * 10) / 10 // kg to lbs with 1 decimal
+        ? Math.round(entry.weight * 2.20462 * 10) / 10
         : entry.weight
       : null
   }));
 
-  // Find the last non-null weight value
   const lastValidWeight = [...convertedData]
     .reverse()
     .find(entry => entry.weight !== null)?.weight;
@@ -66,16 +64,16 @@ export const WeightTrendChart = ({ data, timeRange }: WeightTrendChartProps) => 
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-6">
         <h2 className="text-2xl font-semibold">Weight Trend</h2>
-        <TooltipProvider>
-          <UITooltip>
-            <TooltipTrigger>
-              <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="max-w-xs">Track your weight changes over time to monitor progress toward your goals.</p>
-            </TooltipContent>
-          </UITooltip>
-        </TooltipProvider>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-5 w-5 p-0">
+              <Info className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-xs">
+            <p>Track your weight changes over time to monitor progress toward your goals.</p>
+          </DialogContent>
+        </Dialog>
       </div>
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -92,6 +90,7 @@ export const WeightTrendChart = ({ data, timeRange }: WeightTrendChartProps) => 
               fontSize={12}
               tickLine={false}
               axisLine={false}
+              tickFormatter={(value) => format(parseISO(value), "d. MMM")}
             />
             <YAxis
               stroke="#888888"
