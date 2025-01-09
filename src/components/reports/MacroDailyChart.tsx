@@ -84,7 +84,7 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
           </Tooltip>
         </TooltipProvider>
       </div>
-      <div className="w-full h-[300px] mt-6">
+      <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />

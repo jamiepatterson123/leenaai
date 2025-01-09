@@ -55,7 +55,7 @@ export const CalorieStateChart = ({ data }: CalorieStateChartProps) => {
           </UITooltip>
         </TooltipProvider>
       </div>
-      <div className="h-[300px] w-full">
+      <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie

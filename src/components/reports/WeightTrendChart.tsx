@@ -26,7 +26,7 @@ interface WeightTrendChartProps {
   timeRange: TimeRange;
 }
 
-export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
+export const WeightTrendChart = ({ data, timeRange }: WeightTrendChartProps) => {
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {

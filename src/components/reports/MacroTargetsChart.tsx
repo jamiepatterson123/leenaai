@@ -58,21 +58,21 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
   ];
 
   return (
-    <Card className="p-4 sm:p-6">
-      <div className="flex items-center gap-2 mb-4 sm:mb-6">
-        <h2 className="text-xl sm:text-2xl font-semibold">Weekly Macro Averages vs Targets</h2>
+    <Card className="p-6">
+      <div className="flex items-center gap-2 mb-6">
+        <h2 className="text-2xl font-semibold">Weekly Macro Averages vs Targets</h2>
         <TooltipProvider>
           <UITooltip>
             <TooltipTrigger>
               <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
             </TooltipTrigger>
             <TooltipContent>
-              <p className="max-w-xs">Compare your weekly macronutrient intake against your targets. This helps you maintain the right balance of protein for muscle maintenance, carbs for energy, and fats for hormone health.</p>
+              <p className="max-w-xs">Compare your weekly macronutrient intake against your targets. This helps ensure you're maintaining the right balance for your goals.</p>
             </TooltipContent>
           </UITooltip>
         </TooltipProvider>
       </div>
-      <div className="h-[300px] sm:h-[400px] w-full">
+      <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={weeklyData}

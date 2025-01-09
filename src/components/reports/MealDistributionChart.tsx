@@ -59,7 +59,7 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
           </UITooltip>
         </TooltipProvider>
       </div>
-      <div className="w-full aspect-square max-h-[400px]">
+      <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie

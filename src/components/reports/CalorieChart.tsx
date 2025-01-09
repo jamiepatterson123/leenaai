@@ -38,7 +38,7 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
           </UITooltip>
         </TooltipProvider>
       </div>
-      <div className="w-full aspect-[4/3] max-h-[400px]">
+      <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
             <XAxis
