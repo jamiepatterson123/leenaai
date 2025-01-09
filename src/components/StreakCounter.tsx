@@ -45,8 +45,8 @@ export const StreakCounter = () => {
   if (!streak || streak === 0) return null;
 
   return (
-    <Card className="bg-primary/5 overflow-hidden">
-      <CardContent className="py-4 flex items-center justify-center gap-2">
+    <Card className="bg-background border border-primary/20">
+      <CardContent className="py-4 flex items-center justify-center gap-2 bg-primary/10">
         <Medal className="w-5 h-5 text-primary" />
         <span className="text-lg font-medium">{streak} Day Streak!</span>
       </CardContent>
