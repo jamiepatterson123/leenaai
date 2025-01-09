@@ -41,19 +41,19 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
       name: "Protein",
       value: averages.protein / data.length,
       target: targets.protein,
-      color: "#9b87f5",
+      color: "#ea384c",
     },
     {
       name: "Carbs",
       value: averages.carbs / data.length,
       target: targets.carbs,
-      color: "#7E69AB",
+      color: "#FFD700",
     },
     {
       name: "Fat",
       value: averages.fat / data.length,
       target: targets.fat,
-      color: "#8E9196",
+      color: "#06b6d4",
     },
   ];
 
