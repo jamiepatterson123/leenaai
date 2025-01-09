@@ -90,7 +90,7 @@ export const HabitTracker = () => {
                 align="center"
                 className="max-w-[250px] text-center"
               >
-                <p>Any day you log your food will be shaded in green. Try to make the entire calendar green by the end of the month!</p>
+                <p>Any day you log your food will be shaded in yellow. Try to make the entire calendar yellow by the end of the month!</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -150,7 +150,7 @@ export const HabitTracker = () => {
                 onClick={() => handleDateClick(day)}
                 className={`
                   aspect-square rounded-sm border flex items-center justify-center
-                  ${isLogged ? 'bg-[#15803d]/20 border-[#15803d]/30' : 'border-border/50'}
+                  ${isLogged ? 'bg-[#FEF7CD] border-[#FEF7CD]/30' : 'border-border/50'}
                   hover:bg-accent/50 transition-colors duration-200
                 `}
               >
