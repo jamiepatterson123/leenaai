@@ -6,6 +6,7 @@ import {
   XAxis,
   YAxis,
   Legend,
+  CartesianGrid,
 } from "recharts";
 import { Card } from "@/components/ui/card";
 import { Info } from "lucide-react";
@@ -47,6 +48,11 @@ export const MacroChart = ({ data }: MacroChartProps) => {
             data={data} 
             margin={{ top: 20, right: 20, left: -25, bottom: 5 }}
           >
+            <CartesianGrid 
+              strokeDasharray="3 3" 
+              vertical={false}
+              className="stroke-muted"
+            />
             <XAxis
               dataKey="date"
               stroke="#888888"
@@ -64,7 +70,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
               width={30}
             />
             <Legend 
-              verticalAlign="top"
+              verticalAlign="bottom"
               height={36}
               iconType="circle"
               iconSize={8}
@@ -80,7 +86,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
                     <div className="rounded-lg border bg-background p-2 shadow-sm">
                       <div className="grid gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-[#9b87f5]" />
+                          <div className="h-2 w-2 rounded-full bg-[#22c55e]" />
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
                             Protein
                           </span>
@@ -91,7 +97,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-[#7E69AB]" />
+                          <div className="h-2 w-2 rounded-full bg-[#06b6d4]" />
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
                             Carbohydrates
                           </span>
@@ -102,7 +108,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-[#8E9196]" />
+                          <div className="h-2 w-2 rounded-full bg-[#f97316]" />
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
                             Fat
                           </span>
@@ -121,21 +127,21 @@ export const MacroChart = ({ data }: MacroChartProps) => {
             />
             <Bar
               dataKey="protein"
-              fill="#9b87f5"
+              fill="#22c55e"
               radius={[4, 4, 0, 0]}
               name="Protein"
               barSize={20}
             />
             <Bar
               dataKey="carbs"
-              fill="#7E69AB"
+              fill="#06b6d4"
               radius={[4, 4, 0, 0]}
               name="Carbohydrates"
               barSize={20}
             />
             <Bar
               dataKey="fat"
-              fill="#8E9196"
+              fill="#f97316"
               radius={[4, 4, 0, 0]}
               name="Fat"
               barSize={20}

@@ -42,11 +42,11 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
   const getColor = () => {
     switch (type) {
       case "protein":
-        return "#9b87f5"; // Primary purple
+        return "#22c55e";
       case "carbs":
-        return "#7E69AB"; // Secondary purple
+        return "#06b6d4";
       case "fat":
-        return "#8E9196"; // Neutral gray
+        return "#f97316";
     }
   };
 
@@ -90,17 +90,25 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
             data={chartData}
             margin={{ top: 20, right: 20, left: -25, bottom: 5 }}
           >
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <CartesianGrid 
+              strokeDasharray="3 3" 
+              vertical={false}
+              className="stroke-muted"
+            />
             <XAxis 
               dataKey="name" 
               className="text-xs font-medium"
               tickMargin={8}
               hide={true}
+              tickLine={false}
+              axisLine={false}
             />
             <YAxis 
               className="text-xs font-medium"
               tickMargin={8}
               width={30}
+              tickLine={false}
+              axisLine={false}
             />
             <RechartsTooltip
               content={({ active, payload }) => {

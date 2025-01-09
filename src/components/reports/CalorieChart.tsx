@@ -5,6 +5,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  CartesianGrid,
 } from "recharts";
 import { Card } from "@/components/ui/card";
 import { Info } from "lucide-react";
@@ -44,6 +45,11 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
             data={data}
             margin={{ top: 20, right: 20, left: -25, bottom: 5 }}
           >
+            <CartesianGrid 
+              strokeDasharray="3 3" 
+              vertical={false}
+              className="stroke-muted"
+            />
             <XAxis
               dataKey="date"
               stroke="#888888"
