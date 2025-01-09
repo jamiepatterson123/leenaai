@@ -23,10 +23,9 @@ interface WeightTrendChartProps {
     weight: number | null;
     date: string;
   }[];
-  timeRange: TimeRange;
 }
 
-export const WeightTrendChart = ({ data, timeRange }: WeightTrendChartProps) => {
+export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -77,7 +76,10 @@ export const WeightTrendChart = ({ data, timeRange }: WeightTrendChartProps) => 
       </div>
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={convertedData}>
+          <LineChart 
+            data={convertedData}
+            margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
+          >
             <defs>
               <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="rgb(14, 165, 233)" stopOpacity={0.3} />
@@ -90,6 +92,7 @@ export const WeightTrendChart = ({ data, timeRange }: WeightTrendChartProps) => 
               fontSize={12}
               tickLine={false}
               axisLine={false}
+              dy={10}
               tickFormatter={(value) => format(parseISO(value), "d. MMM")}
             />
             <YAxis
@@ -97,6 +100,8 @@ export const WeightTrendChart = ({ data, timeRange }: WeightTrendChartProps) => 
               fontSize={12}
               tickLine={false}
               axisLine={false}
+              tickMargin={8}
+              width={50}
               tickFormatter={(value) => `${value}${unitLabel}`}
             />
             <Tooltip
