@@ -2,7 +2,6 @@ import React from "react";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
 import { useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -59,18 +58,20 @@ export const Navigation = () => {
   };
 
   return (
-    <>
-      <DesktopNav 
-        handleShare={handleShare}
-        handleSignOut={handleSignOut}
-        theme={theme}
-        toggleTheme={toggleTheme}
-      />
-      
-      <MobileNav 
-        onAddClick={() => {}} 
-        onFileSelect={handleFileSelect}
-      />
-    </>
+    <div className="border-b">
+      <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+        <h1 className="text-2xl font-bold text-primary">Leena.ai</h1>
+        <DesktopNav 
+          handleShare={handleShare}
+          handleSignOut={handleSignOut}
+          theme={theme}
+          toggleTheme={toggleTheme}
+        />
+        <MobileNav 
+          onAddClick={() => {}} 
+          onFileSelect={handleFileSelect}
+        />
+      </div>
+    </div>
   );
 };

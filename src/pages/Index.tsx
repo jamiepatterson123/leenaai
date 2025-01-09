@@ -2,15 +2,10 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ProfileHeader } from "@/components/home/ProfileHeader";
 import { HomeDataSection } from "@/components/home/HomeDataSection";
-import { LogOut } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Navigation } from "@/components/Navigation";
 
 const Index = () => {
-  const navigate = useNavigate();
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -32,33 +27,9 @@ const Index = () => {
     },
   });
 
-  const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      navigate("/auth");
-      toast.success("Signed out successfully");
-    } catch (error) {
-      toast.error("Error signing out");
-    }
-  };
-
   return (
     <>
-      <header className="border-b">
-        <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
-          <h1 className="text-2xl font-bold text-primary">Leena.ai</h1>
-          <Navigation />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSignOut}
-            className="text-muted-foreground hover:text-primary"
-          >
-            <LogOut className="h-5 w-5" />
-          </Button>
-        </div>
-      </header>
-      
+      <Navigation />
       <main className="max-w-4xl mx-auto px-4 pb-24 md:pb-8 pt-8">
         <HomeDataSection />
       </main>
