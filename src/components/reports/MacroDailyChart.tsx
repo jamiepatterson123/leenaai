@@ -42,7 +42,7 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
   const getColor = () => {
     switch (type) {
       case "protein":
-        return "#22c55e";
+        return "#ea384c";
       case "carbs":
         return "#06b6d4";
       case "fat":
