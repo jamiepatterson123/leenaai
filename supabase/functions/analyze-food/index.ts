@@ -34,7 +34,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "What food items do you see in this image? Please list them with their approximate portion sizes in grams. Format your response as a simple list of items and weights."
+                text: "You are a nutrition expert. Based on the visual appearance of the meal and your knowledge of plate and bowl sizes, estimate the types of food, ingredients, and their weights directly from what you see. Consider standard preparation methods and average values from established nutrition databases. Format your response as a simple list of items and weights."
               },
               {
                 type: "image_url",
@@ -70,7 +70,7 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a nutrition expert. Based on the food items and their portions, provide detailed nutritional information in this exact JSON format, with no additional text or markdown formatting: { \"foods\": [ { \"name\": string, \"weight_g\": number, \"nutrition\": { \"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number }, \"state\": string } ] }"
+            content: "You are a nutrition expert. Based on the food items and their weights, provide accurate nutritional information using standard preparation methods and average values from established nutrition databases. Round values to the nearest whole number for clarity."
           },
           {
             role: "user",
