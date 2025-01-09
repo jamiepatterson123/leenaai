@@ -5,7 +5,6 @@ import Index from "./pages/Index";
 import FoodDiary from "./pages/FoodDiary";
 import Profile from "./pages/Profile";
 import { Reports } from "./pages/Reports";
-import { Navigation } from "./components/Navigation";
 
 const queryClient = new QueryClient();
 
@@ -13,7 +12,6 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <Navigation />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/food-diary" element={<FoodDiary />} />
