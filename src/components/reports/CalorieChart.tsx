@@ -50,7 +50,7 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickMargin={8}
+              hide={true}
             />
             <YAxis
               stroke="#888888"
