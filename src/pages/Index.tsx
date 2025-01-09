@@ -46,7 +46,7 @@ const Index = () => {
       <header className="border-b">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
           <h1 className="text-2xl font-bold text-primary">Leena.ai</h1>
-          <div className="hidden md:flex items-center gap-4">
+          <div className="flex items-center gap-4">
             <Navigation />
             <Button
               variant="ghost"
@@ -56,9 +56,6 @@ const Index = () => {
             >
               <LogOut className="h-5 w-5" />
             </Button>
-          </div>
-          <div className="md:hidden">
-            <Navigation />
           </div>
         </div>
       </header>

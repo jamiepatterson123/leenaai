@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import { Home, Book, User, LineChart } from "lucide-react";
 import { MobileNav } from "./navigation/MobileNav";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -58,9 +60,27 @@ export const Navigation = () => {
   };
 
   return (
-    <MobileNav 
-      onAddClick={() => {}} 
-      onFileSelect={handleFileSelect}
-    />
+    <>
+      <div className="hidden md:flex items-center space-x-6">
+        <Link to="/" className="flex items-center text-muted-foreground hover:text-primary transition-colors">
+          <Home className="h-5 w-5" />
+        </Link>
+        <Link to="/food-diary" className="flex items-center text-muted-foreground hover:text-primary transition-colors">
+          <Book className="h-5 w-5" />
+        </Link>
+        <Link to="/reports" className="flex items-center text-muted-foreground hover:text-primary transition-colors">
+          <LineChart className="h-5 w-5" />
+        </Link>
+        <Link to="/profile" className="flex items-center text-muted-foreground hover:text-primary transition-colors">
+          <User className="h-5 w-5" />
+        </Link>
+      </div>
+      <div className="md:hidden">
+        <MobileNav 
+          onAddClick={() => {}} 
+          onFileSelect={handleFileSelect}
+        />
+      </div>
+    </>
   );
 };
