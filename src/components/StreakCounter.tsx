@@ -41,7 +41,6 @@ export const StreakCounter = () => {
     },
   });
 
-  // Only render if there's an actual streak (greater than 0)
   if (!streak || streak === 0) return null;
 
   return (

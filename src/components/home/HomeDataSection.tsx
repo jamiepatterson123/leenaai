@@ -18,7 +18,7 @@ export const HomeDataSection = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-primary/5 p-4 rounded-lg">
+      <div className="rounded-lg">
         <StreakCounter />
       </div>
 
