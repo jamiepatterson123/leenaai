@@ -45,7 +45,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "You are a nutrition expert. Based on the visual appearance of the meal and your knowledge of plate and bowl sizes, estimate the types of food, ingredients, and their weights directly from what you see. Consider standard preparation methods and average values from established nutrition databases. Format your response as a JSON array of objects with 'name' and 'weight_g' properties."
+                text: "Analyze this image and return ONLY a JSON array of objects. Each object must have exactly two properties: 'name' (string) and 'weight_g' (number). Example format: [{\"name\": \"apple\", \"weight_g\": 100}, {\"name\": \"bread\", \"weight_g\": 30}]. Do not include any other text or explanation."
               },
               {
                 type: "image_url",
@@ -70,8 +70,14 @@ serve(async (req) => {
     
     let foodList;
     try {
-      foodList = JSON.parse(visionData.choices[0].message.content);
+      const content = visionData.choices[0].message.content.trim();
+      console.log("Raw vision content:", content);
+      foodList = JSON.parse(content);
       console.log("Parsed food list:", foodList);
+      
+      if (!Array.isArray(foodList)) {
+        throw new Error('Vision response is not an array');
+      }
     } catch (parseError) {
       console.error("Error parsing vision response:", parseError);
       console.log("Raw content:", visionData.choices[0].message.content);
@@ -91,11 +97,11 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a nutrition expert. Based on the food items and their weights, provide accurate nutritional information using standard preparation methods and average values from established nutrition databases. Round values to the nearest whole number for clarity. Return ONLY a JSON object with a 'foods' array containing objects with properties: name, weight_g, nutrition (containing calories, protein, carbs, fat)."
+            content: "You are a nutrition expert. You must return ONLY a JSON object in this exact format, with no additional text: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. Round all numbers to integers."
           },
           {
             role: "user",
-            content: `Please analyze these food items and provide nutritional information: ${JSON.stringify(foodList)}`
+            content: `Analyze the nutritional content for these foods: ${JSON.stringify(foodList)}`
           }
         ],
       })
@@ -111,7 +117,7 @@ serve(async (req) => {
     console.log("Nutrition analysis raw response:", nutritionData);
 
     try {
-      const content = nutritionData.choices[0].message.content;
+      const content = nutritionData.choices[0].message.content.trim();
       console.log("Raw nutrition content:", content);
       const parsedContent = JSON.parse(content);
       console.log("Parsed nutrition content:", parsedContent);
@@ -120,11 +126,23 @@ serve(async (req) => {
         throw new Error('Invalid response format: missing foods array');
       }
 
+      // Validate the structure of each food item
+      parsedContent.foods.forEach((food: any, index: number) => {
+        if (!food.name || typeof food.weight_g !== 'number' || !food.nutrition) {
+          throw new Error(`Invalid food item structure at index ${index}`);
+        }
+        const { calories, protein, carbs, fat } = food.nutrition;
+        if (![calories, protein, carbs, fat].every(n => typeof n === 'number')) {
+          throw new Error(`Invalid nutrition values for food item at index ${index}`);
+        }
+      });
+
       return new Response(JSON.stringify(parsedContent), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     } catch (parseError) {
       console.error("Error parsing nutrition response:", parseError);
+      console.log("Raw nutrition content:", nutritionData.choices[0].message.content);
       throw new Error('Error processing the nutritional information');
     }
   } catch (error) {
