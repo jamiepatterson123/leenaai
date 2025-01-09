@@ -5,6 +5,12 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subMont
 import { ChevronLeft, ChevronRight, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Tooltip,
   TooltipContent,
@@ -15,6 +21,7 @@ import {
 export const HabitTracker = () => {
   const [currentDate, setCurrentDate] = React.useState(new Date());
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   const { data: loggedDays } = useQuery({
     queryKey: ["habit-tracker", format(currentDate, "yyyy-MM")],
@@ -32,22 +39,11 @@ export const HabitTracker = () => {
     },
   });
 
-  const days = eachDayOfInterval({
-    start: startOfMonth(currentDate),
-    end: endOfMonth(currentDate),
-  });
-
-  const handlePreviousMonth = () => {
-    setCurrentDate(prev => subMonths(prev, 1));
-  };
-
-  const handleNextMonth = () => {
-    setCurrentDate(prev => addMonths(prev, 1));
-  };
-
-  const handleDateClick = (date: Date) => {
-    navigate(`/food-diary?date=${format(date, "yyyy-MM-dd")}`);
-  };
+  const InfoMessage = () => (
+    <p className="text-sm text-center">
+      Any day you log your food will be shaded in gold. Try to make the entire calendar gold by the end of the month!
+    </p>
+  );
 
   // Get the days from previous month that should appear in the calendar
   const getPreviousMonthDays = () => {
@@ -73,27 +69,52 @@ export const HabitTracker = () => {
     });
   };
 
+  const handlePreviousMonth = () => {
+    setCurrentDate(prev => subMonths(prev, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(prev => addMonths(prev, 1));
+  };
+
+  const handleDateClick = (date: Date) => {
+    navigate(`/food-diary?date=${format(date, "yyyy-MM-dd")}`);
+  };
+
   return (
     <div className="w-full max-w-md mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
       <div className="p-4">
         <div className="flex items-center justify-center gap-2 mb-4">
           <h2 className="text-xl font-semibold">Consistency Is Key</h2>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
+          {isMobile ? (
+            <Dialog>
+              <DialogTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-6 w-6">
                   <Info className="h-4 w-4" />
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent 
-                side="bottom"
-                align="center"
-                className="max-w-[250px] text-center"
-              >
-                <p>Any day you log your food will be shaded in gold. Try to make the entire calendar gold by the end of the month!</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+              </DialogTrigger>
+              <DialogContent>
+                <InfoMessage />
+              </DialogContent>
+            </Dialog>
+          ) : (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-6 w-6">
+                    <Info className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent 
+                  side="bottom"
+                  align="center"
+                  className="max-w-[250px] text-center"
+                >
+                  <InfoMessage />
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
         
         <div className="flex items-center justify-between mb-4">
@@ -139,7 +160,10 @@ export const HabitTracker = () => {
             </button>
           ))}
           
-          {days.map(day => {
+          {eachDayOfInterval({
+            start: startOfMonth(currentDate),
+            end: endOfMonth(currentDate),
+          }).map(day => {
             const isLogged = loggedDays?.some(loggedDate => 
               isSameDay(new Date(loggedDate), day)
             );
