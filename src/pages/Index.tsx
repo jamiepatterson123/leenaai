@@ -7,6 +7,7 @@ import { HomeDataSection } from "@/components/home/HomeDataSection";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Navigation } from "@/components/Navigation";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -42,21 +43,27 @@ const Index = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 pb-24 md:pb-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold text-primary">Leena.ai</h1>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleSignOut}
-          className="text-muted-foreground hover:text-primary"
-        >
-          <LogOut className="h-5 w-5" />
-        </Button>
-      </div>
-      <ProfileHeader profile={profile} />
-      <HomeDataSection />
-    </div>
+    <>
+      <header className="border-b">
+        <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+          <h1 className="text-2xl font-bold text-primary">Leena.ai</h1>
+          <Navigation />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSignOut}
+            className="text-muted-foreground hover:text-primary"
+          >
+            <LogOut className="h-5 w-5" />
+          </Button>
+        </div>
+      </header>
+      
+      <main className="max-w-4xl mx-auto px-4 pb-24 md:pb-8 pt-8">
+        <ProfileHeader profile={profile} />
+        <HomeDataSection />
+      </main>
+    </>
   );
 };
 

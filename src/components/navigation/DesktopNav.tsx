@@ -31,7 +31,7 @@ export const DesktopNav = ({
   ];
 
   return (
-    <div className="hidden md:flex items-center gap-4 relative z-50">
+    <div className="hidden md:flex items-center gap-4">
       <NavigationMenu>
         <NavigationMenuList>
           {mainNavigationItems.map((item) => (
