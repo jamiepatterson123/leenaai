@@ -5,7 +5,7 @@ import { ProfileFormData } from "@/utils/profileCalculations";
 import { BasicInfoFields } from "./BasicInfoFields";
 import { SelectFields } from "./SelectFields";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface ProfileFormProps {
   initialData?: Partial<ProfileFormData>;
@@ -18,6 +18,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   onSubmit,
   onChange,
 }) => {
+  const queryClient = useQueryClient();
   const { register, handleSubmit, setValue, watch } = useForm<ProfileFormData>({
     defaultValues: initialData,
   });
@@ -38,10 +39,9 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
       if (error) throw error;
       return data;
     },
-    initialData: { preferred_units: initialData?.preferred_units || 'metric' }
   });
 
-  const [preferredUnits, setPreferredUnits] = React.useState(profile.preferred_units);
+  const [preferredUnits, setPreferredUnits] = React.useState(profile?.preferred_units || initialData?.preferred_units || 'metric');
 
   // Watch form data changes
   const formData = watch();
@@ -90,6 +90,9 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 
       if (error) {
         console.error('Error updating preferred units:', error);
+      } else {
+        // Invalidate and refetch profile data
+        queryClient.invalidateQueries({ queryKey: ['profile'] });
       }
     }
   };

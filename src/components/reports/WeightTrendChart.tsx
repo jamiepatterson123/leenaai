@@ -26,18 +26,19 @@ interface WeightTrendChartProps {
 }
 
 export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
-  const { data: profile, isLoading: isLoadingProfile } = useQuery({
+  const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .select("preferred_units")
         .eq("user_id", user.id)
-        .maybeSingle();
+        .single();
 
+      if (error) throw error;
       return data;
     },
   });
@@ -54,18 +55,6 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
   }));
 
   const unitLabel = preferredUnits === 'imperial' ? 'lbs' : 'kg';
-
-  if (isLoadingProfile) {
-    return (
-      <Card className="p-6">
-        <div className="h-[400px] w-full flex items-center justify-center">
-          <div className="text-muted-foreground animate-pulse">
-            Loading chart...
-          </div>
-        </div>
-      </Card>
-    );
-  }
 
   return (
     <Card className="p-6">
