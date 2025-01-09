@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
@@ -19,9 +18,6 @@ const AuthPage = () => {
         if (event === "SIGNED_IN" && session) {
           navigate("/");
         }
-        if (event === "SIGNED_OUT") {
-          setErrorMessage("");
-        }
       }
     );
 
@@ -34,11 +30,8 @@ const AuthPage = () => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
+          redirectTo: window.location.origin,
+          skipBrowserRedirect: false,
         },
       });
       
