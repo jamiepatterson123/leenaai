@@ -29,6 +29,7 @@ const Index = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 pb-24 md:pb-8">
+      <h1 className="text-4xl font-bold text-primary mb-8">Leena.ai</h1>
       <ProfileHeader profile={profile} />
       <HomeDataSection />
     </div>
