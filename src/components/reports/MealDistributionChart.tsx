@@ -24,7 +24,6 @@ interface MealDistributionChartProps {
 
 export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
   const mealCategories = ["Breakfast", "Lunch", "Dinner", "Snacks"];
-  // Updated snacks color to match calories green from food diary (#22c55e)
   const colors = ["#ea384c", "#06b6d4", "#FFD700", "#22c55e"];
 
   const processedData = mealCategories.map((category) => {
@@ -68,44 +67,7 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({
-                cx,
-                cy,
-                midAngle,
-                innerRadius,
-                outerRadius,
-                name,
-                value,
-              }) => {
-                const RADIAN = Math.PI / 180;
-                const radius = outerRadius * 1.35;
-                const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                
-                const actualValue = processedData.find(d => d.name === name)?.value || 0;
-                const percentage = totalCalories ? ((actualValue / totalCalories) * 100).toFixed(0) : "0";
-
-                const textAnchor = x > cx ? "start" : "end";
-                const labelX = x > cx ? x + 5 : x - 5;
-
-                return (
-                  <g>
-                    <text
-                      x={labelX}
-                      y={y}
-                      fill="currentColor"
-                      textAnchor={textAnchor}
-                      dominantBaseline="central"
-                      className="text-[10px] sm:text-sm font-medium"
-                      style={{
-                        filter: "drop-shadow(0px 0px 2px rgba(255, 255, 255, 0.9))"
-                      }}
-                    >
-                      {`${name} (${percentage}%)`}
-                    </text>
-                  </g>
-                );
-              }}
+              label={false}
               outerRadius={100}
               dataKey="value"
             >
