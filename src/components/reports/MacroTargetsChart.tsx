@@ -7,6 +7,7 @@ import {
   YAxis,
   Cell,
   Legend,
+  CartesianGrid,
 } from "recharts";
 import { Card } from "@/components/ui/card";
 import { useNutritionTargets } from "@/components/nutrition/useNutritionTargets";
@@ -76,21 +77,33 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={weeklyData}
-            margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
+            margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
           >
+            <CartesianGrid 
+              strokeDasharray="3 3" 
+              vertical={false}
+              className="stroke-muted"
+            />
             <XAxis 
               type="category" 
               dataKey="name"
               tick={{ fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
             />
             <YAxis
               type="number"
               tick={{ fontSize: 12 }}
               width={50}
+              axisLine={false}
+              tickLine={false}
+              tickMargin={8}
             />
             <Legend 
               verticalAlign="top"
               height={36}
+              iconType="circle"
+              iconSize={8}
               wrapperStyle={{
                 paddingBottom: "20px",
                 fontSize: "12px"
