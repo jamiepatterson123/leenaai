@@ -99,9 +99,10 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
               dataKey="name" 
               className="text-xs font-medium"
               tickMargin={8}
-              hide={true}
+              hide={false}
               tickLine={false}
               axisLine={false}
+              dy={10}
             />
             <YAxis 
               className="text-xs font-medium"

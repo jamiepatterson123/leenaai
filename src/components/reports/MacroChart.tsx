@@ -59,7 +59,8 @@ export const MacroChart = ({ data }: MacroChartProps) => {
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              hide={true}
+              hide={false}
+              dy={10}
             />
             <YAxis
               stroke="#888888"
