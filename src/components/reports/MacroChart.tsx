@@ -45,7 +45,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={data} 
-            margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
+            margin={{ top: 20, right: 20, left: -10, bottom: 5 }}
           >
             <XAxis
               dataKey="date"
@@ -53,7 +53,6 @@ export const MacroChart = ({ data }: MacroChartProps) => {
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              interval="preserveStartEnd"
               tickMargin={8}
             />
             <YAxis
@@ -62,6 +61,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
+              width={35}
             />
             <Legend 
               verticalAlign="top"
