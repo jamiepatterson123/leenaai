@@ -62,7 +62,7 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
   };
 
   const chartData = data.map((entry) => ({
-    name: entry.date,
+    date: entry.date,
     value: entry[type],
   }));
 
@@ -96,7 +96,7 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
               className="stroke-muted"
             />
             <XAxis 
-              dataKey="name" 
+              dataKey="date" 
               className="text-xs font-medium"
               tickMargin={8}
               hide={false}
@@ -117,7 +117,7 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
                   const data = payload[0].payload;
                   return (
                     <div className="bg-background border border-border/50 rounded-lg p-2 text-sm">
-                      <p className="font-medium">{data.name}</p>
+                      <p className="font-medium">{data.date}</p>
                       <p>Amount: {Math.round(data.value)}g</p>
                       <p className="text-muted-foreground">Average: {Math.round(average)}g</p>
                     </div>
