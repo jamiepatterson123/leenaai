@@ -1,5 +1,4 @@
 import React from "react";
-import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -59,18 +58,9 @@ export const Navigation = () => {
   };
 
   return (
-    <>
-      <DesktopNav 
-        handleShare={handleShare}
-        handleSignOut={handleSignOut}
-        theme={theme}
-        toggleTheme={toggleTheme}
-      />
-      
-      <MobileNav 
-        onAddClick={() => {}} 
-        onFileSelect={handleFileSelect}
-      />
-    </>
+    <MobileNav 
+      onAddClick={() => {}} 
+      onFileSelect={handleFileSelect}
+    />
   );
 };
