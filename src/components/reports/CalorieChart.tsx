@@ -40,7 +40,10 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
       </div>
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data}>
+          <BarChart 
+            data={data}
+            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+          >
             <XAxis
               dataKey="date"
               stroke="#888888"
