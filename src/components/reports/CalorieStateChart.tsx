@@ -62,37 +62,8 @@ export const CalorieStateChart = ({ data }: CalorieStateChartProps) => {
               data={chartData}
               cx="50%"
               cy="50%"
-              labelLine={true}
-              label={({
-                cx,
-                cy,
-                midAngle,
-                innerRadius,
-                outerRadius,
-                name,
-                value
-              }) => {
-                const RADIAN = Math.PI / 180;
-                const radius = outerRadius * 1.4;
-                const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                
-                const actualValue = name === "Liquid" ? liquidCalories : solidCalories;
-                const percent = totalCalories ? ((actualValue / totalCalories) * 100).toFixed(0) : "0";
-
-                return (
-                  <text
-                    x={x}
-                    y={y}
-                    fill="currentColor"
-                    textAnchor={x > cx ? "start" : "end"}
-                    dominantBaseline="central"
-                    className="text-sm"
-                  >
-                    {`${name} (${percent}%)`}
-                  </text>
-                );
-              }}
+              labelLine={false}
+              label={false}
               outerRadius={80}
               dataKey="value"
             >
