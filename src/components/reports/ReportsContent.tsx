@@ -69,36 +69,20 @@ export const ReportsContent = ({
       />
       
       <div className="grid gap-4 md:gap-6">
+        {/* Weight Trend */}
         {visibleCharts.weightTrend && (
           <WeightTrendChart 
             data={weightData}
             timeRange={timeRange}
           />
         )}
-        {visibleCharts.calorieTargets && (
-          <CalorieTargetsChart data={calorieData} />
-        )}
+        
+        {/* Calories per day */}
         {visibleCharts.calories && (
           <CalorieChart data={calorieData} />
         )}
-        {visibleCharts.mealDistribution && visibleCharts.calorieState && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            <MealDistributionChart data={mealData} />
-            <CalorieStateChart data={mealData} />
-          </div>
-        )}
-        {!visibleCharts.mealDistribution && visibleCharts.calorieState && (
-          <CalorieStateChart data={mealData} />
-        )}
-        {visibleCharts.mealDistribution && !visibleCharts.calorieState && (
-          <MealDistributionChart data={mealData} />
-        )}
-        {visibleCharts.macros && (
-          <MacroChart data={macroData} />
-        )}
-        {visibleCharts.macroTargets && (
-          <MacroTargetsChart data={macroData} />
-        )}
+        
+        {/* Macronutrients daily charts */}
         {visibleCharts.proteinDaily && (
           <MacroDailyChart 
             data={macroData}
@@ -117,8 +101,31 @@ export const ReportsContent = ({
             type="fat"
           />
         )}
+        
+        {/* Water consumption */}
         {visibleCharts.waterConsumption && (
           <WaterConsumptionChart data={waterData} />
+        )}
+        
+        {/* Calories per meal and state */}
+        {visibleCharts.mealDistribution && (
+          <MealDistributionChart data={mealData} />
+        )}
+        {visibleCharts.calorieState && (
+          <CalorieStateChart data={mealData} />
+        )}
+        
+        {/* Macronutrient averages */}
+        {visibleCharts.macros && (
+          <MacroChart data={macroData} />
+        )}
+        
+        {/* Weekly averages vs targets */}
+        {visibleCharts.calorieTargets && (
+          <CalorieTargetsChart data={calorieData} />
+        )}
+        {visibleCharts.macroTargets && (
+          <MacroTargetsChart data={macroData} />
         )}
       </div>
     </div>
