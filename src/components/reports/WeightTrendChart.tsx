@@ -20,7 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface WeightTrendChartProps {
   data: {
-    weight: number;
+    weight: number | null;
     date: string;
   }[];
   timeRange: TimeRange;
@@ -46,13 +46,20 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
 
   const preferredUnits = profile?.preferred_units || 'metric';
   
-  // Convert weight data based on preferred units
+  // Convert weight data based on preferred units and filter out null values for the line
   const convertedData = data.map(entry => ({
     ...entry,
-    weight: preferredUnits === 'imperial' 
-      ? Math.round(entry.weight * 2.20462 * 10) / 10 // kg to lbs with 1 decimal
-      : entry.weight
+    weight: entry.weight !== null 
+      ? preferredUnits === 'imperial' 
+        ? Math.round(entry.weight * 2.20462 * 10) / 10 // kg to lbs with 1 decimal
+        : entry.weight
+      : null
   }));
+
+  // Find the last non-null weight value
+  const lastValidWeight = [...convertedData]
+    .reverse()
+    .find(entry => entry.weight !== null)?.weight;
 
   const unitLabel = preferredUnits === 'imperial' ? 'lbs' : 'kg';
 
@@ -97,6 +104,9 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
             <Tooltip
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
+                  const value = payload[0].value;
+                  if (value === null) return null;
+                  
                   return (
                     <div className="rounded-lg border bg-background p-2 shadow-sm">
                       <div className="grid gap-2">
@@ -105,7 +115,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
                             Weight
                           </span>
                           <span className="ml-2 font-bold">
-                            {payload[0].value}{unitLabel}
+                            {value}{unitLabel}
                           </span>
                         </div>
                       </div>
@@ -121,6 +131,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
               stroke="rgb(14, 165, 233)"
               strokeWidth={2}
               dot={true}
+              connectNulls={true}
             />
           </LineChart>
         </ResponsiveContainer>
