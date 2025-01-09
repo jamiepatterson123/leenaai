@@ -59,9 +59,9 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
           </UITooltip>
         </TooltipProvider>
       </div>
-      <div className="h-[400px] w-full">
+      <div className="h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
+          <PieChart margin={{ top: 0, right: 0, bottom: 20, left: 0 }}>
             <Pie
               data={chartData}
               cx="50%"

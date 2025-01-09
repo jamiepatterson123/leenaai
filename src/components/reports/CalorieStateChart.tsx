@@ -23,48 +23,52 @@ interface CalorieStateChartProps {
 }
 
 export const CalorieStateChart = ({ data }: CalorieStateChartProps) => {
-  // Calculate total calories for each state
-  const liquidCalories = data
-    .filter(entry => entry.state?.toLowerCase() === 'liquid')
-    .reduce((sum, entry) => sum + entry.calories, 0);
+  const states = ["liquid", "solid"];
+  const colors = ["#06b6d4", "#22c55e"];
 
-  const solidCalories = data
-    .filter(entry => entry.state?.toLowerCase() === 'solid')
-    .reduce((sum, entry) => sum + entry.calories, 0);
+  const processedData = states.map((state) => {
+    const totalCalories = data
+      .filter((entry) => entry.state?.toLowerCase() === state)
+      .reduce((sum, entry) => sum + entry.calories, 0);
 
-  const chartData = [
-    { name: "Liquid", value: liquidCalories || 50 },
-    { name: "Solid", value: solidCalories || 50 },
-  ];
+    return {
+      name: state.charAt(0).toUpperCase() + state.slice(1),
+      value: totalCalories || 0,
+    };
+  });
 
-  const colors = ["#3b82f6", "#22c55e"];
-  const totalCalories = Math.max(liquidCalories + solidCalories, 100);
+  const totalCalories = processedData.reduce((sum, entry) => sum + entry.value, 0);
+  const minValue = 50;
+  const chartData = processedData.map(entry => ({
+    ...entry,
+    value: totalCalories === 0 ? minValue : (entry.value || minValue/2)
+  }));
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <h2 className="text-2xl font-semibold">Calories by State</h2>
+    <Card className="p-4 sm:p-6 w-full">
+      <div className="flex items-center gap-2 mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-semibold">Calories by State</h2>
         <TooltipProvider>
           <UITooltip>
             <TooltipTrigger>
               <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
             </TooltipTrigger>
             <TooltipContent>
-              <p className="max-w-xs">Understand the balance between solid and liquid calories in your diet. This can help you make informed decisions about your food choices and ensure you're not consuming too many calories through drinks.</p>
+              <p className="max-w-xs">Track the distribution of your calories between solid and liquid foods. This can help you understand how much of your caloric intake comes from drinks versus solid meals.</p>
             </TooltipContent>
           </UITooltip>
         </TooltipProvider>
       </div>
-      <div className="h-[400px] w-full">
+      <div className="h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
+          <PieChart margin={{ top: 0, right: 0, bottom: 20, left: 0 }}>
             <Pie
               data={chartData}
               cx="50%"
               cy="50%"
               labelLine={false}
               label={false}
-              outerRadius={80}
+              outerRadius={100}
               dataKey="value"
             >
               {chartData.map((entry, index) => (
@@ -78,7 +82,7 @@ export const CalorieStateChart = ({ data }: CalorieStateChartProps) => {
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   const data = payload[0].payload;
-                  const actualValue = data.name === "Liquid" ? liquidCalories : solidCalories;
+                  const actualValue = processedData.find(d => d.name === data.name)?.value || 0;
                   return (
                     <div className="rounded-lg border bg-background p-2 shadow-sm">
                       <div className="grid gap-2">
@@ -95,8 +99,12 @@ export const CalorieStateChart = ({ data }: CalorieStateChartProps) => {
               }}
             />
             <Legend 
-              verticalAlign="bottom" 
+              verticalAlign="bottom"
               height={36}
+              wrapperStyle={{
+                fontSize: "12px",
+                paddingTop: "20px"
+              }}
             />
           </PieChart>
         </ResponsiveContainer>
