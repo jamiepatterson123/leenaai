@@ -25,11 +25,6 @@ const AuthPage = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleError = (error: AuthError) => {
-    console.error("Auth error:", error);
-    setError(error.message);
-  };
-
   return (
     <div className="max-w-md mx-auto px-8 py-12">
       <h1 className="text-2xl font-bold text-center mb-8">Sign In</h1>
@@ -53,7 +48,10 @@ const AuthPage = () => {
         }}
         providers={["google"]}
         redirectTo={window.location.origin}
-        onError={handleError}
+        onAuthError={(error: AuthError) => {
+          console.error("Auth error:", error);
+          setError(error.message);
+        }}
       />
     </div>
   );
