@@ -17,6 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useMobile } from "@/hooks/use-mobile";
 
 interface WeightInputProps {
   onSuccess?: () => void;
@@ -26,6 +27,8 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
   const [weight, setWeight] = useState<string>("");
   const [unit, setUnit] = useState<"kg" | "lbs">("kg");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const isMobile = useMobile();
 
   const convertToKg = (value: number, fromUnit: "kg" | "lbs"): number => {
     if (fromUnit === "kg") return value;
@@ -77,8 +80,8 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
         <div className="flex items-center gap-2 mb-3">
           <h3 className="text-lg font-semibold text-center">Update Your Weight Daily For Best Results
             <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
+              <Tooltip open={isMobile ? tooltipOpen : undefined} onOpenChange={setTooltipOpen}>
+                <TooltipTrigger onClick={() => isMobile && setTooltipOpen(!tooltipOpen)}>
                   <Info className="h-4 w-4 text-gray-500 inline-block ml-1 mb-1" />
                 </TooltipTrigger>
                 <TooltipContent>
