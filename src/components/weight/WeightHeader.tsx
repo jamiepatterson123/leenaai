@@ -15,7 +15,7 @@ export const WeightHeader = () => {
   return (
     <>
       {isMobile ? (
-        <Heart className="h-10 w-10 text-primary mb-3" strokeWidth={1.5} fill="none" />
+        <Heart className="mx-auto h-10 w-10 text-primary mb-3" strokeWidth={1} fill="none" />
       ) : (
         <Scale className="mx-auto h-10 w-10 text-primary mb-3" strokeWidth={1} />
       )}
