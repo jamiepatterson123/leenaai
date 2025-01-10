@@ -10,7 +10,7 @@ import {
 export const WeightHeader = () => {
   return (
     <div className="text-center space-y-4">
-      <Scale className="h-12 w-12 mx-auto text-green-600" strokeWidth={1.5} />
+      <Scale className="h-10 w-10 mx-auto text-primary" strokeWidth={1} />
       <div className="space-y-2">
         <h2 className="text-xl font-semibold">
           Update Your Weight Daily For Best Results
