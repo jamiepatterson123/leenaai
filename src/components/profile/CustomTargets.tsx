@@ -91,9 +91,6 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
               placeholder="Enter daily calorie target"
               {...register("target_calories", { valueAsNumber: true })}
             />
-            <p className="text-sm text-muted-foreground">
-              Enter your daily calorie target and macro targets will be automatically calculated
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
