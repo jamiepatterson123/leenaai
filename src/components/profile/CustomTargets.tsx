@@ -26,31 +26,99 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
     },
   });
 
-  // Watch for changes in calories to auto-adjust macros
+  // Watch all form fields
   const watchCalories = watch("target_calories");
+  const watchProtein = watch("target_protein");
+  const watchCarbs = watch("target_carbs");
+  const watchFat = watch("target_fat");
+
+  // Calculate calories from macros
+  const calculateCaloriesFromMacros = (protein: number, carbs: number, fat: number) => {
+    return (protein * 4) + (carbs * 4) + (fat * 9);
+  };
+
+  // Validate macro distribution
+  const validateMacroDistribution = (calories: number, protein: number, carbs: number, fat: number) => {
+    const calculatedCalories = calculateCaloriesFromMacros(protein, carbs, fat);
+    return Math.abs(calories - calculatedCalories) < 10; // Allow for small rounding differences
+  };
 
   React.useEffect(() => {
     if (watchCalories) {
-      // Protein: 30% of calories (4 calories per gram)
-      const proteinCalories = watchCalories * 0.3;
-      const protein = Math.round(proteinCalories / 4);
-      
-      // Fat: 25% of calories (9 calories per gram)
-      const fatCalories = watchCalories * 0.25;
-      const fat = Math.round(fatCalories / 9);
-      
-      // Remaining 45% goes to carbs (4 calories per gram)
-      const carbsCalories = watchCalories * 0.45;
-      const carbs = Math.round(carbsCalories / 4);
+      const currentProtein = watchProtein;
+      const currentCarbs = watchCarbs;
+      const currentFat = watchFat;
 
-      setValue("target_protein", protein);
-      setValue("target_carbs", carbs);
-      setValue("target_fat", fat);
+      // Case 1: Only calories updated (use default ratios)
+      if (!currentProtein && !currentCarbs && !currentFat) {
+        const proteinCalories = watchCalories * 0.3;
+        const carbsCalories = watchCalories * 0.4;
+        const fatCalories = watchCalories * 0.3;
+
+        setValue("target_protein", Math.round(proteinCalories / 4));
+        setValue("target_carbs", Math.round(carbsCalories / 4));
+        setValue("target_fat", Math.round(fatCalories / 9));
+      }
+      // Case 2: Protein is set with calories
+      else if (currentProtein) {
+        const proteinCalories = currentProtein * 4;
+        const remainingCalories = watchCalories - proteinCalories;
+        
+        if (remainingCalories > 0) {
+          // Split remaining calories between carbs (57%) and fat (43%)
+          const carbsCalories = remainingCalories * 0.57;
+          const fatCalories = remainingCalories * 0.43;
+
+          setValue("target_carbs", Math.round(carbsCalories / 4));
+          setValue("target_fat", Math.round(fatCalories / 9));
+        }
+      }
+      // Case 3: Carbs or fat is set with calories
+      else if (currentCarbs || currentFat) {
+        const remainingCalories = watchCalories - 
+          (currentCarbs ? currentCarbs * 4 : 0) - 
+          (currentFat ? currentFat * 9 : 0);
+
+        if (remainingCalories > 0) {
+          if (!currentProtein) {
+            setValue("target_protein", Math.round((remainingCalories * 0.5) / 4));
+          }
+          if (!currentCarbs) {
+            setValue("target_carbs", Math.round((remainingCalories * 0.6) / 4));
+          }
+          if (!currentFat) {
+            setValue("target_fat", Math.round((remainingCalories * 0.4) / 9));
+          }
+        }
+      }
     }
   }, [watchCalories, setValue]);
 
+  // Handle individual macro updates
+  React.useEffect(() => {
+    if (!watchCalories && (watchProtein || watchCarbs || watchFat)) {
+      const currentProtein = watchProtein || 0;
+      const currentCarbs = watchCarbs || 0;
+      const currentFat = watchFat || 0;
+
+      const calculatedCalories = calculateCaloriesFromMacros(currentProtein, currentCarbs, currentFat);
+      setValue("target_calories", Math.round(calculatedCalories));
+    }
+  }, [watchProtein, watchCarbs, watchFat, setValue]);
+
   const onSubmit = async (data: CustomTargetsFormData) => {
     try {
+      // Validate macro distribution
+      if (!validateMacroDistribution(
+        data.target_calories,
+        data.target_protein,
+        data.target_carbs,
+        data.target_fat
+      )) {
+        toast.error("Macro distribution doesn't match calorie target. Please adjust your values.");
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
@@ -66,9 +134,7 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
 
       if (error) throw error;
       
-      // Invalidate and refetch queries to update all components
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
-      
       toast.success("Macro targets updated successfully");
     } catch (error) {
       console.error("Error updating targets:", error);
@@ -101,7 +167,6 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
                 type="number"
                 placeholder="Protein"
                 {...register("target_protein", { valueAsNumber: true })}
-                readOnly
               />
               <p className="text-xs text-muted-foreground">30% of calories</p>
             </div>
@@ -112,9 +177,8 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
                 type="number"
                 placeholder="Carbs"
                 {...register("target_carbs", { valueAsNumber: true })}
-                readOnly
               />
-              <p className="text-xs text-muted-foreground">45% of calories</p>
+              <p className="text-xs text-muted-foreground">40% of calories</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="target_fat">Fat (g)</Label>
@@ -123,9 +187,8 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
                 type="number"
                 placeholder="Fat"
                 {...register("target_fat", { valueAsNumber: true })}
-                readOnly
               />
-              <p className="text-xs text-muted-foreground">25% of calories</p>
+              <p className="text-xs text-muted-foreground">30% of calories</p>
             </div>
           </div>
 
