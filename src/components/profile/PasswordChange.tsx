@@ -48,7 +48,11 @@ export const PasswordChange = () => {
       if (error) throw error;
 
       toast.success("Password updated successfully");
-      form.reset();
+      form.reset({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
     } catch (error: any) {
       toast.error(error.message || "Failed to update password");
     }
