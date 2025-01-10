@@ -13,6 +13,9 @@ interface CustomTargetsFormData {
   target_protein: number;
   target_carbs: number;
   target_fat: number;
+  protein_percentage: number;
+  carbs_percentage: number;
+  fat_percentage: number;
 }
 
 export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTargetsFormData> }) => {
@@ -23,6 +26,9 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
       target_protein: initialData?.target_protein || undefined,
       target_carbs: initialData?.target_carbs || undefined,
       target_fat: initialData?.target_fat || undefined,
+      protein_percentage: 30,
+      carbs_percentage: 40,
+      fat_percentage: 30,
     },
   });
 
@@ -31,15 +37,18 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
   const watchProtein = watch("target_protein");
   const watchCarbs = watch("target_carbs");
   const watchFat = watch("target_fat");
+  const watchProteinPercentage = watch("protein_percentage");
+  const watchCarbsPercentage = watch("carbs_percentage");
+  const watchFatPercentage = watch("fat_percentage");
 
-  // Calculate placeholders based on calories
+  // Calculate placeholders based on calories and percentages
   const getPlaceholders = (calories: number | undefined) => {
     if (!calories) return { protein: "", carbs: "", fat: "" };
     
     return {
-      protein: Math.round((calories * 0.3) / 4), // 30% of calories from protein
-      carbs: Math.round((calories * 0.4) / 4),   // 40% of calories from carbs
-      fat: Math.round((calories * 0.3) / 9),     // 30% of calories from fat
+      protein: Math.round((calories * (watchProteinPercentage / 100)) / 4),
+      carbs: Math.round((calories * (watchCarbsPercentage / 100)) / 4),
+      fat: Math.round((calories * (watchFatPercentage / 100)) / 9),
     };
   };
 
@@ -56,56 +65,43 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
     return Math.abs(calories - calculatedCalories) < 10; // Allow for small rounding differences
   };
 
+  // Handle percentage changes
+  React.useEffect(() => {
+    const totalPercentage = watchProteinPercentage + watchCarbsPercentage + watchFatPercentage;
+    if (totalPercentage !== 100) {
+      toast.error("Macro percentages must sum to 100%");
+      return;
+    }
+
+    if (watchCalories) {
+      const newProtein = Math.round((watchCalories * (watchProteinPercentage / 100)) / 4);
+      const newCarbs = Math.round((watchCalories * (watchCarbsPercentage / 100)) / 4);
+      const newFat = Math.round((watchCalories * (watchFatPercentage / 100)) / 9);
+
+      setValue("target_protein", newProtein);
+      setValue("target_carbs", newCarbs);
+      setValue("target_fat", newFat);
+    }
+  }, [watchProteinPercentage, watchCarbsPercentage, watchFatPercentage, watchCalories, setValue]);
+
+  // Handle calorie updates
   React.useEffect(() => {
     if (watchCalories) {
       const currentProtein = watchProtein;
       const currentCarbs = watchCarbs;
       const currentFat = watchFat;
 
-      // Case 1: Only calories updated (use default ratios)
       if (!currentProtein && !currentCarbs && !currentFat) {
-        const proteinCalories = watchCalories * 0.3;
-        const carbsCalories = watchCalories * 0.4;
-        const fatCalories = watchCalories * 0.3;
+        const proteinCalories = watchCalories * (watchProteinPercentage / 100);
+        const carbsCalories = watchCalories * (watchCarbsPercentage / 100);
+        const fatCalories = watchCalories * (watchFatPercentage / 100);
 
         setValue("target_protein", Math.round(proteinCalories / 4));
         setValue("target_carbs", Math.round(carbsCalories / 4));
         setValue("target_fat", Math.round(fatCalories / 9));
       }
-      // Case 2: Protein is set with calories
-      else if (currentProtein) {
-        const proteinCalories = currentProtein * 4;
-        const remainingCalories = watchCalories - proteinCalories;
-        
-        if (remainingCalories > 0) {
-          // Split remaining calories between carbs (57%) and fat (43%)
-          const carbsCalories = remainingCalories * 0.57;
-          const fatCalories = remainingCalories * 0.43;
-
-          setValue("target_carbs", Math.round(carbsCalories / 4));
-          setValue("target_fat", Math.round(fatCalories / 9));
-        }
-      }
-      // Case 3: Carbs or fat is set with calories
-      else if (currentCarbs || currentFat) {
-        const remainingCalories = watchCalories - 
-          (currentCarbs ? currentCarbs * 4 : 0) - 
-          (currentFat ? currentFat * 9 : 0);
-
-        if (remainingCalories > 0) {
-          if (!currentProtein) {
-            setValue("target_protein", Math.round((remainingCalories * 0.5) / 4));
-          }
-          if (!currentCarbs) {
-            setValue("target_carbs", Math.round((remainingCalories * 0.6) / 4));
-          }
-          if (!currentFat) {
-            setValue("target_fat", Math.round((remainingCalories * 0.4) / 9));
-          }
-        }
-      }
     }
-  }, [watchCalories, setValue]);
+  }, [watchCalories, setValue, watchProteinPercentage, watchCarbsPercentage, watchFatPercentage]);
 
   // Handle individual macro updates
   React.useEffect(() => {
@@ -116,12 +112,18 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
 
       const calculatedCalories = calculateCaloriesFromMacros(currentProtein, currentCarbs, currentFat);
       setValue("target_calories", Math.round(calculatedCalories));
+
+      // Update percentages
+      if (calculatedCalories > 0) {
+        setValue("protein_percentage", Math.round((currentProtein * 4 / calculatedCalories) * 100));
+        setValue("carbs_percentage", Math.round((currentCarbs * 4 / calculatedCalories) * 100));
+        setValue("fat_percentage", Math.round((currentFat * 9 / calculatedCalories) * 100));
+      }
     }
   }, [watchProtein, watchCarbs, watchFat, setValue]);
 
   const onSubmit = async (data: CustomTargetsFormData) => {
     try {
-      // Validate macro distribution
       if (!validateMacroDistribution(
         data.target_calories,
         data.target_protein,
@@ -181,7 +183,14 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
                 placeholder={placeholders.protein.toString() || "Protein"}
                 {...register("target_protein", { valueAsNumber: true })}
               />
-              <p className="text-xs text-muted-foreground">30% of calories</p>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  className="w-20"
+                  {...register("protein_percentage", { valueAsNumber: true })}
+                />
+                <span className="text-xs text-muted-foreground">% of calories</span>
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="target_carbs">Carbs (g)</Label>
@@ -191,7 +200,14 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
                 placeholder={placeholders.carbs.toString() || "Carbs"}
                 {...register("target_carbs", { valueAsNumber: true })}
               />
-              <p className="text-xs text-muted-foreground">40% of calories</p>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  className="w-20"
+                  {...register("carbs_percentage", { valueAsNumber: true })}
+                />
+                <span className="text-xs text-muted-foreground">% of calories</span>
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="target_fat">Fat (g)</Label>
@@ -201,7 +217,14 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
                 placeholder={placeholders.fat.toString() || "Fat"}
                 {...register("target_fat", { valueAsNumber: true })}
               />
-              <p className="text-xs text-muted-foreground">30% of calories</p>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  className="w-20"
+                  {...register("fat_percentage", { valueAsNumber: true })}
+                />
+                <span className="text-xs text-muted-foreground">% of calories</span>
+              </div>
             </div>
           </div>
 
