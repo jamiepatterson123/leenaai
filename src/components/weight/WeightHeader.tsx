@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Scale, Info, Heart } from "lucide-react";
+import { Scale, Info } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -13,12 +13,8 @@ export const WeightHeader = () => {
   const isMobile = useIsMobile();
 
   return (
-    <>
-      {isMobile ? (
-        <Heart className="mx-auto h-10 w-10 text-primary mb-3" strokeWidth={1} />
-      ) : (
-        <Scale className="mx-auto h-10 w-10 text-primary mb-3" strokeWidth={1} />
-      )}
+    <div className="flex flex-col items-center justify-center">
+      <Scale className="mx-auto h-10 w-10 text-primary mb-3" strokeWidth={1} />
       <div className="flex items-center gap-2 mb-3">
         <h3 className="text-lg font-semibold text-center">
           Update Your Weight Daily For Best Results
@@ -34,6 +30,6 @@ export const WeightHeader = () => {
           </TooltipProvider>
         </h3>
       </div>
-    </>
+    </div>
   );
 };
