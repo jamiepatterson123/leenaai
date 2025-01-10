@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { CustomTargets } from "@/components/profile/CustomTargets";
+import { PasswordChange } from "@/components/profile/PasswordChange";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { calculateTargets } from "@/utils/profileCalculations";
@@ -94,32 +95,35 @@ const Profile = () => {
             <div className="space-y-2">
               <h4 className="font-medium">Why do we need this information?</h4>
               <p className="text-sm text-muted-foreground">
-                Your biometric data (height, weight, age, etc.) helps us calculate your personalized nutrition targets. We use scientifically-backed formulas to determine your:
+                Your biometric data helps us calculate your personalized nutrition targets. We use scientifically-backed formulas to determine your:
               </p>
               <ul className="text-sm text-muted-foreground list-disc pl-4">
                 <li>Basal Metabolic Rate (BMR)</li>
                 <li>Daily calorie needs</li>
                 <li>Optimal macro-nutrient ratios</li>
               </ul>
-              <p className="text-sm text-muted-foreground">
-                This ensures you receive nutrition recommendations tailored to your specific needs and goals.
-              </p>
             </div>
           </HoverCardContent>
         </HoverCard>
       </div>
-      <ProfileForm 
-        onSubmit={handleSubmit} 
-        onChange={handleChange}
-        initialData={profile || undefined} 
-      />
-      <CustomTargets 
-        initialData={{
-          target_protein: profile?.target_protein,
-          target_carbs: profile?.target_carbs,
-          target_fat: profile?.target_fat,
-        }}
-      />
+
+      <div className="space-y-6">
+        <ProfileForm 
+          onSubmit={handleSubmit} 
+          onChange={handleChange}
+          initialData={profile || undefined} 
+        />
+        
+        <CustomTargets 
+          initialData={{
+            target_protein: profile?.target_protein,
+            target_carbs: profile?.target_carbs,
+            target_fat: profile?.target_fat,
+          }}
+        />
+
+        <PasswordChange />
+      </div>
     </div>
   );
 };
