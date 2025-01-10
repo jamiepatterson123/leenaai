@@ -39,7 +39,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPr
     <div className="w-full mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
       <label
         htmlFor="image-upload"
-        className="relative block w-full h-48 cursor-pointer"
+        className="relative block w-full h-24 cursor-pointer"
       >
         <input
           id="image-upload"
@@ -48,7 +48,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPr
           className="hidden"
           onChange={handleImageChange}
         />
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-2">
           {preview ? (
             <img
               src={preview}
@@ -57,8 +57,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPr
             />
           ) : (
             <div className="text-center">
-              <Upload className="mx-auto h-10 w-10 text-primary" strokeWidth={1} />
-              <p className="mt-2 text-sm text-gray-600">
+              <Upload className="mx-auto h-6 w-6 text-primary" strokeWidth={1} />
+              <p className="mt-1 text-sm text-gray-600">
                 Click or drag image to upload
               </p>
             </div>
