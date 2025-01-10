@@ -62,6 +62,7 @@ const AuthPage = () => {
             },
           },
         }}
+        providers={["google"]}
         redirectTo={`${window.location.origin}/auth/callback`}
         view="sign_in"
       />
