@@ -84,8 +84,8 @@ const AuthPage = () => {
               variables: {
                 default: {
                   colors: {
-                    brand: '#2563eb',
-                    brandAccent: '#1d4ed8',
+                    brand: 'hsl(142.1 70.6% 45.3%)',
+                    brandAccent: 'hsl(142.1 76% 36.3%)',
                   },
                 },
               },
