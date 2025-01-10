@@ -17,16 +17,6 @@ export const Navigation = () => {
     // Implement share functionality
   };
 
-  const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      navigate("/auth");
-      toast.success("Signed out successfully");
-    } catch (error) {
-      toast.error("Error signing out");
-    }
-  };
-
   const theme = "light" as const;
   const toggleTheme = (checked: boolean) => {
     // Implement theme toggle functionality
@@ -63,7 +53,6 @@ export const Navigation = () => {
         <h1 className="text-2xl font-bold text-primary">Leena.ai</h1>
         <DesktopNav 
           handleShare={handleShare}
-          handleSignOut={handleSignOut}
           theme={theme}
           toggleTheme={toggleTheme}
         />

@@ -59,7 +59,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
     }
   };
 
-  if (!isMobile) return null;
+  if (!isMobile || !session) return null;
 
   return (
     <>
