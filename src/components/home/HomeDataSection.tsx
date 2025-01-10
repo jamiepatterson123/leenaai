@@ -4,6 +4,7 @@ import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection
 import { StreakCounter } from "@/components/StreakCounter";
 import { useHomeData } from "@/components/home/useHomeData";
 import { HabitTracker } from "@/components/habits/HabitTracker";
+import { MacroCircles } from "@/components/home/MacroCircles";
 
 export const HomeDataSection = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
@@ -17,6 +18,12 @@ export const HomeDataSection = () => {
       {/* Streak Counter - Full Width */}
       <div className="w-full">
         <StreakCounter />
+      </div>
+
+      {/* Today's Macros - Mobile Only */}
+      <div className="md:hidden w-full">
+        <h2 className="text-lg font-semibold mb-4 text-center">Today</h2>
+        <MacroCircles />
       </div>
 
       {/* Main Content Grid */}
