@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Book, User, LineChart, Send, LogOut } from "lucide-react";
+import { Home, Book, User, LineChart, Send, LogOut, Circle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -98,7 +98,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
                   className="w-14 h-14 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors flex items-center justify-center"
                   aria-label="Upload photo"
                 >
-                  <Send className="h-6 w-6" />
+                  <Circle className="h-6 w-6" />
                 </button>
                 <input
                   ref={fileInputRef}
