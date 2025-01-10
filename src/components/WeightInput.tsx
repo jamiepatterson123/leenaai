@@ -65,11 +65,12 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
   };
 
   return (
-    <div className="w-full mx-auto">
-      <div className="flex flex-col items-center justify-center p-3">
-        <Scale className="h-5 w-5 text-gray-400 mb-2" strokeWidth={1.5} />
-        <form onSubmit={handleSubmit} className="w-full max-w-xs">
-          <div className="flex items-center gap-2 mb-2">
+    <div className="w-full mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
+      <div className="flex flex-col items-center justify-center h-48 p-4">
+        <Scale className="h-10 w-10 text-primary mb-3" strokeWidth={1} />
+        <h3 className="text-lg font-semibold mb-3">Update Your Weight</h3>
+        <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-3">
+          <div className="flex items-center gap-2">
             <Input
               type="number"
               step="0.1"
@@ -77,10 +78,10 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
               placeholder={`Enter weight in ${unit}`}
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
-              className="flex-1 h-9"
+              className="flex-1"
             />
             <Select value={unit} onValueChange={(value) => setUnit(value as "kg" | "lbs")}>
-              <SelectTrigger className="w-16 h-9">
+              <SelectTrigger className="w-24">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -91,10 +92,10 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
           </div>
           <Button 
             type="submit" 
-            className="w-full h-9 text-white bg-green-600 hover:bg-green-700 transition-all duration-200"
+            className="w-full text-white bg-green-600 hover:bg-green-700 transition-all duration-200"
             disabled={isSubmitting || !weight}
           >
-            {isSubmitting ? "..." : "Update"}
+            {isSubmitting ? "Updating..." : "Update Weight"}
           </Button>
         </form>
       </div>
