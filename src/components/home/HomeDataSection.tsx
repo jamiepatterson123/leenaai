@@ -29,17 +29,17 @@ export const HomeDataSection = () => {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Column - Habit Tracking */}
-        <div className="space-y-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+        <div className="h-full">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm h-full">
             <HabitTracker />
           </div>
         </div>
 
         {/* Right Column - Input Sections and Today's Nutrition */}
-        <div className="space-y-4 h-full">
+        <div className="grid grid-rows-3 gap-4 h-full">
           {/* Today's Nutrition - Desktop Only */}
           <div className="hidden md:block bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-            <h2 className="text-lg font-semibold mb-4">Today's Nutrition</h2>
+            <h2 className="text-lg font-semibold mb-2">Today's Nutrition</h2>
             <MacroCircles />
           </div>
 
