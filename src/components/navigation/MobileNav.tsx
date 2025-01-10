@@ -15,6 +15,21 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [session, setSession] = React.useState(null);
+
+  React.useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const isActive = (path: string) => {
     return location.pathname === path
@@ -48,12 +63,14 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
 
   return (
     <>
-      <button
-        onClick={handleSignOut}
-        className="fixed top-5 right-4 z-50 text-muted-foreground hover:text-primary transition-colors"
-      >
-        <LogOut className="h-6 w-6" />
-      </button>
+      {session && (
+        <button
+          onClick={handleSignOut}
+          className="fixed top-5 right-4 z-50 text-muted-foreground hover:text-primary transition-colors"
+        >
+          <LogOut className="h-6 w-6" />
+        </button>
+      )}
       <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/40 py-2 px-4 z-50">
         <div className="flex justify-around items-center max-w-xl mx-auto">
           <Link to="/" className={`flex flex-col items-center ${isActive('/')}`}>
