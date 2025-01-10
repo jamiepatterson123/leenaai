@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { WeightInput } from "@/components/WeightInput";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
 import { StreakCounter } from "@/components/StreakCounter";
@@ -36,28 +36,31 @@ export const HomeDataSection = () => {
         </div>
 
         {/* Right Column - Input Sections and Today's Nutrition */}
-        <div className="grid grid-rows-3 gap-4 h-full">
+        <div className="flex flex-col gap-4 h-full">
           {/* Today's Nutrition - Desktop Only */}
-          <div className="hidden md:block bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <div className="hidden md:block bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
             <h2 className="text-lg font-semibold mb-2">Today's Nutrition</h2>
             <MacroCircles />
           </div>
 
-          {/* Food Input Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-            <ImageAnalysisSection
-              ref={imageAnalysisSectionRef}
-              analyzing={analyzing}
-              setAnalyzing={setAnalyzing}
-              nutritionData={nutritionData}
-              setNutritionData={setNutritionData}
-              selectedDate={new Date()}
-            />
-          </div>
+          {/* Remaining Space Grid for Upload and Weight */}
+          <div className="flex-1 grid grid-rows-2 gap-4">
+            {/* Food Input Section */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+              <ImageAnalysisSection
+                ref={imageAnalysisSectionRef}
+                analyzing={analyzing}
+                setAnalyzing={setAnalyzing}
+                nutritionData={nutritionData}
+                setNutritionData={setNutritionData}
+                selectedDate={new Date()}
+              />
+            </div>
 
-          {/* Weight Input Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-            <WeightInput />
+            {/* Weight Input Section */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+              <WeightInput />
+            </div>
           </div>
         </div>
       </div>
