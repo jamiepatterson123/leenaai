@@ -70,9 +70,9 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
               <div className="flex flex-col items-center">
                 <button 
                   onClick={handlePlusClick}
-                  className="bg-[#9a9a9a] rounded-full p-4 hover:bg-[#9a9a9a]/90 transition-colors"
+                  className="border-2 border-[#9a9a9a] rounded-full p-4 hover:bg-gray-50 transition-colors"
                 >
-                  <Plus className="h-6 w-6 text-white" />
+                  <Plus className="h-6 w-6 text-[#9a9a9a]" />
                 </button>
                 <input
                   ref={fileInputRef}
