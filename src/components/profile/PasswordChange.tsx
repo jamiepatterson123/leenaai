@@ -27,7 +27,13 @@ interface PasswordFormData {
 }
 
 export const PasswordChange = () => {
-  const form = useForm<PasswordFormData>();
+  const form = useForm<PasswordFormData>({
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    }
+  });
 
   const onSubmit = async (data: PasswordFormData) => {
     if (data.newPassword !== data.confirmPassword) {
@@ -48,11 +54,18 @@ export const PasswordChange = () => {
       if (error) throw error;
 
       toast.success("Password updated successfully");
+      
+      // Reset form with empty values
       form.reset({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: ""
       });
+      
+      // Force re-render of input fields
+      form.setValue("currentPassword", "");
+      form.setValue("newPassword", "");
+      form.setValue("confirmPassword", "");
     } catch (error: any) {
       toast.error(error.message || "Failed to update password");
     }
