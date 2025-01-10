@@ -75,17 +75,18 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
       <div className="flex flex-col items-center justify-center h-48 p-4">
         <Scale className="h-10 w-10 text-primary mb-3" strokeWidth={1} />
         <div className="flex items-center gap-2 mb-3">
-          <h3 className="text-lg font-semibold text-center">Update Your Weight Daily For Best Results</h3>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <Info className="h-4 w-4 text-gray-500" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Weigh yourself every morning after using the bathroom, before drinking water and before eating for most accurate readings</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <h3 className="text-lg font-semibold text-center">Update Your Weight Daily For Best Results
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Info className="h-4 w-4 text-gray-500 inline-block ml-1 mb-1" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Weigh yourself every morning after using the bathroom, before drinking water and before eating for most accurate readings</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </h3>
         </div>
         <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-3">
           <div className="flex items-center gap-2">
