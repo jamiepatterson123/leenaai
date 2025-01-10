@@ -5,13 +5,35 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
 
 export const Navigation = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
   const [nutritionData, setNutritionData] = React.useState(null);
+  const [session, setSession] = useState<Session | null>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const selectedDate = new Date();
+
+  useEffect(() => {
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // If there's no session, don't render the navigation
+  if (!session) return null;
 
   const handleShare = () => {
     // Implement share functionality
