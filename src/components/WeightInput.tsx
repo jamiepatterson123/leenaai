@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Scale } from "lucide-react";
+import { Scale, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface WeightInputProps {
   onSuccess?: () => void;
@@ -68,7 +74,19 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
     <div className="w-full mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
       <div className="flex flex-col items-center justify-center h-48 p-4">
         <Scale className="h-10 w-10 text-primary mb-3" strokeWidth={1} />
-        <h3 className="text-lg font-semibold mb-3">Update Your Weight</h3>
+        <div className="flex items-center gap-2 mb-3">
+          <h3 className="text-lg font-semibold">Update Your Weight Daily For Best Results</h3>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Info className="h-4 w-4 text-gray-500" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Weigh yourself every morning after using the bathroom, before drinking water and before eating for most accurate readings</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-3">
           <div className="flex items-center gap-2">
             <Input
