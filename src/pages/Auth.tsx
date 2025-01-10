@@ -13,6 +13,9 @@ const AuthPage = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log("Auth event:", event);
+        console.log("Session:", session);
+        
         if (event === 'SIGNED_IN' && session) {
           navigate("/");
         }
@@ -21,6 +24,15 @@ const AuthPage = () => {
         }
       }
     );
+
+    // Check current session on mount
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log("Initial session check:", session);
+      console.log("Session error:", error);
+      if (session) {
+        navigate("/");
+      }
+    });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
