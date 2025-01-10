@@ -32,6 +32,19 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
   const watchCarbs = watch("target_carbs");
   const watchFat = watch("target_fat");
 
+  // Calculate placeholders based on calories
+  const getPlaceholders = (calories: number | undefined) => {
+    if (!calories) return { protein: "", carbs: "", fat: "" };
+    
+    return {
+      protein: Math.round((calories * 0.3) / 4), // 30% of calories from protein
+      carbs: Math.round((calories * 0.4) / 4),   // 40% of calories from carbs
+      fat: Math.round((calories * 0.3) / 9),     // 30% of calories from fat
+    };
+  };
+
+  const placeholders = getPlaceholders(watchCalories);
+
   // Calculate calories from macros
   const calculateCaloriesFromMacros = (protein: number, carbs: number, fat: number) => {
     return (protein * 4) + (carbs * 4) + (fat * 9);
@@ -165,7 +178,7 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
               <Input
                 id="target_protein"
                 type="number"
-                placeholder="Protein"
+                placeholder={placeholders.protein.toString() || "Protein"}
                 {...register("target_protein", { valueAsNumber: true })}
               />
               <p className="text-xs text-muted-foreground">30% of calories</p>
@@ -175,7 +188,7 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
               <Input
                 id="target_carbs"
                 type="number"
-                placeholder="Carbs"
+                placeholder={placeholders.carbs.toString() || "Carbs"}
                 {...register("target_carbs", { valueAsNumber: true })}
               />
               <p className="text-xs text-muted-foreground">40% of calories</p>
@@ -185,7 +198,7 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
               <Input
                 id="target_fat"
                 type="number"
-                placeholder="Fat"
+                placeholder={placeholders.fat.toString() || "Fat"}
                 {...register("target_fat", { valueAsNumber: true })}
               />
               <p className="text-xs text-muted-foreground">30% of calories</p>
