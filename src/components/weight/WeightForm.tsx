@@ -64,7 +64,7 @@ export const WeightForm = ({ onSuccess }: WeightFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-3">
+    <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-4">
       <div className="flex items-center gap-2">
         <Input
           type="number"
@@ -87,7 +87,7 @@ export const WeightForm = ({ onSuccess }: WeightFormProps) => {
       </div>
       <Button 
         type="submit" 
-        className="w-full text-white bg-green-600 hover:bg-green-700 transition-all duration-200"
+        className="w-full bg-green-600 hover:bg-green-700 text-white transition-colors"
         disabled={isSubmitting || !weight}
       >
         {isSubmitting ? "Updating..." : "Update Weight"}

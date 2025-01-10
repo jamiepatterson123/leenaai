@@ -1,34 +1,30 @@
-import React, { useState } from "react";
-import { Scale, Info } from "lucide-react";
+import React from "react";
+import { Scale } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 export const WeightHeader = () => {
-  const [tooltipOpen, setTooltipOpen] = useState(false);
-  const isMobile = useIsMobile();
-
   return (
-    <div className="flex flex-col items-center justify-center">
-      <Scale className="mx-auto h-10 w-10 text-primary mb-3" strokeWidth={1} />
-      <div className="flex items-center gap-2 mb-3">
-        <h3 className="text-lg font-semibold text-center">
+    <div className="text-center space-y-4">
+      <Scale className="h-12 w-12 mx-auto text-green-600" strokeWidth={1.5} />
+      <div className="space-y-2">
+        <h2 className="text-xl font-semibold">
           Update Your Weight Daily For Best Results
           <TooltipProvider>
-            <Tooltip open={isMobile ? tooltipOpen : undefined} onOpenChange={setTooltipOpen}>
-              <TooltipTrigger onClick={() => isMobile && setTooltipOpen(!tooltipOpen)}>
-                <Info className="h-4 w-4 text-gray-500 inline-block ml-1 mb-1" />
+            <Tooltip>
+              <TooltipTrigger className="ml-2">
+                <span className="text-gray-400 hover:text-gray-500">ⓘ</span>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Weigh yourself every morning after using the bathroom, before drinking water and before eating for most accurate readings</p>
+                <p className="max-w-xs">Regular weight tracking helps monitor your progress and adjust your goals accordingly.</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        </h3>
+        </h2>
       </div>
     </div>
   );
