@@ -54,7 +54,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
     <>
       {session && (
         <>
-          <div className="fixed top-5 right-4 z-50">
+          <div className="absolute top-5 right-4 z-50">
             <AuthButtons handleShare={() => {}} session={session} />
           </div>
           <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/40 py-2 px-4 z-50">
