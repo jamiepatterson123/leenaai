@@ -5,6 +5,7 @@ import { StreakCounter } from "@/components/StreakCounter";
 import { useHomeData } from "@/components/home/useHomeData";
 import { HabitTracker } from "@/components/habits/HabitTracker";
 import { MacroCircles } from "@/components/home/MacroCircles";
+import { Card } from "@/components/ui/card";
 
 export const HomeDataSection = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
@@ -14,54 +15,44 @@ export const HomeDataSection = () => {
   const { isLoading } = useHomeData();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Streak Counter - Full Width */}
       <div className="w-full">
         <StreakCounter />
       </div>
 
-      {/* Today's Macros - Mobile Only */}
-      <div className="md:hidden w-full">
-        <h2 className="text-lg font-semibold mb-4 text-center">Today</h2>
-        <MacroCircles />
-      </div>
-
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Left Column - Habit Tracking */}
-        <div className="h-full">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm h-full">
-            <HabitTracker />
-          </div>
-        </div>
+        <Card className="p-4 bg-white dark:bg-gray-800">
+          <HabitTracker />
+        </Card>
 
-        {/* Right Column - Input Sections and Today's Nutrition */}
-        <div className="flex flex-col gap-4 h-full">
-          {/* Today's Nutrition - Desktop Only */}
-          <div className="hidden md:block bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-            <h2 className="text-lg font-semibold mb-2">Today's Nutrition</h2>
+        {/* Right Column - Stacked Elements */}
+        <div className="flex flex-col gap-4">
+          {/* Today's Nutrition */}
+          <Card className="p-4 bg-white dark:bg-gray-800">
+            <h2 className="text-lg font-semibold mb-3">Today's Nutrition</h2>
             <MacroCircles />
-          </div>
+          </Card>
 
-          {/* Remaining Space Grid for Upload and Weight */}
-          <div className="flex-1 grid grid-rows-2 gap-4">
-            {/* Food Input Section */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-              <ImageAnalysisSection
-                ref={imageAnalysisSectionRef}
-                analyzing={analyzing}
-                setAnalyzing={setAnalyzing}
-                nutritionData={nutritionData}
-                setNutritionData={setNutritionData}
-                selectedDate={new Date()}
-              />
-            </div>
+          {/* Food Input Section */}
+          <Card className="p-4 bg-white dark:bg-gray-800">
+            <h2 className="text-lg font-semibold mb-3">Add Food</h2>
+            <ImageAnalysisSection
+              ref={imageAnalysisSectionRef}
+              analyzing={analyzing}
+              setAnalyzing={setAnalyzing}
+              nutritionData={nutritionData}
+              setNutritionData={setNutritionData}
+              selectedDate={new Date()}
+            />
+          </Card>
 
-            {/* Weight Input Section */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-              <WeightInput />
-            </div>
-          </div>
+          {/* Weight Input Section */}
+          <Card className="p-4 bg-white dark:bg-gray-800">
+            <WeightInput />
+          </Card>
         </div>
       </div>
     </div>
