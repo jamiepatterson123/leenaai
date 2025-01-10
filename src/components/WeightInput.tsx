@@ -75,7 +75,7 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
       <div className="flex flex-col items-center justify-center h-48 p-4">
         <Scale className="h-10 w-10 text-primary mb-3" strokeWidth={1} />
         <div className="flex items-center gap-2 mb-3">
-          <h3 className="text-lg font-semibold">Update Your Weight Daily For Best Results</h3>
+          <h3 className="text-lg font-semibold text-center">Update Your Weight Daily For Best Results</h3>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
