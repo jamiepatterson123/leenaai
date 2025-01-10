@@ -66,10 +66,10 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
 
   return (
     <div className="w-full mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
-      <div className="flex flex-col items-center justify-center h-48 p-4">
-        <Scale className="h-10 w-10 text-primary mb-3" strokeWidth={1} />
-        <h3 className="text-lg font-semibold mb-3">Update Your Weight</h3>
-        <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-3">
+      <div className="flex flex-col items-center justify-center p-4 md:h-48 h-auto">
+        <Scale className="h-6 w-6 text-primary mb-2 md:h-10 md:w-10 md:mb-3" strokeWidth={1} />
+        <h3 className="text-base md:text-lg font-medium mb-3">Update Weight</h3>
+        <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-2">
           <div className="flex items-center gap-2">
             <Input
               type="number"
@@ -81,7 +81,7 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
               className="flex-1"
             />
             <Select value={unit} onValueChange={(value) => setUnit(value as "kg" | "lbs")}>
-              <SelectTrigger className="w-24">
+              <SelectTrigger className="w-20">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -95,7 +95,7 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
             className="w-full text-white bg-green-600 hover:bg-green-700 transition-all duration-200"
             disabled={isSubmitting || !weight}
           >
-            {isSubmitting ? "Updating..." : "Update Weight"}
+            {isSubmitting ? "Updating..." : "Update"}
           </Button>
         </form>
       </div>
