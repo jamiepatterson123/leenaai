@@ -33,8 +33,6 @@ export const DesktopNav = ({
     return () => subscription.unsubscribe();
   }, []);
 
-  if (!session) return null;
-
   return (
     <div className="hidden md:flex items-center gap-4">
       <NavigationMenu>

@@ -48,49 +48,53 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
     }
   };
 
-  if (!isMobile || !session) return null;
+  if (!isMobile) return null;
 
   return (
     <>
-      <div className="fixed top-5 right-4 z-50">
-        <AuthButtons handleShare={() => {}} session={session} />
-      </div>
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/40 py-2 px-4 z-50">
-        <div className="flex justify-around items-center max-w-xl mx-auto">
-          <Link to="/" className={`flex flex-col items-center ${isActive('/')}`}>
-            <Home className="h-6 w-6" />
-          </Link>
-          
-          <Link to="/food-diary" className={`flex flex-col items-center ${isActive('/food-diary')}`}>
-            <Book className="h-6 w-6" />
-          </Link>
-          
-          <div className="flex flex-col items-center">
-            <button 
-              onClick={handlePlusClick}
-              className="bg-black rounded-full p-4 hover:bg-black/90 transition-colors"
-            >
-              <Plus className="h-6 w-6 text-white" />
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileChange}
-              capture="environment"
-            />
+      {session && (
+        <>
+          <div className="fixed top-5 right-4 z-50">
+            <AuthButtons handleShare={() => {}} session={session} />
           </div>
-          
-          <Link to="/reports" className={`flex flex-col items-center ${isActive('/reports')}`}>
-            <LineChart className="h-6 w-6" />
-          </Link>
-          
-          <Link to="/profile" className={`flex flex-col items-center ${isActive('/profile')}`}>
-            <User className="h-6 w-6" />
-          </Link>
-        </div>
-      </nav>
+          <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/40 py-2 px-4 z-50">
+            <div className="flex justify-around items-center max-w-xl mx-auto">
+              <Link to="/" className={`flex flex-col items-center ${isActive('/')}`}>
+                <Home className="h-6 w-6" />
+              </Link>
+              
+              <Link to="/food-diary" className={`flex flex-col items-center ${isActive('/food-diary')}`}>
+                <Book className="h-6 w-6" />
+              </Link>
+              
+              <div className="flex flex-col items-center">
+                <button 
+                  onClick={handlePlusClick}
+                  className="bg-black rounded-full p-4 hover:bg-black/90 transition-colors"
+                >
+                  <Plus className="h-6 w-6 text-white" />
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                  capture="environment"
+                />
+              </div>
+              
+              <Link to="/reports" className={`flex flex-col items-center ${isActive('/reports')}`}>
+                <LineChart className="h-6 w-6" />
+              </Link>
+              
+              <Link to="/profile" className={`flex flex-col items-center ${isActive('/profile')}`}>
+                <User className="h-6 w-6" />
+              </Link>
+            </div>
+          </nav>
+        </>
+      )}
     </>
   );
 };
