@@ -2,10 +2,6 @@ import React from "react";
 import { WeightInput } from "@/components/WeightInput";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
 import { StreakCounter } from "@/components/StreakCounter";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { useHomeData } from "@/components/home/useHomeData";
 import { HabitTracker } from "@/components/habits/HabitTracker";
 
@@ -18,27 +14,39 @@ export const HomeDataSection = () => {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg">
+      {/* Streak Counter - Full Width */}
+      <div className="w-full">
         <StreakCounter />
       </div>
 
-      <div className="p-4">
-        <HabitTracker />
-      </div>
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Left Column - Habit Tracking */}
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <HabitTracker />
+          </div>
+        </div>
 
-      <div className="p-4">
-        <ImageAnalysisSection
-          ref={imageAnalysisSectionRef}
-          analyzing={analyzing}
-          setAnalyzing={setAnalyzing}
-          nutritionData={nutritionData}
-          setNutritionData={setNutritionData}
-          selectedDate={new Date()}
-        />
-      </div>
+        {/* Right Column - Input Sections */}
+        <div className="space-y-6">
+          {/* Food Input Section */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <ImageAnalysisSection
+              ref={imageAnalysisSectionRef}
+              analyzing={analyzing}
+              setAnalyzing={setAnalyzing}
+              nutritionData={nutritionData}
+              setNutritionData={setNutritionData}
+              selectedDate={new Date()}
+            />
+          </div>
 
-      <div className="p-4">
-        <WeightInput />
+          {/* Weight Input Section */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <WeightInput />
+          </div>
+        </div>
       </div>
     </div>
   );
