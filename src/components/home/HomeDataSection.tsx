@@ -33,6 +33,12 @@ export const HomeDataSection = () => {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
             <HabitTracker />
           </div>
+          
+          {/* Today's Macros - Desktop Only */}
+          <div className="hidden md:block bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <h2 className="text-lg font-semibold mb-4">Today's Nutrition</h2>
+            <MacroCircles />
+          </div>
         </div>
 
         {/* Right Column - Input Sections */}
