@@ -48,7 +48,7 @@ const AuthPage = () => {
         }}
         providers={["google"]}
         redirectTo={window.location.origin}
-        onAuthError={(error: AuthError) => {
+        onError={(error: AuthError) => {
           console.error("Auth error:", error);
           setError(error.message);
         }}
