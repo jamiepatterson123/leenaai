@@ -20,6 +20,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     // Check current session
     const checkSession = async () => {
       try {
@@ -27,13 +29,22 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         if (error) {
           console.error("Session error:", error);
           toast.error("Authentication error. Please try logging in again.");
+          if (mounted) {
+            setSession(null);
+          }
+        } else if (mounted) {
+          setSession(session);
         }
-        setSession(session);
       } catch (error) {
         console.error("Session check error:", error);
         toast.error("Failed to verify authentication");
+        if (mounted) {
+          setSession(null);
+        }
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -43,11 +54,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      setLoading(false);
+      if (mounted) {
+        setSession(session);
+        setLoading(false);
+      }
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
