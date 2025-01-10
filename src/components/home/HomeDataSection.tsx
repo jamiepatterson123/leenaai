@@ -29,25 +29,27 @@ export const HomeDataSection = () => {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Column - Habit Tracking */}
-        <div className="flex flex-col justify-between space-y-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+        <div className="flex flex-col space-y-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm flex-grow">
             <HabitTracker />
+          </div>
+        </div>
+
+        {/* Right Column - Food Input and Weight Section */}
+        <div className="flex flex-col space-y-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm flex-grow">
+            <ImageAnalysisSection
+              ref={imageAnalysisSectionRef}
+              analyzing={analyzing}
+              setAnalyzing={setAnalyzing}
+              nutritionData={nutritionData}
+              setNutritionData={setNutritionData}
+              selectedDate={new Date()}
+            />
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
             <WeightInput />
           </div>
-        </div>
-
-        {/* Right Column - Food Input Section */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-          <ImageAnalysisSection
-            ref={imageAnalysisSectionRef}
-            analyzing={analyzing}
-            setAnalyzing={setAnalyzing}
-            nutritionData={nutritionData}
-            setNutritionData={setNutritionData}
-            selectedDate={new Date()}
-          />
         </div>
       </div>
     </div>
