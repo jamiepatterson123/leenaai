@@ -22,6 +22,12 @@ const AuthPage = () => {
         if (event === 'SIGNED_OUT') {
           setError("");
         }
+        if (event === 'USER_UPDATED' && !session) {
+          const { error: sessionError } = await supabase.auth.getSession();
+          if (sessionError) {
+            setError(sessionError.message);
+          }
+        }
       }
     );
 
@@ -31,6 +37,9 @@ const AuthPage = () => {
       console.log("Session error:", error);
       if (session) {
         navigate("/");
+      }
+      if (error) {
+        setError(error.message);
       }
     });
 
@@ -60,10 +69,6 @@ const AuthPage = () => {
         }}
         providers={["google"]}
         redirectTo={`${window.location.origin}/auth/callback`}
-        onError={(error: AuthError) => {
-          console.error("Auth error:", error);
-          setError(error.message);
-        }}
         view="sign_in"
       />
     </div>
