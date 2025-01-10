@@ -19,10 +19,10 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
   const queryClient = useQueryClient();
   const { register, watch, setValue, handleSubmit } = useForm<CustomTargetsFormData>({
     defaultValues: {
-      target_calories: initialData?.target_calories || 2000,
-      target_protein: initialData?.target_protein || 150,
-      target_carbs: initialData?.target_carbs || 200,
-      target_fat: initialData?.target_fat || 70,
+      target_calories: initialData?.target_calories || undefined,
+      target_protein: initialData?.target_protein || undefined,
+      target_carbs: initialData?.target_carbs || undefined,
+      target_fat: initialData?.target_fat || undefined,
     },
   });
 
@@ -88,6 +88,7 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
             <Input
               id="target_calories"
               type="number"
+              placeholder="Enter daily calorie target"
               {...register("target_calories", { valueAsNumber: true })}
             />
             <p className="text-sm text-muted-foreground">
@@ -101,6 +102,7 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
               <Input
                 id="target_protein"
                 type="number"
+                placeholder="Protein"
                 {...register("target_protein", { valueAsNumber: true })}
                 readOnly
               />
@@ -111,6 +113,7 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
               <Input
                 id="target_carbs"
                 type="number"
+                placeholder="Carbs"
                 {...register("target_carbs", { valueAsNumber: true })}
                 readOnly
               />
@@ -121,6 +124,7 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
               <Input
                 id="target_fat"
                 type="number"
+                placeholder="Fat"
                 {...register("target_fat", { valueAsNumber: true })}
                 readOnly
               />
