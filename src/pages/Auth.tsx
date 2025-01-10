@@ -9,6 +9,7 @@ import type { AuthError } from "@supabase/supabase-js";
 const AuthPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -36,10 +37,15 @@ const AuthPage = () => {
       if (error) {
         setError(error.message);
       }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
 
   return (
     <div className="max-w-md mx-auto px-8 py-12">
