@@ -41,7 +41,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!session) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/welcome" replace />;
   }
 
   return <>{children}</>;
@@ -53,7 +53,7 @@ function App() {
       <Router>
         <Navigation />
         <Routes>
-          <Route path="/auth" element={<Auth />} />
+          <Route path="/welcome" element={<Auth />} />
           <Route
             path="/"
             element={
