@@ -56,7 +56,7 @@ const AuthPage = () => {
             Welcome to Leena.ai
           </h1>
           <p className="text-lg text-muted-foreground">
-            Track your nutrition, monitor your progress, and achieve your health goals with our comprehensive platform.
+            Accurately track your nutrition with just photos of your food using advanced AI vision technology. Just snap and go.
           </p>
         </div>
       </div>
