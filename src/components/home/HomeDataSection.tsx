@@ -29,7 +29,7 @@ export const HomeDataSection = () => {
         </div>
 
         {/* Right Column - Input Sections */}
-        <div className="space-y-6">
+        <div className="space-y-4 h-full">
           {/* Food Input Section */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
             <ImageAnalysisSection

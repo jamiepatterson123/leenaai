@@ -65,11 +65,11 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
-      <div className="flex flex-col items-center justify-center h-64 p-4">
-        <Scale className="h-12 w-12 text-primary mb-4" strokeWidth={1} />
-        <h3 className="text-lg font-semibold mb-4">Update Your Weight</h3>
-        <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-4">
+    <div className="w-full mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
+      <div className="flex flex-col items-center justify-center h-48 p-4">
+        <Scale className="h-10 w-10 text-primary mb-3" strokeWidth={1} />
+        <h3 className="text-lg font-semibold mb-3">Update Your Weight</h3>
+        <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-3">
           <div className="flex items-center gap-2">
             <Input
               type="number"
