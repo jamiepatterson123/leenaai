@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Scale, Info } from "lucide-react";
+import { Scale, Info, Heart } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,7 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface WeightInputProps {
   onSuccess?: () => void;
@@ -28,7 +28,7 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
   const [unit, setUnit] = useState<"kg" | "lbs">("kg");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tooltipOpen, setTooltipOpen] = useState(false);
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
   const convertToKg = (value: number, fromUnit: "kg" | "lbs"): number => {
     if (fromUnit === "kg") return value;
@@ -76,7 +76,11 @@ export const WeightInput = ({ onSuccess }: WeightInputProps) => {
   return (
     <div className="w-full mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
       <div className="flex flex-col items-center justify-center h-48 p-4">
-        <Scale className="h-10 w-10 text-primary mb-3" strokeWidth={1} />
+        {isMobile ? (
+          <Heart className="h-10 w-10 text-primary mb-3" strokeWidth={1.5} fill="none" />
+        ) : (
+          <Scale className="h-10 w-10 text-primary mb-3" strokeWidth={1} />
+        )}
         <div className="flex items-center gap-2 mb-3">
           <h3 className="text-lg font-semibold text-center">Update Your Weight Daily For Best Results
             <TooltipProvider>
