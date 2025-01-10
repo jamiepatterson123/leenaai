@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Book, User, LineChart, Plus } from "lucide-react";
+import { Home, Book, User, LineChart } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthButtons } from "./AuthButtons";
@@ -36,7 +36,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
       : "text-muted-foreground hover:text-primary transition-colors";
   };
 
-  const handlePlusClick = () => {
+  const handleCircleClick = () => {
     fileInputRef.current?.click();
   };
 
@@ -69,11 +69,10 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
               
               <div className="flex flex-col items-center">
                 <button 
-                  onClick={handlePlusClick}
-                  className="bg-[#9a9a9a] rounded-full p-4 hover:bg-[#9a9a9a]/90 transition-colors"
-                >
-                  <Plus className="h-6 w-6 text-white" />
-                </button>
+                  onClick={handleCircleClick}
+                  className="w-14 h-14 rounded-full border-2 border-[#9a9a9a] hover:bg-gray-50 transition-colors"
+                  aria-label="Upload photo"
+                />
                 <input
                   ref={fileInputRef}
                   type="file"
