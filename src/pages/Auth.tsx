@@ -59,11 +59,12 @@ const AuthPage = () => {
           },
         }}
         providers={["google"]}
-        redirectTo={window.location.origin}
+        redirectTo={`${window.location.origin}/auth/callback`}
         onError={(error: AuthError) => {
           console.error("Auth error:", error);
           setError(error.message);
         }}
+        view="sign_in"
       />
     </div>
   );
