@@ -53,7 +53,7 @@ const AuthPage = () => {
       <div className="hidden md:flex md:w-1/2 bg-primary/5 items-center justify-center p-8">
         <div className="max-w-md space-y-6">
           <h1 className="text-4xl font-bold tracking-tight">
-            Welcome to Your Health Journey
+            Welcome to Leena.ai
           </h1>
           <p className="text-lg text-muted-foreground">
             Track your nutrition, monitor your progress, and achieve your health goals with our comprehensive platform.
