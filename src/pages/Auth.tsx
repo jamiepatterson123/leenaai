@@ -48,30 +48,59 @@ const AuthPage = () => {
   }
 
   return (
-    <div className="max-w-md mx-auto px-8 py-12">
-      <h1 className="text-2xl font-bold text-center mb-8">Sign In</h1>
-      {error && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-      <Auth
-        supabaseClient={supabase}
-        appearance={{ 
-          theme: ThemeSupa,
-          variables: {
-            default: {
-              colors: {
-                brand: '#2563eb',
-                brandAccent: '#1d4ed8',
+    <div className="flex min-h-screen">
+      {/* Left Column - Hero/Welcome Section */}
+      <div className="hidden md:flex md:w-1/2 bg-primary/5 items-center justify-center p-8">
+        <div className="max-w-md space-y-6">
+          <h1 className="text-4xl font-bold tracking-tight">
+            Welcome to Your Health Journey
+          </h1>
+          <p className="text-lg text-muted-foreground">
+            Track your nutrition, monitor your progress, and achieve your health goals with our comprehensive platform.
+          </p>
+        </div>
+      </div>
+
+      {/* Right Column - Auth UI */}
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center md:text-left">
+            <h2 className="text-2xl font-bold">Sign In</h2>
+            <p className="text-muted-foreground mt-2">
+              Get started by signing in to your account
+            </p>
+          </div>
+          
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <Auth
+            supabaseClient={supabase}
+            appearance={{ 
+              theme: ThemeSupa,
+              variables: {
+                default: {
+                  colors: {
+                    brand: '#2563eb',
+                    brandAccent: '#1d4ed8',
+                  },
+                },
               },
-            },
-          },
-        }}
-        providers={["google"]}
-        redirectTo={`${window.location.origin}/auth/callback`}
-        view="sign_in"
-      />
+              className: {
+                container: 'w-full',
+                button: 'w-full',
+                anchor: 'text-primary hover:text-primary/80',
+              }
+            }}
+            providers={["google"]}
+            redirectTo={`${window.location.origin}/auth/callback`}
+            view="sign_in"
+          />
+        </div>
+      </div>
     </div>
   );
 };
