@@ -73,9 +73,9 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
         ? Math.round(entry.weight * 2.20462 * 10) / 10
         : entry.weight
       : null
-  }));
-
-  const unitLabel = preferredUnits === 'imperial' ? 'lbs' : 'kg';
+  })).filter((entry): entry is { weight: number; date: string } => 
+    entry.weight !== null
+  );
 
   return (
     <Card className="p-6">
@@ -100,7 +100,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
         <div className="h-[400px] w-full">
           <WeightChartConfig
             data={convertedData}
-            unitLabel={unitLabel}
+            preferredUnits={preferredUnits}
             isMobile={isMobile}
             onDelete={handleDelete}
           />

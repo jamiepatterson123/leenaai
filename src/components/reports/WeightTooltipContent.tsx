@@ -1,5 +1,4 @@
 import React from 'react';
-import { TooltipProps } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 
