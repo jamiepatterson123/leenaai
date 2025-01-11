@@ -10,8 +10,8 @@ import {
 export const mainNavigationItems = [
   { icon: Home, text: "Home", to: "/" },
   { icon: UtensilsCrossed, text: "Nutrition", to: "/food-diary" },
-  { icon: Target, text: "Targets", to: "/profile" },
   { icon: ClipboardList, text: "Dashboard", to: "/reports" },
+  { icon: Target, text: "Profile", to: "/profile" },
   { icon: UserCheck, text: "Coach", to: "/coach" },
 ];
 
