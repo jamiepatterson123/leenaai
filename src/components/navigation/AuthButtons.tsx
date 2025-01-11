@@ -15,8 +15,12 @@ export const AuthButtons = ({ handleShare, session }: AuthButtonsProps) => {
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
-      navigate("/auth");
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        toast.error("Error signing out");
+        return;
+      }
+      navigate("/welcome");
       toast.success("Signed out successfully");
     } catch (error) {
       toast.error("Error signing out");

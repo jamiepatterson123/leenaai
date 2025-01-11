@@ -27,13 +27,16 @@ export const Navigation = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (!session) {
+        navigate('/welcome');
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
-  // If there's no session, don't render the navigation
-  if (!session) return null;
+  // If there's no session or we're on the welcome page, don't render the navigation
+  if (!session || window.location.pathname === '/welcome') return null;
 
   const handleShare = () => {
     // Implement share functionality
