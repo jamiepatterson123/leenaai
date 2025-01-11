@@ -156,8 +156,11 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-6 w-6 text-destructive hover:text-destructive/90"
-                              onClick={() => handleDelete(date)}
+                              className="h-8 w-8 text-destructive hover:text-destructive/90 hover:bg-destructive/10"
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevent tooltip from closing
+                                handleDelete(date);
+                              }}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -176,7 +179,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
                 strokeWidth={2}
                 dot={true}
                 connectNulls={true}
-                activeDot={{ r: isMobile ? 8 : 6 }} // Larger dot on mobile for better touch targets
+                activeDot={{ r: isMobile ? 8 : 6 }}
               />
             </LineChart>
           </ResponsiveContainer>
