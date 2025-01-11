@@ -95,7 +95,6 @@ const AuthPage = () => {
                 anchor: 'text-primary hover:text-primary/80',
               }
             }}
-            providers={["google"]}
             redirectTo={`${window.location.origin}/welcome/callback`}
             view="sign_in"
           />
