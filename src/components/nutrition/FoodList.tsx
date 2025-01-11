@@ -24,15 +24,13 @@ export const FoodList: React.FC<FoodListProps> = ({
   onDelete,
   onUpdateCategory 
 }) => {
-  const mealCategories = ["Breakfast", "Lunch", "Dinner", "Snacks", "Pre-Workout", "Post-Workout", "Uncategorized"];
+  const mealCategories = ["Breakfast", "Lunch", "Dinner", "Snacks", "Uncategorized"];
   
   const foodsByCategory = {
     Breakfast: foods.filter(food => food.category?.toLowerCase() === "breakfast"),
     Lunch: foods.filter(food => food.category?.toLowerCase() === "lunch"),
     Dinner: foods.filter(food => food.category?.toLowerCase() === "dinner"),
     Snacks: foods.filter(food => food.category?.toLowerCase() === "snacks"),
-    "Pre-Workout": foods.filter(food => food.category?.toLowerCase() === "pre-workout"),
-    "Post-Workout": foods.filter(food => food.category?.toLowerCase() === "post-workout"),
     Uncategorized: foods.filter(food => !food.category || food.category.toLowerCase() === "uncategorized"),
   };
 
