@@ -88,7 +88,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <div className="min-h-screen pb-10"> {/* Added pb-10 for 10px bottom padding */}
+        <div className="min-h-screen pb-10">
           <Navigation />
           <Routes>
             <Route path="/welcome" element={<Auth />} />
