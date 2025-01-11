@@ -3,11 +3,12 @@ import { FoodDiary } from "@/components/FoodDiary";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { parse, format } from "date-fns";
 
 const FoodDiaryPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const dateParam = searchParams.get('date');
   
   // Parse the date from URL or use current date as fallback
@@ -17,6 +18,12 @@ const FoodDiaryPage = () => {
 
   const [analyzing, setAnalyzing] = React.useState(false);
   const [nutritionData, setNutritionData] = React.useState(null);
+
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date) {
+      navigate(`/food-diary?date=${format(date, 'yyyy-MM-dd')}`);
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
@@ -32,7 +39,7 @@ const FoodDiaryPage = () => {
             <Calendar
               mode="single"
               selected={selectedDate}
-              onSelect={(newDate) => newDate && setSearchParams({ date: format(newDate, 'yyyy-MM-dd') })}
+              onSelect={handleDateSelect}
               className="rounded-md"
             />
           </Card>
