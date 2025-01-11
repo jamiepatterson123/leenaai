@@ -1,14 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ReportsHeader } from "@/components/reports/ReportsHeader";
 import { ReportsContent } from "@/components/reports/ReportsContent";
 import { TimeRange } from "@/components/reports/TimeRangeSelector";
 import { useReportsData } from "@/components/reports/useReportsData";
 import { processCalorieData, processMacroData, processMealData } from "@/components/reports/DataProcessor";
 import { startOfDay, endOfDay, subDays, subWeeks, subMonths } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 export const Reports = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>("1w");
+  const navigate = useNavigate();
   const { foodData, weightData, waterData, isLoading } = useReportsData(timeRange);
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/auth");
+      }
+    };
+
+    checkAuth();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        navigate("/auth");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   // Calculate date range based on timeRange
   const endDate = endOfDay(new Date());
@@ -41,6 +67,18 @@ export const Reports = () => {
   const calorieData = foodData ? processCalorieData(foodData, startDate, endDate) : [];
   const macroData = foodData ? processMacroData(foodData, startDate, endDate) : [];
   const mealData = foodData ? processMealData(foodData, startDate, endDate) : [];
+
+  if (isLoading) {
+    return (
+      <div className="container max-w-7xl mx-auto p-4 space-y-4 pb-20">
+        <div className="flex items-center justify-center h-[50vh]">
+          <div className="text-muted-foreground animate-pulse">
+            Loading reports...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-7xl mx-auto p-4 space-y-4 pb-20">
