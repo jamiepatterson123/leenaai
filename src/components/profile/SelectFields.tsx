@@ -63,7 +63,12 @@ export const SelectFields: React.FC<SelectFieldsProps> = ({
                 <Info className="h-3 w-3 text-gray-500" />
               </button>
             </HoverCardTrigger>
-            <HoverCardContent className="w-80" side="right">
+            <HoverCardContent 
+              className="w-[90vw] max-w-[400px]" 
+              align="center"
+              side="top"
+              sideOffset={5}
+            >
               <div className="space-y-4">
                 <h4 className="font-medium">Activity Levels Explained</h4>
                 {Object.entries(activityLevelInfo).map(([level, description]) => (
