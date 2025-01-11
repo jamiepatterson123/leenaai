@@ -17,37 +17,23 @@ export const Navigation = () => {
   const selectedDate = new Date();
 
   useEffect(() => {
-    const initSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          console.error("Session error:", error);
-          navigate("/auth");
-          return;
-        }
-        setSession(session);
-        
-        if (!session) {
-          navigate("/auth");
-        }
-      } catch (error) {
-        console.error("Session initialization error:", error);
-        navigate("/auth");
-      }
-    };
-
-    initSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event, session?.user?.id);
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (!session) {
-        navigate("/auth");
-      }
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, []);
+
+  // If there's no session, don't render the navigation
+  if (!session) return null;
 
   const handleShare = () => {
     // Implement share functionality
@@ -82,9 +68,6 @@ export const Navigation = () => {
       }
     }, 100);
   };
-
-  // Only render navigation when there's a valid session
-  if (!session) return null;
 
   return (
     <div className="border-b">

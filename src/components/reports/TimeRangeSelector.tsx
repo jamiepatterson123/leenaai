@@ -1,26 +1,50 @@
-export type TimeRange = "1d" | "1w" | "2w" | "1m" | "2m" | "3m" | "6m" | "1y";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { CalendarDays } from "lucide-react";
 
-export const TimeRangeSelector = ({ 
-  timeRange, 
-  onTimeRangeChange 
-}: { 
-  timeRange: TimeRange;
-  onTimeRangeChange: (range: TimeRange) => void;
-}) => {
+export type TimeRange = "1w" | "2w" | "1m" | "2m" | "6m" | "1y";
+
+interface TimeRangeSelectorProps {
+  value: TimeRange;
+  onChange: (value: TimeRange) => void;
+}
+
+export const TIME_RANGE_OPTIONS: { value: TimeRange; label: string }[] = [
+  { value: "1w", label: "1 Week" },
+  { value: "2w", label: "2 Weeks" },
+  { value: "1m", label: "1 Month" },
+  { value: "2m", label: "2 Months" },
+  { value: "6m", label: "6 Months" },
+  { value: "1y", label: "1 Year" },
+];
+
+export const TimeRangeSelector = ({ value, onChange }: TimeRangeSelectorProps) => {
+  const selectedOption = TIME_RANGE_OPTIONS.find((option) => option.value === value);
+
   return (
-    <select
-      value={timeRange}
-      onChange={(e) => onTimeRangeChange(e.target.value as TimeRange)}
-      className="border rounded px-2 py-1"
-    >
-      <option value="1d">Last 24 hours</option>
-      <option value="1w">Last week</option>
-      <option value="2w">Last 2 weeks</option>
-      <option value="1m">Last month</option>
-      <option value="2m">Last 2 months</option>
-      <option value="3m">Last 3 months</option>
-      <option value="6m">Last 6 months</option>
-      <option value="1y">Last year</option>
-    </select>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-2">
+          <CalendarDays className="h-4 w-4" />
+          {selectedOption?.label || "Select Range"}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-32">
+        {TIME_RANGE_OPTIONS.map((option) => (
+          <DropdownMenuItem
+            key={option.value}
+            onClick={() => onChange(option.value)}
+            className="cursor-pointer"
+          >
+            {option.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

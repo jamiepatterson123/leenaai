@@ -1,43 +1,59 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { Navigation } from "@/components/Navigation";
+import React from "react";
+import { FoodDiary } from "@/components/FoodDiary";
+import { Calendar } from "@/components/ui/calendar";
+import { Card } from "@/components/ui/card";
+import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { parse, format } from "date-fns";
 
-export const FoodDiary = () => {
+const FoodDiaryPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const dateParam = searchParams.get('date');
+  
+  // Parse the date from URL or use current date as fallback
+  const selectedDate = dateParam 
+    ? parse(dateParam, 'yyyy-MM-dd', new Date())
+    : new Date();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("Please sign in to view your food diary");
-        navigate("/auth");
-      }
-    };
+  const [analyzing, setAnalyzing] = React.useState(false);
+  const [nutritionData, setNutritionData] = React.useState(null);
 
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        navigate("/auth");
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date) {
+      navigate(`/food-diary?date=${format(date, 'yyyy-MM-dd')}`);
+    }
+  };
 
   return (
-    <>
-      <Navigation />
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-4">Food Diary</h1>
-        {/* Add your food diary content here */}
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr,300px] gap-6">
+        {/* Main content area - nutrition info */}
+        <div className="order-1 md:order-1">
+          <FoodDiary selectedDate={selectedDate} />
+        </div>
+        
+        {/* Sidebar - calendar and image analysis */}
+        <div className="order-2 md:order-2 space-y-6">
+          <Card className="p-4">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={handleDateSelect}
+              className="rounded-md"
+            />
+          </Card>
+          <ImageAnalysisSection
+            analyzing={analyzing}
+            setAnalyzing={setAnalyzing}
+            nutritionData={nutritionData}
+            setNutritionData={setNutritionData}
+            selectedDate={selectedDate}
+          />
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 
-export default FoodDiary;
+export default FoodDiaryPage;

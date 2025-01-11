@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Home, UtensilsCrossed, User, ClipboardList, MessageCircle } from "lucide-react";
+import { Home, UtensilsCrossed, Target, ClipboardList, UserCheck } from "lucide-react";
 import {
   NavigationMenuItem,
   NavigationMenuLink,
@@ -10,9 +10,9 @@ import {
 export const mainNavigationItems = [
   { icon: Home, text: "Home", to: "/" },
   { icon: UtensilsCrossed, text: "Nutrition", to: "/food-diary" },
+  { icon: Target, text: "Targets", to: "/profile" },
   { icon: ClipboardList, text: "Dashboard", to: "/reports" },
-  { icon: User, text: "Profile", to: "/profile" },
-  { icon: MessageCircle, text: "Coach", to: "/coach" },
+  { icon: UserCheck, text: "Coach", to: "/coach" },
 ];
 
 export const NavItems = () => {
