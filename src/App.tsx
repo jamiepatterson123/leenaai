@@ -1,8 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "./integrations/supabase/client";
+import { toast } from "sonner";
 import Index from "./pages/Index";
 import FoodDiary from "./pages/FoodDiary";
 import Profile from "./pages/Profile";
@@ -17,23 +18,59 @@ const queryClient = new QueryClient();
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const mounted = useRef(true);
 
   useEffect(() => {
-    // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
+    // Cleanup function to prevent state updates after unmount
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setLoading(false);
-    });
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        // Check current session
+        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          toast.error("Authentication error. Please try signing in again.");
+          if (mounted.current) {
+            setSession(null);
+            setLoading(false);
+          }
+          return;
+        }
 
-    return () => subscription.unsubscribe();
+        if (mounted.current) {
+          setSession(currentSession);
+          setLoading(false);
+        }
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+          console.log("Auth state changed:", _event);
+          if (mounted.current) {
+            setSession(newSession);
+            setLoading(false);
+          }
+        });
+
+        return () => {
+          subscription.unsubscribe();
+        };
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+        toast.error("Failed to initialize authentication");
+        if (mounted.current) {
+          setSession(null);
+          setLoading(false);
+        }
+      }
+    };
+
+    initializeAuth();
   }, []);
 
   if (loading) {
