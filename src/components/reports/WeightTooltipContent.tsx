@@ -1,10 +1,15 @@
 import React from 'react';
-import { Payload } from 'recharts';
+import { TooltipProps } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 
 export interface WeightTooltipContentProps {
-  payload?: Payload<any, any>[];
+  payload?: Array<{
+    payload: {
+      weight: number;
+      date: string;
+    };
+  }>;
   onDelete: (date: string) => void;
   preferredUnits: string;
   isMobile: boolean;

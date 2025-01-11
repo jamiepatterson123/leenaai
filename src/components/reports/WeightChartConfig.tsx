@@ -45,7 +45,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
         />
         <YAxis tickFormatter={formatYAxis} />
         <Tooltip
-          content={({ active, payload }) => (
+          content={({ payload }) => (
             <WeightTooltipContent
               payload={payload}
               onDelete={onDelete}

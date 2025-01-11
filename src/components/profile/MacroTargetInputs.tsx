@@ -11,10 +11,10 @@ interface MacroTargetInputsProps {
 }
 
 export const MacroTargetInputs: React.FC<MacroTargetInputsProps> = ({
-  calories,
-  protein,
-  carbs,
-  fat,
+  calories = 0,
+  protein = 0,
+  carbs = 0,
+  fat = 0,
   onMacroChange,
 }) => {
   return (
