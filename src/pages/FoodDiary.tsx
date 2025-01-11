@@ -35,13 +35,15 @@ const FoodDiaryPage = () => {
         
         {/* Sidebar - calendar and image analysis */}
         <div className="order-2 md:order-2 space-y-6">
-          <Card className="rounded-none md:rounded-md">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={handleDateSelect}
-              className="rounded-md"
-            />
+          <Card className="rounded-none md:rounded-md mx-auto w-full">
+            <div className="flex justify-center w-full">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={handleDateSelect}
+                className="w-full rounded-md"
+              />
+            </div>
           </Card>
           <div className="px-4 md:px-0">
             <ImageAnalysisSection
