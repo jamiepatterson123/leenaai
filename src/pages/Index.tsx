@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { HomeDataSection } from "@/components/home/HomeDataSection";
+import { Navigation } from "@/components/Navigation";
 
 const Index = () => {
   const { data: profile } = useQuery({
@@ -26,9 +27,12 @@ const Index = () => {
   });
 
   return (
-    <main className="container mx-auto px-4 pb-24 md:pb-8 pt-8">
-      <HomeDataSection />
-    </main>
+    <>
+      <Navigation />
+      <main className="container mx-auto px-4 pb-24 md:pb-8 pt-8">
+        <HomeDataSection />
+      </main>
+    </>
   );
 };
 
