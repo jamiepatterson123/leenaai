@@ -88,43 +88,45 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <Navigation />
-        <Routes>
-          <Route path="/welcome" element={<Auth />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Index />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/food-diary"
-            element={
-              <ProtectedRoute>
-                <FoodDiary />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/reports"
-            element={
-              <ProtectedRoute>
-                <Reports />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-        <Toaster position="top-right" />
+        <div className="min-h-screen pb-10"> {/* Added pb-10 for 10px bottom padding */}
+          <Navigation />
+          <Routes>
+            <Route path="/welcome" element={<Auth />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/food-diary"
+              element={
+                <ProtectedRoute>
+                  <FoodDiary />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  <Reports />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+          <Toaster position="top-right" />
+        </div>
       </Router>
     </QueryClientProvider>
   );
