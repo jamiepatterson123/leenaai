@@ -1,24 +1,16 @@
-import {
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import { Card } from "@/components/ui/card";
-import { Info, Trash2 } from "lucide-react";
+import { Info } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { format, parseISO } from "date-fns";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { WeightChartConfig } from "./WeightChartConfig";
 
 interface WeightTrendChartProps {
   data: {
@@ -106,83 +98,12 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
       </div>
       <div className="space-y-4">
         <div className="h-[400px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart 
-              data={convertedData}
-              margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
-            >
-              <defs>
-                <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="rgb(14, 165, 233)" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="rgb(14, 165, 233)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis
-                dataKey="date"
-                stroke="#888888"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                dy={10}
-                tickFormatter={(value) => format(parseISO(value), "d. MMM")}
-              />
-              <YAxis
-                stroke="#888888"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                width={50}
-                tickFormatter={(value) => `${value}${unitLabel}`}
-              />
-              <Tooltip
-                trigger={isMobile ? 'click' : 'hover'}
-                content={({ active, payload }) => {
-                  if (active && payload && payload.length) {
-                    const value = payload[0].value;
-                    const date = payload[0].payload.date;
-                    if (value === null) return null;
-                    
-                    return (
-                      <div className="rounded-lg border bg-background p-2 shadow-sm">
-                        <div className="grid gap-2">
-                          <div className="flex items-center justify-between gap-4">
-                            <span className="text-[0.70rem] uppercase text-muted-foreground">
-                              Weight
-                            </span>
-                            <span className="font-bold">
-                              {value}{unitLabel}
-                            </span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-destructive hover:text-destructive/90 hover:bg-destructive/10"
-                              onClick={(e) => {
-                                e.stopPropagation(); // Prevent tooltip from closing
-                                handleDelete(date);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="weight"
-                stroke="rgb(14, 165, 233)"
-                strokeWidth={2}
-                dot={true}
-                connectNulls={true}
-                activeDot={{ r: isMobile ? 8 : 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <WeightChartConfig
+            data={convertedData}
+            unitLabel={unitLabel}
+            isMobile={isMobile}
+            onDelete={handleDelete}
+          />
         </div>
       </div>
     </Card>
