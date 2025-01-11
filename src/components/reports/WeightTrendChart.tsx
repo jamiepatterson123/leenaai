@@ -7,7 +7,7 @@ import {
   YAxis,
 } from "recharts";
 import { Card } from "@/components/ui/card";
-import { Info } from "lucide-react";
+import { Info, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -15,8 +15,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { format, parseISO } from "date-fns";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface WeightTrendChartProps {
   data: {
@@ -26,6 +27,8 @@ interface WeightTrendChartProps {
 }
 
 export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
+  const queryClient = useQueryClient();
+
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -42,6 +45,30 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
       return data;
     },
   });
+
+  const handleDelete = async (date: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("You must be logged in to delete weight entries");
+        return;
+      }
+
+      const { error } = await supabase
+        .from("weight_history")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("recorded_at", date);
+
+      if (error) throw error;
+
+      toast.success("Weight entry deleted");
+      queryClient.invalidateQueries({ queryKey: ["weightHistory"] });
+    } catch (error) {
+      console.error("Error deleting weight entry:", error);
+      toast.error("Failed to delete weight entry");
+    }
+  };
 
   const preferredUnits = profile?.preferred_units || 'metric';
   
@@ -71,70 +98,81 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="h-[400px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart 
-            data={convertedData}
-            margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
-          >
-            <defs>
-              <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgb(14, 165, 233)" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="rgb(14, 165, 233)" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <XAxis
-              dataKey="date"
-              stroke="#888888"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              dy={10}
-              tickFormatter={(value) => format(parseISO(value), "d. MMM")}
-            />
-            <YAxis
-              stroke="#888888"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              width={50}
-              tickFormatter={(value) => `${value}${unitLabel}`}
-            />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const value = payload[0].value;
-                  if (value === null) return null;
-                  
-                  return (
-                    <div className="rounded-lg border bg-background p-2 shadow-sm">
-                      <div className="grid gap-2">
-                        <div>
-                          <span className="text-[0.70rem] uppercase text-muted-foreground">
-                            Weight
-                          </span>
-                          <span className="ml-2 font-bold">
-                            {value}{unitLabel}
-                          </span>
+      <div className="space-y-4">
+        <div className="h-[400px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart 
+              data={convertedData}
+              margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
+            >
+              <defs>
+                <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="rgb(14, 165, 233)" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="rgb(14, 165, 233)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis
+                dataKey="date"
+                stroke="#888888"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                dy={10}
+                tickFormatter={(value) => format(parseISO(value), "d. MMM")}
+              />
+              <YAxis
+                stroke="#888888"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                width={50}
+                tickFormatter={(value) => `${value}${unitLabel}`}
+              />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const value = payload[0].value;
+                    const date = payload[0].payload.date;
+                    if (value === null) return null;
+                    
+                    return (
+                      <div className="rounded-lg border bg-background p-2 shadow-sm">
+                        <div className="grid gap-2">
+                          <div className="flex items-center justify-between gap-4">
+                            <span className="text-[0.70rem] uppercase text-muted-foreground">
+                              Weight
+                            </span>
+                            <span className="font-bold">
+                              {value}{unitLabel}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 text-destructive hover:text-destructive/90"
+                              onClick={() => handleDelete(date)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
-            <Line
-              type="monotone"
-              dataKey="weight"
-              stroke="rgb(14, 165, 233)"
-              strokeWidth={2}
-              dot={true}
-              connectNulls={true}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="weight"
+                stroke="rgb(14, 165, 233)"
+                strokeWidth={2}
+                dot={true}
+                connectNulls={true}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </Card>
   );
