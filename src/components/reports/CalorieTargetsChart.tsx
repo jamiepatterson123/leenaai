@@ -17,6 +17,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CalorieTargetsChartProps {
   data: {
@@ -25,7 +27,21 @@ interface CalorieTargetsChartProps {
 }
 
 export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
-  const { targets } = useNutritionTargets();
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("target_calories")
+        .eq("user_id", user.id)
+        .single();
+
+      return data;
+    },
+  });
   
   // Calculate average calories for the week
   const averageCalories = data.reduce((acc, day) => acc + day.calories, 0) / data.length;
@@ -34,7 +50,7 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
     {
       name: "Calories",
       value: averageCalories,
-      target: targets.calories,
+      target: profile?.target_calories || 2000, // Use dynamic target with fallback
     }
   ];
 
@@ -141,7 +157,7 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
               dataKey="value"
               name="Weekly Average"
               barSize={40}
-              fill={getBarColor(averageCalories, targets.calories)}
+              fill={getBarColor(averageCalories, profile?.target_calories || 2000)}
             />
           </BarChart>
         </ResponsiveContainer>

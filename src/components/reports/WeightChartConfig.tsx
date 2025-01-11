@@ -1,7 +1,7 @@
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import {
-  Line,
-  LineChart,
+  Area,
+  AreaChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -10,81 +10,68 @@ import {
 import { WeightTooltipContent } from "./WeightTooltipContent";
 
 interface WeightChartConfigProps {
-  data: {
-    weight: number | null;
+  data: Array<{
     date: string;
-  }[];
-  unitLabel: string;
-  isMobile: boolean;
-  onDelete: (date: string) => void;
+    weight: number;
+  }>;
+  onDeleteWeight: (date: string) => void;
+  preferredUnits: string;
 }
 
-export const WeightChartConfig = ({
-  data,
-  unitLabel,
-  isMobile,
-  onDelete,
+export const WeightChartConfig = ({ 
+  data, 
+  onDeleteWeight,
+  preferredUnits 
 }: WeightChartConfigProps) => {
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <LineChart 
+    <ResponsiveContainer width="100%" height={400}>
+      <AreaChart
         data={data}
-        margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
+        margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
       >
         <defs>
           <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgb(14, 165, 233)" stopOpacity={0.3} />
-            <stop offset="100%" stopColor="rgb(14, 165, 233)" stopOpacity={0} />
+            <stop offset="5%" stopColor="#9b87f5" stopOpacity={0.2} />
+            <stop offset="95%" stopColor="#9b87f5" stopOpacity={0} />
           </linearGradient>
         </defs>
         <XAxis
           dataKey="date"
-          stroke="#888888"
-          fontSize={12}
+          tickFormatter={(date) => format(new Date(date), "MMM d")}
+          tick={{ fontSize: 12 }}
           tickLine={false}
           axisLine={false}
-          dy={10}
-          tickFormatter={(value) => format(parseISO(value), "d. MMM")}
         />
         <YAxis
-          stroke="#888888"
-          fontSize={12}
+          domain={['auto', 'auto']}
+          tick={{ fontSize: 12 }}
           tickLine={false}
           axisLine={false}
-          tickMargin={8}
-          width={50}
-          tickFormatter={(value) => `${value}${unitLabel}`}
-        />
-        <Tooltip
-          trigger={isMobile ? 'click' : 'hover'}
-          content={({ active, payload }) => {
-            if (active && payload && payload.length) {
-              const value = payload[0].value;
-              const date = payload[0].payload.date;
-              if (value === null) return null;
-              
-              return (
-                <WeightTooltipContent
-                  value={value}
-                  date={date}
-                  unitLabel={unitLabel}
-                  onDelete={onDelete}
-                />
-              );
-            }
-            return null;
+          tickFormatter={(value: number) => {
+            return preferredUnits === 'imperial' 
+              ? `${(value * 2.20462).toFixed(1)} lbs`
+              : `${value.toFixed(1)} kg`;
           }}
         />
-        <Line
+        <Tooltip
+          content={({ active, payload }) => (
+            <WeightTooltipContent
+              active={active}
+              payload={payload}
+              onDelete={onDeleteWeight}
+              preferredUnits={preferredUnits}
+            />
+          )}
+        />
+        <Area
           type="monotone"
           dataKey="weight"
-          stroke="rgb(14, 165, 233)"
+          stroke="#9b87f5"
+          fillOpacity={1}
+          fill="url(#weightGradient)"
           strokeWidth={2}
-          dot={true}
-          connectNulls={true}
-          activeDot={{ r: isMobile ? 8 : 6 }}
         />
-      </LineChart>
+      </AreaChart>
     </ResponsiveContainer>
   );
 };

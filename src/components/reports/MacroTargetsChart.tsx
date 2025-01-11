@@ -10,7 +10,6 @@ import {
   CartesianGrid,
 } from "recharts";
 import { Card } from "@/components/ui/card";
-import { useNutritionTargets } from "@/components/nutrition/useNutritionTargets";
 import { Info } from "lucide-react";
 import {
   Dialog,
@@ -18,6 +17,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MacroTargetsChartProps {
   data: {
@@ -28,7 +29,21 @@ interface MacroTargetsChartProps {
 }
 
 export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
-  const { targets } = useNutritionTargets();
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("target_protein, target_carbs, target_fat")
+        .eq("user_id", user.id)
+        .single();
+
+      return data;
+    },
+  });
   
   // Calculate averages for the week
   const averages = data.reduce((acc, day) => ({
@@ -41,19 +56,19 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
     {
       name: "Protein",
       value: averages.protein / data.length,
-      target: targets.protein,
+      target: profile?.target_protein || 150,
       color: "#ea384c",
     },
     {
       name: "Carbs",
       value: averages.carbs / data.length,
-      target: targets.carbs,
+      target: profile?.target_carbs || 200,
       color: "#FFD700",
     },
     {
       name: "Fat",
       value: averages.fat / data.length,
-      target: targets.fat,
+      target: profile?.target_fat || 70,
       color: "#06b6d4",
     },
   ];
