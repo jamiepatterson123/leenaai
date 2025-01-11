@@ -19,6 +19,7 @@ interface CategorySectionProps {
   onDelete: (id: string) => void;
   onUpdateCategory: (id: string, category: string) => void;
   mealCategories: string[];
+  showEmpty?: boolean;
 }
 
 export const CategorySection: React.FC<CategorySectionProps> = ({
@@ -27,9 +28,10 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
   onDelete,
   onUpdateCategory,
   mealCategories,
+  showEmpty = false,
 }) => {
-  // Only render the section if there are foods in this category
-  if (foods.length === 0) {
+  // Only render the section if there are foods in this category or showEmpty is true
+  if (foods.length === 0 && !showEmpty) {
     return null;
   }
 
@@ -44,17 +46,19 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
         <span className="font-medium">{category}</span>
         <span className="text-sm">{totalCalories} kcal</span>
       </div>
-      <div className="space-y-2">
-        {foods?.map((food) => (
-          <FoodItem
-            key={food.id}
-            food={food}
-            onDelete={onDelete}
-            onUpdateCategory={onUpdateCategory}
-            mealCategories={mealCategories}
-          />
-        ))}
-      </div>
+      {foods.length > 0 && (
+        <div className="space-y-2">
+          {foods?.map((food) => (
+            <FoodItem
+              key={food.id}
+              food={food}
+              onDelete={onDelete}
+              onUpdateCategory={onUpdateCategory}
+              mealCategories={mealCategories}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

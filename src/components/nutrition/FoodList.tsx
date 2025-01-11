@@ -46,6 +46,7 @@ export const FoodList: React.FC<FoodListProps> = ({
           onDelete={onDelete}
           onUpdateCategory={onUpdateCategory}
           mealCategories={mealCategories}
+          showEmpty={true}
         />
       ))}
     </div>
