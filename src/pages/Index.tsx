@@ -11,13 +11,18 @@ const Index = () => {
   
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        toast.error("Authentication error");
-        navigate("/auth");
-        return;
-      }
-      if (!session) {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error("Auth error:", error);
+          navigate("/auth");
+          return;
+        }
+        if (!session) {
+          navigate("/auth");
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
         navigate("/auth");
       }
     };
@@ -25,6 +30,7 @@ const Index = () => {
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, session?.user?.id);
       if (event === 'SIGNED_OUT' || !session) {
         navigate("/auth");
       }

@@ -18,22 +18,28 @@ export const Navigation = () => {
 
   useEffect(() => {
     const initSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        toast.error("Session error");
-        navigate("/auth");
-        return;
-      }
-      setSession(session);
-      
-      if (!session) {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error("Session error:", error);
+          navigate("/auth");
+          return;
+        }
+        setSession(session);
+        
+        if (!session) {
+          navigate("/auth");
+        }
+      } catch (error) {
+        console.error("Session initialization error:", error);
         navigate("/auth");
       }
     };
 
     initSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, session?.user?.id);
       setSession(session);
       if (!session) {
         navigate("/auth");
