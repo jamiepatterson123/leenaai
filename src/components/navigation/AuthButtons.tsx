@@ -15,9 +15,21 @@ export const AuthButtons = ({ handleShare, session }: AuthButtonsProps) => {
 
   const handleSignOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      // First clear any existing session data
+      await supabase.auth.clearSession();
       
+      // Then perform the sign out
+      const { error } = await supabase.auth.signOut({
+        scope: 'local'
+      });
+      
+      if (error) {
+        console.error("Sign out error:", error);
+        toast.error("Error signing out");
+        return;
+      }
+      
+      // Navigate to auth page after successful sign out
       navigate("/auth");
       toast.success("Signed out successfully");
     } catch (error) {
