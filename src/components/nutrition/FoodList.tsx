@@ -24,14 +24,16 @@ export const FoodList: React.FC<FoodListProps> = ({
   onDelete,
   onUpdateCategory 
 }) => {
-  const mealCategories = ["breakfast", "lunch", "dinner", "snacks", "uncategorized"];
+  const mealCategories = ["Breakfast", "Lunch", "Dinner", "Snacks", "Pre-Workout", "Post-Workout", "Uncategorized"];
   
   const foodsByCategory = {
-    breakfast: foods.filter(food => food.category?.toLowerCase() === "breakfast"),
-    lunch: foods.filter(food => food.category?.toLowerCase() === "lunch"),
-    dinner: foods.filter(food => food.category?.toLowerCase() === "dinner"),
-    snacks: foods.filter(food => food.category?.toLowerCase() === "snacks"),
-    uncategorized: foods.filter(food => !food.category || food.category.toLowerCase() === "uncategorized"),
+    Breakfast: foods.filter(food => food.category?.toLowerCase() === "breakfast"),
+    Lunch: foods.filter(food => food.category?.toLowerCase() === "lunch"),
+    Dinner: foods.filter(food => food.category?.toLowerCase() === "dinner"),
+    Snacks: foods.filter(food => food.category?.toLowerCase() === "snacks"),
+    "Pre-Workout": foods.filter(food => food.category?.toLowerCase() === "pre-workout"),
+    "Post-Workout": foods.filter(food => food.category?.toLowerCase() === "post-workout"),
+    Uncategorized: foods.filter(food => !food.category || food.category.toLowerCase() === "uncategorized"),
   };
 
   return (
@@ -39,7 +41,7 @@ export const FoodList: React.FC<FoodListProps> = ({
       {mealCategories.map((category) => (
         <CategorySection
           key={category}
-          category={category.charAt(0).toUpperCase() + category.slice(1)}
+          category={category}
           foods={foodsByCategory[category] || []}
           onDelete={onDelete}
           onUpdateCategory={onUpdateCategory}
