@@ -18,6 +18,7 @@ import { format, parseISO } from "date-fns";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface WeightTrendChartProps {
   data: {
@@ -28,6 +29,7 @@ interface WeightTrendChartProps {
 
 export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
@@ -89,7 +91,11 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
         <h2 className="text-2xl font-semibold">Weight Trend</h2>
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-5 w-5 p-0">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-5 w-5 p-0"
+            >
               <Info className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
             </Button>
           </DialogTrigger>
@@ -130,6 +136,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
                 tickFormatter={(value) => `${value}${unitLabel}`}
               />
               <Tooltip
+                trigger={isMobile ? 'click' : 'hover'}
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
                     const value = payload[0].value;
@@ -169,6 +176,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
                 strokeWidth={2}
                 dot={true}
                 connectNulls={true}
+                activeDot={{ r: isMobile ? 8 : 6 }} // Larger dot on mobile for better touch targets
               />
             </LineChart>
           </ResponsiveContainer>

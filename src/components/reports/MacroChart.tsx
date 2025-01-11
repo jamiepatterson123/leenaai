@@ -17,6 +17,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { format, parseISO } from "date-fns";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface MacroChartProps {
   data: {
@@ -28,20 +35,35 @@ interface MacroChartProps {
 }
 
 export const MacroChart = ({ data }: MacroChartProps) => {
+  const isMobile = useIsMobile();
+
   return (
     <Card className="p-4 sm:p-6 w-full">
       <div className="flex items-center gap-2 mb-4 sm:mb-6">
         <h2 className="text-xl sm:text-2xl font-semibold">Macronutrient Averages</h2>
-        <TooltipProvider>
-          <UITooltip>
-            <TooltipTrigger>
-              <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="max-w-xs">Track your daily intake of protein, carbs, and fat. This helps ensure you're getting a balanced diet that supports your fitness goals, energy levels, and overall health.</p>
-            </TooltipContent>
-          </UITooltip>
-        </TooltipProvider>
+        {isMobile ? (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-5 w-5 p-0">
+                <Info className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-xs">
+              <p>Track your daily intake of protein, carbs, and fat. This helps ensure you're getting a balanced diet that supports your fitness goals, energy levels, and overall health.</p>
+            </DialogContent>
+          </Dialog>
+        ) : (
+          <TooltipProvider>
+            <UITooltip>
+              <TooltipTrigger>
+                <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs">Track your daily intake of protein, carbs, and fat. This helps ensure you're getting a balanced diet that supports your fitness goals, energy levels, and overall health.</p>
+              </TooltipContent>
+            </UITooltip>
+          </TooltipProvider>
+        )}
       </div>
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -83,6 +105,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
               }}
             />
             <Tooltip
+              trigger={isMobile ? 'click' : 'hover'}
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   return (
