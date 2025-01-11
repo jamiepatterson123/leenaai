@@ -5,13 +5,14 @@ import { StreakCounter } from "@/components/StreakCounter";
 import { useHomeData } from "@/components/home/useHomeData";
 import { HabitTracker } from "@/components/habits/HabitTracker";
 import { MacroCircles } from "@/components/home/MacroCircles";
+import { WeightTrendChart } from "@/components/reports/WeightTrendChart";
 
 export const HomeDataSection = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
   const [nutritionData, setNutritionData] = React.useState<any>(null);
   const imageAnalysisSectionRef = React.useRef<any>(null);
 
-  const { isLoading } = useHomeData();
+  const { isLoading, weightData } = useHomeData();
 
   return (
     <div className="space-y-6">
@@ -53,6 +54,16 @@ export const HomeDataSection = () => {
               setNutritionData={setNutritionData}
               selectedDate={new Date()}
             />
+          </div>
+
+          {/* Weight Trend Chart Section */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <h2 className="text-lg font-semibold mb-4">Weight Trend</h2>
+            {weightData && weightData.length > 0 ? (
+              <WeightTrendChart data={weightData} />
+            ) : (
+              <p className="text-center text-gray-500">No weight data available</p>
+            )}
           </div>
 
           {/* Weight Input Section */}
