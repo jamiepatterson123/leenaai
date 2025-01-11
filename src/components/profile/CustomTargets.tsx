@@ -79,8 +79,8 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
             onMacroChange={handleMacroChange}
           />
 
-          <div className="flex justify-end mt-6">
-            <Button type="submit">Save Targets</Button>
+          <div className="mt-6">
+            <Button type="submit" className="w-full">Save Targets</Button>
           </div>
         </form>
       </CardContent>
