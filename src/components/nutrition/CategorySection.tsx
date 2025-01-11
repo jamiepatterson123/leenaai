@@ -43,7 +43,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
   ) || 0;
 
   return (
-    <Collapsible defaultOpen className="space-y-2">
+    <Collapsible defaultOpen={true} className="space-y-2">
       <CollapsibleTrigger className="flex justify-between items-center p-3 bg-secondary/50 rounded-lg backdrop-blur-sm border border-border/10 w-full group">
         <div className="flex justify-between items-center w-full">
           <span className="font-medium">{category}</span>
