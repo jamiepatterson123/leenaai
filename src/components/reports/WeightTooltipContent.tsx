@@ -1,41 +1,47 @@
-import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import React from 'react';
+import { Payload } from 'recharts';
+import { Button } from '@/components/ui/button';
+import { Trash2 } from 'lucide-react';
 
-interface WeightTooltipContentProps {
-  value: number;
-  date: string;
-  unitLabel: string;
+export interface WeightTooltipContentProps {
+  payload?: Payload<any, any>[];
   onDelete: (date: string) => void;
+  preferredUnits: string;
+  isMobile: boolean;
 }
 
-export const WeightTooltipContent = ({
-  value,
-  date,
-  unitLabel,
+export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
+  payload,
   onDelete,
-}: WeightTooltipContentProps) => {
+  preferredUnits,
+  isMobile
+}) => {
+  if (!payload || !payload[0]) {
+    return null;
+  }
+
+  const data = payload[0].payload;
+  const date = new Date(data.date).toLocaleDateString();
+  const weight = data.weight;
+  const unit = preferredUnits === 'metric' ? 'kg' : 'lbs';
+
   return (
-    <div className="rounded-lg border bg-background p-2 shadow-sm">
-      <div className="grid gap-2">
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-[0.70rem] uppercase text-muted-foreground">
-            Weight
-          </span>
-          <span className="font-bold">
-            {value}{unitLabel}
-          </span>
+    <div className="bg-white p-2 border rounded shadow-lg">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="font-semibold">{date}</p>
+          <p>{`${weight} ${unit}`}</p>
+        </div>
+        {isMobile && (
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-destructive hover:text-destructive/90 hover:bg-destructive/10"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(date);
-            }}
+            onClick={() => onDelete(data.date)}
+            className="h-8 w-8"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
-        </div>
+        )}
       </div>
     </div>
   );

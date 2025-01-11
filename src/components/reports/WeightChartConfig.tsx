@@ -1,77 +1,66 @@
-import { format } from "date-fns";
+import React from 'react';
 import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  Tooltip,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
-} from "recharts";
-import { WeightTooltipContent } from "./WeightTooltipContent";
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+import { WeightTooltipContent } from './WeightTooltipContent';
 
-interface WeightChartConfigProps {
-  data: Array<{
-    date: string;
-    weight: number;
-  }>;
-  onDeleteWeight: (date: string) => void;
+export interface WeightChartConfigProps {
+  data: Array<{ weight: number; date: string }>;
   preferredUnits: string;
+  isMobile: boolean;
+  onDelete: (date: string) => void;
 }
 
-export const WeightChartConfig = ({ 
-  data, 
-  onDeleteWeight,
-  preferredUnits 
-}: WeightChartConfigProps) => {
+export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
+  data,
+  preferredUnits,
+  isMobile,
+  onDelete,
+}) => {
+  const formatYAxis = (value: number) => {
+    return `${value}${preferredUnits === 'metric' ? 'kg' : 'lbs'}`;
+  };
+
   return (
     <ResponsiveContainer width="100%" height={400}>
-      <AreaChart
+      <LineChart
         data={data}
-        margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+        margin={{
+          top: 5,
+          right: 30,
+          left: 20,
+          bottom: 5,
+        }}
       >
-        <defs>
-          <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#9b87f5" stopOpacity={0.2} />
-            <stop offset="95%" stopColor="#9b87f5" stopOpacity={0} />
-          </linearGradient>
-        </defs>
+        <CartesianGrid strokeDasharray="3 3" />
         <XAxis
           dataKey="date"
-          tickFormatter={(date) => format(new Date(date), "MMM d")}
-          tick={{ fontSize: 12 }}
-          tickLine={false}
-          axisLine={false}
+          tickFormatter={(value) => new Date(value).toLocaleDateString()}
         />
-        <YAxis
-          domain={['auto', 'auto']}
-          tick={{ fontSize: 12 }}
-          tickLine={false}
-          axisLine={false}
-          tickFormatter={(value: number) => {
-            return preferredUnits === 'imperial' 
-              ? `${(value * 2.20462).toFixed(1)} lbs`
-              : `${value.toFixed(1)} kg`;
-          }}
-        />
+        <YAxis tickFormatter={formatYAxis} />
         <Tooltip
           content={({ active, payload }) => (
             <WeightTooltipContent
-              active={active}
               payload={payload}
-              onDelete={onDeleteWeight}
+              onDelete={onDelete}
               preferredUnits={preferredUnits}
+              isMobile={isMobile}
             />
           )}
         />
-        <Area
+        <Line
           type="monotone"
           dataKey="weight"
-          stroke="#9b87f5"
-          fillOpacity={1}
-          fill="url(#weightGradient)"
-          strokeWidth={2}
+          stroke="#8884d8"
+          activeDot={{ r: 8 }}
         />
-      </AreaChart>
+      </LineChart>
     </ResponsiveContainer>
   );
 };

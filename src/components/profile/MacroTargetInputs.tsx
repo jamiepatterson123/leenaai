@@ -7,11 +7,6 @@ interface MacroTargetInputsProps {
   protein: number;
   carbs: number;
   fat: number;
-  placeholders: {
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
   onMacroChange: (macro: 'calories' | 'protein' | 'carbs' | 'fat', value: number) => void;
 }
 
@@ -20,7 +15,6 @@ export const MacroTargetInputs: React.FC<MacroTargetInputsProps> = ({
   protein,
   carbs,
   fat,
-  placeholders,
   onMacroChange,
 }) => {
   return (
@@ -42,7 +36,7 @@ export const MacroTargetInputs: React.FC<MacroTargetInputsProps> = ({
           <Input
             id="target_protein"
             type="number"
-            placeholder={placeholders.protein.toString()}
+            placeholder="Enter protein target"
             value={protein || ''}
             onChange={(e) => onMacroChange('protein', Number(e.target.value))}
           />
@@ -52,7 +46,7 @@ export const MacroTargetInputs: React.FC<MacroTargetInputsProps> = ({
           <Input
             id="target_carbs"
             type="number"
-            placeholder={placeholders.carbs.toString()}
+            placeholder="Enter carbs target"
             value={carbs || ''}
             onChange={(e) => onMacroChange('carbs', Number(e.target.value))}
           />
@@ -62,7 +56,7 @@ export const MacroTargetInputs: React.FC<MacroTargetInputsProps> = ({
           <Input
             id="target_fat"
             type="number"
-            placeholder={placeholders.fat.toString()}
+            placeholder="Enter fat target"
             value={fat || ''}
             onChange={(e) => onMacroChange('fat', Number(e.target.value))}
           />
