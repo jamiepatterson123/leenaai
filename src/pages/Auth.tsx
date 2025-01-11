@@ -64,6 +64,11 @@ const AuthPage = () => {
       {/* Right Column - Auth UI */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
+          {/* Mobile only header */}
+          <div className="md:hidden text-center">
+            <h1 className="text-2xl font-bold text-primary">Leena.ai</h1>
+          </div>
+          
           <div className="text-center md:text-left">
             <h2 className="text-2xl font-bold">Sign In</h2>
             <p className="text-muted-foreground mt-2">
