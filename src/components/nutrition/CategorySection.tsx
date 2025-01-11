@@ -28,6 +28,11 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
   onUpdateCategory,
   mealCategories,
 }) => {
+  // Only render the section if there are foods in this category
+  if (foods.length === 0) {
+    return null;
+  }
+
   const totalCalories = foods?.reduce(
     (total, food) => total + (food.nutrition?.calories || 0),
     0

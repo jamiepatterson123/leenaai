@@ -24,22 +24,22 @@ export const FoodList: React.FC<FoodListProps> = ({
   onDelete,
   onUpdateCategory 
 }) => {
-  const mealCategories = ["Breakfast", "Lunch", "Dinner", "Snacks"];
+  const mealCategories = ["breakfast", "lunch", "dinner", "snacks", "uncategorized"];
   
   const foodsByCategory = {
-    Breakfast: foods.filter(food => food.category === "Breakfast"),
-    Lunch: foods.filter(food => food.category === "Lunch"),
-    Dinner: foods.filter(food => food.category === "Dinner"),
-    Snacks: foods.filter(food => food.category === "Snacks"),
-    Uncategorized: foods.filter(food => !food.category || food.category === "uncategorized"),
+    breakfast: foods.filter(food => food.category?.toLowerCase() === "breakfast"),
+    lunch: foods.filter(food => food.category?.toLowerCase() === "lunch"),
+    dinner: foods.filter(food => food.category?.toLowerCase() === "dinner"),
+    snacks: foods.filter(food => food.category?.toLowerCase() === "snacks"),
+    uncategorized: foods.filter(food => !food.category || food.category.toLowerCase() === "uncategorized"),
   };
 
   return (
     <div className="space-y-4">
-      {[...mealCategories, "Uncategorized"].map((category) => (
+      {mealCategories.map((category) => (
         <CategorySection
           key={category}
-          category={category}
+          category={category.charAt(0).toUpperCase() + category.slice(1)}
           foods={foodsByCategory[category] || []}
           onDelete={onDelete}
           onUpdateCategory={onUpdateCategory}
