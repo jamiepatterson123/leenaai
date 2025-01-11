@@ -61,7 +61,7 @@ export const MacroCircles = () => {
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="grid grid-cols-4 gap-2">
       {macros.map((macro) => (
         <MacroCircle
           key={macro.label}

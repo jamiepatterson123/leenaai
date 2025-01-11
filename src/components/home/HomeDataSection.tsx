@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { WeightInput } from "@/components/WeightInput";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
 import { StreakCounter } from "@/components/StreakCounter";
 import { useHomeData } from "@/components/home/useHomeData";
 import { HabitTracker } from "@/components/habits/HabitTracker";
 import { MacroCircles } from "@/components/home/MacroCircles";
-import { Card } from "@/components/ui/card";
 
 export const HomeDataSection = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
@@ -15,30 +14,37 @@ export const HomeDataSection = () => {
   const { isLoading } = useHomeData();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Streak Counter - Full Width */}
       <div className="w-full">
         <StreakCounter />
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Left Column - Habit Tracking */}
-        <Card className="p-4 bg-white dark:bg-gray-800">
-          <HabitTracker />
-        </Card>
+      {/* Today's Macros - Mobile Only */}
+      <div className="md:hidden w-full">
+        <h2 className="text-lg font-semibold mb-4 text-center">Today</h2>
+        <MacroCircles />
+      </div>
 
-        {/* Right Column - Stacked Elements */}
-        <div className="flex flex-col gap-4">
-          {/* Today's Nutrition */}
-          <Card className="p-4 bg-white dark:bg-gray-800">
-            <h2 className="text-lg font-semibold mb-3">Today's Nutrition</h2>
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Left Column - Habit Tracking */}
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <HabitTracker />
+          </div>
+        </div>
+
+        {/* Right Column - Input Sections and Today's Nutrition */}
+        <div className="space-y-4 h-full">
+          {/* Today's Nutrition - Desktop Only */}
+          <div className="hidden md:block bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <h2 className="text-lg font-semibold mb-4">Today's Nutrition</h2>
             <MacroCircles />
-          </Card>
+          </div>
 
           {/* Food Input Section */}
-          <Card className="p-4 bg-white dark:bg-gray-800">
-            <h2 className="text-lg font-semibold mb-3">Add Food</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
             <ImageAnalysisSection
               ref={imageAnalysisSectionRef}
               analyzing={analyzing}
@@ -47,12 +53,12 @@ export const HomeDataSection = () => {
               setNutritionData={setNutritionData}
               selectedDate={new Date()}
             />
-          </Card>
+          </div>
 
           {/* Weight Input Section */}
-          <Card className="p-4 bg-white dark:bg-gray-800">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
             <WeightInput />
-          </Card>
+          </div>
         </div>
       </div>
     </div>
