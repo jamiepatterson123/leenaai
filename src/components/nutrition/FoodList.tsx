@@ -35,7 +35,7 @@ export const FoodList: React.FC<FoodListProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full">
       {mealCategories.map((category) => (
         <CategorySection
           key={category}
