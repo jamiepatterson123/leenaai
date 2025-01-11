@@ -4,6 +4,7 @@ import { Trash2 } from 'lucide-react';
 
 export interface WeightTooltipContentProps {
   payload?: Array<{
+    value: number;
     payload: {
       weight: number;
       date: string;
