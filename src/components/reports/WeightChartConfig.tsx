@@ -7,10 +7,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  TooltipProps,
 } from 'recharts';
 import { WeightTooltipContent } from './WeightTooltipContent';
-import { ValueType, NameType } from 'recharts/types/component/DefaultTooltipContent';
 
 export interface WeightChartConfigProps {
   data: Array<{ weight: number; date: string }>;
@@ -46,7 +44,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           tickFormatter={(value) => new Date(value).toLocaleDateString()}
         />
         <YAxis tickFormatter={formatYAxis} />
-        <Tooltip<ValueType, NameType>
+        <Tooltip
           content={({ payload }) => (
             <WeightTooltipContent
               payload={payload}
