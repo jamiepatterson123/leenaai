@@ -65,7 +65,7 @@ const AuthPage = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left">
-            <h2 className="text-2xl font-bold">Sign in to Leena.ai</h2>
+            <h2 className="text-2xl font-bold">Sign In</h2>
             <p className="text-muted-foreground mt-2">
               Get started by signing in to your account
             </p>
