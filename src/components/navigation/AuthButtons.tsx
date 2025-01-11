@@ -15,6 +15,16 @@ export const AuthButtons = ({ handleShare, session }: AuthButtonsProps) => {
 
   const handleSignOut = async () => {
     try {
+      // First get the current session
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      if (!currentSession) {
+        // If no session exists, just redirect to auth page
+        navigate("/auth");
+        return;
+      }
+
+      // Attempt to sign out
       const { error } = await supabase.auth.signOut();
       
       if (error) {
