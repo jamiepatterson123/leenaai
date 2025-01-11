@@ -1,5 +1,5 @@
 import React from "react";
-import { format, isSameDay } from "date-fns";
+import { format, isSameDay, isToday } from "date-fns";
 import { useNavigate } from "react-router-dom";
 
 interface CalendarGridProps {
@@ -33,6 +33,7 @@ export const CalendarGrid = ({ days, loggedDays }: CalendarGridProps) => {
           const isLogged = loggedDays?.some(loggedDate => 
             isSameDay(new Date(loggedDate), date)
           );
+          const isCurrentDay = isToday(date);
           
           return (
             <button
@@ -42,6 +43,7 @@ export const CalendarGrid = ({ days, loggedDays }: CalendarGridProps) => {
                 aspect-square border flex items-center justify-center
                 ${isLogged ? 'bg-primary text-primary-foreground border-primary/30' : 'border-border/50'}
                 ${(isPreviousMonth || isNextMonth) ? 'text-muted-foreground/50' : 'text-muted-foreground'}
+                ${isCurrentDay ? 'border-2 border-primary' : ''}
                 hover:bg-accent/50 transition-colors duration-200
               `}
             >
