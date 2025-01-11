@@ -1,5 +1,7 @@
 import React from "react";
 import { FoodItem } from "./FoodItem";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
 interface CategorySectionProps {
   category: string;
@@ -41,24 +43,31 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
   ) || 0;
 
   return (
-    <div className="space-y-2">
-      <div className="flex justify-between items-center p-3 bg-secondary/50 rounded-lg backdrop-blur-sm border border-border/10">
-        <span className="font-medium">{category}</span>
-        <span className="text-sm">{totalCalories} kcal</span>
-      </div>
-      {foods.length > 0 && (
-        <div className="space-y-2">
-          {foods?.map((food) => (
-            <FoodItem
-              key={food.id}
-              food={food}
-              onDelete={onDelete}
-              onUpdateCategory={onUpdateCategory}
-              mealCategories={mealCategories}
-            />
-          ))}
+    <Collapsible defaultOpen className="space-y-2">
+      <CollapsibleTrigger className="flex justify-between items-center p-3 bg-secondary/50 rounded-lg backdrop-blur-sm border border-border/10 w-full group">
+        <div className="flex justify-between items-center w-full">
+          <span className="font-medium">{category}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm">{totalCalories} kcal</span>
+            <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+          </div>
         </div>
-      )}
-    </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        {foods.length > 0 && (
+          <div className="space-y-2">
+            {foods?.map((food) => (
+              <FoodItem
+                key={food.id}
+                food={food}
+                onDelete={onDelete}
+                onUpdateCategory={onUpdateCategory}
+                mealCategories={mealCategories}
+              />
+            ))}
+          </div>
+        )}
+      </CollapsibleContent>
+    </Collapsible>
   );
 };
