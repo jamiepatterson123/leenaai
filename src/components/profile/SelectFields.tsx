@@ -31,29 +31,6 @@ const activityLevelInfo = {
   extra_active: "Very hard exercise daily & physical job (e.g., professional athletes, construction work)"
 };
 
-const ActivityLevelOption = ({ value, label }: { value: string; label: string }) => (
-  <div className="flex items-center justify-between gap-2">
-    <span>{label}</span>
-    <HoverCard>
-      <HoverCardTrigger asChild>
-        <button className="inline-flex items-center justify-center rounded-full w-5 h-5 hover:bg-gray-100 transition-colors">
-          <Info className="h-3 w-3 text-gray-500" />
-        </button>
-      </HoverCardTrigger>
-      <HoverCardContent 
-        side="right" 
-        align="start" 
-        className="w-72 p-3"
-        sideOffset={-45}
-      >
-        <p className="text-sm text-muted-foreground whitespace-normal leading-relaxed">
-          {activityLevelInfo[value as keyof typeof activityLevelInfo]}
-        </p>
-      </HoverCardContent>
-    </HoverCard>
-  </div>
-);
-
 export const SelectFields: React.FC<SelectFieldsProps> = ({
   gender,
   activityLevel,
@@ -78,27 +55,37 @@ export const SelectFields: React.FC<SelectFieldsProps> = ({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="activity_level">Activity Level</Label>
+        <div className="flex items-center gap-2">
+          <Label htmlFor="activity_level">Activity Level</Label>
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <button className="inline-flex items-center justify-center rounded-full w-5 h-5 hover:bg-gray-100 transition-colors">
+                <Info className="h-3 w-3 text-gray-500" />
+              </button>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-80" side="right">
+              <div className="space-y-4">
+                <h4 className="font-medium">Activity Levels Explained</h4>
+                {Object.entries(activityLevelInfo).map(([level, description]) => (
+                  <div key={level} className="space-y-1">
+                    <p className="font-medium capitalize">{level.replace('_', ' ')}</p>
+                    <p className="text-sm text-muted-foreground">{description}</p>
+                  </div>
+                ))}
+              </div>
+            </HoverCardContent>
+          </HoverCard>
+        </div>
         <Select onValueChange={onActivityLevelChange} value={activityLevel}>
           <SelectTrigger>
             <SelectValue placeholder="Select activity level" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="sedentary">
-              <ActivityLevelOption value="sedentary" label="Sedentary" />
-            </SelectItem>
-            <SelectItem value="lightly_active">
-              <ActivityLevelOption value="lightly_active" label="Lightly Active" />
-            </SelectItem>
-            <SelectItem value="moderately_active">
-              <ActivityLevelOption value="moderately_active" label="Moderately Active" />
-            </SelectItem>
-            <SelectItem value="very_active">
-              <ActivityLevelOption value="very_active" label="Very Active" />
-            </SelectItem>
-            <SelectItem value="extra_active">
-              <ActivityLevelOption value="extra_active" label="Extra Active" />
-            </SelectItem>
+            <SelectItem value="sedentary">Sedentary</SelectItem>
+            <SelectItem value="lightly_active">Lightly Active</SelectItem>
+            <SelectItem value="moderately_active">Moderately Active</SelectItem>
+            <SelectItem value="very_active">Very Active</SelectItem>
+            <SelectItem value="extra_active">Extra Active</SelectItem>
           </SelectContent>
         </Select>
       </div>
