@@ -30,10 +30,9 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
   const [activePoint, setActivePoint] = React.useState<number | null>(null);
 
   const handleClick = (event: any) => {
-    if (isMobile) {
-      const index = data.findIndex(
-        item => item.date === event.payload.date
-      );
+    if (isMobile && event && event.activePayload && event.activePayload[0]) {
+      const clickedDate = event.activePayload[0].payload.date;
+      const index = data.findIndex(item => item.date === clickedDate);
       setActivePoint(activePoint === index ? null : index);
     }
   };
