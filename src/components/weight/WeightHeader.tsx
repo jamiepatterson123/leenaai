@@ -1,19 +1,32 @@
 import React from "react";
-import { HelpPopup } from "@/components/HelpPopup";
+import { Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const WeightHeader = () => {
   return (
     <div className="w-full flex items-center justify-between">
-      <h2 className="text-lg font-semibold text-left">Update your weight</h2>
-      <HelpPopup
-        content={
-          <div className="space-y-2">
-            <p>Track your weight to monitor your progress over time.</p>
-            <p>You can enter your weight in either kg or lbs.</p>
-            <p>Your weight history will be displayed in the chart below.</p>
-          </div>
-        }
-      />
+      <div className="flex items-center gap-2">
+        <h2 className="text-lg font-semibold text-left">Update your weight</h2>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Info className="h-4 w-4 text-muted-foreground" />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[300px]">
+              <p>
+                For best results, update your weight daily. Weight should be taken
+                first thing in the morning after using the bathroom, before
+                drinking water and without clothing for greatest accuracy.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
     </div>
   );
 };
