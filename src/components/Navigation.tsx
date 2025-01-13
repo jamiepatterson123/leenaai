@@ -39,6 +39,18 @@ export const Navigation = () => {
     // Implement share functionality
   };
 
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      queryClient.clear(); // Clear any cached data
+      navigate("/welcome");
+      toast.success("Signed out successfully");
+    } catch (error) {
+      console.error('Sign out error:', error);
+      toast.error("Error signing out");
+    }
+  };
+
   const theme = "light" as const;
   const toggleTheme = (checked: boolean) => {
     // Implement theme toggle functionality
@@ -77,10 +89,12 @@ export const Navigation = () => {
           handleShare={handleShare}
           theme={theme}
           toggleTheme={toggleTheme}
+          handleSignOut={handleSignOut}
         />
         <MobileNav 
           onAddClick={() => {}} 
           onFileSelect={handleFileSelect}
+          handleSignOut={handleSignOut}
         />
       </div>
     </div>

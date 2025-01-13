@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Home, Book, User, LineChart } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,11 +9,11 @@ import { toast } from "sonner";
 interface MobileNavProps {
   onAddClick: () => void;
   onFileSelect?: (file: File) => void;
+  handleSignOut: () => Promise<void>;
 }
 
-export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
+export const MobileNav = ({ onAddClick, onFileSelect, handleSignOut }: MobileNavProps) => {
   const location = useLocation();
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [session, setSession] = React.useState(null);
@@ -31,20 +31,6 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
 
     return () => subscription.unsubscribe();
   }, []);
-
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        toast.error("Error signing out");
-        return;
-      }
-      navigate("/welcome");
-      toast.success("Signed out successfully");
-    } catch (error) {
-      toast.error("Error signing out");
-    }
-  };
 
   const isActive = (path: string) => {
     return location.pathname === path
