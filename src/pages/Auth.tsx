@@ -52,9 +52,10 @@ const AuthPage = () => {
       {/* Left Column - Hero/Welcome Section */}
       <div className="hidden md:flex md:w-1/2 bg-primary/5 items-center justify-center p-8">
         <div className="max-w-md space-y-6">
-          <h1 className="text-4xl font-bold tracking-tight">
+          <h1 className="text-2xl font-bold text-primary absolute top-4 left-4">Leena.ai</h1>
+          <h2 className="text-4xl font-bold tracking-tight">
             Welcome to Leena.ai
-          </h1>
+          </h2>
           <p className="text-lg text-muted-foreground">
             Accurately track your daily nutrition with photos of your food using advanced AI vision technology. Just snap and go.
           </p>
@@ -65,6 +66,7 @@ const AuthPage = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left">
+            <h1 className="text-2xl font-bold text-primary md:hidden mb-8">Leena.ai</h1>
             <h2 className="text-2xl font-bold">Create Account</h2>
             <p className="text-muted-foreground mt-2">
               Get started by creating your account

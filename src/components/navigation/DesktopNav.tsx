@@ -7,6 +7,8 @@ import { MoreDropdown } from "./MoreDropdown";
 import { supabase } from "@/integrations/supabase/client";
 import { NavItems } from "./NavItems";
 import { AuthButtons } from "./AuthButtons";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export const DesktopNav = ({ 
   handleShare, 
@@ -18,6 +20,7 @@ export const DesktopNav = ({
   toggleTheme: (checked: boolean) => void;
 }) => {
   const [session, setSession] = React.useState(null);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -33,6 +36,20 @@ export const DesktopNav = ({
     return () => subscription.unsubscribe();
   }, []);
 
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        toast.error("Error signing out");
+        return;
+      }
+      navigate("/welcome");
+      toast.success("Signed out successfully");
+    } catch (error) {
+      toast.error("Error signing out");
+    }
+  };
+
   return (
     <div className="hidden md:flex items-center gap-4">
       <NavigationMenu>
@@ -41,7 +58,7 @@ export const DesktopNav = ({
           <MoreDropdown />
         </NavigationMenuList>
       </NavigationMenu>
-      <AuthButtons handleShare={handleShare} session={session} />
+      <AuthButtons handleShare={handleShare} session={session} handleSignOut={handleSignOut} />
     </div>
   );
 };
