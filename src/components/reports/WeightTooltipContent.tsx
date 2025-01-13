@@ -1,12 +1,9 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
 import { TooltipProps } from 'recharts';
 
-export interface WeightTooltipContentProps {
-  active?: boolean;
-  payload?: TooltipProps<number, string>['payload'];
+export interface WeightTooltipContentProps extends TooltipProps<number, string> {
   onDelete: (date: string) => Promise<void>;
   preferredUnits: string;
   isMobile: boolean;

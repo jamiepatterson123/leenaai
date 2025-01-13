@@ -7,6 +7,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  TooltipProps,
 } from 'recharts';
 import { WeightTooltipContent } from './WeightTooltipContent';
 
@@ -19,6 +20,8 @@ interface WeightChartConfigProps {
   isMobile: boolean;
   onDelete: (date: string) => Promise<void>;
 }
+
+type CustomTooltipProps = TooltipProps<number, string>;
 
 export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
   data,
@@ -68,7 +71,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           axisLine={false}
           unit={preferredUnits === 'metric' ? ' kg' : ' lbs'}
         />
-        <Tooltip
+        <Tooltip<number, string>
           content={(props) => (
             <WeightTooltipContent
               {...props}
