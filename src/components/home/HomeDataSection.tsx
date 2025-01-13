@@ -37,7 +37,7 @@ export const HomeDataSection = () => {
         </div>
 
         {/* Right Column - Input Sections and Today's Nutrition */}
-        <div className="space-y-4 h-full">
+        <div className="space-y-6">
           {/* Today's Nutrition - Desktop Only */}
           <div className="hidden md:block bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-semibold mb-4">Today's Nutrition</h2>
@@ -57,14 +57,14 @@ export const HomeDataSection = () => {
           </div>
 
           {/* Weight Trend Chart Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-            <h2 className="text-lg font-semibold mb-4">Weight Trend</h2>
-            {weightData && weightData.length > 0 ? (
-              <WeightTrendChart data={weightData} />
-            ) : (
+          {weightData && weightData.length > 0 ? (
+            <WeightTrendChart data={weightData} />
+          ) : (
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+              <h2 className="text-lg font-semibold mb-4">Weight Trend</h2>
               <p className="text-center text-gray-500">No weight data available</p>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Weight Input Section */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
