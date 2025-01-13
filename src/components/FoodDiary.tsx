@@ -5,6 +5,7 @@ import { NutritionCard } from "./NutritionCard";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface FoodDiaryProps {
   selectedDate: Date;
@@ -12,6 +13,7 @@ interface FoodDiaryProps {
 
 export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
 
   // Set up real-time listeners for food diary changes
@@ -46,24 +48,37 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
       console.log("Fetching food entries for date:", formattedDate);
       
       // Check authentication status
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log("Current user:", user?.id);
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (!user) {
-        console.error("No authenticated user found");
-        toast.error("Please log in to view your food diary");
-        return [];
+      if (sessionError) {
+        console.error("Session error:", sessionError);
+        // If there's a session error, sign out and redirect to auth
+        await supabase.auth.signOut();
+        navigate("/auth");
+        throw new Error("Authentication required");
+      }
+
+      if (!session) {
+        console.error("No active session found");
+        navigate("/auth");
+        throw new Error("Authentication required");
       }
 
       const { data, error } = await supabase
         .from("food_diary")
         .select("*")
         .eq("date", formattedDate)
-        .eq("user_id", user.id)
+        .eq("user_id", session.user.id)
         .order("created_at", { ascending: false });
 
       if (error) {
         console.error("Error fetching food entries:", error);
+        if (error.code === "PGRST116") {
+          // Invalid JWT error
+          await supabase.auth.signOut();
+          navigate("/auth");
+          throw new Error("Session expired");
+        }
         toast.error("Failed to load food diary");
         throw error;
       }
@@ -71,6 +86,7 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
       console.log("Fetched food entries:", data);
       return data || [];
     },
+    retry: false,
     staleTime: 1000,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
