@@ -35,18 +35,14 @@ const FoodDiaryPage = () => {
         
         {/* Sidebar - calendar and image analysis */}
         <div className="order-2 md:order-2 space-y-6">
-          <div className="px-4 md:px-0">
-            <Card className="w-full rounded-lg border border-gray-200 dark:border-gray-800">
-              <div className="p-0">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={handleDateSelect}
-                  className="w-full p-0"
-                />
-              </div>
-            </Card>
-          </div>
+          <Card className="rounded-none md:rounded-md">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={handleDateSelect}
+              className="rounded-md"
+            />
+          </Card>
           <div className="px-4 md:px-0">
             <ImageAnalysisSection
               analyzing={analyzing}
