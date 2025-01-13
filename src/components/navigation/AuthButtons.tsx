@@ -28,7 +28,7 @@ export const AuthButtons = ({ handleShare, session }: AuthButtonsProps) => {
   };
 
   const shareViaWhatsApp = () => {
-    const message = encodeURIComponent("Check out this really cool app. It's called Leena.ai and it accurately logs your nutritional info from just photos of your food! The future is here 🤯");
+    const message = encodeURIComponent("Check out this really cool app. It's called Leena.ai and it accurately logs your nutritional info from just photos of your food! The future is here 🤯 www.getleena.ai");
     const whatsappUrl = `https://wa.me/?text=${message}`;
     window.open(whatsappUrl, '_blank');
     toast.success("Opening WhatsApp to share Leena!");
