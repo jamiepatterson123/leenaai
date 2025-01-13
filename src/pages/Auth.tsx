@@ -65,9 +65,9 @@ const AuthPage = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left">
-            <h2 className="text-2xl font-bold">Sign In</h2>
+            <h2 className="text-2xl font-bold">Create Account</h2>
             <p className="text-muted-foreground mt-2">
-              Get started by signing in to your account
+              Get started by creating your account
             </p>
           </div>
           
@@ -97,7 +97,7 @@ const AuthPage = () => {
             }}
             providers={["google"]}
             redirectTo={`${window.location.origin}/welcome/callback`}
-            view="sign_in"
+            view="sign_up"
           />
         </div>
       </div>
