@@ -33,18 +33,32 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
       <LineChart
         data={data}
         margin={{
-          top: 5,
+          top: 20,
           right: 30,
           left: 20,
-          bottom: 5,
+          bottom: 20,
         }}
       >
-        <CartesianGrid strokeDasharray="3 3" />
+        <CartesianGrid 
+          strokeDasharray="3 3" 
+          vertical={false}
+          stroke="#E5E7EB"
+        />
         <XAxis
           dataKey="date"
           tickFormatter={(value) => new Date(value).toLocaleDateString()}
+          axisLine={{ stroke: '#E5E7EB' }}
+          tick={{ fill: '#6B7280', fontSize: 12 }}
+          tickLine={false}
+          dy={10}
         />
-        <YAxis tickFormatter={formatYAxis} />
+        <YAxis 
+          tickFormatter={formatYAxis}
+          axisLine={false}
+          tick={{ fill: '#6B7280', fontSize: 12 }}
+          tickLine={false}
+          dx={-10}
+        />
         <Tooltip
           content={(props: TooltipProps<number, string>) => {
             if (!props.payload?.length) return null;
@@ -71,8 +85,10 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
         <Line
           type="monotone"
           dataKey="weight"
-          stroke="#8884d8"
-          activeDot={{ r: 8 }}
+          stroke="#3B82F6"
+          strokeWidth={2}
+          dot={{ stroke: '#3B82F6', strokeWidth: 2, r: 4, fill: 'white' }}
+          activeDot={{ r: 6, fill: '#3B82F6' }}
         />
       </LineChart>
     </ResponsiveContainer>
