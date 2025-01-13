@@ -65,6 +65,11 @@ export const HomeDataSection = () => {
               <p className="text-center text-gray-500">No weight data available</p>
             </div>
           )}
+
+          {/* Weight Input Section */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <WeightInput />
+          </div>
         </div>
       </div>
     </div>
