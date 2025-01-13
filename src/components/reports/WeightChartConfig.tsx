@@ -56,7 +56,10 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
         <XAxis
           dataKey="date"
-          tickFormatter={(date) => new Date(date).toLocaleDateString()}
+          tickFormatter={(date) => {
+            const d = new Date(date);
+            return `${d.getDate()}. ${d.toLocaleString('default', { month: 'short' })}`;
+          }}
           stroke="#888888"
           fontSize={12}
           tickLine={false}
@@ -67,7 +70,9 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           fontSize={12}
           tickLine={false}
           axisLine={false}
-          unit={preferredUnits === 'metric' ? ' kg' : ' lbs'}
+          unit={preferredUnits === 'metric' ? 'kg' : ' lbs'}
+          domain={['dataMin - 10', 'dataMax + 10']}
+          ticks={[0, 25, 50, 75, 100]}
         />
         <Tooltip
           content={(props: TooltipProps<number, string>) => (
@@ -83,9 +88,9 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
         <Line
           type="monotone"
           dataKey="weight"
-          stroke="#16a34a"
+          stroke="#2563eb"
           strokeWidth={1.5}
-          dot={{ r: 3, strokeWidth: 1 }}
+          dot={{ r: 3, strokeWidth: 1, fill: "#fff" }}
           activeDot={{
             r: 4,
             onClick: handleClick,

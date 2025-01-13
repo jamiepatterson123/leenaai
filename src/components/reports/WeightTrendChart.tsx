@@ -96,15 +96,13 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="space-y-4">
-        <div className="h-[400px] w-full">
-          <WeightChartConfig
-            data={convertedData}
-            preferredUnits={preferredUnits}
-            isMobile={isMobile}
-            onDelete={handleDelete}
-          />
-        </div>
+      <div className="h-[400px] w-full">
+        <WeightChartConfig
+          data={convertedData}
+          preferredUnits={preferredUnits}
+          isMobile={isMobile}
+          onDelete={handleDelete}
+        />
       </div>
     </Card>
   );
