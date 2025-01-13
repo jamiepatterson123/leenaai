@@ -27,7 +27,8 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   const unit = preferredUnits === 'metric' ? 'kg' : 'lbs';
 
   const handleDelete = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent event bubbling
+    e.preventDefault();
+    e.stopPropagation();
     try {
       await onDelete(data.date);
       toast.success('Weight entry deleted');

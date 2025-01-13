@@ -56,6 +56,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
       <LineChart
         data={data}
         margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+        onClick={isMobile ? handleClick : undefined}
         onMouseLeave={handleMouseLeave}
       >
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
@@ -75,16 +76,15 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           unit={preferredUnits === 'metric' ? ' kg' : ' lbs'}
         />
         <Tooltip
-          content={(props: CustomTooltipProps) => (
+          content={(props: any) => (
             <WeightTooltipContent
-              payload={props.payload}
+              {...props}
               onDelete={onDelete}
               preferredUnits={preferredUnits}
               isMobile={isMobile}
             />
           )}
-          isAnimationActive={false}
-          position={{ y: 0 }}
+          trigger={isMobile ? 'click' : 'hover'}
         />
         <Line
           type="monotone"
