@@ -78,9 +78,9 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
   );
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-      <div className="flex items-center gap-2 p-6">
-        <h2 className="text-lg font-semibold">Weight Trend</h2>
+    <Card className="p-6">
+      <div className="flex items-center gap-2 mb-6">
+        <h2 className="text-2xl font-semibold">Weight Trend</h2>
         <Dialog>
           <DialogTrigger asChild>
             <Button 
@@ -96,7 +96,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="px-6 pb-6">
+      <div className="space-y-4">
         <div className="h-[400px] w-full">
           <WeightChartConfig
             data={convertedData}
@@ -106,6 +106,6 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
           />
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
