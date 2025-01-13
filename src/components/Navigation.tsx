@@ -72,7 +72,13 @@ export const Navigation = () => {
   return (
     <div className="border-b">
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
-        <h1 className="text-2xl font-bold text-primary">Leena.ai</h1>
+        <div className="flex items-center">
+          <img 
+            src="/lovable-uploads/6ef5be41-0092-4c12-a894-97b1e3f22f72.png" 
+            alt="Leena.ai" 
+            className="h-8"
+          />
+        </div>
         <DesktopNav 
           handleShare={handleShare}
           theme={theme}
