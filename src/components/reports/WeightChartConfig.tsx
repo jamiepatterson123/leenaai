@@ -7,6 +7,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  TooltipProps,
 } from 'recharts';
 import { WeightTooltipContent } from './WeightTooltipContent';
 
@@ -20,6 +21,12 @@ interface WeightChartConfigProps {
   onDelete: (date: string) => void;
 }
 
+type CustomTooltipProps = TooltipProps<number, string> & {
+  onDelete: (date: string) => void;
+  preferredUnits: string;
+  isMobile: boolean;
+};
+
 export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
   data,
   preferredUnits,
@@ -28,10 +35,14 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
 }) => {
   const [activePoint, setActivePoint] = React.useState<number | null>(null);
 
-  const handleClick = (data: any, index: number) => {
-    if (isMobile) {
-      setActivePoint(activePoint === index ? null : index);
-    }
+  const handleClick = (event: any) => {
+    if (!isMobile || !event.activePayload?.[0]?.payload) return;
+    
+    const index = data.findIndex(
+      (item) => item.date === event.activePayload[0].payload.date
+    );
+    
+    setActivePoint(activePoint === index ? null : index);
   };
 
   const handleMouseLeave = () => {
@@ -63,13 +74,14 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           axisLine={false}
           unit={preferredUnits === 'metric' ? ' kg' : ' lbs'}
         />
-        <Tooltip
-          content={({ payload }) => (
+        <Tooltip<number, string>
+          content={({ payload, ...props }: CustomTooltipProps) => (
             <WeightTooltipContent
               payload={payload}
               onDelete={onDelete}
               preferredUnits={preferredUnits}
               isMobile={isMobile}
+              {...props}
             />
           )}
           isAnimationActive={false}
