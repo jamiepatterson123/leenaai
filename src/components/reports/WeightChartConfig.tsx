@@ -43,7 +43,8 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           strokeDasharray="3 3" 
           vertical={false}
           stroke="#E5E7EB"
-          opacity={0.5}
+          opacity={0.3}
+          strokeWidth={0.5}
         />
         <XAxis
           dataKey="date"
@@ -86,9 +87,9 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           type="monotone"
           dataKey="weight"
           stroke="#3B82F6"
-          strokeWidth={2}
-          dot={{ stroke: '#3B82F6', strokeWidth: 2, r: 4, fill: 'white' }}
-          activeDot={{ r: 6, fill: '#3B82F6' }}
+          strokeWidth={1}
+          dot={{ stroke: '#3B82F6', strokeWidth: 1, r: 3, fill: 'white' }}
+          activeDot={{ r: 4, fill: '#3B82F6' }}
         />
       </LineChart>
     </ResponsiveContainer>
