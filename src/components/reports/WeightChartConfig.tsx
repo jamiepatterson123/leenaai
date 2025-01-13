@@ -7,6 +7,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  TooltipProps
 } from 'recharts';
 import { WeightTooltipContent } from './WeightTooltipContent';
 
@@ -45,14 +46,27 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
         />
         <YAxis tickFormatter={formatYAxis} />
         <Tooltip
-          content={({ payload }) => (
-            <WeightTooltipContent
-              payload={payload}
-              onDelete={onDelete}
-              preferredUnits={preferredUnits}
-              isMobile={isMobile}
-            />
-          )}
+          content={(props: TooltipProps<number, string>) => {
+            if (!props.payload?.length) return null;
+            
+            // Transform the Recharts payload into the format expected by WeightTooltipContent
+            const transformedPayload = props.payload.map(entry => ({
+              value: entry.value as number,
+              payload: {
+                weight: entry.value as number,
+                date: entry.payload.date
+              }
+            }));
+
+            return (
+              <WeightTooltipContent
+                payload={transformedPayload}
+                onDelete={onDelete}
+                preferredUnits={preferredUnits}
+                isMobile={isMobile}
+              />
+            );
+          }}
         />
         <Line
           type="monotone"
