@@ -21,7 +21,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const mounted = useRef(true);
 
   useEffect(() => {
-    // Cleanup function to prevent state updates after unmount
     return () => {
       mounted.current = false;
     };
@@ -35,7 +34,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         
         if (sessionError) {
           console.error("Session error:", sessionError);
-          toast.error("Authentication error. Please try signing in again.");
+          if (sessionError.message.includes("refresh_token_not_found")) {
+            await supabase.auth.signOut(); // Clear any invalid session data
+            toast.error("Your session has expired. Please sign in again.");
+          } else {
+            toast.error("Authentication error. Please try signing in again.");
+          }
           if (mounted.current) {
             setSession(null);
             setLoading(false);
@@ -49,8 +53,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         }
 
         // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
-          console.log("Auth state changed:", _event);
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+          console.log("Auth state changed:", event);
+          if (event === 'TOKEN_REFRESHED') {
+            console.log('Token refreshed successfully');
+          }
+          if (event === 'SIGNED_OUT') {
+            queryClient.clear(); // Clear query cache on sign out
+          }
           if (mounted.current) {
             setSession(newSession);
             setLoading(false);
