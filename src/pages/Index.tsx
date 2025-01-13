@@ -1,21 +1,34 @@
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { HomeDataSection } from "@/components/home/HomeDataSection";
 
 const Index = () => {
-  const navigate = useNavigate();
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error) {
+        toast.error("Error fetching profile");
+        throw error;
+      }
+
+      return data;
+    },
+  });
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Leena.ai</h1>
-        <Button 
-          onClick={() => navigate("/auth")} 
-          className="mt-4"
-        >
-          Get Started
-        </Button>
-      </div>
-    </div>
+    <main className="container mx-auto px-4 pb-24 md:pb-8 pt-8">
+      <HomeDataSection />
+    </main>
   );
 };
 
