@@ -12,12 +12,17 @@ export const WeightHeader = () => {
     <div className="w-full flex items-center justify-between">
       <div className="flex items-center gap-2">
         <h2 className="text-lg font-semibold text-left">Update your weight</h2>
-        <TooltipProvider>
+        <TooltipProvider delayDuration={0}>
           <Tooltip>
-            <TooltipTrigger>
-              <Info className="h-4 w-4 text-muted-foreground" />
+            <TooltipTrigger asChild>
+              <button className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary rounded-full">
+                <Info className="h-4 w-4 text-muted-foreground" />
+              </button>
             </TooltipTrigger>
-            <TooltipContent className="max-w-[300px]">
+            <TooltipContent 
+              side="top" 
+              className="max-w-[300px] touch-none"
+            >
               <p>
                 For best results, update your weight daily. Weight should be taken
                 first thing in the morning after using the bathroom, before
