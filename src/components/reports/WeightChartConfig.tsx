@@ -51,6 +51,13 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           tick={{ fill: '#6B7280', fontSize: 12 }}
           tickLine={false}
           dy={10}
+          height={50}
+          label={{
+            value: "Date",
+            position: "bottom",
+            offset: 20,
+            style: { fill: '#6B7280', fontSize: 12 }
+          }}
         />
         <YAxis 
           tickFormatter={formatYAxis}
@@ -63,7 +70,6 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           content={(props: TooltipProps<number, string>) => {
             if (!props.payload?.length) return null;
             
-            // Transform the Recharts payload into the format expected by WeightTooltipContent
             const transformedPayload = props.payload.map(entry => ({
               value: entry.value as number,
               payload: {
