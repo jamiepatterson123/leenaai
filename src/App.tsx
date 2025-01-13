@@ -12,7 +12,13 @@ import { Navigation } from "./components/Navigation";
 import Auth from "./pages/Auth";
 import type { Session } from "@supabase/supabase-js";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false, // Disable retries by default
+    },
+  },
+});
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -35,7 +41,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         if (sessionError) {
           console.error("Session error:", sessionError);
           if (sessionError.message.includes("refresh_token_not_found")) {
-            await supabase.auth.signOut(); // Clear any invalid session data
+            await supabase.auth.signOut();
+            queryClient.clear(); // Clear query cache
             toast.error("Your session has expired. Please sign in again.");
           } else {
             toast.error("Authentication error. Please try signing in again.");
