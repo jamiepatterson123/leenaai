@@ -43,11 +43,12 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           strokeDasharray="3 3" 
           vertical={false}
           stroke="#E5E7EB"
+          opacity={0.5}
         />
         <XAxis
           dataKey="date"
           tickFormatter={(value) => new Date(value).toLocaleDateString()}
-          axisLine={{ stroke: '#E5E7EB' }}
+          axisLine={false}
           tick={{ fill: '#6B7280', fontSize: 12 }}
           tickLine={false}
           dy={10}
@@ -63,7 +64,6 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           content={(props: TooltipProps<number, string>) => {
             if (!props.payload?.length) return null;
             
-            // Transform the Recharts payload into the format expected by WeightTooltipContent
             const transformedPayload = props.payload.map(entry => ({
               value: entry.value as number,
               payload: {

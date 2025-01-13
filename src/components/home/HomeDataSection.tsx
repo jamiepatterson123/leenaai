@@ -57,7 +57,7 @@ export const HomeDataSection = () => {
           </div>
 
           {/* Weight Trend Chart Section */}
-          <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-border">
             {weightData && weightData.length > 0 ? (
               <WeightTrendChart data={weightData} />
             ) : (
