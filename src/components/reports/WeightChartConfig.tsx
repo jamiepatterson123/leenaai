@@ -21,8 +21,6 @@ interface WeightChartConfigProps {
   onDelete: (date: string) => Promise<void>;
 }
 
-type CustomTooltipProps = TooltipProps<number, string>;
-
 export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
   data,
   preferredUnits,
@@ -71,8 +69,8 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           axisLine={false}
           unit={preferredUnits === 'metric' ? ' kg' : ' lbs'}
         />
-        <Tooltip<number, string>
-          content={(props) => (
+        <Tooltip
+          content={(props: TooltipProps<number, string>) => (
             <WeightTooltipContent
               {...props}
               onDelete={onDelete}

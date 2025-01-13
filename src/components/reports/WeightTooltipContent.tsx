@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { TooltipProps } from 'recharts';
 
-export interface WeightTooltipContentProps extends TooltipProps<number, string> {
+interface WeightTooltipContentProps extends Omit<TooltipProps<number, string>, 'content'> {
   onDelete: (date: string) => Promise<void>;
   preferredUnits: string;
   isMobile: boolean;
