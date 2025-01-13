@@ -7,7 +7,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  TooltipProps,
 } from 'recharts';
 import { WeightTooltipContent } from './WeightTooltipContent';
 
@@ -29,10 +28,8 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
 }) => {
   const [activePoint, setActivePoint] = React.useState<number | null>(null);
 
-  const handleClick = (event: any) => {
-    if (isMobile && event && event.activePayload && event.activePayload[0]) {
-      const clickedDate = event.activePayload[0].payload.date;
-      const index = data.findIndex(item => item.date === clickedDate);
+  const handleClick = (data: any, index: number) => {
+    if (isMobile) {
       setActivePoint(activePoint === index ? null : index);
     }
   };
@@ -67,26 +64,14 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           unit={preferredUnits === 'metric' ? ' kg' : ' lbs'}
         />
         <Tooltip
-          content={(props: TooltipProps<number, string>) => {
-            if (!props.payload?.length) return null;
-            
-            const transformedPayload = props.payload.map(entry => ({
-              value: entry.value as number,
-              payload: {
-                weight: entry.payload.weight,
-                date: entry.payload.date
-              }
-            }));
-
-            return (
-              <WeightTooltipContent
-                payload={transformedPayload}
-                onDelete={onDelete}
-                preferredUnits={preferredUnits}
-                isMobile={isMobile}
-              />
-            );
-          }}
+          content={({ payload }) => (
+            <WeightTooltipContent
+              payload={payload}
+              onDelete={onDelete}
+              preferredUnits={preferredUnits}
+              isMobile={isMobile}
+            />
+          )}
           isAnimationActive={false}
           position={{ y: 0 }}
         />
