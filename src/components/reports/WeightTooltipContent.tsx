@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export interface WeightTooltipContentProps {
   payload?: Array<{
@@ -30,23 +31,31 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   const weight = data.weight;
   const unit = preferredUnits === 'metric' ? 'kg' : 'lbs';
 
+  const handleDelete = async () => {
+    try {
+      await onDelete(data.date);
+      toast.success('Weight entry deleted');
+    } catch (error) {
+      console.error('Error deleting weight entry:', error);
+      toast.error('Failed to delete weight entry');
+    }
+  };
+
   return (
-    <div className="bg-white p-2 border rounded shadow-lg">
+    <div className="bg-white dark:bg-gray-800 p-2 border rounded shadow-lg">
       <div className="flex items-center justify-between gap-4">
         <div>
           <p className="font-semibold">{date}</p>
           <p>{`${weight} ${unit}`}</p>
         </div>
-        {isMobile && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onDelete(data.date)}
-            className="h-8 w-8"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleDelete}
+          className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
