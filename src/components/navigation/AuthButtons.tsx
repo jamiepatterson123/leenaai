@@ -27,13 +27,21 @@ export const AuthButtons = ({ handleShare, session }: AuthButtonsProps) => {
     }
   };
 
+  const shareViaWhatsApp = () => {
+    const message = encodeURIComponent("Check out Leena, the AI nutrition coach! www.getleena.ai");
+    const whatsappUrl = `https://wa.me/?text=${message}`;
+    window.open(whatsappUrl, '_blank');
+    toast.success("Opening WhatsApp to share Leena!");
+  };
+
   return (
     <div className="flex items-center gap-4">
       <Button
         variant="ghost"
         size="icon"
-        onClick={handleShare}
-        className="text-muted-foreground"
+        onClick={shareViaWhatsApp}
+        className="text-muted-foreground hover:text-primary transition-colors"
+        title="Share Leena"
       >
         <Send className="w-4 h-4" />
       </Button>
