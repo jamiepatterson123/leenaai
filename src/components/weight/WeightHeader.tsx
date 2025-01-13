@@ -1,13 +1,19 @@
 import React from "react";
-import { Scale, Info } from "lucide-react";
+import { HelpPopup } from "@/components/HelpPopup";
 
 export const WeightHeader = () => {
   return (
-    <div className="text-center">
-      <div className="flex items-center justify-center gap-2">
-        <Scale className="h-10 w-10 text-primary" strokeWidth={1} />
-        <Info className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
-      </div>
+    <div className="w-full flex items-center justify-between">
+      <h2 className="text-lg font-semibold text-left">Update your weight</h2>
+      <HelpPopup
+        content={
+          <div className="space-y-2">
+            <p>Track your weight to monitor your progress over time.</p>
+            <p>You can enter your weight in either kg or lbs.</p>
+            <p>Your weight history will be displayed in the chart below.</p>
+          </div>
+        }
+      />
     </div>
   );
 };
