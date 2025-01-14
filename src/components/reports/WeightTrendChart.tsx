@@ -60,7 +60,6 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
         return;
       }
 
-      // Invalidate queries to refresh the data
       await queryClient.invalidateQueries({ queryKey: ["weightHistory"] });
       toast.success("Weight entry deleted successfully");
     } catch (error) {

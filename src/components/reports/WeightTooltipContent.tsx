@@ -14,7 +14,6 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   payload,
   onDelete,
   preferredUnits,
-  isMobile
 }) => {
   if (!active || !payload || !payload[0]) {
     return null;
@@ -28,12 +27,7 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    try {
-      await onDelete(data.date);
-    } catch (error) {
-      console.error('Error in handleDelete:', error);
-    }
+    await onDelete(data.date);
   };
 
   return (
