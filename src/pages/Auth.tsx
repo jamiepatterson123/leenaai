@@ -1,98 +1,125 @@
-import { useEffect, useState } from "react";
+import { Auth } from "@supabase/auth-ui-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
+import { useEffect, useState } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import type { AuthError } from "@supabase/supabase-js";
-import type { ViewType } from "@supabase/auth-ui-shared";
-import { supabase } from "@/integrations/supabase/client";
+import type { AuthError, ViewType } from "@supabase/supabase-js";
 
 const AuthPage = () => {
   const navigate = useNavigate();
-  const [view, setView] = useState<ViewType>("sign-up");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<ViewType>("sign_up");
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (event === "SIGNED_IN") {
+        if (event === 'SIGNED_IN' && session) {
           navigate("/");
         }
-        if (event === "USER_UPDATED") {
-          const { error } = await supabase.auth.getSession();
-          if (error) {
-            setErrorMessage(getErrorMessage(error));
-          }
+        if (event === 'SIGNED_OUT') {
+          setError("");
         }
-        if (event === "SIGNED_OUT") {
-          setErrorMessage("");
+        if (event === 'USER_UPDATED' && !session) {
+          const { error: sessionError } = await supabase.auth.getSession();
+          if (sessionError) {
+            setError(sessionError.message);
+          }
         }
       }
     );
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    // Check current session on mount
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (session) {
+        navigate("/");
+      }
+      if (error) {
+        setError(error.message);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const getErrorMessage = (error: AuthError) => {
-    switch (error.message) {
-      case "Invalid login credentials":
-        return "Invalid email or password. Please check your credentials and try again.";
-      case "Email not confirmed":
-        return "Please verify your email address before signing in.";
-      case "User not found":
-        return "No user found with these credentials.";
-      default:
-        return error.message;
-    }
+  const toggleView = () => {
+    setView(view === "sign_up" ? "sign_in" : "sign_up");
   };
 
-  const toggleView = () => {
-    setView(view === "sign-in" ? "sign-up" : "sign-in");
-  };
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex justify-end p-4">
-        <Button
-          variant="outline"
-          onClick={toggleView}
-          className="text-primary hover:text-primary/90"
-        >
-          {view === "sign-in" ? "Sign Up" : "Sign In"}
-        </Button>
-      </div>
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-md mx-auto">
-          <h1 className="text-4xl font-bold text-center mb-8">
+    <div className="flex min-h-screen">
+      {/* Left Column - Hero/Welcome Section */}
+      <div className="hidden md:flex md:w-1/2 bg-primary/5 items-center justify-center p-8">
+        <div className="max-w-md space-y-6">
+          <h2 className="text-4xl font-bold tracking-tight">
             Welcome to Leena.ai
-          </h1>
-          {errorMessage && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertDescription>{errorMessage}</AlertDescription>
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            Accurately track your daily nutrition with photos of your food using advanced AI vision technology. Just snap and go.
+          </p>
+        </div>
+      </div>
+
+      {/* Right Column - Auth UI */}
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center md:text-left">
+            <h2 className="text-2xl font-bold">{view === "sign_up" ? "Create Account" : "Welcome Back"}</h2>
+            <p className="text-muted-foreground mt-2">
+              {view === "sign_up" 
+                ? "Get started by creating your account" 
+                : "Sign in to your account"}
+            </p>
+          </div>
+          
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          <div className="bg-card rounded-lg shadow-lg p-6">
-            <SupabaseAuth
-              supabaseClient={supabase}
-              view={view}
-              appearance={{
-                theme: ThemeSupa,
-                variables: {
-                  default: {
-                    colors: {
-                      brand: "rgb(var(--primary))",
-                      brandAccent: "rgb(var(--primary))",
-                    },
+
+          <Auth
+            supabaseClient={supabase}
+            appearance={{ 
+              theme: ThemeSupa,
+              variables: {
+                default: {
+                  colors: {
+                    brand: 'hsl(142.1 70.6% 45.3%)',
+                    brandAccent: 'hsl(142.1 76% 36.3%)',
                   },
                 },
-              }}
-              providers={[]}
-            />
-          </div>
+              },
+              className: {
+                container: 'w-full',
+                button: 'w-full',
+                anchor: 'text-primary hover:text-primary/80',
+              }
+            }}
+            providers={["google"]}
+            redirectTo={`${window.location.origin}/welcome/callback`}
+            view={view}
+          />
         </div>
+      </div>
+
+      {/* Logo and Toggle Button positioned absolutely */}
+      <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-primary">Leena.ai</h1>
+        <Button
+          variant="ghost"
+          onClick={toggleView}
+          className="text-primary hover:text-primary/80"
+        >
+          {view === "sign_up" ? "Sign In" : "Sign Up"}
+        </Button>
       </div>
     </div>
   );
