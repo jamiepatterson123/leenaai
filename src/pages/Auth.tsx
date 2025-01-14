@@ -17,6 +17,7 @@ const AuthPage = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log("Auth event:", event);
         if (event === 'SIGNED_IN' && session) {
           navigate("/");
         }
@@ -62,6 +63,12 @@ const AuthPage = () => {
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
+
+  // Get the current origin for redirect URLs
+  const origin = window.location.origin;
+  const redirectTo = view === 'update_password' 
+    ? `${origin}/welcome` 
+    : `${origin}/welcome/callback`;
 
   return (
     <div className="flex min-h-screen">
@@ -123,7 +130,7 @@ const AuthPage = () => {
               }
             }}
             providers={["google"]}
-            redirectTo={`${window.location.origin}/welcome/callback`}
+            redirectTo={redirectTo}
           />
         </div>
       </div>
