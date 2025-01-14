@@ -27,9 +27,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    let authListener: any;
+
     const initializeAuth = async () => {
       try {
-        // Check current session
+        // Get the current session
         const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -40,32 +42,28 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
         if (mounted.current) {
           setSession(currentSession);
-          setLoading(false);
         }
 
-        // Listen for auth changes
+        // Set up auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
           console.log("Auth state changed:", event);
           
-          if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+          if (mounted.current) {
             if (event === 'SIGNED_OUT') {
-              queryClient.clear(); // Clear query cache on sign out
-              if (mounted.current) {
-                setSession(null);
-              }
-            } else if (newSession && mounted.current) {
+              setSession(null);
+              queryClient.clear();
+            } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
               setSession(newSession);
             }
-          }
-          
-          if (mounted.current) {
             setLoading(false);
           }
         });
 
-        return () => {
-          subscription.unsubscribe();
-        };
+        authListener = subscription;
+        
+        if (mounted.current) {
+          setLoading(false);
+        }
       } catch (error) {
         console.error("Auth initialization error:", error);
         await handleSessionError(error);
@@ -73,25 +71,34 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     };
 
     const handleSessionError = async (error: any) => {
-      // Clear any invalid session state
+      console.error("Handling session error:", error);
+      
+      // Clear session and cached data
       await supabase.auth.signOut();
       queryClient.clear();
-      
-      if (error.message.includes("session_not_found") || 
-          error.message.includes("JWT expired") ||
-          error.message.includes("refresh_token_not_found")) {
-        toast.error("Your session has expired. Please sign in again.");
-      } else {
-        toast.error("Authentication error. Please try signing in again.");
-      }
       
       if (mounted.current) {
         setSession(null);
         setLoading(false);
       }
+
+      // Show appropriate error message
+      if (error.message?.includes("session_not_found") || 
+          error.message?.includes("JWT expired") ||
+          error.message?.includes("refresh_token_not_found")) {
+        toast.error("Your session has expired. Please sign in again.");
+      } else {
+        toast.error("Authentication error. Please try signing in again.");
+      }
     };
 
     initializeAuth();
+
+    return () => {
+      if (authListener) {
+        authListener.unsubscribe();
+      }
+    };
   }, []);
 
   if (loading) {
