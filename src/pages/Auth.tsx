@@ -23,6 +23,9 @@ const AuthPage = () => {
         if (event === 'SIGNED_OUT') {
           setError("");
         }
+        if (event === 'PASSWORD_RECOVERY') {
+          setView('update_password');
+        }
         if (event === 'USER_UPDATED' && !session) {
           const { error: sessionError } = await supabase.auth.getSession();
           if (sessionError) {
@@ -42,6 +45,12 @@ const AuthPage = () => {
       }
       setLoading(false);
     });
+
+    // Check for password reset parameters in URL
+    const hash = window.location.hash;
+    if (hash && hash.includes('type=recovery')) {
+      setView('update_password');
+    }
 
     return () => subscription.unsubscribe();
   }, [navigate]);
@@ -72,11 +81,19 @@ const AuthPage = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left">
-            <h2 className="text-2xl font-bold">{view === "sign_up" ? "Create Account" : "Welcome Back"}</h2>
+            <h2 className="text-2xl font-bold">
+              {view === "update_password" 
+                ? "Reset Your Password"
+                : view === "sign_up" 
+                  ? "Create Account" 
+                  : "Welcome Back"}
+            </h2>
             <p className="text-muted-foreground mt-2">
-              {view === "sign_up" 
-                ? "Get started by creating your account" 
-                : "Sign in to your account"}
+              {view === "update_password"
+                ? "Enter your new password below"
+                : view === "sign_up" 
+                  ? "Get started by creating your account" 
+                  : "Sign in to your account"}
             </p>
           </div>
           
@@ -88,6 +105,7 @@ const AuthPage = () => {
 
           <Auth
             supabaseClient={supabase}
+            view={view}
             appearance={{ 
               theme: ThemeSupa,
               variables: {
@@ -106,7 +124,6 @@ const AuthPage = () => {
             }}
             providers={["google"]}
             redirectTo={`${window.location.origin}/welcome/callback`}
-            view={view}
           />
         </div>
       </div>
@@ -114,13 +131,15 @@ const AuthPage = () => {
       {/* Logo and Toggle Button positioned absolutely */}
       <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-primary">Leena.ai</h1>
-        <Button
-          variant="ghost"
-          onClick={toggleView}
-          className="text-primary hover:text-primary/80"
-        >
-          {view === "sign_up" ? "Sign In" : "Sign Up"}
-        </Button>
+        {view !== "update_password" && (
+          <Button
+            variant="ghost"
+            onClick={toggleView}
+            className="text-primary hover:text-primary/80"
+          >
+            {view === "sign_up" ? "Sign In" : "Sign Up"}
+          </Button>
+        )}
       </div>
     </div>
   );
