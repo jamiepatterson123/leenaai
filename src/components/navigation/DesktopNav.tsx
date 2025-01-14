@@ -10,15 +10,19 @@ import { AuthButtons } from "./AuthButtons";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-export const DesktopNav = ({ 
-  handleShare, 
-  theme,
-  toggleTheme 
-}: { 
+interface DesktopNavProps {
   handleShare: () => void;
   theme: "light" | "dark";
   toggleTheme: (checked: boolean) => void;
-}) => {
+  handleSignOut: () => Promise<void>;
+}
+
+export const DesktopNav = ({ 
+  handleShare, 
+  theme,
+  toggleTheme,
+  handleSignOut
+}: DesktopNavProps) => {
   const [session, setSession] = React.useState(null);
   const navigate = useNavigate();
 
@@ -35,20 +39,6 @@ export const DesktopNav = ({
 
     return () => subscription.unsubscribe();
   }, []);
-
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        toast.error("Error signing out");
-        return;
-      }
-      navigate("/welcome");
-      toast.success("Signed out successfully");
-    } catch (error) {
-      toast.error("Error signing out");
-    }
-  };
 
   return (
     <div className="hidden md:flex items-center gap-4">
