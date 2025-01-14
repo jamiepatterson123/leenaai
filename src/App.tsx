@@ -34,17 +34,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         
         if (sessionError) {
           console.error("Session error:", sessionError);
-          if (sessionError.message.includes("refresh_token_not_found")) {
-            await supabase.auth.signOut(); // Clear any invalid session data
-            queryClient.clear(); // Clear any cached data
-            toast.error("Your session has expired. Please sign in again.");
-          } else {
-            toast.error("Authentication error. Please try signing in again.");
-          }
-          if (mounted.current) {
-            setSession(null);
-            setLoading(false);
-          }
+          await handleSessionError(sessionError);
           return;
         }
 
@@ -56,16 +46,19 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
           console.log("Auth state changed:", event);
-          if (event === 'TOKEN_REFRESHED') {
-            console.log('Token refreshed successfully');
-          } else if (event === 'SIGNED_OUT') {
-            queryClient.clear(); // Clear query cache on sign out
-            if (mounted.current) {
-              setSession(null);
+          
+          if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+            if (event === 'SIGNED_OUT') {
+              queryClient.clear(); // Clear query cache on sign out
+              if (mounted.current) {
+                setSession(null);
+              }
+            } else if (newSession && mounted.current) {
+              setSession(newSession);
             }
           }
+          
           if (mounted.current) {
-            setSession(newSession);
             setLoading(false);
           }
         });
@@ -75,14 +68,26 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         };
       } catch (error) {
         console.error("Auth initialization error:", error);
-        // Clear any invalid session state
-        await supabase.auth.signOut();
-        queryClient.clear();
-        toast.error("Failed to initialize authentication. Please sign in again.");
-        if (mounted.current) {
-          setSession(null);
-          setLoading(false);
-        }
+        await handleSessionError(error);
+      }
+    };
+
+    const handleSessionError = async (error: any) => {
+      // Clear any invalid session state
+      await supabase.auth.signOut();
+      queryClient.clear();
+      
+      if (error.message.includes("session_not_found") || 
+          error.message.includes("JWT expired") ||
+          error.message.includes("refresh_token_not_found")) {
+        toast.error("Your session has expired. Please sign in again.");
+      } else {
+        toast.error("Authentication error. Please try signing in again.");
+      }
+      
+      if (mounted.current) {
+        setSession(null);
+        setLoading(false);
       }
     };
 
