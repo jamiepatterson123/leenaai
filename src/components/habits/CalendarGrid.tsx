@@ -19,7 +19,7 @@ export const CalendarGrid = ({ days, loggedDays }: CalendarGridProps) => {
   };
 
   return (
-    <>
+    <div className="w-full">
       <div className="grid grid-cols-7 gap-0 text-center mb-2">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
           <div key={day} className="text-xs text-muted-foreground">
@@ -40,7 +40,7 @@ export const CalendarGrid = ({ days, loggedDays }: CalendarGridProps) => {
               key={date.toISOString()}
               onClick={() => handleDateClick(date)}
               className={`
-                aspect-square border flex items-center justify-center
+                aspect-square border flex items-center justify-center w-full
                 ${isLogged ? 'bg-primary text-primary-foreground border-primary/30' : 'border-border/50'}
                 ${(isPreviousMonth || isNextMonth) ? 'text-muted-foreground/50' : 'text-muted-foreground'}
                 ${isCurrentDay ? 'border-2 border-primary' : ''}
@@ -54,6 +54,6 @@ export const CalendarGrid = ({ days, loggedDays }: CalendarGridProps) => {
           );
         })}
       </div>
-    </>
+    </div>
   );
 };

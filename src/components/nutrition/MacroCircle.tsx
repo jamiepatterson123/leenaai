@@ -49,7 +49,7 @@ export const MacroCircle: React.FC<MacroCircleProps> = ({
         </svg>
         <div className="absolute inset-0 flex items-center justify-center flex-col">
           <span className="text-sm font-semibold">
-            {current.toFixed(1)}
+            {Math.round(current)}
             {isCalories ? "" : unit}
           </span>
           {isCalories && (
