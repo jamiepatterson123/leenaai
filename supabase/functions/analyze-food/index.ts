@@ -41,14 +41,14 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a precise nutrition expert that breaks down meals into their individual components. For composite meals, separate each ingredient and calculate specific, non-rounded weights. Avoid using rounded numbers like 50g, 100g, or 300g unless truly accurate. Instead, provide naturally calculated weights like 164g or 237g. Always break down composite meals into their core ingredients with individual weights."
+            content: "You are a nutrition expert that analyzes food images. If the image contains a nutrition label or meal prep label, extract and return the exact nutritional information shown. If it's a photo of food, analyze the visual appearance and estimate portions and nutritional content based on standard serving sizes and preparation methods."
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "Analyze this image. If it's a nutrition label, extract the information. If it's a prepared meal or dish, break it down into its main components with precise weights (e.g., 'Chicken Pesto Pasta' should be broken down into 'Grilled Chicken 183g', 'Pasta 164g', and 'Pesto Sauce 42g'). Return ONLY the nutritional information in this exact JSON format: {\"foods\": [{\"name\": \"Item Name\", \"weight_g\": portion_in_grams, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. For food images, use realistic but precise portion sizes in grams. ONLY return the JSON array, no other text."
+                text: "Analyze this image. If it's a nutrition/meal prep label, extract the exact information shown. If it's a prepared meal or dish, break it down into its main components with precise weights (e.g., 'Chicken Pesto Pasta' should be broken down into 'Grilled Chicken 183g', 'Pasta 164g', and 'Pesto Sauce 42g'). Return ONLY the nutritional information in this exact JSON format: {\"foods\": [{\"name\": \"Item Name\", \"weight_g\": portion_in_grams, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. For food images, use realistic but precise portion sizes in grams. ONLY return the JSON array, no other text."
               },
               {
                 type: "image_url",
