@@ -41,14 +41,14 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a precise nutrition expert that breaks down meals into their individual components. For composite meals, separate each ingredient and calculate specific, non-rounded weights. Avoid using rounded numbers like 50g, 100g, or 300g unless truly accurate. Instead, provide naturally calculated weights like 164g or 237g. Always break down composite meals into their core ingredients with individual weights."
+            content: "You are a nutrition expert that breaks down meals into their individual components. For composite meals, separate each ingredient and estimate their individual weights and nutritional content. Always return multiple food items unless it's a single ingredient food."
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "Analyze this image. If it's a nutrition label, extract the information. If it's a prepared meal or dish, break it down into its main components with precise weights (e.g., 'Chicken Pesto Pasta' should be broken down into 'Grilled Chicken 183g', 'Pasta 164g', and 'Pesto Sauce 42g'). Return ONLY the nutritional information in this exact JSON format: {\"foods\": [{\"name\": \"Item Name\", \"weight_g\": portion_in_grams, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. For food images, use realistic but precise portion sizes in grams. ONLY return the JSON array, no other text."
+                text: "Analyze this image. If it's a nutrition label, extract the information. If it's a prepared meal or dish, break it down into its main components (e.g., 'Chicken Pesto Pasta' should be broken down into 'Grilled Chicken', 'Pasta', and 'Pesto Sauce' with estimated weights). Return ONLY the nutritional information in this exact JSON format: {\"foods\": [{\"name\": \"Item Name\", \"weight_g\": portion_in_grams, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. For food images, use realistic portion sizes in grams. ONLY return the JSON array, no other text."
               },
               {
                 type: "image_url",
@@ -76,6 +76,7 @@ serve(async (req) => {
       const content = visionData.choices[0].message.content.trim();
       console.log("Raw vision content:", content);
       
+      // Try to extract JSON if there's any extra text
       const jsonMatch = content.match(/\{.*\}/s);
       if (!jsonMatch) {
         throw new Error('No JSON object found in response');
@@ -88,6 +89,7 @@ serve(async (req) => {
         throw new Error('Invalid response format: missing foods array');
       }
 
+      // Validate the structure of each food item
       foodList.foods.forEach((food: any, index: number) => {
         if (!food.name || typeof food.weight_g !== 'number' || !food.nutrition) {
           throw new Error(`Invalid food item structure at index ${index}`);
