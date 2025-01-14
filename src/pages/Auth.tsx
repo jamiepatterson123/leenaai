@@ -19,6 +19,8 @@ const AuthPage = () => {
       async (event, session) => {
         console.log("Auth event:", event);
         if (event === 'SIGNED_IN' && session) {
+          // Clear any existing errors when successfully signed in
+          setError("");
           navigate("/");
         }
         if (event === 'SIGNED_OUT') {
@@ -30,6 +32,7 @@ const AuthPage = () => {
         if (event === 'USER_UPDATED' && !session) {
           const { error: sessionError } = await supabase.auth.getSession();
           if (sessionError) {
+            console.error("Session error:", sessionError);
             setError(sessionError.message);
           }
         }
@@ -37,15 +40,26 @@ const AuthPage = () => {
     );
 
     // Check current session on mount
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (session) {
-        navigate("/");
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          setError(sessionError.message);
+          // Clear any invalid session data
+          await supabase.auth.signOut();
+        } else if (session) {
+          navigate("/");
+        }
+      } catch (err) {
+        console.error("Session check error:", err);
+        setError("Failed to check authentication status");
+      } finally {
+        setLoading(false);
       }
-      if (error) {
-        setError(error.message);
-      }
-      setLoading(false);
-    });
+    };
+
+    checkSession();
 
     // Check for password reset parameters in URL
     const hash = window.location.hash;
@@ -53,7 +67,9 @@ const AuthPage = () => {
       setView('update_password');
     }
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const toggleView = () => {
