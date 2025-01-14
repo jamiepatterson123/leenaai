@@ -43,11 +43,16 @@ export const TutorialGuide = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from("profiles")
         .select("has_seen_tutorial")
         .eq("user_id", user.id)
         .single();
+
+      if (error) {
+        console.error("Error fetching tutorial status:", error);
+        return;
+      }
 
       if (!profile?.has_seen_tutorial) {
         setOpen(true);
@@ -71,10 +76,15 @@ export const TutorialGuide = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    await supabase
+    const { error } = await supabase
       .from("profiles")
       .update({ has_seen_tutorial: true })
       .eq("user_id", user.id);
+
+    if (error) {
+      console.error("Error updating tutorial status:", error);
+      return;
+    }
 
     setOpen(false);
     setHasSeenTutorial(true);
