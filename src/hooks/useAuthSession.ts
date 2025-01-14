@@ -16,7 +16,7 @@ export const useAuthSession = (queryClient: QueryClient) => {
   }, []);
 
   const handleSessionError = async (error: any) => {
-    console.error("Handling session error:", error);
+    console.error("Session error:", error);
     
     try {
       await supabase.auth.signOut();
@@ -29,8 +29,7 @@ export const useAuthSession = (queryClient: QueryClient) => {
 
       const errorMessage = error?.message || '';
       if (errorMessage.includes("session_not_found") || 
-          errorMessage.includes("JWT expired") ||
-          errorMessage.includes("refresh_token_not_found")) {
+          errorMessage.includes("JWT expired")) {
         toast.error("Your session has expired. Please sign in again.");
       } else {
         toast.error("Authentication error. Please try signing in again.");
@@ -52,7 +51,6 @@ export const useAuthSession = (queryClient: QueryClient) => {
         const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
-          console.error("Initial session error:", sessionError);
           await handleSessionError(sessionError);
           return;
         }
@@ -67,6 +65,7 @@ export const useAuthSession = (queryClient: QueryClient) => {
           if (mounted.current) {
             switch (event) {
               case 'SIGNED_OUT':
+              case 'USER_DELETED':
                 setSession(null);
                 queryClient.clear();
                 break;
