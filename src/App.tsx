@@ -12,7 +12,14 @@ import { Navigation } from "./components/Navigation";
 import Auth from "./pages/Auth";
 import type { Session } from "@supabase/supabase-js";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -31,29 +38,39 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
     const initializeAuth = async () => {
       try {
-        // Get the current session
+        // Get initial session
         const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
-          console.error("Session error:", sessionError);
+          console.error("Initial session error:", sessionError);
           await handleSessionError(sessionError);
           return;
         }
 
+        // Set initial session if component is still mounted
         if (mounted.current) {
           setSession(currentSession);
         }
 
         // Set up auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-          console.log("Auth state changed:", event);
+          console.log("Auth state changed:", event, newSession?.user?.id);
           
           if (mounted.current) {
-            if (event === 'SIGNED_OUT') {
-              setSession(null);
-              queryClient.clear();
-            } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-              setSession(newSession);
+            switch (event) {
+              case 'SIGNED_OUT':
+                setSession(null);
+                queryClient.clear();
+                break;
+              case 'SIGNED_IN':
+              case 'TOKEN_REFRESHED':
+                setSession(newSession);
+                break;
+              case 'USER_UPDATED':
+                if (newSession) {
+                  setSession(newSession);
+                }
+                break;
             }
             setLoading(false);
           }
@@ -73,27 +90,38 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const handleSessionError = async (error: any) => {
       console.error("Handling session error:", error);
       
-      // Clear session and cached data
-      await supabase.auth.signOut();
-      queryClient.clear();
-      
-      if (mounted.current) {
-        setSession(null);
-        setLoading(false);
-      }
+      try {
+        // Clear session and cached data
+        await supabase.auth.signOut();
+        queryClient.clear();
+        
+        if (mounted.current) {
+          setSession(null);
+          setLoading(false);
+        }
 
-      // Show appropriate error message
-      if (error.message?.includes("session_not_found") || 
-          error.message?.includes("JWT expired") ||
-          error.message?.includes("refresh_token_not_found")) {
-        toast.error("Your session has expired. Please sign in again.");
-      } else {
-        toast.error("Authentication error. Please try signing in again.");
+        // Show appropriate error message
+        const errorMessage = error?.message || '';
+        if (errorMessage.includes("session_not_found") || 
+            errorMessage.includes("JWT expired") ||
+            errorMessage.includes("refresh_token_not_found")) {
+          toast.error("Your session has expired. Please sign in again.");
+        } else {
+          toast.error("Authentication error. Please try signing in again.");
+        }
+      } catch (signOutError) {
+        console.error("Error during sign out:", signOutError);
+        if (mounted.current) {
+          setSession(null);
+          setLoading(false);
+        }
       }
     };
 
+    // Initialize authentication
     initializeAuth();
 
+    // Cleanup function
     return () => {
       if (authListener) {
         authListener.unsubscribe();
