@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import type { AuthError, ViewType } from "@supabase/supabase-js";
+import type { AuthError } from "@supabase/supabase-js";
+import type { ViewType } from "@supabase/auth-ui-shared";
 
 const AuthPage = () => {
   const navigate = useNavigate();
