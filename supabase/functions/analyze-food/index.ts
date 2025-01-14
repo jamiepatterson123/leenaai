@@ -40,11 +40,15 @@ serve(async (req) => {
         model: "gpt-4o-mini",
         messages: [
           {
+            role: "system",
+            content: "You are a nutrition expert that breaks down meals into their individual components. For composite meals, separate each ingredient and estimate their individual weights and nutritional content. Always return multiple food items unless it's a single ingredient food."
+          },
+          {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "Analyze this image. If it's a nutrition label, extract and return ONLY the nutritional information in this exact JSON format: {\"foods\": [{\"name\": \"Item Name\", \"weight_g\": portion_in_grams, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. If it's a food image, identify the foods and estimate their nutritional content, returning in the same JSON format. For food images, use realistic portion sizes in grams. ONLY return the JSON array, no other text."
+                text: "Analyze this image. If it's a nutrition label, extract the information. If it's a prepared meal or dish, break it down into its main components (e.g., 'Chicken Pesto Pasta' should be broken down into 'Grilled Chicken', 'Pasta', and 'Pesto Sauce' with estimated weights). Return ONLY the nutritional information in this exact JSON format: {\"foods\": [{\"name\": \"Item Name\", \"weight_g\": portion_in_grams, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. For food images, use realistic portion sizes in grams. ONLY return the JSON array, no other text."
               },
               {
                 type: "image_url",
