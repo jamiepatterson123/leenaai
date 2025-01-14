@@ -9,6 +9,7 @@ import FoodDiary from "./pages/FoodDiary";
 import Profile from "./pages/Profile";
 import { Reports } from "./pages/Reports";
 import { Navigation } from "./components/Navigation";
+import { TutorialGuide } from "./components/tutorial/TutorialGuide";
 import Auth from "./pages/Auth";
 import type { Session } from "@supabase/supabase-js";
 
@@ -100,6 +101,7 @@ function App() {
       <Router>
         <div className="min-h-screen pb-10">
           <Navigation />
+          <TutorialGuide />
           <Routes>
             <Route path="/welcome" element={<Auth />} />
             <Route
