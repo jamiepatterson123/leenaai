@@ -4,12 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import type { AuthError } from "@supabase/supabase-js";
+import { Button } from "@/components/ui/button";
+import type { AuthError, ViewType } from "@supabase/supabase-js";
 
 const AuthPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<ViewType>("sign_up");
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -43,6 +45,10 @@ const AuthPage = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const toggleView = () => {
+    setView(view === "sign_up" ? "sign_in" : "sign_up");
+  };
+
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
@@ -65,9 +71,11 @@ const AuthPage = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left">
-            <h2 className="text-2xl font-bold">Create Account</h2>
+            <h2 className="text-2xl font-bold">{view === "sign_up" ? "Create Account" : "Welcome Back"}</h2>
             <p className="text-muted-foreground mt-2">
-              Get started by creating your account
+              {view === "sign_up" 
+                ? "Get started by creating your account" 
+                : "Sign in to your account"}
             </p>
           </div>
           
@@ -97,12 +105,22 @@ const AuthPage = () => {
             }}
             providers={["google"]}
             redirectTo={`${window.location.origin}/welcome/callback`}
-            view="sign_up"
+            view={view}
           />
         </div>
       </div>
-      {/* Logo positioned absolutely in the top-left corner */}
-      <h1 className="text-2xl font-bold text-primary absolute top-4 left-4">Leena.ai</h1>
+
+      {/* Logo and Toggle Button positioned absolutely */}
+      <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-primary">Leena.ai</h1>
+        <Button
+          variant="ghost"
+          onClick={toggleView}
+          className="text-primary hover:text-primary/80"
+        >
+          {view === "sign_up" ? "Sign In" : "Sign Up"}
+        </Button>
+      </div>
     </div>
   );
 };
