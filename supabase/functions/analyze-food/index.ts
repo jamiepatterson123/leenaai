@@ -41,14 +41,14 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a nutrition expert that analyzes food images. If the image contains a nutrition label or meal prep label, extract and return the exact nutritional information shown. If it's a photo of food, analyze the visual appearance and estimate portions and nutritional content based on standard serving sizes and preparation methods."
+            content: "You are a nutrition expert. If the image contains a nutrition label or meal prep label, simply extract and return the exact nutritional information shown on the label. If it's a photo of a prepared meal, analyze its visual appearance and your knowledge of plate and bowl sizes to estimate the types of food, ingredients, and their weights. Consider standard preparation methods and average values from established nutrition databases to calculate the nutritional information (calories, protein, carbs, and fat) for the estimated weights."
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "Analyze this image. If it's a nutrition/meal prep label, extract the exact information shown. If it's a prepared meal or dish, break it down into its main components with precise weights (e.g., 'Chicken Pesto Pasta' should be broken down into 'Grilled Chicken 183g', 'Pasta 164g', and 'Pesto Sauce 42g'). Return ONLY the nutritional information in this exact JSON format: {\"foods\": [{\"name\": \"Item Name\", \"weight_g\": portion_in_grams, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. For food images, use realistic but precise portion sizes in grams. ONLY return the JSON array, no other text."
+                text: "Analyze this image. If it's a nutrition/meal prep label, extract and return the exact nutritional values shown. If it's a prepared meal, estimate the portions and nutritional content. Return ONLY the nutritional information in this exact JSON format: {\"foods\": [{\"name\": \"Item Name\", \"weight_g\": portion_in_grams, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. ONLY return the JSON array, no other text."
               },
               {
                 type: "image_url",
