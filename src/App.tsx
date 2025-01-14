@@ -58,7 +58,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
           console.log("Auth state changed:", event);
           if (event === 'TOKEN_REFRESHED') {
             console.log('Token refreshed successfully');
-          } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+          } else if (event === 'SIGNED_OUT') {
             queryClient.clear(); // Clear query cache on sign out
             if (mounted.current) {
               setSession(null);
