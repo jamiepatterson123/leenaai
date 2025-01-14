@@ -24,6 +24,37 @@ export const HabitTrackerHeader = () => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="mb-4"></div>
+    <div className="flex items-center justify-center gap-2 mb-4">
+      <h2 className="text-xl font-semibold">Consistency Is Key</h2>
+      {isMobile ? (
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-6 w-6">
+              <Info className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <InfoMessage />
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-6 w-6">
+                <Info className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent 
+              side="bottom"
+              align="center"
+              className="max-w-[250px] text-center"
+            >
+              <InfoMessage />
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+    </div>
   );
 };
