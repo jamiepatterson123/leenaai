@@ -54,8 +54,13 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
         .eq("user_id", user.id)
         .eq("recorded_at", date);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error deleting weight entry:", error);
+        toast.error("Failed to delete weight entry");
+        return;
+      }
 
+      // Invalidate queries to refresh the data
       await queryClient.invalidateQueries({ queryKey: ["weightHistory"] });
       toast.success("Weight entry deleted successfully");
     } catch (error) {
