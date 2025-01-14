@@ -68,7 +68,7 @@ export const HabitTracker = () => {
 
   return (
     <div className="w-full max-w-md mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
-      <div className="p-4">
+      <div className="p-2">
         <HabitTrackerHeader />
         <MonthNavigation
           currentDate={currentDate}
