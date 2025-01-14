@@ -36,6 +36,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
           console.error("Session error:", sessionError);
           if (sessionError.message.includes("refresh_token_not_found")) {
             await supabase.auth.signOut(); // Clear any invalid session data
+            queryClient.clear(); // Clear any cached data
             toast.error("Your session has expired. Please sign in again.");
           } else {
             toast.error("Authentication error. Please try signing in again.");
@@ -57,9 +58,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
           console.log("Auth state changed:", event);
           if (event === 'TOKEN_REFRESHED') {
             console.log('Token refreshed successfully');
-          }
-          if (event === 'SIGNED_OUT') {
+          } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
             queryClient.clear(); // Clear query cache on sign out
+            if (mounted.current) {
+              setSession(null);
+            }
           }
           if (mounted.current) {
             setSession(newSession);
@@ -72,7 +75,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         };
       } catch (error) {
         console.error("Auth initialization error:", error);
-        toast.error("Failed to initialize authentication");
+        // Clear any invalid session state
+        await supabase.auth.signOut();
+        queryClient.clear();
+        toast.error("Failed to initialize authentication. Please sign in again.");
         if (mounted.current) {
           setSession(null);
           setLoading(false);
