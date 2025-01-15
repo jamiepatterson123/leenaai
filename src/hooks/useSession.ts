@@ -40,9 +40,15 @@ export const useSession = () => {
     };
 
     const handleSessionError = async () => {
-      // Clear any invalid session data
+      // Clear all auth data
       await supabase.auth.signOut();
+      
+      // Clear all local storage tokens
       localStorage.removeItem('sb-tehosjvonqxuiziqjlry-auth-token');
+      localStorage.removeItem('supabase.auth.token');
+      localStorage.removeItem('sb-access-token');
+      localStorage.removeItem('sb-refresh-token');
+      
       setSession(null);
       queryClient.clear();
       toast.error("Session expired. Please sign in again.");
@@ -60,12 +66,17 @@ export const useSession = () => {
 
       if (event === 'SIGNED_IN') {
         setSession(newSession);
-      } else if (event === 'SIGNED_OUT') {
+      } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
         setSession(null);
         queryClient.clear();
+        // Clear all local storage tokens
         localStorage.removeItem('sb-tehosjvonqxuiziqjlry-auth-token');
+        localStorage.removeItem('supabase.auth.token');
+        localStorage.removeItem('sb-access-token');
+        localStorage.removeItem('sb-refresh-token');
         navigate('/welcome');
       } else if (event === 'TOKEN_REFRESHED') {
+        console.log('Token refreshed:', newSession);
         setSession(newSession);
       } else if (event === 'USER_UPDATED') {
         setSession(newSession);
