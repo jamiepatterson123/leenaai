@@ -45,7 +45,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           tickFormatter={(value) => new Date(value).toLocaleDateString()}
         />
         <YAxis tickFormatter={formatYAxis} />
-        <Tooltip<number, string>
+        <Tooltip
           content={({ payload }) => (
             <WeightTooltipContent
               payload={payload}
