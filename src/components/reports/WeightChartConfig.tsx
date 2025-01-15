@@ -1,21 +1,24 @@
 import React from 'react';
 import {
+  ResponsiveContainer,
   LineChart,
   Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
-  TooltipProps
+  TooltipProps,
 } from 'recharts';
 import { WeightTooltipContent } from './WeightTooltipContent';
 
-export interface WeightChartConfigProps {
-  data: Array<{ weight: number; date: string }>;
+interface WeightChartConfigProps {
+  data: Array<{
+    weight: number;
+    date: string;
+  }>;
   preferredUnits: string;
   isMobile: boolean;
-  onDelete: (date: string) => void;
+  onDelete: (date: string) => Promise<void>;
 }
 
 export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
@@ -24,71 +27,74 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
   isMobile,
   onDelete,
 }) => {
-  const formatYAxis = (value: number) => {
-    return `${value}${preferredUnits === 'metric' ? 'kg' : 'lbs'}`;
+  const [activePoint, setActivePoint] = React.useState<number | null>(null);
+
+  const handleClick = (event: any) => {
+    if (!isMobile || !event.activePayload?.[0]?.payload) return;
+    
+    const index = data.findIndex(
+      (item) => item.date === event.activePayload[0].payload.date
+    );
+    
+    setActivePoint(activePoint === index ? null : index);
+  };
+
+  const handleMouseLeave = () => {
+    if (!isMobile) {
+      setActivePoint(null);
+    }
   };
 
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    <ResponsiveContainer width="100%" height="100%">
       <LineChart
         data={data}
-        margin={{
-          top: 20,
-          right: 30,
-          left: 20,
-          bottom: 20,
-        }}
+        margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+        onClick={isMobile ? handleClick : undefined}
+        onMouseLeave={handleMouseLeave}
       >
-        <CartesianGrid 
-          strokeDasharray="3 3" 
-          vertical={false}
-          stroke="#E5E7EB"
-        />
+        <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
         <XAxis
           dataKey="date"
-          tickFormatter={(value) => new Date(value).toLocaleDateString()}
-          axisLine={{ stroke: '#E5E7EB' }}
-          tick={{ fill: '#6B7280', fontSize: 12 }}
+          tickFormatter={(date) => {
+            const d = new Date(date);
+            return `${d.getDate()}. ${d.toLocaleString('default', { month: 'short' })}`;
+          }}
+          stroke="#888888"
+          fontSize={12}
           tickLine={false}
-          dy={10}
-        />
-        <YAxis 
-          tickFormatter={formatYAxis}
           axisLine={false}
-          tick={{ fill: '#6B7280', fontSize: 12 }}
+        />
+        <YAxis
+          stroke="#888888"
+          fontSize={12}
           tickLine={false}
-          dx={-10}
+          axisLine={false}
+          unit={preferredUnits === 'metric' ? 'kg' : ' lbs'}
+          domain={['dataMin - 10', 'dataMax + 10']}
+          ticks={[0, 25, 50, 75, 100]}
         />
         <Tooltip
-          content={(props: TooltipProps<number, string>) => {
-            if (!props.payload?.length) return null;
-            
-            // Transform the Recharts payload into the format expected by WeightTooltipContent
-            const transformedPayload = props.payload.map(entry => ({
-              value: entry.value as number,
-              payload: {
-                weight: entry.value as number,
-                date: entry.payload.date
-              }
-            }));
-
-            return (
-              <WeightTooltipContent
-                payload={transformedPayload}
-                onDelete={onDelete}
-                preferredUnits={preferredUnits}
-                isMobile={isMobile}
-              />
-            );
-          }}
+          content={(props: TooltipProps<number, string>) => (
+            <WeightTooltipContent
+              {...props}
+              onDelete={onDelete}
+              preferredUnits={preferredUnits}
+              isMobile={isMobile}
+            />
+          )}
+          trigger={isMobile ? 'click' : 'hover'}
         />
         <Line
           type="monotone"
           dataKey="weight"
-          stroke="#3B82F6"
-          strokeWidth={2}
-          dot={{ stroke: '#3B82F6', strokeWidth: 2, r: 4, fill: 'white' }}
-          activeDot={{ r: 6, fill: '#3B82F6' }}
+          stroke="#2563eb"
+          strokeWidth={1.5}
+          dot={{ r: 3, strokeWidth: 1, fill: "#fff" }}
+          activeDot={{
+            r: 4,
+            onClick: handleClick,
+          }}
         />
       </LineChart>
     </ResponsiveContainer>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FoodItem {
   name: string;
@@ -25,16 +26,24 @@ export const useFoodItems = (initialFoods: FoodItem[]) => {
 
   const updateNutritionInfo = async (index: number, newName: string) => {
     setUpdating(index);
-    const apiKey = localStorage.getItem('openai_api_key');
     
-    if (!apiKey) {
-      toast.error('OpenAI API key not found');
-      setUpdating(null);
-      return;
-    }
-
     try {
+      // Fetch the OpenAI API key from Supabase secrets
+      const { data: secrets, error: secretError } = await supabase
+        .from('secrets')
+        .select('value')
+        .eq('name', 'OPENAI_API_KEY')
+        .single();
+
+      if (secretError || !secrets) {
+        toast.error('OpenAI API key not found. Please configure it in settings.');
+        setUpdating(null);
+        return;
+      }
+
+      const apiKey = secrets.value;
       console.log('Updating nutrition info for:', newName);
+      
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {

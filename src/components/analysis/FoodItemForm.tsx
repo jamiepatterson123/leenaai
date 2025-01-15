@@ -49,11 +49,14 @@ export const FoodItemForm = ({
           <Label htmlFor={`food-weight-${index}`}>Weight (g)</Label>
           <Input
             id={`food-weight-${index}`}
-            type="number"
-            min="0"
-            step="1"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
             value={weight}
-            onChange={(e) => onWeightChange(index, e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value.replace(/[^0-9]/g, '');
+              onWeightChange(index, value);
+            }}
             disabled={isUpdating}
             className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
