@@ -42,14 +42,14 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a precise food identification expert. Your task is to identify and separate distinct food items in the image. Focus on clear separation and description of each item's position and appearance."
+            content: "You are a food identification expert. Identify and separate distinct food items in the image."
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "List all distinct food items in this image. Return ONLY a JSON array of objects with 'name' and 'description' fields. Example: [{\"name\": \"chicken breast\", \"description\": \"grilled chicken breast on the left side\"}]. Be specific about location and appearance."
+                text: "List all distinct food items in this image as a JSON array with 'name' and 'description' fields. Example: [{\"name\": \"chicken breast\", \"description\": \"grilled chicken breast on the left side\"}]."
               },
               {
                 type: "image_url",
@@ -103,25 +103,14 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a precise food weight estimation expert. Consider these guidelines:\n" +
-              "1. Typical protein portions (chicken/fish/meat):\n" +
-              "   - Small: 150-200g\n" +
-              "   - Medium: 200-300g\n" +
-              "   - Large: 300-400g\n" +
-              "2. Common side portions:\n" +
-              "   - Rice/Pasta: 150-300g cooked\n" +
-              "   - Vegetables: 100-200g\n" +
-              "3. Consider each item independently\n" +
-              "4. Use plate size, height, and density for reference\n" +
-              "5. Account for cooking method (e.g., grilled vs. fried)\n" +
-              "Always err on the higher side for protein portions."
+            content: "You estimate food weights based on appearance, typical portion sizes, and plate dimensions."
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: `Analyze each food item separately: ${JSON.stringify(identifiedItems)}. Return a JSON array matching this format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}]. Focus on realistic portion sizes in grams.`
+                text: `Estimate the weight (grams) of each item: ${JSON.stringify(identifiedItems)}. Return a JSON array in this format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}].`
               },
               {
                 type: "image_url",
@@ -174,22 +163,11 @@ serve(async (req) => {
           messages: [
             {
               role: "system",
-              content: "You are a nutrition database expert. Follow these guidelines for accurate nutrition calculations:\n" +
-                "1. Cross-reference your calculations with standard USDA database values\n" +
-                "2. For meats/fish (per 100g):\n" +
-                "   - Chicken breast: ~31g protein\n" +
-                "   - Fish: 20-25g protein\n" +
-                "   - Beef: 26-29g protein\n" +
-                "3. Validation rules:\n" +
-                "   - Protein cannot exceed 35g per 100g of any food\n" +
-                "   - Total calories should match macros (protein/carbs × 4 + fat × 9)\n" +
-                "   - For meat products, protein should be 25-30% of total weight\n" +
-                "4. Double-check all calculations before returning\n" +
-                "Return ONLY a JSON object in this format: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. Round all numbers to integers."
+              content: "You calculate nutrition using standard USDA values."
             },
             {
               role: "user",
-              content: `Calculate accurate nutrition for: ${JSON.stringify(foodList)}`
+              content: `Calculate nutrition for: ${JSON.stringify(foodList)}. Return a JSON object: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. Round numbers to integers.`
             }
           ],
         }),
