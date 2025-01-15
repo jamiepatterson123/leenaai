@@ -56,8 +56,8 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
 
       if (error) throw error;
 
-      await queryClient.invalidateQueries({ queryKey: ["weightHistory"] });
-      toast.success("Weight entry deleted successfully");
+      toast.success("Weight entry deleted");
+      queryClient.invalidateQueries({ queryKey: ["weightHistory"] });
     } catch (error) {
       console.error("Error deleting weight entry:", error);
       toast.error("Failed to delete weight entry");
@@ -96,13 +96,15 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="h-[400px] w-full">
-        <WeightChartConfig
-          data={convertedData}
-          preferredUnits={preferredUnits}
-          isMobile={isMobile}
-          onDelete={handleDelete}
-        />
+      <div className="space-y-4">
+        <div className="h-[400px] w-full">
+          <WeightChartConfig
+            data={convertedData}
+            preferredUnits={preferredUnits}
+            isMobile={isMobile}
+            onDelete={handleDelete}
+          />
+        </div>
       </div>
     </Card>
   );
