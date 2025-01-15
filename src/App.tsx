@@ -48,27 +48,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
           return;
         }
 
-        // If no session, try to refresh it
-        if (!currentSession) {
-          const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
-          if (refreshError) {
-            console.error("Session refresh error:", refreshError);
-            if (mounted.current) {
-              setSession(null);
-              setLoading(false);
-            }
-            return;
-          }
-          if (mounted.current) {
-            setSession(refreshedSession);
-          }
-        } else {
-          if (mounted.current) {
-            setSession(currentSession);
-          }
-        }
-
         if (mounted.current) {
+          setSession(currentSession);
           setLoading(false);
         }
 
@@ -85,7 +66,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
           }
 
           // Handle session errors
-          if ((event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') && !newSession) {
+          if (event === 'SIGNED_OUT' && !newSession) {
             console.error('Session expired or invalid');
             await supabase.auth.signOut();
             queryClient.clear();
