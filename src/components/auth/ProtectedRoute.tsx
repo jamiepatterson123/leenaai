@@ -14,6 +14,8 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!session) {
+    // Clear any persisted auth state
+    localStorage.removeItem('supabase.auth.token');
     return <Navigate to="/welcome" replace />;
   }
 

@@ -8,13 +8,12 @@ import { useNavigate } from "react-router-dom";
 
 export const Navigation = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
-  const [nutritionData, setNutritionData] = React.useState(null);
   const { session, loading } = useSession();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const selectedDate = new Date();
 
-  // If there's no session or we're on the welcome page, don't render the navigation
+  // If there's no session or we're loading, don't render the navigation
   if (loading) return null;
   if (!session || window.location.pathname === '/welcome') return null;
 

@@ -10,29 +10,59 @@ export const useSession = () => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session: initialSession }, error }) => {
-      if (error) {
-        console.error("Initial session error:", error);
-        toast.error("Authentication error. Please try signing in again.");
+    let mounted = true;
+
+    const initSession = async () => {
+      try {
+        // Get initial session
+        const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          if (mounted) {
+            toast.error("Session error. Please sign in again.");
+            setSession(null);
+          }
+        } else if (mounted && initialSession) {
+          setSession(initialSession);
+        }
+      } catch (error) {
+        console.error("Auth error:", error);
+        if (mounted) {
+          toast.error("Authentication error. Please sign in again.");
+          setSession(null);
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
-      setSession(initialSession);
-      setLoading(false);
-    });
+    };
+
+    // Initialize session
+    initSession();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       console.log("Auth state changed:", event);
-      setSession(newSession);
       
-      if (event === 'SIGNED_OUT') {
+      if (!mounted) return;
+
+      if (event === 'SIGNED_IN') {
+        setSession(newSession);
+      } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        setSession(null);
         queryClient.clear();
+      } else if (event === 'TOKEN_REFRESHED') {
+        setSession(newSession);
       }
-      
+
       setLoading(false);
     });
 
+    // Cleanup
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [queryClient]);
