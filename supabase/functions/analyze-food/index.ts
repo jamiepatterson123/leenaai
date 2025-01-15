@@ -42,12 +42,10 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a precise food weight estimation expert. When analyzing food images, consider these scenarios:\n" +
-              "1. For meal prep labels or nutrition labels: If you see a food label with nutritional information, extract and return that exact information.\n" +
-              "2. For regular food photos, consider these portion guidelines:\n" +
-              "   - A typical chicken breast is 150-400g\n" +
-              "   - A typical serving of rice is 150-300g\n" +
-              "   - A typical serving of vegetables is 100-200g\n" +
+            content: "You are a precise food weight estimation expert. When analyzing food images, pay careful attention to portion sizes and consider these guidelines:\n" +
+              "1. A typical chicken breast is 150-400g\n" +
+              "2. A typical serving of rice is 150-300g\n" +
+              "3. A typical serving of vegetables is 100-200g\n" +
               "Consider the plate size and depth of food for better accuracy."
           },
           {
@@ -55,7 +53,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "Analyze this food image and return a JSON array. If it's a nutrition label, extract the exact values shown. If it's a food photo, estimate portions. Format: [{\"name\": \"food name\", \"weight_g\": weight}]. ONLY return the JSON array, no other text. Use realistic portion sizes in grams."
+                text: "Analyze this food image and return a JSON array. Format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}]. ONLY return the JSON array, no other text. Use realistic portion sizes in grams."
               },
               {
                 type: "image_url",
@@ -130,22 +128,27 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a nutrition expert. Provide accurate nutritional information for the specified food and weight."
+            content: "You are a precise nutrition expert. Follow these guidelines for accurate nutrition calculations:\n" +
+              "1. Chicken breast (100g): 165 calories, 31g protein, 0g carbs, 3.6g fat\n" +
+              "2. White rice cooked (100g): 130 calories, 2.7g protein, 28g carbs, 0.3g fat\n" +
+              "3. Vegetables (100g avg): 30-50 calories, 2-3g protein, 5-10g carbs, 0-1g fat\n" +
+              "4. Eggs (1 large, 50g): 72 calories, 6.3g protein, 0.4g carbs, 4.8g fat\n" +
+              "5. Fish (100g): 120-140 calories, 20-25g protein, 0g carbs, 4-5g fat\n" +
+              "6. Beef (100g): 250 calories, 26g protein, 0g carbs, 17g fat\n" +
+              "7. Pork (100g): 242 calories, 27g protein, 0g carbs, 14g fat\n" +
+              "8. Sweet potato (100g): 86 calories, 1.6g protein, 20g carbs, 0.1g fat\n" +
+              "9. Quinoa cooked (100g): 120 calories, 4.4g protein, 21g carbs, 1.9g fat\n" +
+              "10. Pasta cooked (100g): 158 calories, 5.8g protein, 31g carbs, 0.9g fat\n\n" +
+              "Scale these values proportionally based on the given weight.\n" +
+              "Round calories to whole numbers and macros to one decimal place.\n" +
+              "Return ONLY a JSON object in this format: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. NO additional text."
           },
           {
             role: "user",
-            content: `Provide nutritional information for ${nutritionPrompt} in this exact JSON format:
-            {
-              "nutrition": {
-                "calories": number,
-                "protein": number,
-                "carbs": number,
-                "fat": number
-              }
-            }`
+            content: `Calculate precise nutrition for: ${nutritionPrompt}`
           }
         ],
-      }),
+      })
     });
 
     if (!nutritionResponse.ok) {
@@ -170,19 +173,25 @@ serve(async (req) => {
       const parsedContent = JSON.parse(jsonMatch[0]);
       console.log("Parsed nutrition content:", parsedContent);
       
-      if (!parsedContent.nutrition) {
-        console.error("Invalid response format: missing nutrition object");
-        throw new Error('Invalid response format: missing nutrition object');
+      if (!parsedContent.foods || !Array.isArray(parsedContent.foods)) {
+        console.error("Invalid response format: missing foods array");
+        throw new Error('Invalid response format: missing foods array');
       }
 
       // Validate nutrition data structure
-      const { calories, protein, carbs, fat } = parsedContent.nutrition;
-      if (![calories, protein, carbs, fat].every(n => typeof n === 'number')) {
-        console.error(`Invalid nutrition values:`, parsedContent.nutrition);
-        throw new Error(`Invalid nutrition values`);
-      }
+      parsedContent.foods.forEach((food: any, index: number) => {
+        if (!food.name || typeof food.weight_g !== 'number' || !food.nutrition) {
+          console.error(`Invalid food item structure at index ${index}:`, food);
+          throw new Error(`Invalid food item structure at index ${index}`);
+        }
+        const { calories, protein, carbs, fat } = food.nutrition;
+        if (![calories, protein, carbs, fat].every(n => typeof n === 'number')) {
+          console.error(`Invalid nutrition values for food at index ${index}:`, food.nutrition);
+          throw new Error(`Invalid nutrition values for food item at index ${index}`);
+        }
+      });
 
-      return new Response(JSON.stringify({ foods: [{ ...foodList[0], nutrition: parsedContent.nutrition }] }), {
+      return new Response(JSON.stringify(parsedContent), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     } catch (parseError) {
