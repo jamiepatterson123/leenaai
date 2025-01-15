@@ -7,7 +7,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  TooltipProps
 } from 'recharts';
 import { WeightTooltipContent } from './WeightTooltipContent';
 
@@ -33,62 +32,33 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
       <LineChart
         data={data}
         margin={{
-          top: 20,
+          top: 5,
           right: 30,
           left: 20,
-          bottom: 20,
+          bottom: 5,
         }}
       >
-        <CartesianGrid 
-          strokeDasharray="3 3" 
-          vertical={false}
-          stroke="#E5E7EB"
-        />
+        <CartesianGrid strokeDasharray="3 3" />
         <XAxis
           dataKey="date"
           tickFormatter={(value) => new Date(value).toLocaleDateString()}
-          axisLine={{ stroke: '#E5E7EB' }}
-          tick={{ fill: '#6B7280', fontSize: 12 }}
-          tickLine={false}
-          dy={10}
         />
-        <YAxis 
-          tickFormatter={formatYAxis}
-          axisLine={false}
-          tick={{ fill: '#6B7280', fontSize: 12 }}
-          tickLine={false}
-          dx={-10}
-        />
+        <YAxis tickFormatter={formatYAxis} />
         <Tooltip
-          content={(props: TooltipProps<number, string>) => {
-            if (!props.payload?.length) return null;
-            
-            // Transform the Recharts payload into the format expected by WeightTooltipContent
-            const transformedPayload = props.payload.map(entry => ({
-              value: entry.value as number,
-              payload: {
-                weight: entry.value as number,
-                date: entry.payload.date
-              }
-            }));
-
-            return (
-              <WeightTooltipContent
-                payload={transformedPayload}
-                onDelete={onDelete}
-                preferredUnits={preferredUnits}
-                isMobile={isMobile}
-              />
-            );
-          }}
+          content={({ payload }) => (
+            <WeightTooltipContent
+              payload={payload}
+              onDelete={onDelete}
+              preferredUnits={preferredUnits}
+              isMobile={isMobile}
+            />
+          )}
         />
         <Line
           type="monotone"
           dataKey="weight"
-          stroke="#3B82F6"
-          strokeWidth={2}
-          dot={{ stroke: '#3B82F6', strokeWidth: 2, r: 4, fill: 'white' }}
-          activeDot={{ r: 6, fill: '#3B82F6' }}
+          stroke="#8884d8"
+          activeDot={{ r: 8 }}
         />
       </LineChart>
     </ResponsiveContainer>
