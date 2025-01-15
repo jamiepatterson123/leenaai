@@ -29,9 +29,9 @@ serve(async (req) => {
 
     console.log("Image data received, length:", image.length);
 
-    // First, analyze the image using the vision model
-    console.log("Calling OpenAI Vision API...");
-    const visionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    // First pass: Identify and separate food items
+    console.log("First pass: Identifying food items...");
+    const identificationResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -42,19 +42,14 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a precise food weight estimation expert. When analyzing food images, pay careful attention to portion sizes and consider these guidelines:\n" +
-              "1. A typical chicken breast is 150-400g\n" +
-              "2. A typical serving of rice is 150-300g\n" +
-              "3. A typical serving of vegetables is 100-200g\n" +
-              "Always err on the higher side for protein portions like meat and fish.\n" +
-              "Consider the plate size and depth of food for better accuracy."
+            content: "You are a precise food identification expert. Your task is to identify and separate distinct food items in the image. Focus on clear separation and description of each item's position and appearance."
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "Analyze this food image and return a JSON array. Format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}]. ONLY return the JSON array, no other text. Be particularly mindful of portion sizes - if you see protein like chicken/fish/meat, remember these are usually 150-400g portions. Use realistic portion sizes in grams."
+                text: "List all distinct food items in this image. Return ONLY a JSON array of objects with 'name' and 'description' fields. Example: [{\"name\": \"chicken breast\", \"description\": \"grilled chicken breast on the left side\"}]. Be specific about location and appearance."
               },
               {
                 type: "image_url",
@@ -68,53 +63,36 @@ serve(async (req) => {
       })
     });
 
-    if (!visionResponse.ok) {
-      const errorData = await visionResponse.json();
-      console.error("Vision API Error:", errorData);
-      throw new Error(`Vision API request failed: ${errorData.error?.message || 'Unknown error'}`);
+    if (!identificationResponse.ok) {
+      const errorData = await identificationResponse.json();
+      console.error("First pass API Error:", errorData);
+      throw new Error(`First pass API request failed: ${errorData.error?.message || 'Unknown error'}`);
     }
 
-    const visionData = await visionResponse.json();
-    console.log("Vision API response received");
-    
-    let foodList;
+    const identificationData = await identificationResponse.json();
+    console.log("First pass completed");
+
+    // Parse the identified items
+    let identifiedItems;
     try {
-      const content = visionData.choices[0].message.content.trim();
-      console.log("Raw vision content:", content);
+      const content = identificationData.choices[0].message.content.trim();
+      console.log("First pass content:", content);
       
       const jsonMatch = content.match(/\[.*\]/s);
       if (!jsonMatch) {
-        throw new Error('No JSON array found in response');
+        throw new Error('No JSON array found in first pass response');
       }
       
-      foodList = JSON.parse(jsonMatch[0]);
-      console.log("Parsed food list:", foodList);
-      
-      // Apply calibration factor to weights
-      foodList = foodList.map(item => ({
-        ...item,
-        weight_g: Math.round(item.weight_g * 1.65) // Calibration factor of 1.65 to adjust for underestimation
-      }));
-
-      if (!Array.isArray(foodList)) {
-        throw new Error('Vision response is not an array');
-      }
-
-      foodList.forEach((item: any, index: number) => {
-        if (!item.name || typeof item.weight_g !== 'number') {
-          throw new Error(`Invalid food item at index ${index}`);
-        }
-      });
-
+      identifiedItems = JSON.parse(jsonMatch[0]);
+      console.log("Identified items:", identifiedItems);
     } catch (parseError) {
-      console.error("Error parsing vision response:", parseError);
-      console.log("Raw content:", visionData.choices[0].message.content);
-      throw new Error('Failed to parse food list from vision response');
+      console.error("Error parsing first pass response:", parseError);
+      throw new Error('Failed to parse identified items');
     }
 
-    // Now get nutritional information using GPT-4
-    console.log("Calling OpenAI for nutrition analysis...");
-    const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Second pass: Analyze each item individually for weight estimation
+    console.log("Second pass: Weight estimation...");
+    const weightEstimationResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -125,58 +103,121 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a nutrition expert. Return ONLY a JSON object in this format: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. Round all numbers to integers. NO additional text."
+            content: "You are a precise food weight estimation expert. Consider these guidelines:\n" +
+              "1. Typical protein portions (chicken/fish/meat):\n" +
+              "   - Small: 150-200g\n" +
+              "   - Medium: 200-300g\n" +
+              "   - Large: 300-400g\n" +
+              "2. Common side portions:\n" +
+              "   - Rice/Pasta: 150-300g cooked\n" +
+              "   - Vegetables: 100-200g\n" +
+              "3. Consider each item independently\n" +
+              "4. Use plate size, height, and density for reference\n" +
+              "5. Account for cooking method (e.g., grilled vs. fried)\n" +
+              "Always err on the higher side for protein portions."
           },
           {
             role: "user",
-            content: `Calculate nutrition for: ${JSON.stringify(foodList)}`
+            content: [
+              {
+                type: "text",
+                text: `Analyze each food item separately: ${JSON.stringify(identifiedItems)}. Return a JSON array matching this format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}]. Focus on realistic portion sizes in grams.`
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/jpeg;base64,${image}`
+                }
+              }
+            ]
           }
         ],
       })
     });
 
-    if (!nutritionResponse.ok) {
-      const errorData = await nutritionResponse.json();
-      console.error("Nutrition API Error:", errorData);
-      throw new Error(`Nutrition API request failed: ${errorData.error?.message || 'Unknown error'}`);
+    if (!weightEstimationResponse.ok) {
+      const errorData = await weightEstimationResponse.json();
+      console.error("Second pass API Error:", errorData);
+      throw new Error(`Second pass API request failed: ${errorData.error?.message || 'Unknown error'}`);
     }
 
-    const nutritionData = await nutritionResponse.json();
-    console.log("Nutrition analysis response received");
+    const weightEstimationData = await weightEstimationResponse.json();
+    console.log("Second pass completed");
 
     try {
-      const content = nutritionData.choices[0].message.content.trim();
-      console.log("Raw nutrition content:", content);
+      const content = weightEstimationData.choices[0].message.content.trim();
+      console.log("Second pass content:", content);
       
-      const jsonMatch = content.match(/\{.*\}/s);
+      const jsonMatch = content.match(/\[.*\]/s);
       if (!jsonMatch) {
-        throw new Error('No JSON object found in response');
+        throw new Error('No JSON array found in second pass response');
       }
       
-      const parsedContent = JSON.parse(jsonMatch[0]);
-      console.log("Parsed nutrition content:", parsedContent);
+      let foodList = JSON.parse(jsonMatch[0]);
+      console.log("Initial food list:", foodList);
       
-      if (!parsedContent.foods || !Array.isArray(parsedContent.foods)) {
-        throw new Error('Invalid response format: missing foods array');
+      // Apply calibration factor to weights
+      foodList = foodList.map(item => ({
+        ...item,
+        weight_g: Math.round(item.weight_g * 1.65) // Calibration factor of 1.65
+      }));
+
+      console.log("Calibrated food list:", foodList);
+
+      // Now get nutritional information
+      console.log("Getting nutrition information...");
+      const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${openAIApiKey}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content: "You are a nutrition expert. Return ONLY a JSON object in this format: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. Round all numbers to integers."
+            },
+            {
+              role: "user",
+              content: `Calculate nutrition for: ${JSON.stringify(foodList)}`
+            }
+          ],
+        }),
+      });
+
+      if (!nutritionResponse.ok) {
+        const errorData = await nutritionResponse.json();
+        console.error("Nutrition API Error:", errorData);
+        throw new Error(`Nutrition API request failed: ${errorData.error?.message || 'Unknown error'}`);
       }
 
-      parsedContent.foods.forEach((food: any, index: number) => {
-        if (!food.name || typeof food.weight_g !== 'number' || !food.nutrition) {
-          throw new Error(`Invalid food item structure at index ${index}`);
-        }
-        const { calories, protein, carbs, fat } = food.nutrition;
-        if (![calories, protein, carbs, fat].every(n => typeof n === 'number')) {
-          throw new Error(`Invalid nutrition values for food item at index ${index}`);
-        }
-      });
+      const nutritionData = await nutritionResponse.json();
+      console.log("Nutrition information received");
 
-      return new Response(JSON.stringify(parsedContent), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    } catch (parseError) {
-      console.error("Error parsing nutrition response:", parseError);
-      console.log("Raw nutrition content:", nutritionData.choices[0].message.content);
-      throw new Error('Error processing the nutritional information');
+      try {
+        const content = nutritionData.choices[0].message.content.trim();
+        console.log("Nutrition content:", content);
+        
+        const jsonMatch = content.match(/\{.*\}/s);
+        if (!jsonMatch) {
+          throw new Error('No JSON object found in nutrition response');
+        }
+        
+        const parsedContent = JSON.parse(jsonMatch[0]);
+        console.log("Final output:", parsedContent);
+        
+        return new Response(JSON.stringify(parsedContent), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (parseError) {
+        console.error("Error parsing nutrition response:", parseError);
+        throw new Error('Error processing the nutritional information');
+      }
+    } catch (error) {
+      console.error("Error in final processing:", error);
+      throw error;
     }
   } catch (error) {
     console.error("Error in analyze-food function:", error);
