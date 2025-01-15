@@ -40,27 +40,33 @@ export const mergeNutritionData = (foodList: any[], nutritionData: any) => {
     throw new Error("Invalid foodList: expected array");
   }
 
-  if (!nutritionData || !Array.isArray(nutritionData.foods)) {
-    console.log("No nutrition data to merge, returning original food list");
+  // If no nutrition data or invalid format, return original food list
+  if (!nutritionData?.foods || !Array.isArray(nutritionData.foods)) {
+    console.log("No valid nutrition data to merge, returning original food list");
     return foodList;
   }
 
   return foodList.map(item => {
+    // If item already has nutrition data, keep it
     if (item.nutrition) {
       console.log(`Item ${item.name} already has nutrition data`);
       return item;
     }
 
+    // Find matching nutrition data
     const nutritionItem = nutritionData.foods.find(
-      (f: any) => f.name.toLowerCase() === item.name.toLowerCase()
+      (f: any) => f.name.toLowerCase().trim() === item.name.toLowerCase().trim()
     );
 
     if (nutritionItem) {
-      console.log(`Found nutrition data for ${item.name}`);
+      console.log(`Found nutrition data for ${item.name}:`, nutritionItem);
+      return {
+        ...item,
+        nutrition: nutritionItem.nutrition
+      };
     } else {
       console.log(`No nutrition data found for ${item.name}`);
+      return item;
     }
-
-    return nutritionItem || item;
   });
 };

@@ -32,6 +32,7 @@ serve(async (req) => {
     const visionData = await analyzeImageWithVision(image, openAIApiKey);
     
     let foodList = parseVisionResponse(visionData);
+    console.log("Parsed food list:", foodList);
 
     // Check if all items already have nutrition information (from meal prep labels)
     const needsNutritionInfo = foodList.some(item => !item.nutrition);
@@ -40,8 +41,9 @@ serve(async (req) => {
       // Only make the second API call if we need nutrition information
       console.log("Some items need nutrition info, calling OpenAI for nutrition analysis...");
       const nutritionData = await getNutritionInfo(foodList, openAIApiKey);
-      console.log("Nutrition analysis response received");
+      console.log("Nutrition analysis response received:", nutritionData);
       foodList = mergeNutritionData(foodList, nutritionData);
+      console.log("Final merged food list:", foodList);
     } else {
       console.log("All items have nutrition info from labels, skipping nutrition API call");
     }

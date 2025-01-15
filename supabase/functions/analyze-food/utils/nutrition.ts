@@ -13,7 +13,7 @@ export const getNutritionInfo = async (foods: any[], openAIApiKey: string) => {
       'Authorization': `Bearer ${openAIApiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -33,5 +33,26 @@ export const getNutritionInfo = async (foods: any[], openAIApiKey: string) => {
     throw new Error(`Nutrition API request failed: ${errorData.error?.message || 'Unknown error'}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  console.log("OpenAI response:", data);
+
+  // Extract the content from the OpenAI response
+  const content = data.choices[0].message.content.trim();
+  console.log("Extracted content:", content);
+
+  // Parse the JSON from the content
+  try {
+    const parsedData = JSON.parse(content);
+    console.log("Parsed nutrition data:", parsedData);
+    
+    if (!parsedData.foods || !Array.isArray(parsedData.foods)) {
+      console.error("Invalid nutrition data format:", parsedData);
+      throw new Error('Invalid nutrition data format: missing foods array');
+    }
+
+    return parsedData;
+  } catch (error) {
+    console.error("Error parsing nutrition data:", error, "Content:", content);
+    throw new Error(`Failed to parse nutrition data: ${error.message}`);
+  }
 };
