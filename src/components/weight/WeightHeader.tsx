@@ -1,41 +1,12 @@
-import React, { useState } from "react";
-import { Info } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import React from "react";
+import { Scale, Info } from "lucide-react";
 
 export const WeightHeader = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
-    <div className="w-full flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <h2 className="text-lg font-semibold text-left">Update your weight</h2>
-        <TooltipProvider delayDuration={0}>
-          <Tooltip open={isOpen} onOpenChange={setIsOpen}>
-            <TooltipTrigger asChild>
-              <button 
-                className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary rounded-full"
-                onClick={() => setIsOpen(!isOpen)}
-              >
-                <Info className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent 
-              side="top" 
-              className="max-w-[300px] touch-none"
-            >
-              <p>
-                For best results, update your weight daily. Weight should be taken
-                first thing in the morning after using the bathroom, before
-                drinking water and without clothing for greatest accuracy.
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+    <div className="text-center">
+      <div className="flex items-center justify-center gap-2">
+        <Scale className="h-10 w-10 text-primary" strokeWidth={1} />
+        <Info className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
       </div>
     </div>
   );

@@ -7,24 +7,17 @@ import { MoreDropdown } from "./MoreDropdown";
 import { supabase } from "@/integrations/supabase/client";
 import { NavItems } from "./NavItems";
 import { AuthButtons } from "./AuthButtons";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-
-interface DesktopNavProps {
-  handleShare: () => void;
-  theme: "light" | "dark";
-  toggleTheme: (checked: boolean) => void;
-  handleSignOut: () => Promise<void>;
-}
 
 export const DesktopNav = ({ 
   handleShare, 
   theme,
-  toggleTheme,
-  handleSignOut
-}: DesktopNavProps) => {
+  toggleTheme 
+}: { 
+  handleShare: () => void;
+  theme: "light" | "dark";
+  toggleTheme: (checked: boolean) => void;
+}) => {
   const [session, setSession] = React.useState(null);
-  const navigate = useNavigate();
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -48,7 +41,7 @@ export const DesktopNav = ({
           <MoreDropdown />
         </NavigationMenuList>
       </NavigationMenu>
-      <AuthButtons handleShare={handleShare} session={session} handleSignOut={handleSignOut} />
+      <AuthButtons handleShare={handleShare} session={session} />
     </div>
   );
 };

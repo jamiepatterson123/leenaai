@@ -25,6 +25,7 @@ export const HabitTracker = () => {
     },
   });
 
+  // Get the days from previous month that should appear in the calendar
   const getPreviousMonthDays = () => {
     const firstDayOfMonth = startOfMonth(currentDate);
     const daysFromPreviousMonth = firstDayOfMonth.getDay();
@@ -37,6 +38,7 @@ export const HabitTracker = () => {
     });
   };
 
+  // Get the days from next month that should appear in the calendar
   const getNextMonthDays = () => {
     const lastDayOfCurrentMonth = endOfMonth(currentDate);
     const remainingDays = 6 - lastDayOfCurrentMonth.getDay();
@@ -65,8 +67,8 @@ export const HabitTracker = () => {
   ];
 
   return (
-    <div className="w-full">
-      <div className="p-2">
+    <div className="w-full max-w-md mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
+      <div className="p-4">
         <HabitTrackerHeader />
         <MonthNavigation
           currentDate={currentDate}

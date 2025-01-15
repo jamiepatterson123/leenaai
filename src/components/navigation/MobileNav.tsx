@@ -4,15 +4,13 @@ import { Home, Book, User, LineChart } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthButtons } from "./AuthButtons";
-import { toast } from "sonner";
 
 interface MobileNavProps {
   onAddClick: () => void;
   onFileSelect?: (file: File) => void;
-  handleSignOut: () => Promise<void>;
 }
 
-export const MobileNav = ({ onAddClick, onFileSelect, handleSignOut }: MobileNavProps) => {
+export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -57,7 +55,7 @@ export const MobileNav = ({ onAddClick, onFileSelect, handleSignOut }: MobileNav
       {session && (
         <>
           <div className="absolute top-5 right-4 z-50">
-            <AuthButtons handleShare={() => {}} session={session} handleSignOut={handleSignOut} />
+            <AuthButtons handleShare={() => {}} session={session} />
           </div>
           <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/40 py-2 px-4 z-50">
             <div className="flex justify-around items-center max-w-xl mx-auto">

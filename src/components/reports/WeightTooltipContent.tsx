@@ -1,21 +1,28 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
-import { TooltipProps } from 'recharts';
+import { toast } from 'sonner';
 
-interface WeightTooltipContentProps extends Omit<TooltipProps<number, string>, 'content'> {
-  onDelete: (date: string) => Promise<void>;
+export interface WeightTooltipContentProps {
+  payload?: Array<{
+    value: number;
+    payload: {
+      weight: number;
+      date: string;
+    };
+  }>;
+  onDelete: (date: string) => void;
   preferredUnits: string;
   isMobile: boolean;
 }
 
 export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
-  active,
   payload,
   onDelete,
   preferredUnits,
+  isMobile
 }) => {
-  if (!active || !payload || !payload[0]) {
+  if (!payload || !payload[0]) {
     return null;
   }
 
@@ -24,10 +31,14 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   const weight = data.weight;
   const unit = preferredUnits === 'metric' ? 'kg' : 'lbs';
 
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    await onDelete(data.date);
+  const handleDelete = async () => {
+    try {
+      await onDelete(data.date);
+      toast.success('Weight entry deleted');
+    } catch (error) {
+      console.error('Error deleting weight entry:', error);
+      toast.error('Failed to delete weight entry');
+    }
   };
 
   return (

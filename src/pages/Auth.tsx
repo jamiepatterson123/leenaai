@@ -4,35 +4,25 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import type { AuthError } from "@supabase/supabase-js";
-import type { ViewType } from "@supabase/auth-ui-shared";
 
 const AuthPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<ViewType>("sign_up");
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("Auth event:", event);
         if (event === 'SIGNED_IN' && session) {
-          // Clear any existing errors when successfully signed in
-          setError("");
           navigate("/");
         }
         if (event === 'SIGNED_OUT') {
           setError("");
         }
-        if (event === 'PASSWORD_RECOVERY') {
-          setView('update_password');
-        }
         if (event === 'USER_UPDATED' && !session) {
           const { error: sessionError } = await supabase.auth.getSession();
           if (sessionError) {
-            console.error("Session error:", sessionError);
             setError(sessionError.message);
           }
         }
@@ -40,60 +30,31 @@ const AuthPage = () => {
     );
 
     // Check current session on mount
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) {
-          console.error("Session error:", sessionError);
-          setError(sessionError.message);
-          // Clear any invalid session data
-          await supabase.auth.signOut();
-        } else if (session) {
-          navigate("/");
-        }
-      } catch (err) {
-        console.error("Session check error:", err);
-        setError("Failed to check authentication status");
-      } finally {
-        setLoading(false);
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (session) {
+        navigate("/");
       }
-    };
+      if (error) {
+        setError(error.message);
+      }
+      setLoading(false);
+    });
 
-    checkSession();
-
-    // Check for password reset parameters in URL
-    const hash = window.location.hash;
-    if (hash && hash.includes('type=recovery')) {
-      setView('update_password');
-    }
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, [navigate]);
-
-  const toggleView = () => {
-    setView(view === "sign_up" ? "sign_in" : "sign_up");
-  };
 
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
-
-  // Get the current origin for redirect URLs
-  const origin = window.location.origin;
-  const redirectTo = view === 'update_password' 
-    ? `${origin}/welcome` 
-    : `${origin}/welcome/callback`;
 
   return (
     <div className="flex min-h-screen">
       {/* Left Column - Hero/Welcome Section */}
       <div className="hidden md:flex md:w-1/2 bg-primary/5 items-center justify-center p-8">
         <div className="max-w-md space-y-6">
-          <h2 className="text-4xl font-bold tracking-tight">
+          <h1 className="text-4xl font-bold tracking-tight">
             Welcome to Leena.ai
-          </h2>
+          </h1>
           <p className="text-lg text-muted-foreground">
             Accurately track your daily nutrition with photos of your food using advanced AI vision technology. Just snap and go.
           </p>
@@ -104,19 +65,9 @@ const AuthPage = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left">
-            <h2 className="text-2xl font-bold">
-              {view === "update_password" 
-                ? "Reset Your Password"
-                : view === "sign_up" 
-                  ? "Create Account" 
-                  : "Welcome Back"}
-            </h2>
+            <h2 className="text-2xl font-bold">Sign In</h2>
             <p className="text-muted-foreground mt-2">
-              {view === "update_password"
-                ? "Enter your new password below"
-                : view === "sign_up" 
-                  ? "Get started by creating your account" 
-                  : "Sign in to your account"}
+              Get started by signing in to your account
             </p>
           </div>
           
@@ -128,7 +79,6 @@ const AuthPage = () => {
 
           <Auth
             supabaseClient={supabase}
-            view={view}
             appearance={{ 
               theme: ThemeSupa,
               variables: {
@@ -146,23 +96,10 @@ const AuthPage = () => {
               }
             }}
             providers={["google"]}
-            redirectTo={redirectTo}
+            redirectTo={`${window.location.origin}/welcome/callback`}
+            view="sign_in"
           />
         </div>
-      </div>
-
-      {/* Logo and Toggle Button positioned absolutely */}
-      <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-primary">Leena.ai</h1>
-        {view !== "update_password" && (
-          <Button
-            variant="ghost"
-            onClick={toggleView}
-            className="text-primary hover:text-primary/80"
-          >
-            {view === "sign_up" ? "Sign In" : "Sign Up"}
-          </Button>
-        )}
       </div>
     </div>
   );
