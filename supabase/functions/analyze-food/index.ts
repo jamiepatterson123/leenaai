@@ -154,15 +154,7 @@ serve(async (req) => {
       }
       
       let foodList = JSON.parse(jsonMatch[0]);
-      console.log("Initial food list:", foodList);
-      
-      // Apply calibration factor to weights
-      foodList = foodList.map(item => ({
-        ...item,
-        weight_g: Math.round(item.weight_g * 1.65) // Calibration factor of 1.65
-      }));
-
-      console.log("Calibrated food list:", foodList);
+      console.log("Food list:", foodList);
 
       // Now get nutritional information
       console.log("Getting nutrition information...");
