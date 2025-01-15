@@ -19,30 +19,23 @@ const Index = () => {
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return null;
+      if (!session?.user) return null;
 
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("user_id", user.id)
-          .single();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .single();
 
-        if (error) {
-          console.error("Error fetching profile:", error);
-          toast.error("Error fetching profile");
-          return null;
-        }
-
-        return data;
-      } catch (error) {
-        console.error("Profile fetch error:", error);
+      if (error) {
+        console.error("Error fetching profile:", error);
         toast.error("Error fetching profile");
         return null;
       }
+
+      return data;
     },
-    enabled: !!session,
+    enabled: !!session?.user,
   });
 
   if (loading) {
