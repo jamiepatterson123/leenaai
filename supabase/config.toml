@@ -26,5 +26,5 @@ enabled = true
 enabled = true
 
 [[functions]]
-name = "adjust-calories"
+[functions.analyze-food]
 verify_jwt = true
