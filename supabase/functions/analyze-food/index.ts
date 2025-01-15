@@ -90,7 +90,7 @@ serve(async (req) => {
       foodList = JSON.parse(jsonMatch[0]);
       console.log("Parsed food list:", foodList);
       
-      // Apply calibration factor to weights - changed from 1.65 to 1.1
+      // Apply calibration factor to weights
       foodList = foodList.map(item => ({
         ...item,
         weight_g: Math.round(item.weight_g * 1.1) // Calibration factor of 1.1 to adjust for underestimation
@@ -125,7 +125,14 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a nutrition expert. Return ONLY a JSON object in this format: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. Round all numbers to integers. NO additional text."
+            content: "You are a precise nutrition expert. Follow these guidelines for accurate nutrition calculations:\n" +
+              "1. Chicken breast (100g): 165 calories, 31g protein, 0g carbs, 3.6g fat\n" +
+              "2. White rice cooked (100g): 130 calories, 2.7g protein, 28g carbs, 0.3g fat\n" +
+              "3. Vegetables (100g avg): 30-50 calories, 2-3g protein, 5-10g carbs, 0-1g fat\n" +
+              "4. Eggs (1 large, 50g): 72 calories, 6.3g protein, 0.4g carbs, 4.8g fat\n" +
+              "5. Fish (100g): 120-140 calories, 20-25g protein, 0g carbs, 4-5g fat\n" +
+              "Scale these values proportionally based on the given weight.\n" +
+              "Round all values to whole numbers for better readability."
           },
           {
             role: "user",
