@@ -16,7 +16,6 @@ export const useSession = () => {
 
     const initSession = async () => {
       try {
-        // Get initial session
         const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
