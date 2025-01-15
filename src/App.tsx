@@ -12,7 +12,14 @@ import { Navigation } from "./components/Navigation";
 import Auth from "./pages/Auth";
 import type { Session } from "@supabase/supabase-js";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false
+    }
+  }
+});
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -34,12 +41,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         
         if (sessionError) {
           console.error("Session error:", sessionError);
-          if (sessionError.message.includes("refresh_token_not_found")) {
-            await supabase.auth.signOut(); // Clear any invalid session data
-            toast.error("Your session has expired. Please sign in again.");
-          } else {
-            toast.error("Authentication error. Please try signing in again.");
-          }
           if (mounted.current) {
             setSession(null);
             setLoading(false);
@@ -55,15 +56,29 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
           console.log("Auth state changed:", event);
+          
           if (event === 'TOKEN_REFRESHED') {
             console.log('Token refreshed successfully');
           }
+          
           if (event === 'SIGNED_OUT') {
             queryClient.clear(); // Clear query cache on sign out
           }
+
+          // Handle refresh token errors
+          if (event === 'TOKEN_REFRESH_FAILED') {
+            console.error('Token refresh failed');
+            await supabase.auth.signOut();
+            queryClient.clear();
+            toast.error("Your session has expired. Please sign in again.");
+            if (mounted.current) {
+              setSession(null);
+            }
+            return;
+          }
+
           if (mounted.current) {
             setSession(newSession);
-            setLoading(false);
           }
         });
 
@@ -72,7 +87,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         };
       } catch (error) {
         console.error("Auth initialization error:", error);
-        toast.error("Failed to initialize authentication");
         if (mounted.current) {
           setSession(null);
           setLoading(false);
