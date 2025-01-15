@@ -45,7 +45,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "Look at this image of food and return a JSON array. Format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}]. ONLY return the JSON array, no other text. Example: [{\"name\": \"apple\", \"weight_g\": 100}]. Use realistic portion sizes in grams."
+                text: "Look at this image of food and return a JSON array. Format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}]. ONLY return the JSON array, no other text. Example: [{\"name\": \"apple\", \"weight_g\": 100}]. Use realistic portion sizes in grams and multiply the final weights by 1.1 as a calibration factor."
               },
               {
                 type: "image_url",
