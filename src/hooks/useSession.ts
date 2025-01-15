@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Session } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 export const useSession = () => {
   const [session, setSession] = useState<Session | null>(null);
@@ -39,11 +40,13 @@ export const useSession = () => {
           if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
             if (mounted.current) {
               setSession(newSession);
+              setLoading(false);
             }
           } else if (event === 'SIGNED_OUT') {
             if (mounted.current) {
               setSession(null);
               queryClient.clear();
+              setLoading(false);
             }
           }
 
@@ -76,6 +79,7 @@ export const useSession = () => {
         setSession(null);
         setLoading(false);
       }
+      toast.error("Session expired. Please sign in again.");
     } catch (error) {
       console.error("Error handling session error:", error);
       if (mounted.current) {
