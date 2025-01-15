@@ -42,10 +42,12 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a precise food weight estimation expert. When analyzing food images, pay careful attention to portion sizes and consider these guidelines:\n" +
-              "1. A typical chicken breast is 150-400g\n" +
-              "2. A typical serving of rice is 150-300g\n" +
-              "3. A typical serving of vegetables is 100-200g\n" +
+            content: "You are a precise food weight estimation expert. When analyzing food images, consider these scenarios:\n" +
+              "1. For meal prep labels or nutrition labels: If you see a food label with nutritional information, extract and return that exact information.\n" +
+              "2. For regular food photos, consider these portion guidelines:\n" +
+              "   - A typical chicken breast is 150-400g\n" +
+              "   - A typical serving of rice is 150-300g\n" +
+              "   - A typical serving of vegetables is 100-200g\n" +
               "Consider the plate size and depth of food for better accuracy."
           },
           {
@@ -53,7 +55,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "Analyze this food image and return a JSON array. Format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}]. ONLY return the JSON array, no other text. Use realistic portion sizes in grams."
+                text: "Analyze this food image and return a JSON array. If it's a nutrition label, extract the exact values shown. If it's a food photo, estimate portions. Format: [{\"name\": \"food name\", \"weight_g\": weight}]. ONLY return the JSON array, no other text. Use realistic portion sizes in grams."
               },
               {
                 type: "image_url",
