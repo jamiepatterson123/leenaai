@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log("Starting analyze-food function");
+    console.log("Starting image analysis...");
     
     const { image } = await req.json();
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
@@ -38,7 +38,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${openAIApiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",  // Updated to use the current model
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
@@ -131,7 +131,7 @@ serve(async (req) => {
           'Authorization': `Bearer ${openAIApiKey}`,
         },
         body: JSON.stringify({
-          model: "gpt-4o",  // Updated to use the current model
+          model: "gpt-4o",
           messages: [
             {
               role: "system",
