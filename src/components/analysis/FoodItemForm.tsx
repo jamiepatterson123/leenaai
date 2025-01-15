@@ -9,7 +9,7 @@ interface FoodItemFormProps {
   weight: number;
   index: number;
   isUpdating: boolean;
-  nutrition: {
+  nutrition?: {
     calories: number;
     protein: number;
     carbs: number;
