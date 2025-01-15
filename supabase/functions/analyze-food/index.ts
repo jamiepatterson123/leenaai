@@ -41,11 +41,20 @@ serve(async (req) => {
         model: "gpt-4o-mini",
         messages: [
           {
+            role: "system",
+            content: "You are a precise food weight estimation expert. When analyzing food images, pay careful attention to portion sizes and consider these guidelines:\n" +
+              "1. A typical chicken breast is 150-400g\n" +
+              "2. A typical serving of rice is 150-300g\n" +
+              "3. A typical serving of vegetables is 100-200g\n" +
+              "Always err on the higher side for protein portions like meat and fish.\n" +
+              "Consider the plate size and depth of food for better accuracy."
+          },
+          {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "Look at this image of food and return a JSON array. Format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}]. ONLY return the JSON array, no other text. Example: [{\"name\": \"apple\", \"weight_g\": 100}]. Use realistic portion sizes in grams."
+                text: "Analyze this food image and return a JSON array. Format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}]. ONLY return the JSON array, no other text. Be particularly mindful of portion sizes - if you see protein like chicken/fish/meat, remember these are usually 150-400g portions. Use realistic portion sizes in grams."
               },
               {
                 type: "image_url",
@@ -73,7 +82,6 @@ serve(async (req) => {
       const content = visionData.choices[0].message.content.trim();
       console.log("Raw vision content:", content);
       
-      // Try to extract JSON if there's any extra text
       const jsonMatch = content.match(/\[.*\]/s);
       if (!jsonMatch) {
         throw new Error('No JSON array found in response');
@@ -82,11 +90,16 @@ serve(async (req) => {
       foodList = JSON.parse(jsonMatch[0]);
       console.log("Parsed food list:", foodList);
       
+      // Apply calibration factor to weights
+      foodList = foodList.map(item => ({
+        ...item,
+        weight_g: Math.round(item.weight_g * 1.65) // Calibration factor of 1.65 to adjust for underestimation
+      }));
+
       if (!Array.isArray(foodList)) {
         throw new Error('Vision response is not an array');
       }
 
-      // Validate food list structure
       foodList.forEach((item: any, index: number) => {
         if (!item.name || typeof item.weight_g !== 'number') {
           throw new Error(`Invalid food item at index ${index}`);
@@ -135,7 +148,6 @@ serve(async (req) => {
       const content = nutritionData.choices[0].message.content.trim();
       console.log("Raw nutrition content:", content);
       
-      // Try to extract JSON if there's any extra text
       const jsonMatch = content.match(/\{.*\}/s);
       if (!jsonMatch) {
         throw new Error('No JSON object found in response');
@@ -148,7 +160,6 @@ serve(async (req) => {
         throw new Error('Invalid response format: missing foods array');
       }
 
-      // Validate the structure of each food item
       parsedContent.foods.forEach((food: any, index: number) => {
         if (!food.name || typeof food.weight_g !== 'number' || !food.nutrition) {
           throw new Error(`Invalid food item structure at index ${index}`);
