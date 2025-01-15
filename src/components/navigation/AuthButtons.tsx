@@ -20,7 +20,7 @@ export const AuthButtons = ({ handleShare, session }: AuthButtonsProps) => {
         toast.error("Error signing out");
         return;
       }
-      navigate("/welcome");
+      navigate("/auth");
       toast.success("Signed out successfully");
     } catch (error) {
       toast.error("Error signing out");

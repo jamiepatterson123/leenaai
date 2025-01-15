@@ -3,47 +3,54 @@ import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { TooltipProps } from 'recharts';
 
-export interface WeightTooltipContentProps {
-  payload?: TooltipProps<number, string>['payload'];
-  onDelete: (date: string) => void;
+interface WeightTooltipContentProps extends Omit<TooltipProps<number, string>, 'content'> {
+  onDelete: (date: string) => Promise<void>;
   preferredUnits: string;
   isMobile: boolean;
 }
 
 export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
+  active,
   payload,
   onDelete,
   preferredUnits,
-  isMobile,
+  isMobile
 }) => {
-  if (!payload || !payload.length) return null;
+  if (!active || !payload || !payload[0]) {
+    return null;
+  }
 
   const data = payload[0].payload;
-  const weight = payload[0].value as number;
-  const date = data.date;
+  const date = new Date(data.date).toLocaleDateString();
+  const weight = data.weight;
+  const unit = preferredUnits === 'metric' ? 'kg' : 'lbs';
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      await onDelete(data.date);
+    } catch (error) {
+      console.error('Error in handleDelete:', error);
+    }
+  };
 
   return (
-    <div className="bg-background border rounded-lg p-3 shadow-lg">
+    <div className="bg-white dark:bg-gray-800 p-2 border rounded shadow-lg">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="font-medium">
-            {weight}
-            {preferredUnits === 'metric' ? 'kg' : 'lbs'}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {new Date(date).toLocaleDateString()}
-          </p>
+          <p className="font-semibold">{date}</p>
+          <p>{`${weight} ${unit}`}</p>
         </div>
-        {!isMobile && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onDelete(date)}
-            className="h-8 w-8"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleDelete}
+          className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
