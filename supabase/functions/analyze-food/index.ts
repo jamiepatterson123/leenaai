@@ -114,6 +114,10 @@ serve(async (req) => {
 
     // Now get nutritional information using GPT-4
     console.log("Calling OpenAI for nutrition analysis...");
+    const nutritionPrompt = foodList.map(item => 
+      `${item.weight_g}g of ${item.name}`
+    ).join(", ");
+
     const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -132,11 +136,12 @@ serve(async (req) => {
               "4. Eggs (1 large, 50g): 72 calories, 6.3g protein, 0.4g carbs, 4.8g fat\n" +
               "5. Fish (100g): 120-140 calories, 20-25g protein, 0g carbs, 4-5g fat\n" +
               "Scale these values proportionally based on the given weight.\n" +
-              "Round all values to whole numbers for better readability."
+              "Round all values to whole numbers for better readability.\n" +
+              "Return ONLY a JSON object in this format: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. NO additional text."
           },
           {
             role: "user",
-            content: `Calculate nutrition for: ${JSON.stringify(foodList)}`
+            content: `Calculate precise nutrition for: ${nutritionPrompt}`
           }
         ],
       })
@@ -167,6 +172,7 @@ serve(async (req) => {
         throw new Error('Invalid response format: missing foods array');
       }
 
+      // Validate nutrition data structure
       parsedContent.foods.forEach((food: any, index: number) => {
         if (!food.name || typeof food.weight_g !== 'number' || !food.nutrition) {
           throw new Error(`Invalid food item structure at index ${index}`);
