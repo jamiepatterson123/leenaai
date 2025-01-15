@@ -90,10 +90,10 @@ serve(async (req) => {
       foodList = JSON.parse(jsonMatch[0]);
       console.log("Parsed food list:", foodList);
       
-      // Apply calibration factor to weights
+      // Apply calibration factor to weights - changed from 1.65 to 1.1
       foodList = foodList.map(item => ({
         ...item,
-        weight_g: Math.round(item.weight_g * 1.65) // Calibration factor of 1.65 to adjust for underestimation
+        weight_g: Math.round(item.weight_g * 1.1) // Calibration factor of 1.1 to adjust for underestimation
       }));
 
       if (!Array.isArray(foodList)) {
