@@ -26,5 +26,5 @@ enabled = true
 enabled = true
 
 [[functions]]
-[functions.adjust-calories]
+name = "adjust-calories"
 verify_jwt = true

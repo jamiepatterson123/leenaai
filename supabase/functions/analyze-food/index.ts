@@ -16,16 +16,10 @@ serve(async (req) => {
     
     const { image } = await req.json();
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    const usdaApiKey = Deno.env.get('USDA_API_KEY');
 
     if (!openAIApiKey) {
       console.error('OpenAI API key not configured');
       throw new Error('OpenAI API key not configured');
-    }
-
-    if (!usdaApiKey) {
-      console.error('USDA API key not configured');
-      throw new Error('USDA API key not configured');
     }
 
     if (!image) {
@@ -79,6 +73,7 @@ serve(async (req) => {
       const content = visionData.choices[0].message.content.trim();
       console.log("Raw vision content:", content);
       
+      // Try to extract JSON if there's any extra text
       const jsonMatch = content.match(/\[.*\]/s);
       if (!jsonMatch) {
         throw new Error('No JSON array found in response');
@@ -91,6 +86,7 @@ serve(async (req) => {
         throw new Error('Vision response is not an array');
       }
 
+      // Validate food list structure
       foodList.forEach((item: any, index: number) => {
         if (!item.name || typeof item.weight_g !== 'number') {
           throw new Error(`Invalid food item at index ${index}`);
@@ -103,57 +99,74 @@ serve(async (req) => {
       throw new Error('Failed to parse food list from vision response');
     }
 
-    // Now get nutritional information using USDA API
-    console.log("Fetching nutrition data from USDA...");
-    const nutritionPromises = foodList.map(async (food: any) => {
-      const searchResponse = await fetch(
-        `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${usdaApiKey}&query=${encodeURIComponent(food.name)}&dataType=SR Legacy&pageSize=1`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
+    // Now get nutritional information using GPT-4
+    console.log("Calling OpenAI for nutrition analysis...");
+    const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${openAIApiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: "You are a nutrition expert. Return ONLY a JSON object in this format: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. Round all numbers to integers. NO additional text."
           },
+          {
+            role: "user",
+            content: `Calculate nutrition for: ${JSON.stringify(foodList)}`
+          }
+        ],
+      })
+    });
+
+    if (!nutritionResponse.ok) {
+      const errorData = await nutritionResponse.json();
+      console.error("Nutrition API Error:", errorData);
+      throw new Error(`Nutrition API request failed: ${errorData.error?.message || 'Unknown error'}`);
+    }
+
+    const nutritionData = await nutritionResponse.json();
+    console.log("Nutrition analysis response received");
+
+    try {
+      const content = nutritionData.choices[0].message.content.trim();
+      console.log("Raw nutrition content:", content);
+      
+      // Try to extract JSON if there's any extra text
+      const jsonMatch = content.match(/\{.*\}/s);
+      if (!jsonMatch) {
+        throw new Error('No JSON object found in response');
+      }
+      
+      const parsedContent = JSON.parse(jsonMatch[0]);
+      console.log("Parsed nutrition content:", parsedContent);
+      
+      if (!parsedContent.foods || !Array.isArray(parsedContent.foods)) {
+        throw new Error('Invalid response format: missing foods array');
+      }
+
+      // Validate the structure of each food item
+      parsedContent.foods.forEach((food: any, index: number) => {
+        if (!food.name || typeof food.weight_g !== 'number' || !food.nutrition) {
+          throw new Error(`Invalid food item structure at index ${index}`);
         }
-      );
+        const { calories, protein, carbs, fat } = food.nutrition;
+        if (![calories, protein, carbs, fat].every(n => typeof n === 'number')) {
+          throw new Error(`Invalid nutrition values for food item at index ${index}`);
+        }
+      });
 
-      if (!searchResponse.ok) {
-        throw new Error(`USDA API request failed for ${food.name}`);
-      }
-
-      const searchData = await searchResponse.json();
-      if (!searchData.foods || searchData.foods.length === 0) {
-        throw new Error(`No USDA data found for ${food.name}`);
-      }
-
-      const usdaFood = searchData.foods[0];
-      const getNutrientValue = (nutrientId: number) => {
-        const nutrient = usdaFood.foodNutrients.find((n: any) => n.nutrientId === nutrientId);
-        return nutrient ? nutrient.value : 0;
-      };
-
-      // Convert per 100g values to actual weight
-      const weightRatio = food.weight_g / 100;
-      const nutrition = {
-        calories: Math.round(getNutrientValue(1008) * weightRatio), // Energy (kcal)
-        protein: Math.round(getNutrientValue(1003) * weightRatio), // Protein
-        carbs: Math.round(getNutrientValue(1005) * weightRatio),   // Carbohydrates
-        fat: Math.round(getNutrientValue(1004) * weightRatio),     // Total fat
-      };
-
-      return {
-        name: food.name,
-        weight_g: food.weight_g,
-        nutrition
-      };
-    });
-
-    const foodsWithNutrition = await Promise.all(nutritionPromises);
-    console.log("USDA nutrition data fetched successfully");
-
-    return new Response(JSON.stringify({ foods: foodsWithNutrition }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-
+      return new Response(JSON.stringify(parsedContent), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } catch (parseError) {
+      console.error("Error parsing nutrition response:", parseError);
+      console.log("Raw nutrition content:", nutritionData.choices[0].message.content);
+      throw new Error('Error processing the nutritional information');
+    }
   } catch (error) {
     console.error("Error in analyze-food function:", error);
     return new Response(JSON.stringify({ 
