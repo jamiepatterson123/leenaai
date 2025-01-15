@@ -46,7 +46,6 @@ serve(async (req) => {
               "1. A typical chicken breast is 150-400g\n" +
               "2. A typical serving of rice is 150-300g\n" +
               "3. A typical serving of vegetables is 100-200g\n" +
-              "Always err on the higher side for protein portions like meat and fish.\n" +
               "Consider the plate size and depth of food for better accuracy."
           },
           {
@@ -54,7 +53,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "Analyze this food image and return a JSON array. Format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}]. ONLY return the JSON array, no other text. Be particularly mindful of portion sizes - if you see protein like chicken/fish/meat, remember these are usually 150-400g portions. Use realistic portion sizes in grams."
+                text: "Analyze this food image and return a JSON array. Format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}]. ONLY return the JSON array, no other text. Use realistic portion sizes in grams."
               },
               {
                 type: "image_url",
