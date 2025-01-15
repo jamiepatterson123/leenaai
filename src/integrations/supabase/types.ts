@@ -188,6 +188,7 @@ export type Database = {
           first_name: string | null
           fitness_goals: string | null
           gender: string | null
+          has_seen_tutorial: boolean | null
           height_cm: number | null
           id: string
           preferred_units: string | null
@@ -207,6 +208,7 @@ export type Database = {
           first_name?: string | null
           fitness_goals?: string | null
           gender?: string | null
+          has_seen_tutorial?: boolean | null
           height_cm?: number | null
           id?: string
           preferred_units?: string | null
@@ -226,6 +228,7 @@ export type Database = {
           first_name?: string | null
           fitness_goals?: string | null
           gender?: string | null
+          has_seen_tutorial?: boolean | null
           height_cm?: number | null
           id?: string
           preferred_units?: string | null
