@@ -42,14 +42,14 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a food identification expert. Identify and separate distinct food items in the image."
+            content: "You are a precise food identification expert. Your task is to identify and separate distinct food items in the image. Focus on clear separation and description of each item's position and appearance."
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "List all distinct food items in this image as a JSON array with 'name' and 'description' fields. Example: [{\"name\": \"chicken breast\", \"description\": \"grilled chicken breast on the left side\"}]."
+                text: "List all distinct food items in this image. Return ONLY a JSON array of objects with 'name' and 'description' fields. Example: [{\"name\": \"chicken breast\", \"description\": \"grilled chicken breast on the left side\"}]. Be specific about location and appearance."
               },
               {
                 type: "image_url",
@@ -90,7 +90,7 @@ serve(async (req) => {
       throw new Error('Failed to parse identified items');
     }
 
-    // Second pass: Weight estimation
+    // Second pass: Analyze each item individually for weight estimation
     console.log("Second pass: Weight estimation...");
     const weightEstimationResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -103,14 +103,25 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You estimate food weights based on appearance, typical portion sizes, and plate dimensions."
+            content: "You are a precise food weight estimation expert. Consider these guidelines:\n" +
+              "1. Typical protein portions (chicken/fish/meat):\n" +
+              "   - Small: 150-200g\n" +
+              "   - Medium: 200-300g\n" +
+              "   - Large: 300-400g\n" +
+              "2. Common side portions:\n" +
+              "   - Rice/Pasta: 150-300g cooked\n" +
+              "   - Vegetables: 100-200g\n" +
+              "3. Consider each item independently\n" +
+              "4. Use plate size, height, and density for reference\n" +
+              "5. Account for cooking method (e.g., grilled vs. fried)\n" +
+              "Always err on the higher side for protein portions."
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: `Estimate the weight (grams) of each item: ${JSON.stringify(identifiedItems)}. Return a JSON array in this format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}].`
+                text: `Analyze each food item separately: ${JSON.stringify(identifiedItems)}. Return a JSON array matching this format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}]. Focus on realistic portion sizes in grams.`
               },
               {
                 type: "image_url",
@@ -150,7 +161,7 @@ serve(async (req) => {
       }));
       console.log("Food list with calibration:", foodList);
 
-      // Now get nutritional information with enhanced accuracy checks
+      // Now get nutritional information
       console.log("Getting nutrition information...");
       const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -163,11 +174,11 @@ serve(async (req) => {
           messages: [
             {
               role: "system",
-              content: "You calculate nutrition using standard USDA values."
+              content: "You are a nutrition expert. Return ONLY a JSON object in this format: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. Round all numbers to integers."
             },
             {
               role: "user",
-              content: `Calculate nutrition for: ${JSON.stringify(foodList)}. Return a JSON object: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. Round numbers to integers.`
+              content: `Calculate nutrition for: ${JSON.stringify(foodList)}`
             }
           ],
         }),
@@ -201,7 +212,6 @@ serve(async (req) => {
         console.error("Error parsing nutrition response:", parseError);
         throw new Error('Error processing the nutritional information');
       }
-
     } catch (error) {
       console.error("Error in final processing:", error);
       throw error;
