@@ -61,8 +61,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
             }
           }
           
-          if (event === 'SIGNED_OUT') {
-            console.log('User signed out');
+          if (event === 'SIGNED_IN') {
+            console.log('User signed in');
+            if (mounted.current) {
+              setSession(newSession);
+            }
+          }
+
+          if (!newSession && event === 'INITIAL_SESSION') {
+            console.log('No initial session');
             queryClient.clear();
             if (mounted.current) {
               setSession(null);
@@ -71,7 +78,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
           }
 
           // Handle session errors
-          if (!newSession && event === 'SIGNED_OUT') {
+          if (!newSession) {
             console.error('Session expired or invalid');
             await handleSessionError();
             return;
