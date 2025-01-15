@@ -8,6 +8,8 @@ const visionSystemPrompt = "You are a precise food weight estimation expert. Whe
 const visionUserPrompt = "Analyze this food image and return a JSON array. If it's a meal prep label, extract the exact values shown. Format: [{\"name\": \"food name\", \"weight_g\": estimated_weight, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]. For regular food photos, omit the nutrition object. ONLY return the JSON array, no other text.";
 
 export const analyzeImageWithVision = async (image: string, openAIApiKey: string) => {
+  console.log("Starting vision analysis...");
+  
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -15,7 +17,7 @@ export const analyzeImageWithVision = async (image: string, openAIApiKey: string
       'Authorization': `Bearer ${openAIApiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4-vision-preview",
+      model: "gpt-4o", // Updated to use the recommended model
       messages: [
         {
           role: "system",
