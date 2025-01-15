@@ -34,13 +34,13 @@ export const useSession = () => {
 
         // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-          console.log("Auth state changed:", event);
+          console.log("Auth state changed:", event, "New session:", newSession?.user?.id);
           
           if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
             if (mounted.current) {
               setSession(newSession);
             }
-          } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+          } else if (event === 'SIGNED_OUT') {
             if (mounted.current) {
               setSession(null);
               queryClient.clear();
