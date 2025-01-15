@@ -52,7 +52,7 @@ export const FoodItemForm = ({
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
-            value={weight}
+            value={weight || ''}
             onChange={(e) => {
               const value = e.target.value.replace(/[^0-9]/g, '');
               onWeightChange(index, value);
