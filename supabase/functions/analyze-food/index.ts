@@ -93,7 +93,7 @@ serve(async (req) => {
       // Apply calibration factor to weights
       foodList = foodList.map(item => ({
         ...item,
-        weight_g: Math.round(item.weight_g * 1.1) // Calibration factor of 1.1 to adjust for underestimation
+        weight_g: Math.round(item.weight_g * 1.1) // Calibration factor of 1.1
       }));
 
       if (!Array.isArray(foodList)) {
@@ -135,8 +135,13 @@ serve(async (req) => {
               "3. Vegetables (100g avg): 30-50 calories, 2-3g protein, 5-10g carbs, 0-1g fat\n" +
               "4. Eggs (1 large, 50g): 72 calories, 6.3g protein, 0.4g carbs, 4.8g fat\n" +
               "5. Fish (100g): 120-140 calories, 20-25g protein, 0g carbs, 4-5g fat\n" +
+              "6. Beef (100g): 250 calories, 26g protein, 0g carbs, 17g fat\n" +
+              "7. Pork (100g): 242 calories, 27g protein, 0g carbs, 14g fat\n" +
+              "8. Sweet potato (100g): 86 calories, 1.6g protein, 20g carbs, 0.1g fat\n" +
+              "9. Quinoa cooked (100g): 120 calories, 4.4g protein, 21g carbs, 1.9g fat\n" +
+              "10. Pasta cooked (100g): 158 calories, 5.8g protein, 31g carbs, 0.9g fat\n\n" +
               "Scale these values proportionally based on the given weight.\n" +
-              "Round all values to whole numbers for better readability.\n" +
+              "Round calories to whole numbers and macros to one decimal place.\n" +
               "Return ONLY a JSON object in this format: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. NO additional text."
           },
           {
@@ -162,6 +167,7 @@ serve(async (req) => {
       
       const jsonMatch = content.match(/\{.*\}/s);
       if (!jsonMatch) {
+        console.error("No JSON object found in nutrition response");
         throw new Error('No JSON object found in response');
       }
       
@@ -169,16 +175,19 @@ serve(async (req) => {
       console.log("Parsed nutrition content:", parsedContent);
       
       if (!parsedContent.foods || !Array.isArray(parsedContent.foods)) {
+        console.error("Invalid response format: missing foods array");
         throw new Error('Invalid response format: missing foods array');
       }
 
       // Validate nutrition data structure
       parsedContent.foods.forEach((food: any, index: number) => {
         if (!food.name || typeof food.weight_g !== 'number' || !food.nutrition) {
+          console.error(`Invalid food item structure at index ${index}:`, food);
           throw new Error(`Invalid food item structure at index ${index}`);
         }
         const { calories, protein, carbs, fat } = food.nutrition;
         if (![calories, protein, carbs, fat].every(n => typeof n === 'number')) {
+          console.error(`Invalid nutrition values for food at index ${index}:`, food.nutrition);
           throw new Error(`Invalid nutrition values for food item at index ${index}`);
         }
       });
