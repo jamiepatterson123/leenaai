@@ -90,7 +90,7 @@ serve(async (req) => {
       throw new Error('Failed to parse identified items');
     }
 
-    // Second pass: Analyze each item individually for weight estimation
+    // Second pass: Weight estimation
     console.log("Second pass: Weight estimation...");
     const weightEstimationResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -161,7 +161,7 @@ serve(async (req) => {
       }));
       console.log("Food list with calibration:", foodList);
 
-      // Now get nutritional information
+      // Now get nutritional information with enhanced accuracy checks
       console.log("Getting nutrition information...");
       const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -174,11 +174,22 @@ serve(async (req) => {
           messages: [
             {
               role: "system",
-              content: "You are a nutrition expert. Return ONLY a JSON object in this format: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. Round all numbers to integers."
+              content: "You are a nutrition database expert. Follow these guidelines for accurate nutrition calculations:\n" +
+                "1. Cross-reference your calculations with standard USDA database values\n" +
+                "2. For meats/fish (per 100g):\n" +
+                "   - Chicken breast: ~31g protein\n" +
+                "   - Fish: 20-25g protein\n" +
+                "   - Beef: 26-29g protein\n" +
+                "3. Validation rules:\n" +
+                "   - Protein cannot exceed 35g per 100g of any food\n" +
+                "   - Total calories should match macros (protein/carbs × 4 + fat × 9)\n" +
+                "   - For meat products, protein should be 25-30% of total weight\n" +
+                "4. Double-check all calculations before returning\n" +
+                "Return ONLY a JSON object in this format: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. Round all numbers to integers."
             },
             {
               role: "user",
-              content: `Calculate nutrition for: ${JSON.stringify(foodList)}`
+              content: `Calculate accurate nutrition for: ${JSON.stringify(foodList)}`
             }
           ],
         }),
@@ -212,6 +223,7 @@ serve(async (req) => {
         console.error("Error parsing nutrition response:", parseError);
         throw new Error('Error processing the nutritional information');
       }
+
     } catch (error) {
       console.error("Error in final processing:", error);
       throw error;
