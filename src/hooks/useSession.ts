@@ -20,8 +20,11 @@ export const useSession = () => {
         if (sessionError) {
           console.error("Session error:", sessionError);
           if (mounted) {
-            toast.error("Session error. Please sign in again.");
+            // Clear any invalid session data
+            await supabase.auth.signOut();
+            localStorage.removeItem('supabase.auth.token');
             setSession(null);
+            toast.error("Session expired. Please sign in again.");
           }
         } else if (mounted && initialSession) {
           setSession(initialSession);
@@ -29,8 +32,11 @@ export const useSession = () => {
       } catch (error) {
         console.error("Auth error:", error);
         if (mounted) {
-          toast.error("Authentication error. Please sign in again.");
+          // Clear any invalid session data
+          await supabase.auth.signOut();
+          localStorage.removeItem('supabase.auth.token');
           setSession(null);
+          toast.error("Authentication error. Please sign in again.");
         }
       } finally {
         if (mounted) {
@@ -53,6 +59,7 @@ export const useSession = () => {
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
         queryClient.clear();
+        localStorage.removeItem('supabase.auth.token');
       } else if (event === 'TOKEN_REFRESHED') {
         setSession(newSession);
       } else if (event === 'USER_UPDATED') {
