@@ -41,10 +41,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         
         if (sessionError) {
           console.error("Session error:", sessionError);
-          if (mounted.current) {
-            setSession(null);
-            setLoading(false);
-          }
+          await handleSessionError(sessionError);
           return;
         }
 
@@ -59,21 +56,24 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
           
           if (event === 'TOKEN_REFRESHED') {
             console.log('Token refreshed successfully');
+            if (mounted.current) {
+              setSession(newSession);
+            }
           }
           
-          if (event === 'SIGNED_OUT') {
-            queryClient.clear(); // Clear query cache on sign out
-          }
-
-          // Handle session errors
-          if (event === 'SIGNED_OUT' && !newSession) {
-            console.error('Session expired or invalid');
-            await supabase.auth.signOut();
+          if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+            console.log('User signed out or deleted');
             queryClient.clear();
-            toast.error("Your session has expired. Please sign in again.");
             if (mounted.current) {
               setSession(null);
             }
+            return;
+          }
+
+          // Handle session errors
+          if (!newSession && ['SIGNED_OUT', 'USER_DELETED'].includes(event)) {
+            console.error('Session expired or invalid');
+            await handleSessionError();
             return;
           }
 
@@ -87,15 +87,27 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         };
       } catch (error) {
         console.error("Auth initialization error:", error);
-        if (mounted.current) {
-          setSession(null);
-          setLoading(false);
-        }
+        await handleSessionError(error as AuthError);
       }
     };
 
     initializeAuth();
   }, []);
+
+  const handleSessionError = async (error?: AuthError) => {
+    console.error("Session error occurred:", error);
+    await supabase.auth.signOut();
+    queryClient.clear();
+    if (error?.message?.includes('session_not_found') || error?.message?.includes('invalid_token')) {
+      toast.error("Your session has expired. Please sign in again.");
+    } else {
+      toast.error("Authentication error. Please sign in again.");
+    }
+    if (mounted.current) {
+      setSession(null);
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
