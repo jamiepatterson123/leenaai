@@ -14,29 +14,31 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   payload,
   onDelete,
   preferredUnits,
-  isMobile
+  isMobile,
 }) => {
-  if (!payload || !payload[0]) {
-    return null;
-  }
+  if (!payload || !payload.length) return null;
 
   const data = payload[0].payload;
-  const date = new Date(data.date).toLocaleDateString();
-  const weight = data.weight;
-  const unit = preferredUnits === 'metric' ? 'kg' : 'lbs';
+  const weight = payload[0].value;
+  const date = data.date;
 
   return (
-    <div className="bg-white p-2 border rounded shadow-lg">
+    <div className="bg-background border rounded-lg p-3 shadow-lg">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="font-semibold">{date}</p>
-          <p>{`${weight} ${unit}`}</p>
+          <p className="font-medium">
+            {weight}
+            {preferredUnits === 'metric' ? 'kg' : 'lbs'}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {new Date(date).toLocaleDateString()}
+          </p>
         </div>
-        {isMobile && (
+        {!isMobile && (
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onDelete(data.date)}
+            onClick={() => onDelete(date)}
             className="h-8 w-8"
           >
             <Trash2 className="h-4 w-4" />
