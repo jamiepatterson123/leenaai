@@ -11,6 +11,7 @@ export const useSession = () => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    mounted.current = true;
     return () => {
       mounted.current = false;
     };
@@ -19,14 +20,18 @@ export const useSession = () => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+        // Get initial session
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
         
-        if (sessionError) {
-          console.error("Session initialization error:", sessionError);
-          await handleSessionError();
+        if (error) {
+          console.error("Session initialization error:", error);
+          if (mounted.current) {
+            setSession(null);
+            setLoading(false);
+          }
           return;
         }
-        
+
         if (mounted.current) {
           setSession(currentSession);
           setLoading(false);
@@ -36,17 +41,14 @@ export const useSession = () => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
           console.log("Auth state changed:", event);
           
-          if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
-            if (mounted.current) {
+          if (mounted.current) {
+            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
               setSession(newSession);
-              setLoading(false);
-            }
-          } else if (event === 'SIGNED_OUT') {
-            if (mounted.current) {
+            } else if (event === 'SIGNED_OUT') {
               setSession(null);
               queryClient.clear();
-              setLoading(false);
             }
+            setLoading(false);
           }
         });
 
@@ -55,30 +57,15 @@ export const useSession = () => {
         };
       } catch (error) {
         console.error("Auth initialization error:", error);
-        await handleSessionError();
+        if (mounted.current) {
+          setSession(null);
+          setLoading(false);
+        }
       }
     };
 
     initializeAuth();
   }, [queryClient]);
-
-  const handleSessionError = async () => {
-    try {
-      await supabase.auth.signOut();
-      queryClient.clear();
-      if (mounted.current) {
-        setSession(null);
-        setLoading(false);
-      }
-      toast.error("Session expired. Please sign in again.");
-    } catch (error) {
-      console.error("Error handling session error:", error);
-      if (mounted.current) {
-        setSession(null);
-        setLoading(false);
-      }
-    }
-  };
 
   return { session, loading };
 };
