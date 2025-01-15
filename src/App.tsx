@@ -10,7 +10,7 @@ import Profile from "./pages/Profile";
 import { Reports } from "./pages/Reports";
 import { Navigation } from "./components/Navigation";
 import Auth from "./pages/Auth";
-import type { Session } from "@supabase/supabase-js";
+import type { Session, AuthError } from "@supabase/supabase-js";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -65,9 +65,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
             queryClient.clear(); // Clear query cache on sign out
           }
 
-          // Handle refresh token errors
-          if (event === 'TOKEN_REFRESH_FAILED') {
-            console.error('Token refresh failed');
+          // Handle session errors
+          if (event === 'SIGNED_OUT' && !newSession) {
+            console.error('Session expired or invalid');
             await supabase.auth.signOut();
             queryClient.clear();
             toast.error("Your session has expired. Please sign in again.");
