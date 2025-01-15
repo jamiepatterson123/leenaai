@@ -27,4 +27,8 @@ enabled = true
 
 [[functions]]
 [functions.analyze-food]
+verify_jwt = false
+
+[[functions]]
+[functions.adjust-calories]
 verify_jwt = true
