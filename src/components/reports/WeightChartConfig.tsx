@@ -7,6 +7,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  TooltipProps,
 } from 'recharts';
 import { WeightTooltipContent } from './WeightTooltipContent';
 
@@ -17,7 +18,7 @@ interface WeightChartConfigProps {
   }>;
   preferredUnits: string;
   isMobile: boolean;
-  onDelete: (date: string) => void;
+  onDelete: (date: string) => Promise<void>;
 }
 
 export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
@@ -28,10 +29,14 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
 }) => {
   const [activePoint, setActivePoint] = React.useState<number | null>(null);
 
-  const handleClick = (data: any, index: number) => {
-    if (isMobile) {
-      setActivePoint(activePoint === index ? null : index);
-    }
+  const handleClick = (event: any) => {
+    if (!isMobile || !event.activePayload?.[0]?.payload) return;
+    
+    const index = data.findIndex(
+      (item) => item.date === event.activePayload[0].payload.date
+    );
+    
+    setActivePoint(activePoint === index ? null : index);
   };
 
   const handleMouseLeave = () => {
@@ -45,12 +50,16 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
       <LineChart
         data={data}
         margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+        onClick={isMobile ? handleClick : undefined}
         onMouseLeave={handleMouseLeave}
       >
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
         <XAxis
           dataKey="date"
-          tickFormatter={(date) => new Date(date).toLocaleDateString()}
+          tickFormatter={(date) => {
+            const d = new Date(date);
+            return `${d.getDate()}. ${d.toLocaleString('default', { month: 'short' })}`;
+          }}
           stroke="#888888"
           fontSize={12}
           tickLine={false}
@@ -61,26 +70,27 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           fontSize={12}
           tickLine={false}
           axisLine={false}
-          unit={preferredUnits === 'metric' ? ' kg' : ' lbs'}
+          unit={preferredUnits === 'metric' ? 'kg' : ' lbs'}
+          domain={['dataMin - 10', 'dataMax + 10']}
+          ticks={[0, 25, 50, 75, 100]}
         />
         <Tooltip
-          content={({ payload }) => (
+          content={(props: TooltipProps<number, string>) => (
             <WeightTooltipContent
-              payload={payload}
+              {...props}
               onDelete={onDelete}
               preferredUnits={preferredUnits}
               isMobile={isMobile}
             />
           )}
-          isAnimationActive={false}
-          position={{ y: 0 }}
+          trigger={isMobile ? 'click' : 'hover'}
         />
         <Line
           type="monotone"
           dataKey="weight"
-          stroke="#16a34a"
+          stroke="#2563eb"
           strokeWidth={1.5}
-          dot={{ r: 3, strokeWidth: 1 }}
+          dot={{ r: 3, strokeWidth: 1, fill: "#fff" }}
           activeDot={{
             r: 4,
             onClick: handleClick,
