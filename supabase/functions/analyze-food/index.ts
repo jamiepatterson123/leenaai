@@ -38,7 +38,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${openAIApiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-4-vision-preview",
         messages: [
           {
             role: "system",
@@ -54,7 +54,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "Analyze this food image and return a JSON array. If it's a meal prep label, extract the exact values shown. Format: [{\"name\": \"food name\", \"weight_g\": estimated_weight}]. ONLY return the JSON array, no other text. Use realistic portion sizes in grams."
+                text: "Analyze this food image and return a JSON array. If it's a meal prep label, extract the exact values shown. Format: [{\"name\": \"food name\", \"weight_g\": estimated_weight, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]. If it's a meal prep label with nutrition info, include the nutrition object. For regular food photos, omit the nutrition object. ONLY return the JSON array, no other text."
               },
               {
                 type: "image_url",
@@ -100,6 +100,7 @@ serve(async (req) => {
         throw new Error('Vision response is not an array');
       }
 
+      // Validate the structure of each food item
       foodList.forEach((item: any, index: number) => {
         if (!item.name || typeof item.weight_g !== 'number') {
           throw new Error(`Invalid food item at index ${index}`);
@@ -112,94 +113,80 @@ serve(async (req) => {
       throw new Error('Failed to parse food list from vision response');
     }
 
-    // Now get nutritional information using GPT-4
-    console.log("Calling OpenAI for nutrition analysis...");
-    const nutritionPrompt = foodList.map(item => 
-      `${item.weight_g}g of ${item.name}`
-    ).join(", ");
+    // Check if all items already have nutrition information (from meal prep labels)
+    const needsNutritionInfo = foodList.some(item => !item.nutrition);
 
-    const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${openAIApiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: "You are a precise nutrition expert. Follow these guidelines for accurate nutrition calculations:\n" +
-              "1. Chicken breast (100g): 165 calories, 31g protein, 0g carbs, 3.6g fat\n" +
-              "2. White rice cooked (100g): 130 calories, 2.7g protein, 28g carbs, 0.3g fat\n" +
-              "3. Vegetables (100g avg): 30-50 calories, 2-3g protein, 5-10g carbs, 0-1g fat\n" +
-              "4. Eggs (1 large, 50g): 72 calories, 6.3g protein, 0.4g carbs, 4.8g fat\n" +
-              "5. Fish (100g): 120-140 calories, 20-25g protein, 0g carbs, 4-5g fat\n" +
-              "6. Beef (100g): 250 calories, 26g protein, 0g carbs, 17g fat\n" +
-              "7. Pork (100g): 242 calories, 27g protein, 0g carbs, 14g fat\n" +
-              "8. Sweet potato (100g): 86 calories, 1.6g protein, 20g carbs, 0.1g fat\n" +
-              "9. Quinoa cooked (100g): 120 calories, 4.4g protein, 21g carbs, 1.9g fat\n" +
-              "10. Pasta cooked (100g): 158 calories, 5.8g protein, 31g carbs, 0.9g fat\n\n" +
-              "Scale these values proportionally based on the given weight.\n" +
-              "Round calories to whole numbers and macros to one decimal place.\n" +
-              "Return ONLY a JSON object in this format: {\"foods\": [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]}. NO additional text."
-          },
-          {
-            role: "user",
-            content: `Calculate precise nutrition for: ${nutritionPrompt}`
-          }
-        ],
-      })
+    if (needsNutritionInfo) {
+      // Only make the second API call if we need nutrition information
+      console.log("Some items need nutrition info, calling OpenAI for nutrition analysis...");
+      const nutritionPrompt = foodList
+        .filter(item => !item.nutrition)
+        .map(item => `${item.weight_g}g of ${item.name}`)
+        .join(", ");
+
+      const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${openAIApiKey}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4",
+          messages: [
+            {
+              role: "system",
+              content: "You are a nutrition expert. Provide accurate nutritional information for the specified food and weight."
+            },
+            {
+              role: "user",
+              content: `Calculate precise nutrition for: ${nutritionPrompt}. Return in JSON format: {"foods": [{"name": string, "weight_g": number, "nutrition": {"calories": number, "protein": number, "carbs": number, "fat": number}}]}. ONLY return the JSON object, no other text.`
+            }
+          ],
+        })
+      });
+
+      if (!nutritionResponse.ok) {
+        const errorData = await nutritionResponse.json();
+        console.error("Nutrition API Error:", errorData);
+        throw new Error(`Nutrition API request failed: ${errorData.error?.message || 'Unknown error'}`);
+      }
+
+      const nutritionData = await nutritionResponse.json();
+      console.log("Nutrition analysis response received");
+
+      try {
+        const content = nutritionData.choices[0].message.content.trim();
+        console.log("Raw nutrition content:", content);
+        
+        const jsonMatch = content.match(/\{.*\}/s);
+        if (!jsonMatch) {
+          throw new Error('No JSON object found in response');
+        }
+        
+        const parsedContent = JSON.parse(jsonMatch[0]);
+        console.log("Parsed nutrition content:", parsedContent);
+        
+        if (!parsedContent.foods || !Array.isArray(parsedContent.foods)) {
+          throw new Error('Invalid response format: missing foods array');
+        }
+
+        // Merge nutrition data with existing food list
+        foodList = foodList.map(item => {
+          if (item.nutrition) return item; // Keep existing nutrition data
+          const nutritionItem = parsedContent.foods.find(f => f.name.toLowerCase() === item.name.toLowerCase());
+          return nutritionItem || item;
+        });
+      } catch (parseError) {
+        console.error("Error parsing nutrition response:", parseError);
+        throw new Error('Error processing the nutritional information');
+      }
+    } else {
+      console.log("All items have nutrition info from labels, skipping nutrition API call");
+    }
+
+    return new Response(JSON.stringify({ foods: foodList }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-
-    if (!nutritionResponse.ok) {
-      const errorData = await nutritionResponse.json();
-      console.error("Nutrition API Error:", errorData);
-      throw new Error(`Nutrition API request failed: ${errorData.error?.message || 'Unknown error'}`);
-    }
-
-    const nutritionData = await nutritionResponse.json();
-    console.log("Nutrition analysis response received");
-
-    try {
-      const content = nutritionData.choices[0].message.content.trim();
-      console.log("Raw nutrition content:", content);
-      
-      const jsonMatch = content.match(/\{.*\}/s);
-      if (!jsonMatch) {
-        console.error("No JSON object found in nutrition response");
-        throw new Error('No JSON object found in response');
-      }
-      
-      const parsedContent = JSON.parse(jsonMatch[0]);
-      console.log("Parsed nutrition content:", parsedContent);
-      
-      if (!parsedContent.foods || !Array.isArray(parsedContent.foods)) {
-        console.error("Invalid response format: missing foods array");
-        throw new Error('Invalid response format: missing foods array');
-      }
-
-      // Validate nutrition data structure
-      parsedContent.foods.forEach((food: any, index: number) => {
-        if (!food.name || typeof food.weight_g !== 'number' || !food.nutrition) {
-          console.error(`Invalid food item structure at index ${index}:`, food);
-          throw new Error(`Invalid food item structure at index ${index}`);
-        }
-        const { calories, protein, carbs, fat } = food.nutrition;
-        if (![calories, protein, carbs, fat].every(n => typeof n === 'number')) {
-          console.error(`Invalid nutrition values for food at index ${index}:`, food.nutrition);
-          throw new Error(`Invalid nutrition values for food item at index ${index}`);
-        }
-      });
-
-      return new Response(JSON.stringify(parsedContent), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    } catch (parseError) {
-      console.error("Error parsing nutrition response:", parseError);
-      console.log("Raw nutrition content:", nutritionData.choices[0].message.content);
-      throw new Error('Error processing the nutritional information');
-    }
   } catch (error) {
     console.error("Error in analyze-food function:", error);
     return new Response(JSON.stringify({ 
