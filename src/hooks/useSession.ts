@@ -50,10 +50,12 @@ export const useSession = () => {
 
       if (event === 'SIGNED_IN') {
         setSession(newSession);
-      } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+      } else if (event === 'SIGNED_OUT') {
         setSession(null);
         queryClient.clear();
       } else if (event === 'TOKEN_REFRESHED') {
+        setSession(newSession);
+      } else if (event === 'USER_UPDATED') {
         setSession(newSession);
       }
 
