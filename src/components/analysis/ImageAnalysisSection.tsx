@@ -34,6 +34,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   selectedDate,
   onSuccess,
 }, ref) => {
+  // Define all hooks at the top level
   const [resetUpload, setResetUpload] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [analyzedFoods, setAnalyzedFoods] = useState([]);
@@ -60,8 +61,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       return;
     }
 
-    console.log("handleImageSelect called with image:", image);
-    
     if (analyzing) {
       toast.error("Please wait for the current analysis to complete");
       return;
@@ -121,8 +120,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     handleImageSelect
   }));
 
-  if (!ref) return null; // Early return only after all hooks are called
-
+  // Render loading state for mobile
   if (analyzing && !showVerification && isMobile) {
     return (
       <div className="fixed inset-0 bg-white flex items-center justify-center z-[100]">
@@ -136,6 +134,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     );
   }
 
+  // Main render
   return (
     <div className={`space-y-8 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} data-image-analysis>
       <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />

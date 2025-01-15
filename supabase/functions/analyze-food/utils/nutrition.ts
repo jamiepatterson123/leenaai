@@ -2,20 +2,29 @@ export const getNutritionInfo = async (content: string) => {
   try {
     console.log("Raw content from OpenAI:", content);
     
-    // Remove markdown formatting if present
-    let jsonStr = content;
-    if (content.includes("```json")) {
-      jsonStr = content.replace(/```json\n|\n```/g, "");
+    // First, try to find a JSON object or array in the content
+    const jsonMatch = content.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+    if (!jsonMatch) {
+      throw new Error("No JSON found in content");
     }
+
+    let jsonStr = jsonMatch[0];
     
-    // Clean up any remaining markdown or text
-    jsonStr = jsonStr.replace(/^\s*\[|\]\s*$/g, "");
+    // Remove any markdown formatting
+    if (content.includes("```")) {
+      jsonStr = jsonStr.replace(/```json\n|\n```/g, "");
+    }
     
     console.log("Cleaned JSON string:", jsonStr);
     
     let parsedData;
     try {
-      parsedData = JSON.parse(`[${jsonStr}]`);
+      parsedData = JSON.parse(jsonStr);
+      
+      // If we got a single object, wrap it in an array
+      if (!Array.isArray(parsedData)) {
+        parsedData = [parsedData];
+      }
     } catch (parseError) {
       console.error("JSON parse error:", parseError);
       throw new Error(`Failed to parse nutrition data: ${parseError.message}`);
