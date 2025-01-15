@@ -19,7 +19,6 @@ export const useSession = () => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Get initial session
         const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -35,7 +34,7 @@ export const useSession = () => {
 
         // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-          console.log("Auth state changed:", event, "New session:", newSession?.user?.id);
+          console.log("Auth state changed:", event);
           
           if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
             if (mounted.current) {
@@ -46,14 +45,6 @@ export const useSession = () => {
             if (mounted.current) {
               setSession(null);
               queryClient.clear();
-              setLoading(false);
-            }
-          }
-
-          if (!newSession && event === 'INITIAL_SESSION') {
-            queryClient.clear();
-            if (mounted.current) {
-              setSession(null);
               setLoading(false);
             }
           }
