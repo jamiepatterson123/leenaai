@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
+import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "sonner";
 import { analyzeImage } from "./ImageAnalyzer";
@@ -41,9 +41,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const componentRef = React.useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     let interval: NodeJS.Timeout;
     if (analyzing && !showVerification) {
       interval = setInterval(() => {
@@ -91,7 +90,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       console.error("Error analyzing image:", error);
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
-    } finally {
       setAnalyzing(false);
     }
   };
@@ -123,11 +121,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     handleImageSelect
   }));
 
-  React.useEffect(() => {
-    if (componentRef.current) {
-      (componentRef.current as any).handleImageSelect = handleImageSelect;
-    }
-  }, []);
+  if (!ref) return null; // Early return only after all hooks are called
 
   if (analyzing && !showVerification && isMobile) {
     return (
@@ -143,7 +137,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   }
 
   return (
-    <div className={`space-y-8 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
+    <div className={`space-y-8 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} data-image-analysis>
       <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
       {analyzing && !showVerification && !isMobile && (
         <p className="text-center text-gray-500 animate-fade-in font-light">
