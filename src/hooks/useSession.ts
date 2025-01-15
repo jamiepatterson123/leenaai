@@ -18,13 +18,21 @@ export const useSession = () => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        // Get initial session
+        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Session initialization error:", sessionError);
+          await handleSessionError();
+          return;
+        }
         
         if (mounted.current) {
           setSession(currentSession);
           setLoading(false);
         }
 
+        // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
           console.log("Auth state changed:", event);
           
@@ -32,12 +40,18 @@ export const useSession = () => {
             if (mounted.current) {
               setSession(newSession);
             }
+          } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+            if (mounted.current) {
+              setSession(null);
+              queryClient.clear();
+            }
           }
 
           if (!newSession && event === 'INITIAL_SESSION') {
             queryClient.clear();
             if (mounted.current) {
               setSession(null);
+              setLoading(false);
             }
           }
         });
@@ -55,11 +69,19 @@ export const useSession = () => {
   }, [queryClient]);
 
   const handleSessionError = async () => {
-    await supabase.auth.signOut();
-    queryClient.clear();
-    if (mounted.current) {
-      setSession(null);
-      setLoading(false);
+    try {
+      await supabase.auth.signOut();
+      queryClient.clear();
+      if (mounted.current) {
+        setSession(null);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error handling session error:", error);
+      if (mounted.current) {
+        setSession(null);
+        setLoading(false);
+      }
     }
   };
 
