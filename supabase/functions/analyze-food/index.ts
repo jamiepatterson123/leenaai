@@ -10,6 +10,8 @@ const USDA_API_KEY = Deno.env.get('USDA_API_KEY');
 
 async function getNutritionFromUSDA(foodName: string, weight_g: number) {
   try {
+    console.log(`Getting nutrition for ${foodName} (${weight_g}g) from USDA...`);
+    
     // Search for the food item
     const searchResponse = await fetch(
       `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${USDA_API_KEY}&query=${encodeURIComponent(foodName)}&pageSize=1`
@@ -75,7 +77,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${openAIApiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-4-vision-preview",
         messages: [
           {
             role: "system",
@@ -97,6 +99,7 @@ serve(async (req) => {
             ]
           }
         ],
+        max_tokens: 300,
       })
     });
 
@@ -118,7 +121,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${openAIApiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-4-vision-preview",
         messages: [
           {
             role: "system",
@@ -140,6 +143,7 @@ serve(async (req) => {
             ]
           }
         ],
+        max_tokens: 300,
       })
     });
 
