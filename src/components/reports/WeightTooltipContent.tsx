@@ -19,7 +19,7 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   if (!payload || !payload.length) return null;
 
   const data = payload[0].payload;
-  const weight = payload[0].value;
+  const weight = payload[0].value as number;
   const date = data.date;
 
   return (
