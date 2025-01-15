@@ -38,7 +38,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${openAIApiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4-vision-preview",
+        model: "gpt-4o",  // Updated to use the current model
         messages: [
           {
             role: "system",
@@ -131,7 +131,7 @@ serve(async (req) => {
           'Authorization': `Bearer ${openAIApiKey}`,
         },
         body: JSON.stringify({
-          model: "gpt-4",
+          model: "gpt-4o",  // Updated to use the current model
           messages: [
             {
               role: "system",
