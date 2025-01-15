@@ -61,8 +61,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
             }
           }
           
-          if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
-            console.log('User signed out or deleted');
+          if (event === 'SIGNED_OUT') {
+            console.log('User signed out');
             queryClient.clear();
             if (mounted.current) {
               setSession(null);
@@ -71,7 +71,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
           }
 
           // Handle session errors
-          if (!newSession && ['SIGNED_OUT', 'USER_DELETED'].includes(event)) {
+          if (!newSession && event === 'SIGNED_OUT') {
             console.error('Session expired or invalid');
             await handleSessionError();
             return;
