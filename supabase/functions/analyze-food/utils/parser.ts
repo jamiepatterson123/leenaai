@@ -31,11 +31,36 @@ export const parseVisionResponse = (visionData: any) => {
 };
 
 export const mergeNutritionData = (foodList: any[], nutritionData: any) => {
+  // Add logging to help debug the issue
+  console.log("Merging nutrition data:", { foodList, nutritionData });
+
+  // Validate inputs
+  if (!Array.isArray(foodList)) {
+    console.error("foodList is not an array:", foodList);
+    throw new Error("Invalid foodList: expected array");
+  }
+
+  if (!nutritionData || !Array.isArray(nutritionData.foods)) {
+    console.log("No nutrition data to merge, returning original food list");
+    return foodList;
+  }
+
   return foodList.map(item => {
-    if (item.nutrition) return item; // Keep existing nutrition data
+    if (item.nutrition) {
+      console.log(`Item ${item.name} already has nutrition data`);
+      return item;
+    }
+
     const nutritionItem = nutritionData.foods.find(
       (f: any) => f.name.toLowerCase() === item.name.toLowerCase()
     );
+
+    if (nutritionItem) {
+      console.log(`Found nutrition data for ${item.name}`);
+    } else {
+      console.log(`No nutrition data found for ${item.name}`);
+    }
+
     return nutritionItem || item;
   });
 };
