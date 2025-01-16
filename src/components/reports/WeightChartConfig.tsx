@@ -1,6 +1,5 @@
-import React from 'react';
+import React from "react";
 import {
-  ResponsiveContainer,
   LineChart,
   Line,
   XAxis,
@@ -8,25 +7,25 @@ import {
   CartesianGrid,
   Tooltip,
   TooltipProps,
-} from 'recharts';
-import { WeightTooltipContent } from './WeightTooltipContent';
+} from "recharts";
+import { WeightTooltipContent } from "./WeightTooltipContent";
 
 interface WeightChartConfigProps {
-  data: Array<{
+  data: {
     weight: number;
     date: string;
-  }>;
+  }[];
   preferredUnits: string;
   isMobile: boolean;
-  onDelete: (date: string) => Promise<void>;
+  onDelete: (date: string) => void;
 }
 
-export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
+export const WeightChartConfig = ({
   data,
   preferredUnits,
   isMobile,
   onDelete,
-}) => {
+}: WeightChartConfigProps) => {
   const [activePoint, setActivePoint] = React.useState<number | null>(null);
 
   const handleClick = (event: any) => {
@@ -35,8 +34,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
     const index = data.findIndex(
       (item) => item.date === event.activePayload[0].payload.date
     );
-    
-    setActivePoint(activePoint === index ? null : index);
+    setActivePoint(index);
   };
 
   const handleMouseLeave = () => {
@@ -46,7 +44,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
   };
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <div className="w-full h-full">
       <LineChart
         data={data}
         margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
@@ -73,8 +71,8 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           content={(props: TooltipProps<number, string>) => (
             <WeightTooltipContent
               {...props}
+              unit={preferredUnits === 'metric' ? 'kg' : 'lbs'}
               onDelete={onDelete}
-              preferredUnits={preferredUnits}
               isMobile={isMobile}
             />
           )}
@@ -91,6 +89,6 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           }}
         />
       </LineChart>
-    </ResponsiveContainer>
+    </div>
   );
 };

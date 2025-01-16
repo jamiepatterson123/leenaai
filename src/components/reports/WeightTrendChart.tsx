@@ -35,7 +35,10 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
         .eq("user_id", user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching profile:", error);
+        throw error;
+      }
       return data;
     },
   });
@@ -54,7 +57,10 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
         .eq("user_id", user.id)
         .eq("recorded_at", date);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error deleting weight entry:", error);
+        throw error;
+      }
 
       await queryClient.invalidateQueries({ queryKey: ["weightHistory"] });
       toast.success("Weight entry deleted successfully");
