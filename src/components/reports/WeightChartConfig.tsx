@@ -31,13 +31,13 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
   const [activePoint, setActivePoint] = React.useState<number | null>(null);
 
   const handleClick = (event: any) => {
-    if (!isMobile || !event.activePayload?.[0]?.payload) return;
+    if (!event?.activePayload?.[0]?.payload) return;
     
     const index = data.findIndex(
       (item) => item.date === event.activePayload[0].payload.date
     );
     
-    setActivePoint(activePoint === index ? null : index);
+    setActivePoint(index);
   };
 
   const handleMouseLeave = () => {
@@ -51,7 +51,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
       <LineChart
         data={data}
         margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-        onClick={isMobile ? handleClick : undefined}
+        onClick={handleClick}
         onMouseLeave={handleMouseLeave}
       >
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
@@ -88,7 +88,8 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
               isMobile={isMobile}
             />
           )}
-          trigger={isMobile ? 'click' : 'hover'}
+          trigger="click"
+          wrapperStyle={{ zIndex: 1000 }}
         />
         <Line
           type="monotone"
@@ -98,7 +99,10 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           dot={{ r: 3, strokeWidth: 1, fill: "#fff" }}
           activeDot={{
             r: 4,
-            onClick: handleClick,
+            onClick: (e) => {
+              e.stopPropagation();
+              handleClick(e);
+            },
           }}
         />
       </LineChart>
