@@ -1,5 +1,6 @@
 import React from "react";
 import { FoodDiary } from "@/components/FoodDiary";
+import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
 import { useSearchParams, useNavigate } from "react-router-dom";
