@@ -35,10 +35,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
         .eq("user_id", user.id)
         .single();
 
-      if (error) {
-        console.error("Error fetching profile:", error);
-        throw error;
-      }
+      if (error) throw error;
       return data;
     },
   });
@@ -57,10 +54,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
         .eq("user_id", user.id)
         .eq("recorded_at", date);
 
-      if (error) {
-        console.error("Error deleting weight entry:", error);
-        throw error;
-      }
+      if (error) throw error;
 
       await queryClient.invalidateQueries({ queryKey: ["weightHistory"] });
       toast.success("Weight entry deleted successfully");
@@ -98,7 +92,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-xs">
-            <p>Track your weight changes over time to monitor progress toward your goals. Tap on a data point to delete an entry.</p>
+            <p>Track your weight changes over time to monitor progress toward your goals.</p>
           </DialogContent>
         </Dialog>
       </div>

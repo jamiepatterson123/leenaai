@@ -1,54 +1,57 @@
-import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
-import { TooltipProps } from "recharts";
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Trash2 } from 'lucide-react';
+import { TooltipProps } from 'recharts';
 
-interface WeightTooltipContentProps extends TooltipProps<number, string> {
-  unit: string;
-  onDelete: (date: string) => void;
+interface WeightTooltipContentProps extends Omit<TooltipProps<number, string>, 'content'> {
+  onDelete: (date: string) => Promise<void>;
+  preferredUnits: string;
   isMobile: boolean;
 }
 
-export const WeightTooltipContent = ({
+export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   active,
   payload,
-  unit,
   onDelete,
-  isMobile,
-}: WeightTooltipContentProps) => {
-  if (!active || !payload || !payload.length) {
+  preferredUnits,
+  isMobile
+}) => {
+  if (!active || !payload || !payload[0]) {
     return null;
   }
 
   const data = payload[0].payload;
+  const date = new Date(data.date).toLocaleDateString();
   const weight = data.weight;
-  const date = data.date;
+  const unit = preferredUnits === 'metric' ? 'kg' : 'lbs';
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-    onDelete(date);
+    
+    try {
+      await onDelete(data.date);
+    } catch (error) {
+      console.error('Error in handleDelete:', error);
+    }
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-3 border rounded-lg shadow-lg">
+    <div className="bg-white dark:bg-gray-800 p-2 border rounded shadow-lg">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="font-semibold text-sm">{date}</p>
-          <p className="text-sm">{`${weight} ${unit}`}</p>
+          <p className="font-semibold">{date}</p>
+          <p>{`${weight} ${unit}`}</p>
         </div>
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8"
           onClick={handleDelete}
+          className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
         >
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
-      {isMobile && (
-        <p className="text-xs text-muted-foreground mt-2">
-          Tap the delete button to remove this entry
-        </p>
-      )}
     </div>
   );
 };
