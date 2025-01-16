@@ -7,6 +7,7 @@ import {
   CartesianGrid,
   Tooltip,
   TooltipProps,
+  ResponsiveContainer,
 } from "recharts";
 import { WeightTooltipContent } from "./WeightTooltipContent";
 
@@ -44,51 +45,53 @@ export const WeightChartConfig = ({
   };
 
   return (
-    <div className="w-full h-full">
-      <LineChart
-        data={data}
-        margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-        onClick={handleClick}
-        onMouseLeave={handleMouseLeave}
-      >
-        <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-        <XAxis
-          dataKey="date"
-          stroke="#888888"
-          fontSize={12}
-          tickLine={false}
-          axisLine={false}
-        />
-        <YAxis
-          stroke="#888888"
-          fontSize={12}
-          tickLine={false}
-          axisLine={false}
-          unit={preferredUnits === 'metric' ? 'kg' : ' lbs'}
-          domain={['dataMin - 2', 'dataMax + 2']}
-        />
-        <Tooltip
-          content={(props: TooltipProps<number, string>) => (
-            <WeightTooltipContent
-              {...props}
-              unit={preferredUnits === 'metric' ? 'kg' : 'lbs'}
-              onDelete={onDelete}
-              isMobile={isMobile}
-            />
-          )}
-        />
-        <Line
-          type="monotone"
-          dataKey="weight"
-          stroke="#2563eb"
-          strokeWidth={2}
-          dot={{ r: 4, strokeWidth: 2, fill: "#fff" }}
-          activeDot={{
-            r: 6,
-            onClick: handleClick,
-          }}
-        />
-      </LineChart>
+    <div className="w-full h-[400px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart
+          data={data}
+          margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+          onClick={handleClick}
+          onMouseLeave={handleMouseLeave}
+        >
+          <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+          <XAxis
+            dataKey="date"
+            stroke="#888888"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+          />
+          <YAxis
+            stroke="#888888"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+            unit={preferredUnits === 'metric' ? 'kg' : ' lbs'}
+            domain={['dataMin - 2', 'dataMax + 2']}
+          />
+          <Tooltip
+            content={(props: TooltipProps<number, string>) => (
+              <WeightTooltipContent
+                {...props}
+                unit={preferredUnits === 'metric' ? 'kg' : 'lbs'}
+                onDelete={onDelete}
+                isMobile={isMobile}
+              />
+            )}
+          />
+          <Line
+            type="monotone"
+            dataKey="weight"
+            stroke="#2563eb"
+            strokeWidth={2}
+            dot={{ r: 4, strokeWidth: 2, fill: "#fff" }}
+            activeDot={{
+              r: 6,
+              onClick: handleClick,
+            }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 };
