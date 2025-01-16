@@ -11,7 +11,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { WeightChartConfig } from "./WeightChartConfig";
-import { format, parseISO } from "date-fns";
 
 interface WeightTrendChartProps {
   data: {
@@ -30,13 +29,12 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("profiles")
         .select("preferred_units")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
       return data;
     },
   });
@@ -57,6 +55,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
 
       if (error) throw error;
 
+      // Invalidate and refetch weight history data
       await queryClient.invalidateQueries({ queryKey: ["weightHistory"] });
       toast.success("Weight entry deleted successfully");
     } catch (error) {

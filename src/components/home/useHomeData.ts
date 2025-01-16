@@ -25,7 +25,7 @@ export const useHomeData = () => {
 
         return weightHistory.map((entry) => ({
           weight: entry.weight_kg,
-          date: entry.recorded_at.split('T')[0], // Format as YYYY-MM-DD for parseISO
+          date: entry.recorded_at,  // Keep full ISO string for deletion
         }));
       } catch (error) {
         console.error("Error in weight history query:", error);
