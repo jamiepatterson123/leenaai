@@ -6,22 +6,31 @@ export const useHomeData = () => {
   const { data: weightData, isLoading: weightLoading } = useQuery({
     queryKey: ["weightHistory", "1w"],
     queryFn: async () => {
-      const startDate = subDays(new Date(), 6);
-      const { data: weightHistory, error } = await supabase
-        .from("weight_history")
-        .select("weight_kg, recorded_at")
-        .gte("recorded_at", startDate.toISOString())
-        .order("recorded_at", { ascending: true });
+      try {
+        const startDate = subDays(new Date(), 6);
+        const { data: weightHistory, error } = await supabase
+          .from("weight_history")
+          .select("weight_kg, recorded_at")
+          .gte("recorded_at", startDate.toISOString())
+          .order("recorded_at", { ascending: true });
 
-      if (error) {
-        console.error("Error fetching weight data:", error);
+        if (error) {
+          console.error("Error fetching weight data:", error);
+          throw error;
+        }
+
+        if (!weightHistory) {
+          return [];
+        }
+
+        return weightHistory.map((entry) => ({
+          weight: entry.weight_kg,
+          date: entry.recorded_at.split('T')[0], // Format as YYYY-MM-DD for parseISO
+        }));
+      } catch (error) {
+        console.error("Error in weight history query:", error);
         throw error;
       }
-
-      return weightHistory.map((entry) => ({
-        weight: entry.weight_kg,
-        date: entry.recorded_at.split('T')[0], // Format as YYYY-MM-DD for parseISO
-      }));
     },
   });
 
