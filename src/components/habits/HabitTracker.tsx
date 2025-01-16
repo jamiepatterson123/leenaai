@@ -6,7 +6,11 @@ import { HabitTrackerHeader } from "./HabitTrackerHeader";
 import { MonthNavigation } from "./MonthNavigation";
 import { CalendarGrid } from "./CalendarGrid";
 
-export const HabitTracker = () => {
+interface HabitTrackerProps {
+  onDateSelect?: (date: Date) => void;
+}
+
+export const HabitTracker = ({ onDateSelect }: HabitTrackerProps) => {
   const [currentDate, setCurrentDate] = React.useState(new Date());
   
   const { data: loggedDays } = useQuery({
@@ -69,7 +73,6 @@ export const HabitTracker = () => {
   return (
     <div className="w-full max-w-md mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
       <div className="p-4">
-        <HabitTrackerHeader />
         <MonthNavigation
           currentDate={currentDate}
           onPreviousMonth={handlePreviousMonth}
@@ -78,6 +81,7 @@ export const HabitTracker = () => {
         <CalendarGrid
           days={allDays}
           loggedDays={loggedDays || []}
+          onDateSelect={onDateSelect}
         />
       </div>
     </div>
