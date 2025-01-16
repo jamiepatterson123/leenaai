@@ -1,6 +1,5 @@
 import React from "react";
 import { FoodDiary } from "@/components/FoodDiary";
-import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -38,16 +37,7 @@ const FoodDiaryPage = () => {
         <div className="order-2 md:order-2 space-y-6">
           <div className="px-4 md:px-0">
             <Card className="w-full rounded-lg border border-gray-200 dark:border-gray-800">
-              {isMobile ? (
-                <HabitTracker onDateSelect={handleDateSelect} />
-              ) : (
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={handleDateSelect}
-                  className="w-full"
-                />
-              )}
+              <HabitTracker onDateSelect={handleDateSelect} />
             </Card>
           </div>
           <div className="px-4 md:px-0">
