@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { WeightChartConfig } from "./WeightChartConfig";
+import { format, parseISO } from "date-fns";
 
 interface WeightTrendChartProps {
   data: {

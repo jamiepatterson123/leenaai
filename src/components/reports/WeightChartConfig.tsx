@@ -10,6 +10,7 @@ import {
   TooltipProps,
 } from 'recharts';
 import { WeightTooltipContent } from './WeightTooltipContent';
+import { format, parseISO } from 'date-fns';
 
 interface WeightChartConfigProps {
   data: Array<{
@@ -56,9 +57,14 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
         <XAxis
           dataKey="date"
-          tickFormatter={(date) => {
-            const d = new Date(date);
-            return `${d.getDate()}. ${d.toLocaleString('default', { month: 'short' })}`;
+          tickFormatter={(dateStr) => {
+            try {
+              const date = parseISO(dateStr);
+              return format(date, 'MMM d');
+            } catch (error) {
+              console.error('Error formatting date:', dateStr, error);
+              return dateStr;
+            }
           }}
           stroke="#888888"
           fontSize={12}
@@ -72,7 +78,6 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           axisLine={false}
           unit={preferredUnits === 'metric' ? 'kg' : ' lbs'}
           domain={['dataMin - 10', 'dataMax + 10']}
-          ticks={[0, 25, 50, 75, 100]}
         />
         <Tooltip
           content={(props: TooltipProps<number, string>) => (
