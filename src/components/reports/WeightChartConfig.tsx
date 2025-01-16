@@ -89,16 +89,17 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
             />
           )}
           trigger="click"
-          wrapperStyle={{ zIndex: 1000 }}
+          wrapperStyle={{ zIndex: 1000, cursor: 'pointer' }}
         />
         <Line
           type="monotone"
           dataKey="weight"
           stroke="#2563eb"
           strokeWidth={1.5}
-          dot={{ r: 3, strokeWidth: 1, fill: "#fff" }}
+          dot={{ r: 3, strokeWidth: 1, fill: "#fff", cursor: 'pointer' }}
           activeDot={{
             r: 4,
+            cursor: 'pointer',
             onClick: (e) => {
               e.stopPropagation();
               handleClick(e);
