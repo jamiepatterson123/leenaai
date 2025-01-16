@@ -30,7 +30,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
   const [activePoint, setActivePoint] = React.useState<number | null>(null);
 
   const handleClick = (event: any) => {
-    if (!isMobile || !event.activePayload?.[0]?.payload) return;
+    if (!event.activePayload?.[0]?.payload) return;
     
     const index = data.findIndex(
       (item) => item.date === event.activePayload[0].payload.date
@@ -50,16 +50,12 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
       <LineChart
         data={data}
         margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-        onClick={isMobile ? handleClick : undefined}
+        onClick={handleClick}
         onMouseLeave={handleMouseLeave}
       >
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
         <XAxis
           dataKey="date"
-          tickFormatter={(date) => {
-            const d = new Date(date);
-            return `${d.getDate()}. ${d.toLocaleString('default', { month: 'short' })}`;
-          }}
           stroke="#888888"
           fontSize={12}
           tickLine={false}
@@ -71,8 +67,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           tickLine={false}
           axisLine={false}
           unit={preferredUnits === 'metric' ? 'kg' : ' lbs'}
-          domain={['dataMin - 10', 'dataMax + 10']}
-          ticks={[0, 25, 50, 75, 100]}
+          domain={['dataMin - 2', 'dataMax + 2']}
         />
         <Tooltip
           content={(props: TooltipProps<number, string>) => (
@@ -83,16 +78,15 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
               isMobile={isMobile}
             />
           )}
-          trigger={isMobile ? 'click' : 'hover'}
         />
         <Line
           type="monotone"
           dataKey="weight"
           stroke="#2563eb"
-          strokeWidth={1.5}
-          dot={{ r: 3, strokeWidth: 1, fill: "#fff" }}
+          strokeWidth={2}
+          dot={{ r: 4, strokeWidth: 2, fill: "#fff" }}
           activeDot={{
-            r: 4,
+            r: 6,
             onClick: handleClick,
           }}
         />

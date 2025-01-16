@@ -37,11 +37,11 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-2 border rounded shadow-lg">
+    <div className="bg-white dark:bg-gray-800 p-3 border rounded-lg shadow-lg">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="font-semibold">{date}</p>
-          <p>{`${weight} ${unit}`}</p>
+          <p className="font-semibold text-sm">{date}</p>
+          <p className="text-sm">{`${weight} ${unit}`}</p>
         </div>
         <Button
           variant="ghost"
@@ -52,6 +52,11 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
+      {isMobile && (
+        <p className="text-xs text-muted-foreground mt-2">
+          Tap the delete button to remove this entry
+        </p>
+      )}
     </div>
   );
 };
