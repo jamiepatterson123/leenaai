@@ -40,40 +40,46 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
   });
 
   const handleDelete = async (date: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      toast.error("You must be logged in to delete weight entries");
-      return;
-    }
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("You must be logged in to delete weight entries");
+        return;
+      }
 
-    const { error } = await supabase
-      .from("weight_history")
-      .delete()
-      .eq("user_id", user.id)
-      .eq("recorded_at", date);
+      const { error } = await supabase
+        .from("weight_history")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("recorded_at", date);
 
-    if (error) {
+      if (error) {
+        console.error("Error deleting weight entry:", error);
+        toast.error("Failed to delete weight entry");
+        return;
+      }
+
+      // Invalidate and refetch weight history data
+      await queryClient.invalidateQueries({ queryKey: ["weightHistory"] });
+      toast.success("Weight entry deleted successfully");
+    } catch (error) {
       console.error("Error deleting weight entry:", error);
-      throw new Error("Failed to delete weight entry");
+      toast.error("Failed to delete weight entry");
     }
-
-    await queryClient.invalidateQueries({ queryKey: ["weightHistory"] });
   };
 
   const preferredUnits = profile?.preferred_units || 'metric';
   
-  const convertedData = data
-    .map(entry => ({
-      ...entry,
-      weight: entry.weight !== null 
-        ? preferredUnits === 'imperial' 
-          ? Math.round(entry.weight * 2.20462 * 10) / 10
-          : entry.weight
-        : null
-    }))
-    .filter((entry): entry is { weight: number; date: string } => 
-      entry.weight !== null
-    );
+  const convertedData = data.map(entry => ({
+    ...entry,
+    weight: entry.weight !== null 
+      ? preferredUnits === 'imperial' 
+        ? Math.round(entry.weight * 2.20462 * 10) / 10
+        : entry.weight
+      : null
+  })).filter((entry): entry is { weight: number; date: string } => 
+    entry.weight !== null
+  );
 
   return (
     <Card className="p-6">

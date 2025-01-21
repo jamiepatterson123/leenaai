@@ -28,11 +28,31 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
   isMobile,
   onDelete,
 }) => {
+  const [activePoint, setActivePoint] = React.useState<number | null>(null);
+
+  const handleClick = (event: any) => {
+    if (!event?.activePayload?.[0]?.payload) return;
+    
+    const index = data.findIndex(
+      (item) => item.date === event.activePayload[0].payload.date
+    );
+    
+    setActivePoint(index);
+  };
+
+  const handleMouseLeave = () => {
+    if (!isMobile) {
+      setActivePoint(null);
+    }
+  };
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart
         data={data}
         margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+        onClick={handleClick}
+        onMouseLeave={handleMouseLeave}
       >
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
         <XAxis
@@ -68,14 +88,23 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
               isMobile={isMobile}
             />
           )}
+          trigger="click"
+          wrapperStyle={{ zIndex: 1000, cursor: 'pointer' }}
         />
         <Line
           type="monotone"
           dataKey="weight"
           stroke="#2563eb"
           strokeWidth={1.5}
-          dot={{ r: 3, strokeWidth: 1, fill: "#fff" }}
-          activeDot={{ r: 4 }}
+          dot={{ r: 3, strokeWidth: 1, fill: "#fff", cursor: 'pointer' }}
+          activeDot={{
+            r: 4,
+            cursor: 'pointer',
+            onClick: (e) => {
+              e.stopPropagation();
+              handleClick(e);
+            },
+          }}
         />
       </LineChart>
     </ResponsiveContainer>

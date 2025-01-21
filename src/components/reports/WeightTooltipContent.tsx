@@ -2,7 +2,6 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { TooltipProps } from 'recharts';
-import { toast } from 'sonner';
 
 interface WeightTooltipContentProps extends Omit<TooltipProps<number, string>, 'content'> {
   onDelete: (date: string) => Promise<void>;
@@ -17,8 +16,6 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   preferredUnits,
   isMobile
 }) => {
-  const [isDeleting, setIsDeleting] = React.useState(false);
-
   if (!active || !payload || !payload[0]) {
     return null;
   }
@@ -28,35 +25,27 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   const weight = data.weight;
   const unit = preferredUnits === 'metric' ? 'kg' : 'lbs';
 
-  const handleDelete = async () => {
-    try {
-      setIsDeleting(true);
-      await onDelete(data.date);
-      toast.success('Weight entry deleted successfully');
-    } catch (error) {
-      console.error('Error deleting weight entry:', error);
-      toast.error('Failed to delete weight entry');
-    } finally {
-      setIsDeleting(false);
-    }
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await onDelete(data.date);
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-4 border rounded-lg shadow-lg min-w-[200px]">
-      <div className="space-y-4">
+    <div className="bg-white dark:bg-gray-800 p-2 border rounded shadow-lg">
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="font-semibold text-lg">{date}</p>
-          <p className="text-muted-foreground">{`${weight} ${unit}`}</p>
+          <p className="font-semibold">{date}</p>
+          <p>{`${weight} ${unit}`}</p>
         </div>
-        <Button 
-          variant="destructive"
-          size="sm"
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={handleDelete}
-          disabled={isDeleting}
-          className="w-full"
+          className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+          type="button"
         >
-          <Trash2 className="h-4 w-4 mr-2" />
-          {isDeleting ? 'Deleting...' : 'Delete Entry'}
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
     </div>
