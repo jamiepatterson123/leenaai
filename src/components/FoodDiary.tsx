@@ -77,7 +77,7 @@ export const FoodDiary: React.FC<FoodDiaryProps> = ({ selectedDate }) => {
       carbs: entry.carbs,
       fat: entry.fat
     },
-    category: entry.category,
+    category: entry.category || "uncategorized",
     created_at: entry.created_at
   }));
 
