@@ -99,9 +99,19 @@ const AuthPage = () => {
             }}
             providers={["google"]}
             redirectTo={`${window.location.origin}/welcome/callback`}
-            onError={(error) => {
-              console.error("Auth error:", error); // Debug log
-              setError(error.message);
+            localization={{
+              variables: {
+                sign_in: {
+                  email_label: 'Email',
+                  password_label: 'Password',
+                }
+              }
+            }}
+            onAuthStateChange={(event, session) => {
+              console.log("Auth state changed in UI:", event, session);
+              if (event === "SIGNED_IN" && session) {
+                navigate("/");
+              }
             }}
             view="sign_in"
           />
