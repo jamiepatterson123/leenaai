@@ -107,12 +107,6 @@ const AuthPage = () => {
                 }
               }
             }}
-            onAuthStateChange={(event, session) => {
-              console.log("Auth state changed in UI:", event, session);
-              if (event === "SIGNED_IN" && session) {
-                navigate("/");
-              }
-            }}
             view="sign_in"
           />
         </div>
