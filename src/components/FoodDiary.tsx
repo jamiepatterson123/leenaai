@@ -39,13 +39,16 @@ export const FoodDiary: React.FC<FoodDiaryProps> = ({ selectedDate }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
+      console.log("Fetching weight entries for date:", formattedDate);
+      
       const { data: weightEntries, error: weightError } = await supabase
         .from("weight_history")
         .select("*")
-        .eq("recorded_at::date", formattedDate)
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .gte("recorded_at", `${formattedDate}T00:00:00`)
+        .lt("recorded_at", `${formattedDate}T23:59:59`);
 
-      console.log("Weight entries:", weightEntries); // Debug log
+      console.log("Raw weight entries:", weightEntries);
 
       if (weightError) throw weightError;
       return weightEntries || [];
@@ -68,7 +71,7 @@ export const FoodDiary: React.FC<FoodDiaryProps> = ({ selectedDate }) => {
     state: "weight_entry"
   }));
 
-  console.log("Weight as food entries:", weightAsFoodEntries); // Debug log
+  console.log("Weight as food entries:", weightAsFoodEntries);
 
   // Transform all entries to match NutritionCard props format
   const transformedEntries = [...foodData, ...weightAsFoodEntries].map(entry => ({
@@ -85,7 +88,7 @@ export const FoodDiary: React.FC<FoodDiaryProps> = ({ selectedDate }) => {
     created_at: entry.created_at
   }));
 
-  console.log("Transformed entries:", transformedEntries); // Debug log
+  console.log("Transformed entries:", transformedEntries);
 
   const handleDelete = async (id: string) => {
     try {
