@@ -14,10 +14,10 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
   const queryClient = useQueryClient();
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
 
-  // Set up real-time listeners for food diary changes
+  // Set up real-time listeners for food diary and weight history changes
   useEffect(() => {
     const foodDiaryChannel = supabase
-      .channel('food_diary_changes')
+      .channel('diary_changes')
       .on(
         'postgres_changes',
         {
@@ -35,17 +35,33 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
       )
       .subscribe();
 
+    const weightChannel = supabase
+      .channel('weight_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'weight_history'
+        },
+        (payload) => {
+          console.log('Weight update received:', payload);
+          queryClient.invalidateQueries({ queryKey: ['weightHistory'] });
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(foodDiaryChannel);
+      supabase.removeChannel(weightChannel);
     };
   }, [queryClient]);
 
-  const { data: foodEntries, isLoading, error } = useQuery({
+  const { data: foodEntries, isLoading: isLoadingFood, error: foodError } = useQuery({
     queryKey: ["foodDiary", formattedDate],
     queryFn: async () => {
       console.log("Fetching food entries for date:", formattedDate);
       
-      // Check authentication status
       const { data: { user } } = await supabase.auth.getUser();
       console.log("Current user:", user?.id);
       
@@ -68,12 +84,30 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
         throw error;
       }
 
-      console.log("Fetched food entries:", data);
       return data || [];
     },
-    staleTime: 1000,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
+  });
+
+  const { data: weightEntry, isLoading: isLoadingWeight } = useQuery({
+    queryKey: ["weightHistory", formattedDate],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data, error } = await supabase
+        .from("weight_history")
+        .select("*")
+        .eq("recorded_at", formattedDate)
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching weight entry:", error);
+        return null;
+      }
+
+      return data;
+    },
   });
 
   const handleDelete = async (id: string) => {
@@ -90,6 +124,23 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
     } catch (error) {
       toast.error("Failed to delete food entry");
       console.error("Error deleting food entry:", error);
+    }
+  };
+
+  const handleDeleteWeight = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("weight_history")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast.success("Weight entry deleted");
+      queryClient.invalidateQueries({ queryKey: ["weightHistory", formattedDate] });
+    } catch (error) {
+      toast.error("Failed to delete weight entry");
+      console.error("Error deleting weight entry:", error);
     }
   };
 
@@ -110,16 +161,11 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
     }
   };
 
-  // Log any query errors
-  if (error) {
-    console.error("Query error:", error);
-  }
-
-  if (isLoading) {
+  if (isLoadingFood || isLoadingWeight) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-muted-foreground animate-pulse">
-          Loading food diary...
+          Loading diary entries...
         </div>
       </div>
     );
@@ -138,13 +184,32 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
     },
   })) || [];
 
+  // Add weight entry if it exists
+  if (weightEntry) {
+    foods.unshift({
+      id: weightEntry.id,
+      name: "Weight Entry",
+      weight_g: weightEntry.weight_kg * 1000, // Convert to grams for consistency
+      category: "Weight",
+      nutrition: {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+      },
+      isWeightEntry: true,
+      weightKg: weightEntry.weight_kg,
+    });
+  }
+
   console.log("Transformed foods data:", foods);
 
   return (
     <div className="w-full max-w-full overflow-x-hidden">
       <NutritionCard 
         foods={foods} 
-        onDelete={handleDelete} 
+        onDelete={handleDelete}
+        onDeleteWeight={handleDeleteWeight}
         onUpdateCategory={handleUpdateCategory}
         selectedDate={selectedDate}
       />

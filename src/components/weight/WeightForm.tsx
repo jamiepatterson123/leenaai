@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { format } from "date-fns";
 import {
   Select,
   SelectContent,
@@ -13,9 +14,10 @@ import {
 
 interface WeightFormProps {
   onSuccess?: () => void;
+  selectedDate?: Date;
 }
 
-export const WeightForm = ({ onSuccess }: WeightFormProps) => {
+export const WeightForm = ({ onSuccess, selectedDate = new Date() }: WeightFormProps) => {
   const [weight, setWeight] = useState<string>("");
   const [unit, setUnit] = useState<"kg" | "lbs">("kg");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,6 +38,7 @@ export const WeightForm = ({ onSuccess }: WeightFormProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
+      // Update profile weight
       const { error: profileError } = await supabase
         .from("profiles")
         .update({ weight_kg: weightInKg })
@@ -43,11 +46,13 @@ export const WeightForm = ({ onSuccess }: WeightFormProps) => {
 
       if (profileError) throw profileError;
 
+      // Add to weight history
       const { error: historyError } = await supabase
         .from("weight_history")
         .insert({
           user_id: user.id,
           weight_kg: weightInKg,
+          recorded_at: format(selectedDate, 'yyyy-MM-dd'),
         });
 
       if (historyError) throw historyError;
