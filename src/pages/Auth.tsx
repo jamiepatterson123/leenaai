@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import type { AuthError } from "@supabase/supabase-js";
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -13,7 +14,6 @@ const AuthPage = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("Auth state changed:", event, session); // Debug log
         if (event === 'SIGNED_IN' && session) {
           navigate("/");
         }
@@ -31,7 +31,6 @@ const AuthPage = () => {
 
     // Check current session on mount
     supabase.auth.getSession().then(({ data: { session }, error }) => {
-      console.log("Initial session check:", session, error); // Debug log
       if (session) {
         navigate("/");
       }
@@ -97,8 +96,8 @@ const AuthPage = () => {
               }
             }}
             providers={["google"]}
-            redirectTo={`${window.location.origin}/auth`}
-            onlyThirdPartyProviders
+            redirectTo={`${window.location.origin}/welcome/callback`}
+            view="sign_in"
           />
         </div>
       </div>
