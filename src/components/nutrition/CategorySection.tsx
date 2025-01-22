@@ -3,22 +3,27 @@ import { FoodItem } from "./FoodItem";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 
+interface Food {
+  id: string;
+  name: string;
+  weight_g: number;
+  category?: string;
+  created_at?: string;
+  nutrition?: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+  isWeightEntry?: boolean;
+  weightKg?: number;
+}
+
 interface CategorySectionProps {
   category: string;
-  foods: Array<{
-    id: string;
-    name: string;
-    weight_g: number;
-    category?: string;
-    created_at?: string;
-    nutrition?: {
-      calories: number;
-      protein: number;
-      carbs: number;
-      fat: number;
-    };
-  }>;
+  foods: Food[];
   onDelete: (id: string) => void;
+  onDeleteWeight: (id: string) => void;
   onUpdateCategory: (id: string, category: string) => void;
   mealCategories: string[];
   showEmpty?: boolean;
@@ -28,11 +33,11 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
   category,
   foods,
   onDelete,
+  onDeleteWeight,
   onUpdateCategory,
   mealCategories,
   showEmpty = false,
 }) => {
-  // Only render the section if there are foods in this category or showEmpty is true
   if (foods.length === 0 && !showEmpty) {
     return null;
   }
@@ -61,6 +66,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
                 key={food.id}
                 food={food}
                 onDelete={onDelete}
+                onDeleteWeight={onDeleteWeight}
                 onUpdateCategory={onUpdateCategory}
                 mealCategories={mealCategories}
               />
