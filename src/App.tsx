@@ -6,6 +6,8 @@ import FoodDiary from "./pages/FoodDiary";
 import Profile from "./pages/Profile";
 import { Reports } from "./pages/Reports";
 import { Navigation } from "./components/Navigation";
+import Auth from "./pages/Auth";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,10 +25,39 @@ function App() {
         <div className="min-h-screen pb-10">
           <Navigation />
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/food-diary" element={<FoodDiary />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/reports" element={<Reports />} />
+            <Route path="/welcome" element={<Auth />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/food-diary"
+              element={
+                <ProtectedRoute>
+                  <FoodDiary />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  <Reports />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
           <Toaster position="top-right" />
         </div>
