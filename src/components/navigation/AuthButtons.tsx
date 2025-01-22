@@ -1,32 +1,12 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import { Send, LogOut } from "lucide-react";
+import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 interface AuthButtonsProps {
   handleShare: () => void;
-  session: any;
 }
 
-export const AuthButtons = ({ handleShare, session }: AuthButtonsProps) => {
-  const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        toast.error("Error signing out");
-        return;
-      }
-      navigate("/welcome");
-      toast.success("Signed out successfully");
-    } catch (error) {
-      toast.error("Error signing out");
-    }
-  };
-
+export const AuthButtons = ({ handleShare }: AuthButtonsProps) => {
   return (
     <div className="flex items-center gap-4">
       <Button
@@ -37,16 +17,6 @@ export const AuthButtons = ({ handleShare, session }: AuthButtonsProps) => {
       >
         <Send className="w-4 h-4" />
       </Button>
-      {session && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleSignOut}
-          className="text-muted-foreground hover:text-primary"
-        >
-          <LogOut className="w-4 h-4" />
-        </Button>
-      )}
     </div>
   );
 };
