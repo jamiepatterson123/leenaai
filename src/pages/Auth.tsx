@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import type { AuthError } from "@supabase/supabase-js";
 
 const AuthPage = () => {
   const navigate = useNavigate();
