@@ -26,6 +26,7 @@ function App() {
           <Navigation />
           <Routes>
             <Route path="/welcome" element={<Auth />} />
+            <Route path="/welcome/callback" element={<Auth />} />
             <Route
               path="/"
               element={
