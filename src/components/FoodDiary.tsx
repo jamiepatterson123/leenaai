@@ -6,6 +6,21 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { useEffect } from "react";
 
+interface Food {
+  id: string;
+  name: string;
+  weight_g: number;
+  category?: string;
+  nutrition: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+  isWeightEntry?: boolean;
+  weightKg?: number;
+}
+
 interface FoodDiaryProps {
   selectedDate: Date;
 }
@@ -171,7 +186,7 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
     );
   }
 
-  const foods = foodEntries?.map((entry) => ({
+  const foods: Food[] = foodEntries?.map((entry) => ({
     id: entry.id,
     name: entry.food_name,
     weight_g: entry.weight_g,
