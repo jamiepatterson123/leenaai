@@ -204,7 +204,7 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
     foods.unshift({
       id: weightEntry.id,
       name: "Weight Entry",
-      weight_g: weightEntry.weight_kg * 1000,
+      weight_g: weightEntry.weight_kg * 1000, // Convert to grams for consistency
       category: "Weight",
       nutrition: {
         calories: 0,
