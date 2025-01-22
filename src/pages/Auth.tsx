@@ -97,7 +97,7 @@ const AuthPage = () => {
             }}
             providers={["google"]}
             redirectTo={`${window.location.origin}/welcome/callback`}
-            onlyThirdPartyProviders
+            view="sign_in"
           />
         </div>
       </div>
