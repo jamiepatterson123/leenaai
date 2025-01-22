@@ -3,19 +3,10 @@ import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useSession } from "@/hooks/useSession";
-import { useNavigate } from "react-router-dom";
 
 export const Navigation = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
-  const { session, loading } = useSession();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const selectedDate = new Date();
-
-  // If there's no session or we're loading, don't render the navigation
-  if (loading) return null;
-  if (!session || window.location.pathname === '/welcome') return null;
 
   const handleShare = () => {
     // Implement share functionality
