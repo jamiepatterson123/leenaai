@@ -66,12 +66,24 @@ export const FoodDiary: React.FC<FoodDiaryProps> = ({ selectedDate }) => {
     state: "weight_entry"
   }));
 
-  // Combine food and weight entries
-  const allEntries = [...foodData, ...weightAsFoodEntries];
+  // Transform all entries to match NutritionCard props format
+  const transformedEntries = [...foodData, ...weightAsFoodEntries].map(entry => ({
+    id: entry.id,
+    name: entry.food_name,
+    weight_g: entry.weight_g,
+    nutrition: {
+      calories: entry.calories,
+      protein: entry.protein,
+      carbs: entry.carbs,
+      fat: entry.fat
+    },
+    category: entry.category,
+    created_at: entry.created_at
+  }));
 
   const handleDelete = async (id: string) => {
     try {
-      const entryToDelete = allEntries.find(entry => entry.id === id);
+      const entryToDelete = [...foodData, ...weightAsFoodEntries].find(entry => entry.id === id);
       if (!entryToDelete) return;
 
       if (entryToDelete.state === "weight_entry") {
@@ -107,7 +119,7 @@ export const FoodDiary: React.FC<FoodDiaryProps> = ({ selectedDate }) => {
 
   const handleUpdateCategory = async (id: string, category: string) => {
     try {
-      const entryToUpdate = allEntries.find(entry => entry.id === id);
+      const entryToUpdate = [...foodData, ...weightAsFoodEntries].find(entry => entry.id === id);
       if (!entryToUpdate || entryToUpdate.state === "weight_entry") return;
 
       const { error } = await supabase
@@ -131,7 +143,7 @@ export const FoodDiary: React.FC<FoodDiaryProps> = ({ selectedDate }) => {
 
   return (
     <NutritionCard
-      foods={allEntries}
+      foods={transformedEntries}
       onDelete={handleDelete}
       onUpdateCategory={handleUpdateCategory}
       selectedDate={selectedDate}
