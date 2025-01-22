@@ -1,6 +1,6 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -8,12 +8,15 @@ import type { AuthError } from "@supabase/supabase-js";
 
 const AuthPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log("Auth state changed:", event, session);
+        
         if (event === 'SIGNED_IN' && session) {
           navigate("/");
         }
@@ -35,6 +38,7 @@ const AuthPage = () => {
         navigate("/");
       }
       if (error) {
+        console.error("Session error:", error);
         setError(error.message);
       }
       setLoading(false);
@@ -96,7 +100,7 @@ const AuthPage = () => {
               }
             }}
             providers={["google"]}
-            redirectTo={`${window.location.origin}/welcome/callback`}
+            redirectTo="https://tehosjvonqxuiziqjlry.supabase.co/auth/v1/callback"
             view="sign_in"
           />
         </div>
