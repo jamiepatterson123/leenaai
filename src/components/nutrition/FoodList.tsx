@@ -1,33 +1,27 @@
 import React from "react";
 import { CategorySection } from "./CategorySection";
 
-interface Food {
-  id: string;
-  name: string;
-  weight_g: number;
-  category?: string;
-  created_at?: string;
-  nutrition?: {
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
-  isWeightEntry?: boolean;
-  weightKg?: number;
-}
-
 interface FoodListProps {
-  foods: Food[];
+  foods: Array<{
+    id: string;
+    name: string;
+    weight_g: number;
+    category?: string;
+    created_at?: string;
+    nutrition?: {
+      calories: number;
+      protein: number;
+      carbs: number;
+      fat: number;
+    };
+  }>;
   onDelete: (id: string) => void;
-  onDeleteWeight: (id: string) => void;
   onUpdateCategory: (id: string, category: string) => void;
 }
 
 export const FoodList: React.FC<FoodListProps> = ({ 
   foods, 
   onDelete,
-  onDeleteWeight,
   onUpdateCategory 
 }) => {
   const mealCategories = ["Breakfast", "Lunch", "Dinner", "Snacks", "Uncategorized"];
@@ -48,7 +42,6 @@ export const FoodList: React.FC<FoodListProps> = ({
           category={category}
           foods={foodsByCategory[category] || []}
           onDelete={onDelete}
-          onDeleteWeight={onDeleteWeight}
           onUpdateCategory={onUpdateCategory}
           mealCategories={mealCategories}
           showEmpty={true}
