@@ -15,7 +15,7 @@ export const Navigation = () => {
 
   // If there's no session or we're loading, don't render the navigation
   if (loading) return null;
-  if (!session || window.location.pathname === '/welcome') return null;
+  if (!session || window.location.pathname.startsWith('/auth')) return null;
 
   const handleShare = () => {
     // Implement share functionality
