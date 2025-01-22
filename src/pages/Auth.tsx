@@ -1,87 +1,55 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AuthLoading } from "@/components/auth/AuthLoading";
 import type { AuthError } from "@supabase/supabase-js";
 
 const AuthPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("Auth component mounted");
-    let mounted = true;
-
-    const handleSession = async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        console.log("Current session:", session);
-        
-        if (sessionError) {
-          console.error("Session error:", sessionError);
-          if (mounted) {
-            setError(sessionError.message);
-          }
-        } else if (session && mounted) {
-          console.log("Valid session found, redirecting to home");
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
           navigate("/");
         }
-      } catch (err) {
-        console.error("Auth error:", err);
-        if (mounted) {
-          setError("Authentication error occurred");
+        if (event === 'SIGNED_OUT') {
+          setError("");
         }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    // Initialize session check
-    handleSession();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session);
-      
-      if (!mounted) return;
-
-      if (event === 'SIGNED_IN') {
-        console.log("User signed in, redirecting to home");
-        navigate("/");
-      } else if (event === 'SIGNED_OUT') {
-        console.log("User signed out");
-        setError("");
-      } else if (event === 'USER_UPDATED') {
-        if (!session) {
+        if (event === 'USER_UPDATED' && !session) {
           const { error: sessionError } = await supabase.auth.getSession();
           if (sessionError) {
-            console.error("Session error after update:", sessionError);
             setError(sessionError.message);
           }
         }
       }
+    );
+
+    // Check current session on mount
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (session) {
+        navigate("/");
+      }
+      if (error) {
+        setError(error.message);
+      }
+      setLoading(false);
     });
 
-    // Cleanup
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   if (loading) {
-    return <AuthLoading />;
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
   return (
     <div className="flex min-h-screen">
+      {/* Left Column - Hero/Welcome Section */}
       <div className="hidden md:flex md:w-1/2 bg-primary/5 items-center justify-center p-8">
         <div className="max-w-md space-y-6">
           <h1 className="text-4xl font-bold tracking-tight">
@@ -93,6 +61,7 @@ const AuthPage = () => {
         </div>
       </div>
 
+      {/* Right Column - Auth UI */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left">
@@ -127,7 +96,7 @@ const AuthPage = () => {
               }
             }}
             providers={["google"]}
-            redirectTo="https://tehosjvonqxuiziqjlry.supabase.co/auth/v1/callback"
+            redirectTo={`${window.location.origin}/welcome/callback`}
             view="sign_in"
           />
         </div>

@@ -5,7 +5,6 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, subMonths, addMont
 import { HabitTrackerHeader } from "./HabitTrackerHeader";
 import { MonthNavigation } from "./MonthNavigation";
 import { CalendarGrid } from "./CalendarGrid";
-import { useNavigate } from "react-router-dom";
 
 interface HabitTrackerProps {
   onDateSelect?: (date: Date) => void;
@@ -13,7 +12,6 @@ interface HabitTrackerProps {
 
 export const HabitTracker = ({ onDateSelect }: HabitTrackerProps) => {
   const [currentDate, setCurrentDate] = React.useState(new Date());
-  const navigate = useNavigate();
   
   const { data: loggedDays } = useQuery({
     queryKey: ["habit-tracker", format(currentDate, "yyyy-MM")],
@@ -63,15 +61,6 @@ export const HabitTracker = ({ onDateSelect }: HabitTrackerProps) => {
     setCurrentDate(prev => addMonths(prev, 1));
   };
 
-  const handleDateClick = (date: Date) => {
-    if (onDateSelect) {
-      onDateSelect(date);
-    } else {
-      // If no onDateSelect prop is provided, navigate to food diary
-      navigate(`/food-diary?date=${format(date, 'yyyy-MM-dd')}`);
-    }
-  };
-
   const allDays = [
     ...getPreviousMonthDays(),
     ...eachDayOfInterval({
@@ -92,7 +81,7 @@ export const HabitTracker = ({ onDateSelect }: HabitTrackerProps) => {
         <CalendarGrid
           days={allDays}
           loggedDays={loggedDays || []}
-          onDateSelect={handleDateClick}
+          onDateSelect={onDateSelect}
         />
       </div>
     </div>
