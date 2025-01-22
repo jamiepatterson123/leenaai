@@ -1,10 +1,9 @@
 import React from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { NutritionCard } from "./NutritionCard";
-import { toast } from "sonner";
 import { format } from "date-fns";
-import { useEffect } from "react";
+import { NutritionCard } from "./NutritionCard";
+import { useFoodDiaryData } from "@/hooks/useFoodDiaryData";
+import { RealtimeUpdates } from "./diary/RealtimeUpdates";
+import { useDiaryActions } from "./diary/DiaryActions";
 
 interface Food {
   id: string;
@@ -26,157 +25,11 @@ interface FoodDiaryProps {
 }
 
 export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
-  const queryClient = useQueryClient();
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
+  const { foodEntries, weightEntry, isLoading } = useFoodDiaryData(selectedDate);
+  const { handleDelete, handleDeleteWeight, handleUpdateCategory } = useDiaryActions(formattedDate);
 
-  // Set up real-time listeners for food diary and weight history changes
-  useEffect(() => {
-    const foodDiaryChannel = supabase
-      .channel('diary_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'food_diary'
-        },
-        (payload) => {
-          console.log('Real-time update received:', payload);
-          queryClient.invalidateQueries({ queryKey: ['foodDiary'] });
-          queryClient.invalidateQueries({ queryKey: ['calorieHistory'] });
-          queryClient.invalidateQueries({ queryKey: ['macroHistory'] });
-          queryClient.invalidateQueries({ queryKey: ['mealDistribution'] });
-        }
-      )
-      .subscribe();
-
-    const weightChannel = supabase
-      .channel('weight_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'weight_history'
-        },
-        (payload) => {
-          console.log('Weight update received:', payload);
-          queryClient.invalidateQueries({ queryKey: ['weightHistory'] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(foodDiaryChannel);
-      supabase.removeChannel(weightChannel);
-    };
-  }, [queryClient]);
-
-  const { data: foodEntries, isLoading: isLoadingFood, error: foodError } = useQuery({
-    queryKey: ["foodDiary", formattedDate],
-    queryFn: async () => {
-      console.log("Fetching food entries for date:", formattedDate);
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log("Current user:", user?.id);
-      
-      if (!user) {
-        console.error("No authenticated user found");
-        toast.error("Please log in to view your food diary");
-        return [];
-      }
-
-      const { data, error } = await supabase
-        .from("food_diary")
-        .select("*")
-        .eq("date", formattedDate)
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching food entries:", error);
-        toast.error("Failed to load food diary");
-        throw error;
-      }
-
-      return data || [];
-    },
-  });
-
-  const { data: weightEntry, isLoading: isLoadingWeight } = useQuery({
-    queryKey: ["weightHistory", formattedDate],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      const { data, error } = await supabase
-        .from("weight_history")
-        .select("*")
-        .eq("recorded_at", formattedDate)
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error fetching weight entry:", error);
-        return null;
-      }
-
-      return data;
-    },
-  });
-
-  const handleDelete = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from("food_diary")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
-
-      toast.success("Food entry deleted");
-      queryClient.invalidateQueries({ queryKey: ["foodDiary", formattedDate] });
-    } catch (error) {
-      toast.error("Failed to delete food entry");
-      console.error("Error deleting food entry:", error);
-    }
-  };
-
-  const handleDeleteWeight = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from("weight_history")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
-
-      toast.success("Weight entry deleted");
-      queryClient.invalidateQueries({ queryKey: ["weightHistory", formattedDate] });
-    } catch (error) {
-      toast.error("Failed to delete weight entry");
-      console.error("Error deleting weight entry:", error);
-    }
-  };
-
-  const handleUpdateCategory = async (id: string, category: string) => {
-    try {
-      const { error } = await supabase
-        .from("food_diary")
-        .update({ category })
-        .eq("id", id);
-
-      if (error) throw error;
-
-      toast.success(`Moved to ${category}`);
-      queryClient.invalidateQueries({ queryKey: ["foodDiary", formattedDate] });
-    } catch (error) {
-      toast.error("Failed to update food category");
-      console.error("Error updating food category:", error);
-    }
-  };
-
-  if (isLoadingFood || isLoadingWeight) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-muted-foreground animate-pulse">
@@ -199,12 +52,11 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
     },
   })) || [];
 
-  // Add weight entry to foods array if it exists
   if (weightEntry) {
     foods.unshift({
       id: weightEntry.id,
       name: `Weight Entry: ${weightEntry.weight_kg} kg`,
-      weight_g: weightEntry.weight_kg * 1000, // Convert to grams for consistency
+      weight_g: weightEntry.weight_kg * 1000,
       category: "Uncategorized",
       nutrition: {
         calories: 0,
@@ -217,10 +69,9 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
     });
   }
 
-  console.log("Transformed foods data:", foods);
-
   return (
     <div className="w-full max-w-full overflow-x-hidden">
+      <RealtimeUpdates />
       <NutritionCard 
         foods={foods} 
         onDelete={handleDelete}
