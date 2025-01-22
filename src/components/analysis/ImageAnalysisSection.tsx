@@ -34,7 +34,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   selectedDate,
   onSuccess,
 }, ref) => {
-  // Define all hooks at the top level
   const [resetUpload, setResetUpload] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [analyzedFoods, setAnalyzedFoods] = useState([]);
@@ -56,6 +55,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   }, [analyzing, showVerification]);
 
   const handleImageSelect = async (image: File) => {
+    console.log("ImageAnalysisSection: handleImageSelect called");
     if (!image) {
       toast.error("No image selected");
       return;
@@ -120,21 +120,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     handleImageSelect
   }));
 
-  // Render loading state for mobile
-  if (analyzing && !showVerification && isMobile) {
-    return (
-      <div className="fixed inset-0 bg-white flex items-center justify-center z-[100]">
-        <div className="text-center space-y-6 px-4">
-          <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
-          <p className="text-2xl font-light text-gray-500 animate-fade-in">
-            {loadingMessages[currentMessageIndex]}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // Main render
   return (
     <div className={`space-y-8 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} data-image-analysis>
       <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
