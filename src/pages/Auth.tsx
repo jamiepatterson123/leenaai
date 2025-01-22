@@ -14,7 +14,6 @@ const AuthPage = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("Auth state changed:", event);
         if (event === 'SIGNED_IN' && session) {
           navigate("/");
         }
@@ -97,7 +96,7 @@ const AuthPage = () => {
               }
             }}
             providers={["google"]}
-            redirectTo={`${window.location.origin}/welcome`}
+            redirectTo={`${window.location.origin}/welcome/callback`}
             view="sign_in"
           />
         </div>
