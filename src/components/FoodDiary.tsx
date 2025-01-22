@@ -45,6 +45,8 @@ export const FoodDiary: React.FC<FoodDiaryProps> = ({ selectedDate }) => {
         .eq("recorded_at::date", formattedDate)
         .eq("user_id", user.id);
 
+      console.log("Weight entries:", weightEntries); // Debug log
+
       if (weightError) throw weightError;
       return weightEntries || [];
     },
@@ -66,6 +68,8 @@ export const FoodDiary: React.FC<FoodDiaryProps> = ({ selectedDate }) => {
     state: "weight_entry"
   }));
 
+  console.log("Weight as food entries:", weightAsFoodEntries); // Debug log
+
   // Transform all entries to match NutritionCard props format
   const transformedEntries = [...foodData, ...weightAsFoodEntries].map(entry => ({
     id: entry.id,
@@ -80,6 +84,8 @@ export const FoodDiary: React.FC<FoodDiaryProps> = ({ selectedDate }) => {
     category: entry.category || "uncategorized",
     created_at: entry.created_at
   }));
+
+  console.log("Transformed entries:", transformedEntries); // Debug log
 
   const handleDelete = async (id: string) => {
     try {
