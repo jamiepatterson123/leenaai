@@ -40,7 +40,7 @@ export const CalendarGrid = ({ days, loggedDays, onDateSelect }: CalendarGridPro
               key={date.toISOString()}
               onClick={() => handleDateClick(date)}
               className={`
-                aspect-square border flex items-center justify-center
+                aspect-square border flex items-center justify-center cursor-pointer
                 ${isLogged ? 'bg-primary text-primary-foreground border-primary/30' : 'border-border/50'}
                 ${(isPreviousMonth || isNextMonth) ? 'text-muted-foreground/50' : 'text-muted-foreground'}
                 ${isCurrentDay ? 'border-2 border-primary' : ''}
