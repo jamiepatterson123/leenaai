@@ -199,11 +199,11 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
     },
   })) || [];
 
-  // Add weight entry to Uncategorized category if it exists
+  // Add weight entry to foods array if it exists
   if (weightEntry) {
     foods.unshift({
       id: weightEntry.id,
-      name: "Weight Entry",
+      name: `Weight Entry: ${weightEntry.weight_kg} kg`,
       weight_g: weightEntry.weight_kg * 1000, // Convert to grams for consistency
       category: "Uncategorized",
       nutrition: {
