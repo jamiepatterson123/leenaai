@@ -37,14 +37,18 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
   };
 
   const handleCircleClick = () => {
-    fileInputRef.current?.click();
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && onFileSelect) {
       onFileSelect(file);
-      e.target.value = '';
+      if (e.target) {
+        e.target.value = '';
+      }
     }
   };
 
@@ -71,15 +75,15 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
                 <button 
                   onClick={handleCircleClick}
                   className="w-14 h-14 rounded-full border-2 border-[#9a9a9a] hover:bg-gray-50 transition-colors"
-                  aria-label="Upload photo"
+                  aria-label="Take food photo"
                 />
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
+                  capture="environment"
                   className="hidden"
                   onChange={handleFileChange}
-                  capture="environment"
                 />
               </div>
               
