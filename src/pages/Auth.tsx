@@ -14,6 +14,7 @@ const AuthPage = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log("Auth state changed:", event, session); // Debug log
         if (event === 'SIGNED_IN' && session) {
           navigate("/");
         }
@@ -31,6 +32,7 @@ const AuthPage = () => {
 
     // Check current session on mount
     supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log("Initial session check:", session, error); // Debug log
       if (session) {
         navigate("/");
       }
@@ -97,6 +99,10 @@ const AuthPage = () => {
             }}
             providers={["google"]}
             redirectTo={`${window.location.origin}/welcome/callback`}
+            onError={(error) => {
+              console.error("Auth error:", error); // Debug log
+              setError(error.message);
+            }}
             view="sign_in"
           />
         </div>
