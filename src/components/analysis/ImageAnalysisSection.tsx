@@ -19,13 +19,6 @@ interface ImageAnalysisSectionProps {
   onSuccess?: () => void;
 }
 
-const loadingMessages = [
-  "Counting calories...",
-  "Calculating carbs...",
-  "Calculating protein...",
-  "Calculating fats..."
-];
-
 export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>(({
   analyzing,
   setAnalyzing,
@@ -41,6 +34,13 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+
+  const loadingMessages = [
+    "Counting calories...",
+    "Calculating carbs...",
+    "Calculating protein...",
+    "Calculating fats..."
+  ];
 
   React.useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -89,6 +89,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       console.error("Error analyzing image:", error);
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
+    } finally {
       setAnalyzing(false);
     }
   };

@@ -49,15 +49,18 @@ export const Navigation = () => {
       // Wait for navigation and component mount
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Get the image analysis section ref
-      if (!imageAnalysisSectionRef.current) {
+      // Get the image analysis section ref from the Index page
+      const indexPage = document.querySelector('[data-image-analysis]');
+      if (!indexPage) {
         throw new Error('Image analysis section not found');
       }
 
-      await imageAnalysisSectionRef.current.handleImageSelect(file);
+      // Call the handleImageSelect function
+      await imageAnalysisSectionRef.current?.handleImageSelect(file);
     } catch (error) {
       console.error("Error handling image:", error);
       toast.error("Failed to analyze image");
+    } finally {
       setAnalyzing(false);
     }
   };
