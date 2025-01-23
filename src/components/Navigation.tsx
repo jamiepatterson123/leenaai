@@ -12,6 +12,7 @@ export const Navigation = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const selectedDate = new Date();
+  const imageAnalysisSectionRef = React.useRef<any>(null);
 
   // If there's no session or we're loading, don't render the navigation
   if (loading) return null;
@@ -45,20 +46,15 @@ export const Navigation = () => {
         navigate('/');
       }
 
-      // Find the image analysis section
-      const imageAnalysisSection = document.querySelector('[data-image-analysis]');
-      if (!imageAnalysisSection) {
+      // Wait for navigation and component mount
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Get the image analysis section ref
+      if (!imageAnalysisSectionRef.current) {
         throw new Error('Image analysis section not found');
       }
 
-      // Get the handleImageSelect function from the component
-      const handleImageSelect = (imageAnalysisSection as any).handleImageSelect;
-      if (!handleImageSelect) {
-        throw new Error('Image analysis function not found');
-      }
-
-      // Call the image analysis function
-      await handleImageSelect(file);
+      await imageAnalysisSectionRef.current.handleImageSelect(file);
     } catch (error) {
       console.error("Error handling image:", error);
       toast.error("Failed to analyze image");
