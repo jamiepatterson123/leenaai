@@ -50,7 +50,15 @@ const AuthPage = () => {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen relative">
+      {/* Toggle Button - Positioned absolutely at the top right */}
+      <Button
+        onClick={() => setView(view === "sign_in" ? "sign_up" : "sign_in")}
+        className="absolute top-4 right-4 z-10"
+      >
+        {view === "sign_in" ? "Sign Up" : "Sign In"}
+      </Button>
+
       {/* Left Column - Hero/Welcome Section */}
       <div className="hidden md:flex md:w-1/2 bg-primary/5 items-center justify-center p-8">
         <div className="max-w-md space-y-6">
@@ -67,18 +75,9 @@ const AuthPage = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">
-                {view === "sign_in" ? "Sign In" : "Sign Up"}
-              </h2>
-              <Button
-                variant="ghost"
-                onClick={() => setView(view === "sign_in" ? "sign_up" : "sign_in")}
-                className="text-sm"
-              >
-                {view === "sign_in" ? "Sign Up" : "Sign In"}
-              </Button>
-            </div>
+            <h2 className="text-2xl font-bold">
+              {view === "sign_in" ? "Sign In" : "Sign Up"}
+            </h2>
             <p className="text-muted-foreground">
               {view === "sign_in" 
                 ? "Sign in to your account to continue"
