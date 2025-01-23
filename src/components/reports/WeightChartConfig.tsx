@@ -10,6 +10,7 @@ import {
   TooltipProps,
 } from 'recharts';
 import { WeightTooltipContent } from './WeightTooltipContent';
+import { format, parseISO } from 'date-fns';
 
 interface WeightChartConfigProps {
   data: Array<{
@@ -30,13 +31,13 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
   const [activePoint, setActivePoint] = React.useState<number | null>(null);
 
   const handleClick = (event: any) => {
-    if (!isMobile || !event.activePayload?.[0]?.payload) return;
+    if (!event?.activePayload?.[0]?.payload) return;
     
     const index = data.findIndex(
       (item) => item.date === event.activePayload[0].payload.date
     );
     
-    setActivePoint(activePoint === index ? null : index);
+    setActivePoint(index);
   };
 
   const handleMouseLeave = () => {
@@ -50,15 +51,20 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
       <LineChart
         data={data}
         margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-        onClick={isMobile ? handleClick : undefined}
+        onClick={handleClick}
         onMouseLeave={handleMouseLeave}
       >
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
         <XAxis
           dataKey="date"
-          tickFormatter={(date) => {
-            const d = new Date(date);
-            return `${d.getDate()}. ${d.toLocaleString('default', { month: 'short' })}`;
+          tickFormatter={(dateStr) => {
+            try {
+              const date = parseISO(dateStr);
+              return format(date, 'MMM d');
+            } catch (error) {
+              console.error('Error formatting date:', dateStr, error);
+              return dateStr;
+            }
           }}
           stroke="#888888"
           fontSize={12}
@@ -72,7 +78,6 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           axisLine={false}
           unit={preferredUnits === 'metric' ? 'kg' : ' lbs'}
           domain={['dataMin - 10', 'dataMax + 10']}
-          ticks={[0, 25, 50, 75, 100]}
         />
         <Tooltip
           content={(props: TooltipProps<number, string>) => (
@@ -83,17 +88,22 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
               isMobile={isMobile}
             />
           )}
-          trigger={isMobile ? 'click' : 'hover'}
+          trigger="click"
+          wrapperStyle={{ zIndex: 1000, cursor: 'pointer' }}
         />
         <Line
           type="monotone"
           dataKey="weight"
           stroke="#2563eb"
           strokeWidth={1.5}
-          dot={{ r: 3, strokeWidth: 1, fill: "#fff" }}
+          dot={{ r: 3, strokeWidth: 1, fill: "#fff", cursor: 'pointer' }}
           activeDot={{
             r: 4,
-            onClick: handleClick,
+            cursor: 'pointer',
+            onClick: (e) => {
+              e.stopPropagation();
+              handleClick(e);
+            },
           }}
         />
       </LineChart>
