@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Book, User, LineChart } from "lucide-react";
+import { Home, Book, User, LineChart, Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthButtons } from "./AuthButtons";
@@ -8,9 +8,10 @@ import { AuthButtons } from "./AuthButtons";
 interface MobileNavProps {
   onAddClick: () => void;
   onFileSelect?: (file: File) => void;
+  analyzing?: boolean;
 }
 
-export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
+export const MobileNav = ({ onAddClick, onFileSelect, analyzing }: MobileNavProps) => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -74,9 +75,14 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
               <div className="flex flex-col items-center">
                 <button 
                   onClick={handleCircleClick}
-                  className="w-14 h-14 rounded-full border-2 border-[#9a9a9a] hover:bg-gray-50 transition-colors"
+                  className="w-14 h-14 rounded-full border-2 border-[#9a9a9a] hover:bg-gray-50 transition-colors relative"
                   aria-label="Take food photo"
-                />
+                  disabled={analyzing}
+                >
+                  {analyzing && (
+                    <Loader2 className="h-6 w-6 animate-spin absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                  )}
+                </button>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -84,6 +90,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
                   capture="environment"
                   className="hidden"
                   onChange={handleFileChange}
+                  disabled={analyzing}
                 />
               </div>
               

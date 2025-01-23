@@ -40,38 +40,9 @@ export const Navigation = () => {
     setAnalyzing(true);
 
     try {
-      // Always navigate to home first
+      // Navigate to home if not already there
       if (window.location.pathname !== '/') {
         navigate('/');
-        // Wait for navigation to complete
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-
-      // Additional wait to ensure component mount
-      await new Promise(resolve => setTimeout(resolve, 200));
-
-      const maxAttempts = 10; // Increased attempts
-      let attempts = 0;
-      let imageAnalysisSection;
-
-      while (attempts < maxAttempts) {
-        imageAnalysisSection = document.querySelector('[data-image-analysis]');
-        console.log(`Attempt ${attempts + 1}: Looking for image analysis section`);
-        
-        if (imageAnalysisSection && 'handleImageSelect' in imageAnalysisSection) {
-          console.log("Found image analysis section, proceeding with analysis");
-          break;
-        }
-        await new Promise(resolve => setTimeout(resolve, 200));
-        attempts++;
-      }
-
-      if (imageAnalysisSection && 'handleImageSelect' in imageAnalysisSection) {
-        await (imageAnalysisSection as any).handleImageSelect(file);
-      } else {
-        console.error("Image analysis section not found after multiple attempts");
-        toast.error("Failed to analyze image. Please try again.");
-        setAnalyzing(false);
       }
     } catch (error) {
       console.error("Error handling image:", error);
@@ -92,6 +63,7 @@ export const Navigation = () => {
         <MobileNav 
           onAddClick={() => {}} 
           onFileSelect={handleFileSelect}
+          analyzing={analyzing}
         />
       </div>
     </div>
