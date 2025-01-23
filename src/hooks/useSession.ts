@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import type { Session } from "@supabase/supabase-js";
+import type { Session, AuthChangeEvent } from "@supabase/supabase-js";
 
 export const useSession = () => {
   const [session, setSession] = useState<Session | null>(null);
@@ -27,7 +27,7 @@ export const useSession = () => {
         }
 
         // Set up auth state change listener
-        const { data: authSubscription } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+        const { data: authSubscription } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, newSession) => {
           console.log("Auth state changed:", event);
 
           if (!mounted) return;
