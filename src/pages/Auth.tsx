@@ -13,9 +13,10 @@ const Auth = () => {
   const [view, setView] = useState<"sign_in" | "sign_up">("sign_in");
 
   useEffect(() => {
+    console.log("Auth component mounted");
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("Auth state changed:", event);
+        console.log("Auth state changed:", event, "Session:", session);
         if (event === 'SIGNED_IN' && session) {
           navigate("/");
         }
@@ -33,6 +34,7 @@ const Auth = () => {
 
     // Check current session on mount
     supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log("Initial session check:", session, "Error:", error);
       if (session) {
         navigate("/");
       }
@@ -51,7 +53,6 @@ const Auth = () => {
 
   return (
     <div className="flex min-h-screen relative">
-      {/* Toggle Button - Positioned absolutely at the top right */}
       <Button
         onClick={() => setView(view === "sign_in" ? "sign_up" : "sign_in")}
         className="absolute top-4 right-4 z-10 bg-white text-primary border-primary hover:bg-primary/5"
@@ -60,7 +61,6 @@ const Auth = () => {
         {view === "sign_in" ? "Sign Up" : "Sign In"}
       </Button>
 
-      {/* Left Column - Hero/Welcome Section */}
       <div className="hidden md:flex md:w-1/2 bg-primary/5 items-center justify-center p-8">
         <div className="max-w-md space-y-6">
           <h1 className="text-4xl font-bold tracking-tight">
@@ -72,7 +72,6 @@ const Auth = () => {
         </div>
       </div>
 
-      {/* Right Column - Auth UI */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left space-y-4">
