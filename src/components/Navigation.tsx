@@ -44,6 +44,21 @@ export const Navigation = () => {
       if (window.location.pathname !== '/') {
         navigate('/');
       }
+
+      // Find the image analysis section
+      const imageAnalysisSection = document.querySelector('[data-image-analysis]');
+      if (!imageAnalysisSection) {
+        throw new Error('Image analysis section not found');
+      }
+
+      // Get the handleImageSelect function from the component
+      const handleImageSelect = (imageAnalysisSection as any).handleImageSelect;
+      if (!handleImageSelect) {
+        throw new Error('Image analysis function not found');
+      }
+
+      // Call the image analysis function
+      await handleImageSelect(file);
     } catch (error) {
       console.error("Error handling image:", error);
       toast.error("Failed to analyze image");
