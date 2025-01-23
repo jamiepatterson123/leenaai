@@ -9,30 +9,26 @@ export const useSession = () => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    // Initialize auth state
+    let subscription: { unsubscribe: () => void } | null = null;
+
     const initializeAuth = async () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         setSession(currentSession);
-        setLoading(false);
-
-        // Set up auth state change subscription
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+        
+        const { data: authSubscription } = supabase.auth.onAuthStateChange(async (event, newSession) => {
           console.log("Auth state changed:", event);
           
           if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
             setSession(newSession);
-          }
-
-          if (!newSession && event === 'INITIAL_SESSION') {
+          } else if (event === 'SIGNED_OUT' || (event === 'INITIAL_SESSION' && !newSession)) {
             queryClient.clear();
             setSession(null);
           }
         });
 
-        return () => {
-          subscription.unsubscribe();
-        };
+        subscription = authSubscription.subscription;
+        setLoading(false);
       } catch (error) {
         console.error("Auth initialization error:", error);
         await handleSessionError();
@@ -40,7 +36,11 @@ export const useSession = () => {
     };
 
     initializeAuth();
-  }, [queryClient]); // Add queryClient to dependencies
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, [queryClient]);
 
   const handleSessionError = async () => {
     await supabase.auth.signOut();
