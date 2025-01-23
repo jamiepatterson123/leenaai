@@ -11,7 +11,6 @@ export const Navigation = () => {
   const { session, loading } = useSession();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const selectedDate = new Date();
   const imageAnalysisSectionRef = React.useRef<any>(null);
 
   // If there's no session or we're loading, don't render the navigation
@@ -56,7 +55,11 @@ export const Navigation = () => {
       }
 
       // Call the handleImageSelect function
-      await imageAnalysisSectionRef.current?.handleImageSelect(file);
+      if (imageAnalysisSectionRef.current?.handleImageSelect) {
+        await imageAnalysisSectionRef.current.handleImageSelect(file);
+      } else {
+        throw new Error('Image analysis function not found');
+      }
     } catch (error) {
       console.error("Error handling image:", error);
       toast.error("Failed to analyze image");
