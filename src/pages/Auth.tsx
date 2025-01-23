@@ -54,7 +54,8 @@ const AuthPage = () => {
       {/* Toggle Button - Positioned absolutely at the top right */}
       <Button
         onClick={() => setView(view === "sign_in" ? "sign_up" : "sign_in")}
-        className="absolute top-4 right-4 z-10"
+        className="absolute top-4 right-4 z-10 bg-white text-primary border-primary hover:bg-primary/5"
+        variant="outline"
       >
         {view === "sign_in" ? "Sign Up" : "Sign In"}
       </Button>
