@@ -1,13 +1,12 @@
-import { Auth } from "@supabase/auth-ui-react";
+import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import type { AuthError } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 
-const AuthPage = () => {
+const Auth = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -93,7 +92,7 @@ const AuthPage = () => {
             </Alert>
           )}
 
-          <Auth
+          <SupabaseAuth
             supabaseClient={supabase}
             appearance={{ 
               theme: ThemeSupa,
@@ -114,10 +113,6 @@ const AuthPage = () => {
             providers={["google"]}
             redirectTo={`${window.location.origin}/auth/callback`}
             view={view}
-            onError={(error) => {
-              console.error("Auth error:", error);
-              setError(error.message);
-            }}
           />
         </div>
       </div>
@@ -125,4 +120,4 @@ const AuthPage = () => {
   );
 };
 
-export default AuthPage;
+export default Auth;
