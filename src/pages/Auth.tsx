@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { AuthError } from "@supabase/supabase-js";
+import { Button } from "@/components/ui/button";
 
 const AuthPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<"sign_in" | "sign_up">("sign_in");
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -64,10 +66,23 @@ const AuthPage = () => {
       {/* Right Column - Auth UI */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
-          <div className="text-center md:text-left">
-            <h2 className="text-2xl font-bold">Sign In</h2>
-            <p className="text-muted-foreground mt-2">
-              Get started by signing in to your account
+          <div className="text-center md:text-left space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">
+                {view === "sign_in" ? "Sign In" : "Sign Up"}
+              </h2>
+              <Button
+                variant="ghost"
+                onClick={() => setView(view === "sign_in" ? "sign_up" : "sign_in")}
+                className="text-sm"
+              >
+                {view === "sign_in" ? "Sign Up" : "Sign In"}
+              </Button>
+            </div>
+            <p className="text-muted-foreground">
+              {view === "sign_in" 
+                ? "Sign in to your account to continue"
+                : "Create an account to get started"}
             </p>
           </div>
           
@@ -97,7 +112,7 @@ const AuthPage = () => {
             }}
             providers={["google"]}
             redirectTo={`${window.location.origin}/welcome/callback`}
-            view="sign_in"
+            view={view}
           />
         </div>
       </div>
