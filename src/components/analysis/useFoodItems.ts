@@ -28,6 +28,7 @@ export const useFoodItems = (initialFoods: FoodItem[]) => {
     setUpdating(index);
     
     try {
+      // Fetch the OpenAI API key from Supabase secrets
       const { data: secrets, error: secretError } = await supabase
         .from('secrets')
         .select('value')
@@ -114,11 +115,11 @@ export const useFoodItems = (initialFoods: FoodItem[]) => {
   };
 
   const handleWeightChange = (index: number, newWeight: string) => {
-    const weight = newWeight === '' ? 0 : parseFloat(newWeight);
+    const weight = parseFloat(newWeight);
     if (!isNaN(weight) && weight >= 0) {
       const originalFood = editedFoods[index];
       const originalWeight = originalFood.weight_g;
-      const ratio = originalWeight === 0 ? 0 : weight / originalWeight;
+      const ratio = weight / originalWeight;
       
       setEditedFoods((prev) =>
         prev.map((food, i) =>

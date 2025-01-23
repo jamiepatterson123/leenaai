@@ -9,7 +9,7 @@ interface FoodItemFormProps {
   weight: number;
   index: number;
   isUpdating: boolean;
-  nutrition?: {
+  nutrition: {
     calories: number;
     protein: number;
     carbs: number;
@@ -26,12 +26,7 @@ export const FoodItemForm = ({
   weight,
   index,
   isUpdating,
-  nutrition = {
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0
-  },
+  nutrition,
   onNameChange,
   onNameBlur,
   onWeightChange,
@@ -57,7 +52,7 @@ export const FoodItemForm = ({
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
-            value={weight || ''}
+            value={weight}
             onChange={(e) => {
               const value = e.target.value.replace(/[^0-9]/g, '');
               onWeightChange(index, value);
@@ -75,10 +70,10 @@ export const FoodItemForm = ({
             </div>
           ) : (
             <>
-              Calories: {Math.round(nutrition?.calories || 0)} kcal | 
-              Protein: {(nutrition?.protein || 0).toFixed(1)}g | 
-              Carbs: {(nutrition?.carbs || 0).toFixed(1)}g | 
-              Fat: {(nutrition?.fat || 0).toFixed(1)}g
+              Calories: {Math.round(nutrition.calories)} kcal | 
+              Protein: {nutrition.protein.toFixed(1)}g | 
+              Carbs: {nutrition.carbs.toFixed(1)}g | 
+              Fat: {nutrition.fat.toFixed(1)}g
             </>
           )}
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useImperativeHandle } from "react";
+import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "sonner";
 import { analyzeImage } from "./ImageAnalyzer";
@@ -34,7 +34,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   selectedDate,
   onSuccess,
 }, ref) => {
-  // Define all hooks at the top level
   const [resetUpload, setResetUpload] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [analyzedFoods, setAnalyzedFoods] = useState([]);
@@ -42,8 +41,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const componentRef = React.useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let interval: NodeJS.Timeout;
     if (analyzing && !showVerification) {
       interval = setInterval(() => {
@@ -61,6 +61,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       return;
     }
 
+    console.log("handleImageSelect called with image:", image);
+    
     if (analyzing) {
       toast.error("Please wait for the current analysis to complete");
       return;
@@ -89,6 +91,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       console.error("Error analyzing image:", error);
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
+    } finally {
       setAnalyzing(false);
     }
   };
@@ -120,7 +123,12 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     handleImageSelect
   }));
 
-  // Render loading state for mobile
+  React.useEffect(() => {
+    if (componentRef.current) {
+      (componentRef.current as any).handleImageSelect = handleImageSelect;
+    }
+  }, []);
+
   if (analyzing && !showVerification && isMobile) {
     return (
       <div className="fixed inset-0 bg-white flex items-center justify-center z-[100]">
@@ -134,9 +142,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     );
   }
 
-  // Main render
   return (
-    <div className={`space-y-8 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} data-image-analysis>
+    <div className={`space-y-8 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
       <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
       {analyzing && !showVerification && !isMobile && (
         <p className="text-center text-gray-500 animate-fade-in font-light">
