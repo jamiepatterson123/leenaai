@@ -39,16 +39,16 @@ export const Navigation = () => {
 
     setAnalyzing(true);
 
-    try {
-      // Navigate to home if not already there
-      if (window.location.pathname !== '/') {
-        navigate('/');
+    setTimeout(() => {
+      const imageAnalysisSection = document.querySelector('[data-image-analysis]');
+      if (imageAnalysisSection && 'handleImageSelect' in imageAnalysisSection) {
+        (imageAnalysisSection as any).handleImageSelect(file);
+      } else {
+        console.error("Image analysis section not found");
+        toast.error("Failed to analyze image");
+        setAnalyzing(false);
       }
-    } catch (error) {
-      console.error("Error handling image:", error);
-      toast.error("Failed to analyze image");
-      setAnalyzing(false);
-    }
+    }, 100);
   };
 
   return (
@@ -63,7 +63,6 @@ export const Navigation = () => {
         <MobileNav 
           onAddClick={() => {}} 
           onFileSelect={handleFileSelect}
-          analyzing={analyzing}
         />
       </div>
     </div>

@@ -43,25 +43,23 @@ export const useSession = () => {
     initSession();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       console.log("Auth state changed:", event);
       
       if (!mounted) return;
 
       if (event === 'SIGNED_IN') {
         setSession(newSession);
-        setLoading(false);
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
         queryClient.clear();
-        setLoading(false);
       } else if (event === 'TOKEN_REFRESHED') {
         setSession(newSession);
-        setLoading(false);
       } else if (event === 'USER_UPDATED') {
         setSession(newSession);
-        setLoading(false);
       }
+
+      setLoading(false);
     });
 
     // Cleanup

@@ -7,8 +7,7 @@ export const callOpenAIVision = async (openAIApiKey: string, image: string) => {
       'Authorization': `Bearer ${openAIApiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4-vision-preview",
-      max_tokens: 1000,
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -44,9 +43,7 @@ export const callOpenAIVision = async (openAIApiKey: string, image: string) => {
     throw new Error(`Vision API request failed: ${errorData.error?.message || 'Unknown error'}`);
   }
 
-  const result = await response.json();
-  console.log("OpenAI API Response:", result);
-  return result;
+  return response.json();
 }
 
 export const getNutritionInfo = async (openAIApiKey: string, foodList: any[]) => {
