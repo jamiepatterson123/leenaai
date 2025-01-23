@@ -93,6 +93,29 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
   };
 
+  const handleConfirmFoods = async (foods: any[]) => {
+    try {
+      await saveFoodEntries(foods, selectedDate);
+      await queryClient.invalidateQueries({ 
+        queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
+      });
+      setResetUpload(true);
+      setShowVerification(false);
+      setAnalyzing(false);
+      setNutritionData(null);
+      toast.success("Food added to diary!");
+      
+      if (isMobile) {
+        navigate("/food-diary");
+      } else {
+        onSuccess?.();
+      }
+    } catch (error) {
+      console.error("Error saving food entries:", error);
+      toast.error("Failed to save food entries");
+    }
+  };
+
   // Expose handleImageSelect through ref
   useImperativeHandle(ref, () => ({
     handleImageSelect
