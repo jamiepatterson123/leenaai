@@ -37,27 +37,32 @@ export const Navigation = () => {
       return;
     }
 
-    // If we're not on the home page, navigate there first
-    if (window.location.pathname !== '/') {
-      navigate('/');
-      // Wait for navigation to complete
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-
     setAnalyzing(true);
 
     try {
-      // Find the image analysis section in the DOM
-      const maxAttempts = 5;
+      // Always navigate to home first
+      if (window.location.pathname !== '/') {
+        navigate('/');
+        // Wait for navigation to complete
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      // Additional wait to ensure component mount
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      const maxAttempts = 10; // Increased attempts
       let attempts = 0;
       let imageAnalysisSection;
 
       while (attempts < maxAttempts) {
         imageAnalysisSection = document.querySelector('[data-image-analysis]');
+        console.log(`Attempt ${attempts + 1}: Looking for image analysis section`);
+        
         if (imageAnalysisSection && 'handleImageSelect' in imageAnalysisSection) {
+          console.log("Found image analysis section, proceeding with analysis");
           break;
         }
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 200));
         attempts++;
       }
 
