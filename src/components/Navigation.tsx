@@ -32,8 +32,8 @@ export const Navigation = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // If there's no session or we're on the welcome page, don't render the navigation
-  if (!session || window.location.pathname === '/welcome') return null;
+  // If there's no session or we're on the auth page, don't render the navigation
+  if (!session || window.location.pathname === '/auth') return null;
 
   const handleShare = () => {
     // Implement share functionality

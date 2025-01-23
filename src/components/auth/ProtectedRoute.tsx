@@ -14,7 +14,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!session) {
-    return <Navigate to="/welcome" replace />;
+    return <Navigate to="/auth" replace />;
   }
 
   return <>{children}</>;

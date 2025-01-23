@@ -25,7 +25,7 @@ function App() {
         <div className="min-h-screen pb-10">
           <Navigation />
           <Routes>
-            <Route path="/welcome" element={<Auth />} />
+            <Route path="/auth" element={<Auth />} />
             <Route
               path="/"
               element={
