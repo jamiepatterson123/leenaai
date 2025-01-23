@@ -28,7 +28,12 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    await onDelete(data.date);
+    
+    try {
+      await onDelete(data.date);
+    } catch (error) {
+      console.error('Error in handleDelete:', error);
+    }
   };
 
   return (
@@ -42,8 +47,7 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
           variant="ghost"
           size="icon"
           onClick={handleDelete}
-          className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
-          type="button"
+          className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
         >
           <Trash2 className="h-4 w-4" />
         </Button>

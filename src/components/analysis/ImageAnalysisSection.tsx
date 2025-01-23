@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useImperativeHandle } from "react";
+import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "sonner";
 import { analyzeImage } from "./ImageAnalyzer";
@@ -19,6 +19,13 @@ interface ImageAnalysisSectionProps {
   onSuccess?: () => void;
 }
 
+const loadingMessages = [
+  "Counting calories...",
+  "Calculating carbs...",
+  "Calculating protein...",
+  "Calculating fats..."
+];
+
 export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>(({
   analyzing,
   setAnalyzing,
@@ -34,15 +41,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const componentRef = React.useRef<HTMLDivElement>(null);
 
-  const loadingMessages = [
-    "Counting calories...",
-    "Calculating carbs...",
-    "Calculating protein...",
-    "Calculating fats..."
-  ];
-
-  React.useEffect(() => {
+  useEffect(() => {
     let interval: NodeJS.Timeout;
     if (analyzing && !showVerification) {
       interval = setInterval(() => {
@@ -55,12 +56,13 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   }, [analyzing, showVerification]);
 
   const handleImageSelect = async (image: File) => {
-    console.log("ImageAnalysisSection: handleImageSelect called with image");
     if (!image) {
       toast.error("No image selected");
       return;
     }
 
+    console.log("handleImageSelect called with image:", image);
+    
     if (analyzing) {
       toast.error("Please wait for the current analysis to complete");
       return;
@@ -117,28 +119,36 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
   };
 
-  // Expose handleImageSelect through ref
   useImperativeHandle(ref, () => ({
     handleImageSelect
   }));
 
+  React.useEffect(() => {
+    if (componentRef.current) {
+      (componentRef.current as any).handleImageSelect = handleImageSelect;
+    }
+  }, []);
+
+  if (analyzing && !showVerification && isMobile) {
+    return (
+      <div className="fixed inset-0 bg-white flex items-center justify-center z-[100]">
+        <div className="text-center space-y-6 px-4">
+          <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
+          <p className="text-2xl font-light text-gray-500 animate-fade-in">
+            {loadingMessages[currentMessageIndex]}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8" data-image-analysis>
+    <div className={`space-y-8 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
       <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
       {analyzing && !showVerification && !isMobile && (
         <p className="text-center text-gray-500 animate-fade-in font-light">
           {loadingMessages[currentMessageIndex]}
         </p>
-      )}
-      {analyzing && !showVerification && isMobile && (
-        <div className="fixed inset-0 bg-white flex items-center justify-center z-[100]">
-          <div className="text-center space-y-6 px-4">
-            <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
-            <p className="text-2xl font-light text-gray-500 animate-fade-in">
-              {loadingMessages[currentMessageIndex]}
-            </p>
-          </div>
-        </div>
       )}
       <FoodVerificationDialog
         isOpen={showVerification}

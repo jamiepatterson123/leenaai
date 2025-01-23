@@ -29,12 +29,13 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .select("preferred_units")
         .eq("user_id", user.id)
-        .maybeSingle();
+        .single();
 
+      if (error) throw error;
       return data;
     },
   });
@@ -53,13 +54,8 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
         .eq("user_id", user.id)
         .eq("recorded_at", date);
 
-      if (error) {
-        console.error("Error deleting weight entry:", error);
-        toast.error("Failed to delete weight entry");
-        return;
-      }
+      if (error) throw error;
 
-      // Invalidate and refetch weight history data
       await queryClient.invalidateQueries({ queryKey: ["weightHistory"] });
       toast.success("Weight entry deleted successfully");
     } catch (error) {

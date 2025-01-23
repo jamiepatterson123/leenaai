@@ -1,5 +1,6 @@
 import React from "react";
 import { format, isSameDay, isToday } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 interface CalendarGridProps {
   days: {
@@ -8,14 +9,13 @@ interface CalendarGridProps {
     isNextMonth?: boolean;
   }[];
   loggedDays: string[];
-  onDateSelect?: (date: Date) => void;
 }
 
-export const CalendarGrid = ({ days, loggedDays, onDateSelect }: CalendarGridProps) => {
+export const CalendarGrid = ({ days, loggedDays }: CalendarGridProps) => {
+  const navigate = useNavigate();
+
   const handleDateClick = (date: Date) => {
-    if (onDateSelect) {
-      onDateSelect(date);
-    }
+    navigate(`/food-diary?date=${format(date, "yyyy-MM-dd")}`);
   };
 
   return (
