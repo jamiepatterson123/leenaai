@@ -33,12 +33,6 @@ const Auth = () => {
       }
     );
 
-    // Check if we're on the callback route
-    if (window.location.pathname === '/auth/callback') {
-      console.log("On callback route, handling auth callback");
-      handleAuthCallback();
-    }
-
     // Check current session on mount
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       console.log("Initial session check:", session, "Error:", error);
@@ -53,20 +47,6 @@ const Auth = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
-
-  const handleAuthCallback = async () => {
-    try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) throw error;
-      if (session) {
-        console.log("Session found in callback, redirecting to home");
-        navigate("/");
-      }
-    } catch (error) {
-      console.error("Error in auth callback:", error);
-      setError("Authentication failed. Please try again.");
-    }
-  };
 
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
@@ -131,7 +111,6 @@ const Auth = () => {
               }
             }}
             providers={["google"]}
-            redirectTo={`${window.location.origin}/auth/callback`}
             view={view}
           />
         </div>
