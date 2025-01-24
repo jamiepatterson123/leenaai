@@ -18,6 +18,7 @@ const Auth = () => {
       async (event, session) => {
         console.log("Auth state changed:", event, "Session:", session);
         if (event === 'SIGNED_IN' && session) {
+          console.log("User signed in, redirecting to home");
           navigate("/");
         }
         if (event === 'SIGNED_OUT') {
@@ -31,6 +32,12 @@ const Auth = () => {
         }
       }
     );
+
+    // Check if we're on the callback route
+    if (window.location.pathname === '/auth/callback') {
+      console.log("On callback route, handling auth callback");
+      handleAuthCallback();
+    }
 
     // Check current session on mount
     supabase.auth.getSession().then(({ data: { session }, error }) => {
@@ -46,6 +53,20 @@ const Auth = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const handleAuthCallback = async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      if (session) {
+        console.log("Session found in callback, redirecting to home");
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error in auth callback:", error);
+      setError("Authentication failed. Please try again.");
+    }
+  };
 
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
