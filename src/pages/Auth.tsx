@@ -111,6 +111,7 @@ const Auth = () => {
               }
             }}
             providers={["google"]}
+            redirectTo={`${window.location.origin}/auth/callback`}
             view={view}
           />
         </div>
