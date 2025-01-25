@@ -39,12 +39,9 @@ export function Pricing({
   const switchRef = useRef<HTMLButtonElement>(null);
 
   const formatPrice = (price: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(Number(price));
+    const numPrice = parseFloat(price);
+    if (numPrice === 0) return "$0";
+    return `$${price}`;
   };
 
   const handleToggle = (checked: boolean) => {
