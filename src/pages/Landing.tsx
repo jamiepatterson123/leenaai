@@ -165,7 +165,7 @@ const Landing = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       <Header1 />
       <div className="pt-20">
         <Hero />
