@@ -1,4 +1,5 @@
 import { Hero } from "@/components/ui/animated-hero";
+import { ScrollDemo } from "@/components/ui/scroll-demo";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
@@ -20,6 +21,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-background">
       <Hero />
+      <ScrollDemo />
     </div>
   );
 };
