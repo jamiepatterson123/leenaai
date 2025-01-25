@@ -4,7 +4,6 @@ import { Home, Book, User, LineChart } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthButtons } from "./AuthButtons";
-import { GradientTracing } from "@/components/ui/gradient-tracing";
 
 interface MobileNavProps {
   onAddClick: () => void;
@@ -68,22 +67,12 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
                 <Book className="h-6 w-6" />
               </Link>
               
-              <div className="flex flex-col items-center relative">
+              <div className="flex flex-col items-center">
                 <button 
                   onClick={handleCircleClick}
-                  className="w-14 h-14 rounded-full border-2 border-[#9a9a9a] hover:bg-gray-50 transition-colors relative"
+                  className="w-14 h-14 rounded-full border-2 border-[#9a9a9a] hover:bg-gray-50 transition-colors"
                   aria-label="Upload photo"
-                >
-                  <div className="absolute inset-0">
-                    <GradientTracing
-                      width={56}
-                      height={56}
-                      path="M28,28 m0,-26 a26,26 0 1,1 -0.1,0 z"
-                      gradientColors={["#7B68EE", "#7B68EE", "#3498DB"]}
-                      strokeWidth={2}
-                    />
-                  </div>
-                </button>
+                />
                 <input
                   ref={fileInputRef}
                   type="file"
