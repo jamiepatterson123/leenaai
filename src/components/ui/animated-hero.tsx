@@ -8,7 +8,7 @@ function Hero() {
   const navigate = useNavigate();
   const [titleNumber, setTitleNumber] = useState(0);
   const titles = useMemo(
-    () => ["effortless", "accurate", "intelligent", "instant", "smart"],
+    () => ["effortlessly", "accurately", "intelligently"],
     []
   );
 
