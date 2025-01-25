@@ -1,8 +1,8 @@
-import { Hero } from "@/components/ui/animated-hero";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
 import { Pricing } from "@/components/blocks/pricing";
+import { Header1 } from "@/components/ui/header";
 
 const demoPlans = [
   {
@@ -79,13 +79,16 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Hero />
-      <Pricing 
-        plans={demoPlans}
-        title="Choose Your Nutrition Journey"
-        description="Start your path to better health with a plan that fits your needs.
+      <Header1 />
+      <div className="pt-20">
+        <Hero />
+        <Pricing 
+          plans={demoPlans}
+          title="Choose Your Nutrition Journey"
+          description="Start your path to better health with a plan that fits your needs.
 All plans include core tracking features and regular updates."
-      />
+        />
+      </div>
     </div>
   );
 };
