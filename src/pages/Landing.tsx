@@ -18,6 +18,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
+import { BrowserRouter as Router } from "react-router-dom";
 
 const faqItems = [
   {
@@ -164,22 +165,24 @@ const Landing = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header1 />
-      <div className="pt-20">
-        <Hero />
-        <div className="py-20">
-          <Timeline data={howToUseData} />
-        </div>
-        <Pricing 
-          plans={demoPlans}
-          title="Choose Your Nutrition Journey"
-          description="Start your path to better health with a plan that fits your needs.
+    <Router>
+      <div className="min-h-screen bg-background">
+        <Header1 />
+        <div className="pt-20">
+          <Hero />
+          <div className="py-20">
+            <Timeline data={howToUseData} />
+          </div>
+          <Pricing 
+            plans={demoPlans}
+            title="Choose Your Nutrition Journey"
+            description="Start your path to better health with a plan that fits your needs.
 All plans include core tracking features and regular updates."
-        />
-        <FAQ />
+          />
+          <FAQ />
+        </div>
       </div>
-    </div>
+    </Router>
   );
 };
 
