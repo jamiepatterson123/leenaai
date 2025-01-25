@@ -7,7 +7,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Check, Star } from "lucide-react";
-import Link from "next/link";
+import { Link } from "react-router-dom"; // Changed from next/link to react-router-dom
 import { useState, useRef } from "react";
 import confetti from "canvas-confetti";
 
@@ -178,7 +178,7 @@ export function Pricing({
               <hr className="w-full my-4" />
 
               <Link
-                href={plan.href}
+                to={plan.href} // Changed from href to to
                 className={cn(
                   buttonVariants({
                     variant: "outline",
