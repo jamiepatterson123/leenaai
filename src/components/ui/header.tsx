@@ -10,7 +10,7 @@ function Header1() {
                     Leena.ai
                 </Link>
                 <Link to="/auth">
-                    <Button variant="outline">Sign in</Button>
+                    <Button variant="outline">Sign up</Button>
                 </Link>
             </div>
         </header>
