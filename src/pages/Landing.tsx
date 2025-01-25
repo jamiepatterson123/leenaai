@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
 import { Pricing } from "@/components/blocks/pricing";
 import { Header1 } from "@/components/ui/header";
+import { Hero } from "@/components/ui/animated-hero";
 
 const demoPlans = [
   {
