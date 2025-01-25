@@ -38,13 +38,24 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
       ref={containerRef}
     >
       <div className="max-w-7xl mx-auto py-20 px-4 md:px-8 lg:px-10">
-        <h2 className="text-lg md:text-4xl mb-4 text-black dark:text-white max-w-4xl">
-          Choose Your Nutrition Journey
-        </h2>
-        <p className="text-neutral-700 dark:text-neutral-300 text-sm md:text-base max-w-sm">
-          Start your path to better health with a plan that fits your needs.
-          All plans include core tracking features and regular updates.
-        </p>
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h2 className="text-lg md:text-4xl mb-4 text-black dark:text-white max-w-4xl">
+              Choose Your Nutrition Journey
+            </h2>
+            <p className="text-neutral-700 dark:text-neutral-300 text-sm md:text-base max-w-sm">
+              Start your path to better health with a plan that fits your needs.
+              All plans include core tracking features and regular updates.
+            </p>
+          </div>
+          <div className="hidden md:block">
+            <img
+              src="https://images.unsplash.com/photo-1517022812141-23620dba5c23"
+              alt="Nutrition Journey"
+              className="rounded-lg object-cover w-full h-[300px]"
+            />
+          </div>
+        </div>
       </div>
 
       <div ref={ref} className="relative max-w-7xl mx-auto pb-20">
