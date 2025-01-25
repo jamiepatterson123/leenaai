@@ -6,6 +6,7 @@ import { Header1 } from "@/components/ui/header";
 import { Hero } from "@/components/ui/animated-hero";
 import { Timeline } from "@/components/ui/timeline";
 import { Camera, Utensils, LineChart } from "lucide-react";
+import { Footerdemo } from "@/components/ui/footer-section";
 import {
   Accordion,
   AccordionContent,
@@ -179,6 +180,7 @@ All plans include core tracking features and regular updates."
         />
         <FAQ />
       </div>
+      <Footerdemo />
     </div>
   );
 };
