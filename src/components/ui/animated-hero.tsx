@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { MoveRight, PhoneCall } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { RainbowButton } from "@/components/ui/rainbow-button";
 import { useNavigate } from "react-router-dom";
 
 function Hero() {
@@ -76,12 +75,13 @@ function Hero() {
             >
               Learn More <PhoneCall className="w-4 h-4" />
             </Button>
-            <RainbowButton
+            <Button 
+              size="lg" 
+              className="gap-4"
               onClick={() => navigate("/auth")}
-              className="flex items-center gap-2 text-green-500"
             >
               Get Started <MoveRight className="w-4 h-4" />
-            </RainbowButton>
+            </Button>
           </div>
         </div>
       </div>
