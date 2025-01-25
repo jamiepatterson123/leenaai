@@ -77,7 +77,7 @@ function Hero() {
             </Button>
             <Button 
               size="lg" 
-              className="gap-4"
+              className="gap-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
               onClick={() => navigate("/auth")}
             >
               Get Started <MoveRight className="w-4 h-4" />
