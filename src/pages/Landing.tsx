@@ -205,8 +205,8 @@ const demoPlans = [
   },
   {
     name: "PRO",
-    price: "9",
-    yearlyPrice: "7",
+    price: "9.99",
+    yearlyPrice: "7.99",
     period: "per month",
     features: [
       "Everything in Basic",
@@ -224,8 +224,8 @@ const demoPlans = [
   },
   {
     name: "TEAMS",
-    price: "19",
-    yearlyPrice: "15",
+    price: "29.99",
+    yearlyPrice: "23.99",
     period: "per month",
     features: [
       "Everything in Pro",
