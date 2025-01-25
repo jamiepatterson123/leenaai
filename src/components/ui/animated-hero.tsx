@@ -73,7 +73,7 @@ function Hero() {
               variant="outline"
               onClick={() => window.location.href = "mailto:hello@jamie-patterson.com"}
             >
-              Contact us <PhoneCall className="w-4 h-4" />
+              Learn More <PhoneCall className="w-4 h-4" />
             </Button>
             <Button 
               size="lg" 
