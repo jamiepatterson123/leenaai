@@ -78,7 +78,7 @@ function Hero() {
             </Button>
             <RainbowButton
               onClick={() => navigate("/auth")}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-green-500"
             >
               Get Started <MoveRight className="w-4 h-4" />
             </RainbowButton>
