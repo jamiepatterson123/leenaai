@@ -120,7 +120,7 @@ function Header1() {
                     </NavigationMenu>
                 </div>
                 <div className="flex lg:justify-center">
-                    <Link to="/" className="font-semibold">NutriTrack</Link>
+                    <Link to="/" className="font-semibold">Leena.ai</Link>
                 </div>
                 <div className="flex justify-end w-full gap-4">
                     <Button variant="ghost" className="hidden md:inline">
