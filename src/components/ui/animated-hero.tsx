@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { MoveRight, PhoneCall } from "lucide-react";
+import { MoveRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -73,7 +73,7 @@ function Hero() {
               variant="outline"
               onClick={() => window.location.href = "mailto:hello@jamie-patterson.com"}
             >
-              Learn More <PhoneCall className="w-4 h-4" />
+              Learn More
             </Button>
             <Button 
               size="lg" 
