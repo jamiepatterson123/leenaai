@@ -1,35 +1,37 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { HomeDataSection } from "@/components/home/HomeDataSection";
+import { ProfileHeader } from "@/components/home/ProfileHeader";
+import { useEffect, useState } from "react";
+import { useSession } from "@/hooks/useSession";
+import { supabase } from "@/integrations/supabase/client";
+import { OnboardingDialog } from "@/components/onboarding/OnboardingDialog";
 
-const Index = () => {
-  const { data: profile } = useQuery({
-    queryKey: ["profile"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+export default function Index() {
+  const { session } = useSession();
+  const [profile, setProfile] = useState<any>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
+  useEffect(() => {
+    async function getProfile() {
+      if (session?.user.id) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .single();
 
-      if (error) {
-        toast.error("Error fetching profile");
-        throw error;
+        setProfile(profile);
+        setShowOnboarding(!profile?.has_seen_tutorial);
       }
+    }
 
-      return data;
-    },
-  });
+    getProfile();
+  }, [session]);
 
   return (
-    <main className="container mx-auto px-4 pb-24 md:pb-8 pt-8">
+    <div className="container mx-auto px-4 py-8">
+      <ProfileHeader profile={profile} />
       <HomeDataSection />
-    </main>
+      {showOnboarding && <OnboardingDialog />}
+    </div>
   );
-};
-
-export default Index;
+}
