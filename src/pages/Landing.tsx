@@ -156,7 +156,7 @@ const Landing = () => {
 
   useEffect(() => {
     if (session && !loading) {
-      navigate("/");
+      navigate("/dashboard");
     }
   }, [session, loading, navigate]);
 
