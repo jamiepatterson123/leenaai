@@ -14,9 +14,13 @@ const Auth = () => {
 
   useEffect(() => {
     console.log("Auth component mounted");
+    let mounted = true;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log("Auth state changed:", event, "Session:", session);
+        if (!mounted) return;
+
         if (event === 'SIGNED_IN' && session) {
           console.log("User signed in, redirecting to home");
           navigate("/");
@@ -25,27 +29,49 @@ const Auth = () => {
           setError("");
         }
         if (event === 'USER_UPDATED' && !session) {
-          const { error: sessionError } = await supabase.auth.getSession();
-          if (sessionError) {
-            setError(sessionError.message);
+          try {
+            const { error: sessionError } = await supabase.auth.getSession();
+            if (sessionError) {
+              setError(sessionError.message);
+            }
+          } catch (e) {
+            console.error("Session check error:", e);
+            setError("Failed to check authentication status. Please try again.");
           }
         }
       }
     );
 
     // Check current session on mount
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      console.log("Initial session check:", session, "Error:", error);
-      if (session) {
-        navigate("/");
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log("Initial session check:", session, "Error:", error);
+        
+        if (mounted) {
+          if (session) {
+            navigate("/");
+          }
+          if (error) {
+            setError(error.message);
+          }
+          setLoading(false);
+        }
+      } catch (e) {
+        console.error("Initial session check error:", e);
+        if (mounted) {
+          setError("Failed to check authentication status. Please try again.");
+          setLoading(false);
+        }
       }
-      if (error) {
-        setError(error.message);
-      }
-      setLoading(false);
-    });
+    };
 
-    return () => subscription.unsubscribe();
+    checkSession();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   if (loading) {

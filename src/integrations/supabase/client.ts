@@ -16,8 +16,13 @@ export const supabase = createClient<Database>(
     },
     global: {
       headers: {
-        'X-Client-Info': 'supabase-js-web'
-      }
-    }
+        'X-Client-Info': 'supabase-js-web',
+      },
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 10,
+      },
+    },
   }
 );
