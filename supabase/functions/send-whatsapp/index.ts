@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const whatsappApiKey = Deno.env.get('WHATSAPP_API_KEY')
-const whatsappApiUrl = 'https://graph.facebook.com/v17.0/FROM_PHONE_NUMBER_ID/messages' // Replace FROM_PHONE_NUMBER_ID with your WhatsApp Business Account's phone number ID
+const whatsappApiUrl = 'https://graph.facebook.com/v17.0/15551753639/messages'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
