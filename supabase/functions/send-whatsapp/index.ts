@@ -53,16 +53,16 @@ const generateWeeklyReport = async (userId: string) => {
     const totalEntries = foodEntries?.length || 0
     const uniqueDays = new Set(foodEntries.map((entry: any) => entry.date)).size
 
+    if (totalEntries === 0) {
+      return "📊 Weekly Nutrition Report\n\nNo nutrition data was recorded this week. Start logging your meals to get detailed insights!"
+    }
+
     const totals = foodEntries.reduce((acc: any, entry: any) => ({
       calories: acc.calories + entry.calories,
       protein: acc.protein + entry.protein,
       carbs: acc.carbs + entry.carbs,
       fat: acc.fat + entry.fat,
     }), { calories: 0, protein: 0, carbs: 0, fat: 0 })
-
-    if (totalEntries === 0) {
-      return "📊 Weekly Nutrition Report\n\nNo nutrition data was recorded this week. Start logging your meals to get detailed insights!"
-    }
 
     const dailyAverages = {
       calories: Math.round(totals.calories / uniqueDays),
