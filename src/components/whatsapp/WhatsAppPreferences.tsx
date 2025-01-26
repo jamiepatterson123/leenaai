@@ -18,6 +18,19 @@ interface WhatsAppPreferences {
   timezone: string
 }
 
+const timezoneOffsets: { [key: string]: string } = {
+  'UTC': '(GMT+0)',
+  'America/New_York': '(GMT-4)',
+  'America/Chicago': '(GMT-5)',
+  'America/Denver': '(GMT-6)',
+  'America/Los_Angeles': '(GMT-7)',
+  'Europe/London': '(GMT+1)',
+  'Europe/Paris': '(GMT+2)',
+  'Asia/Tokyo': '(GMT+9)',
+  'Asia/Shanghai': '(GMT+8)',
+  'Australia/Sydney': '(GMT+10)'
+}
+
 export const WhatsAppPreferences = () => {
   const [loading, setLoading] = useState(false)
   const { register, handleSubmit, setValue, watch } = useForm<WhatsAppPreferences>()
@@ -171,7 +184,7 @@ export const WhatsAppPreferences = () => {
                 <SelectContent>
                   {timezones.map((tz) => (
                     <SelectItem key={tz} value={tz}>
-                      {tz.replace('_', ' ')}
+                      {tz.replace('_', ' ')} {timezoneOffsets[tz]}
                     </SelectItem>
                   ))}
                 </SelectContent>
