@@ -8,6 +8,7 @@ import { Reports } from "./pages/Reports";
 import { Navigation } from "./components/Navigation";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
+import WhatsApp from "./pages/WhatsApp";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { useSession } from "./hooks/useSession";
 
@@ -64,6 +65,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <Reports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/whatsapp"
+          element={
+            <ProtectedRoute>
+              <WhatsApp />
             </ProtectedRoute>
           }
         />
