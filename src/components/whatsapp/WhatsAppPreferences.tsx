@@ -12,7 +12,7 @@ interface WhatsAppPreferences {
   reminders_enabled: boolean
   weekly_report_enabled: boolean
   daily_reminder_time: string
-  weekly_report_time: string
+  weekly_report_day: number
   timezone: string
 }
 
@@ -23,7 +23,7 @@ export const WhatsAppPreferences = () => {
     reminders_enabled: true,
     weekly_report_enabled: true,
     daily_reminder_time: '09:00',
-    weekly_report_time: '10:00',
+    weekly_report_day: 0,
     timezone: 'UTC'
   })
 
@@ -47,7 +47,7 @@ export const WhatsAppPreferences = () => {
             reminders_enabled: data.reminders_enabled,
             weekly_report_enabled: data.weekly_report_enabled,
             daily_reminder_time: data.daily_reminder_time || '09:00',
-            weekly_report_time: data.weekly_report_time || '10:00',
+            weekly_report_day: data.weekly_report_day || 0,
             timezone: data.timezone || 'UTC'
           })
         }
@@ -116,8 +116,9 @@ export const WhatsAppPreferences = () => {
               description="Receive a summary of your nutrition progress"
               enabled={preferences.weekly_report_enabled}
               onEnabledChange={(checked) => setPreferences(prev => ({ ...prev, weekly_report_enabled: checked }))}
-              time={preferences.weekly_report_time}
-              onTimeChange={(time) => setPreferences(prev => ({ ...prev, weekly_report_time: time }))}
+              isWeeklyReport={true}
+              weeklyReportDay={preferences.weekly_report_day}
+              onWeeklyReportDayChange={(day) => setPreferences(prev => ({ ...prev, weekly_report_day: parseInt(day) }))}
             />
 
             <TimezoneSelector

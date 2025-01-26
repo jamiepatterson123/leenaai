@@ -348,8 +348,8 @@ export type Database = {
           timezone: string | null
           updated_at: string
           user_id: string
+          weekly_report_day: number | null
           weekly_report_enabled: boolean | null
-          weekly_report_time: string | null
         }
         Insert: {
           created_at?: string
@@ -360,8 +360,8 @@ export type Database = {
           timezone?: string | null
           updated_at?: string
           user_id: string
+          weekly_report_day?: number | null
           weekly_report_enabled?: boolean | null
-          weekly_report_time?: string | null
         }
         Update: {
           created_at?: string
@@ -372,8 +372,8 @@ export type Database = {
           timezone?: string | null
           updated_at?: string
           user_id?: string
+          weekly_report_day?: number | null
           weekly_report_enabled?: boolean | null
-          weekly_report_time?: string | null
         }
         Relationships: []
       }
