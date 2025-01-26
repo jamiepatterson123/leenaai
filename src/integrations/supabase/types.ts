@@ -341,30 +341,39 @@ export type Database = {
       whatsapp_preferences: {
         Row: {
           created_at: string
+          daily_reminder_time: string | null
           id: string
           phone_number: string
           reminders_enabled: boolean | null
+          timezone: string | null
           updated_at: string
           user_id: string
           weekly_report_enabled: boolean | null
+          weekly_report_time: string | null
         }
         Insert: {
           created_at?: string
+          daily_reminder_time?: string | null
           id?: string
           phone_number: string
           reminders_enabled?: boolean | null
+          timezone?: string | null
           updated_at?: string
           user_id: string
           weekly_report_enabled?: boolean | null
+          weekly_report_time?: string | null
         }
         Update: {
           created_at?: string
+          daily_reminder_time?: string | null
           id?: string
           phone_number?: string
           reminders_enabled?: boolean | null
+          timezone?: string | null
           updated_at?: string
           user_id?: string
           weekly_report_enabled?: boolean | null
+          weekly_report_time?: string | null
         }
         Relationships: []
       }
@@ -406,7 +415,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      send_daily_reminders: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      send_weekly_reports: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
