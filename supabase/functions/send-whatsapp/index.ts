@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { generateWeeklyReport } from "../../utils/whatsapp/generateWeeklyReport.ts"
 
 const whatsappApiKey = Deno.env.get('WHATSAPP_API_KEY')
 const whatsappApiUrl = 'https://graph.facebook.com/v17.0/15551753639/messages'
@@ -12,16 +13,30 @@ interface WhatsAppMessage {
   phoneNumber: string
   message: string
   type: 'reminder' | 'weekly_report'
+  userId?: string
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    const { phoneNumber, message, type }: WhatsAppMessage = await req.json()
+    const { phoneNumber, message, type, userId }: WhatsAppMessage = await req.json()
+    let finalMessage = message
+
+    if (type === 'reminder') {
+      finalMessage = `🍽️ Daily Nutrition Reminder
+
+Hey there! Time to log your meals and stay on track with your nutrition goals.
+
+📸 Simply take a photo of your food to log it instantly.
+💪 Stay consistent with your tracking for better results!
+
+Need help? Just reply to this message.`
+    } else if (type === 'weekly_report' && userId) {
+      finalMessage = await generateWeeklyReport(userId)
+    }
 
     const response = await fetch(whatsappApiUrl, {
       method: 'POST',
@@ -33,7 +48,7 @@ serve(async (req) => {
         messaging_product: 'whatsapp',
         to: phoneNumber,
         type: 'text',
-        text: { body: message }
+        text: { body: finalMessage }
       }),
     })
 
@@ -43,25 +58,6 @@ serve(async (req) => {
 
     const result = await response.json()
     console.log('WhatsApp message sent:', result)
-
-    // Store message in database
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user?.id) {
-      throw new Error('User not authenticated')
-    }
-
-    const { error: dbError } = await supabase
-      .from('whatsapp_messages')
-      .insert({
-        user_id: user.id,
-        message_type: type,
-        content: message,
-        status: 'sent'
-      })
-
-    if (dbError) {
-      throw dbError
-    }
 
     return new Response(
       JSON.stringify({ success: true, result }),
