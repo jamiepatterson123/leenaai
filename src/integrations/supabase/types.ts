@@ -311,6 +311,63 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_messages: {
+        Row: {
+          content: string
+          id: string
+          message_type: string
+          sent_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          id?: string
+          message_type: string
+          sent_at?: string
+          status: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          id?: string
+          message_type?: string
+          sent_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      whatsapp_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          phone_number: string
+          reminders_enabled: boolean | null
+          updated_at: string
+          user_id: string
+          weekly_report_enabled: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          phone_number: string
+          reminders_enabled?: boolean | null
+          updated_at?: string
+          user_id: string
+          weekly_report_enabled?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          phone_number?: string
+          reminders_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string
+          weekly_report_enabled?: boolean | null
+        }
+        Relationships: []
+      }
       whoop_data: {
         Row: {
           created_at: string
