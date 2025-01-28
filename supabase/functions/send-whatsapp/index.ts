@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const whatsappApiKey = Deno.env.get('WHATSAPP_API_KEY')
-const whatsappApiUrl = 'https://graph.facebook.com/v17.0/15551753639/messages'
+const whatsappApiUrl = 'https://graph.facebook.com/v17.0/155517536392139/messages'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -19,6 +19,10 @@ const generateWeeklyReport = async (userId: string) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Missing Supabase configuration')
+    }
 
     // Fetch this week's food diary entries
     const foodResponse = await fetch(
@@ -142,6 +146,12 @@ Need help? Just reply to this message.`
       finalMessage = await generateWeeklyReport(userId)
     }
 
+    console.log('Sending WhatsApp message:', {
+      phoneNumber,
+      type,
+      messageLength: finalMessage.length
+    })
+
     const response = await fetch(whatsappApiUrl, {
       method: 'POST',
       headers: {
@@ -157,7 +167,9 @@ Need help? Just reply to this message.`
     })
 
     if (!response.ok) {
-      throw new Error(`WhatsApp API error: ${await response.text()}`)
+      const errorText = await response.text()
+      console.error('WhatsApp API error:', errorText)
+      throw new Error(`WhatsApp API error: ${errorText}`)
     }
 
     const result = await response.json()
