@@ -6,6 +6,7 @@ import { useHomeData } from "@/components/home/useHomeData";
 import { HabitTracker } from "@/components/habits/HabitTracker";
 import { MacroCircles } from "@/components/home/MacroCircles";
 import { WeightTrendChart } from "@/components/reports/WeightTrendChart";
+import { NaturalLanguageInput } from "@/components/food/NaturalLanguageInput";
 
 export const HomeDataSection = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
@@ -71,6 +72,7 @@ export const HomeDataSection = () => {
           </div>
         </div>
       </div>
+      <NaturalLanguageInput />
     </div>
   );
 };
