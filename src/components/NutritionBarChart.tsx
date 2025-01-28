@@ -64,6 +64,7 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
           </defs>
           
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
+          <rect width="100%" height="100%" fill="white" />
           <XAxis type="number" className="text-xs font-medium" />
           <YAxis
             type="category"

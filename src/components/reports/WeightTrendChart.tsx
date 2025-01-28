@@ -78,7 +78,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
   );
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 bg-white">
       <div className="flex items-center gap-2 mb-6">
         <h2 className="text-2xl font-semibold">Weight Trend</h2>
         <Dialog>

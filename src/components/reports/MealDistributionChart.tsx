@@ -45,7 +45,7 @@ export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
   }));
 
   return (
-    <Card className="p-4 sm:p-6 w-full">
+    <Card className="p-4 sm:p-6 w-full bg-white">
       <div className="flex items-center gap-2 mb-4 sm:mb-6">
         <h2 className="text-xl sm:text-2xl font-semibold">Calories by Meal</h2>
         <TooltipProvider>

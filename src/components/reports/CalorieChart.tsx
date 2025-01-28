@@ -26,7 +26,7 @@ interface CalorieChartProps {
 
 export const CalorieChart = ({ data }: CalorieChartProps) => {
   return (
-    <Card className="p-6">
+    <Card className="p-6 bg-white">
       <div className="flex items-center gap-2 mb-6">
         <h2 className="text-2xl font-semibold">Daily Calories</h2>
         <TooltipProvider>
