@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -6,6 +7,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -14,28 +16,49 @@ serve(async (req) => {
     const { audio } = await req.json();
 
     if (!audio) {
+      console.error('No audio data provided');
       throw new Error('Audio input is required');
     }
 
-    // Call the speech-to-text API (e.g., Google Cloud Speech-to-Text, AssemblyAI, etc.)
-    const response = await fetch('https://api.example.com/speech-to-text', {
+    console.log('Received audio data, processing...');
+
+    // Convert base64 to binary
+    const binaryAudio = Uint8Array.from(atob(audio), c => c.charCodeAt(0));
+    
+    // Create form data for OpenAI API
+    const formData = new FormData();
+    const audioBlob = new Blob([binaryAudio], { type: 'audio/webm' });
+    formData.append('file', audioBlob, 'audio.webm');
+    formData.append('model', 'whisper-1');
+
+    console.log('Sending request to OpenAI Whisper API...');
+
+    // Send to OpenAI Whisper API
+    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Deno.env.get('SPEECH_TO_TEXT_API_KEY')}`,
+        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
       },
-      body: JSON.stringify({ audio }),
+      body: formData,
     });
 
     if (!response.ok) {
-      throw new Error('Failed to convert audio to text');
+      const errorText = await response.text();
+      console.error('OpenAI API error:', errorText);
+      throw new Error(`OpenAI API error: ${errorText}`);
     }
 
-    const { text } = await response.json();
+    const result = await response.json();
+    console.log('Successfully transcribed audio:', result);
 
     return new Response(
-      JSON.stringify({ text }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ text: result.text }),
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
+      }
     );
 
   } catch (error) {
@@ -44,7 +67,10 @@ serve(async (req) => {
       JSON.stringify({ error: error.message }),
       { 
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        }
       }
     );
   }
