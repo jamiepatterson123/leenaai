@@ -253,7 +253,7 @@ const howToUseData = [
           Take a photo of your meal
         </p>
         <p className="text-neutral-700 dark:text-neutral-300 text-sm md:text-base mb-8">
-          Simply snap a picture of what you're eating. Our AI will analyze it instantly.
+          With just photos of your food...
         </p>
         <div className="flex items-center justify-center p-8 bg-neutral-100 dark:bg-neutral-900 rounded-lg">
           <Camera className="w-16 h-16 text-primary" />
