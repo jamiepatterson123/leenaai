@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { MoveRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -9,6 +10,7 @@ function Hero() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [titleNumber, setTitleNumber] = useState(0);
+  const [email, setEmail] = useState("");
   const titles = useMemo(
     () => ["effortlessly", "accurately", "intelligently"],
     []
@@ -24,6 +26,14 @@ function Hero() {
     }, 2000);
     return () => clearTimeout(timeoutId);
   }, [titleNumber, titles]);
+
+  const handleSubmit = () => {
+    if (email) {
+      navigate("/auth", { state: { email } });
+    } else {
+      navigate("/auth");
+    }
+  };
 
   return (
     <div className="w-full">
@@ -68,21 +78,42 @@ function Hero() {
             </p>
           </div>
           <div className="flex md:flex-row flex-col gap-3 w-full md:w-auto items-center">
-            <Button 
-              size="lg" 
-              className="gap-4 w-full md:w-auto" 
-              variant="outline"
-              onClick={() => window.location.href = "mailto:hello@jamie-patterson.com"}
-            >
-              Learn More
-            </Button>
-            <Button 
-              size="lg" 
-              className="gap-4 w-full md:w-auto"
-              onClick={() => navigate("/auth")}
-            >
-              Get Started <MoveRight className="w-4 h-4" />
-            </Button>
+            {isMobile ? (
+              <>
+                <Input
+                  type="email"
+                  placeholder="Your email here"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full h-[64px] md:w-auto text-lg"
+                />
+                <Button 
+                  size="lg" 
+                  className="gap-4 w-full md:w-auto"
+                  onClick={handleSubmit}
+                >
+                  Create a free account <MoveRight className="w-4 h-4" />
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  size="lg" 
+                  className="gap-4 w-full md:w-auto" 
+                  variant="outline"
+                  onClick={() => window.location.href = "mailto:hello@jamie-patterson.com"}
+                >
+                  Learn More
+                </Button>
+                <Button 
+                  size="lg" 
+                  className="gap-4 w-full md:w-auto"
+                  onClick={() => navigate("/auth")}
+                >
+                  Get Started <MoveRight className="w-4 h-4" />
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
