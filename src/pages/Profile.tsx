@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { CustomTargets } from "@/components/profile/CustomTargets";
 import { PasswordChange } from "@/components/profile/PasswordChange";
+import { WhatsAppPreferences } from "@/components/whatsapp/WhatsAppPreferences";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { calculateTargets } from "@/utils/profileCalculations";
@@ -121,6 +122,8 @@ const Profile = () => {
             target_fat: profile?.target_fat,
           }}
         />
+
+        <WhatsAppPreferences />
 
         <PasswordChange />
       </div>
