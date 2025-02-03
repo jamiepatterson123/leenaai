@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Testimonial } from "@/components/ui/testimonial";
 
 function Hero() {
   const navigate = useNavigate();
@@ -114,6 +115,9 @@ function Hero() {
                 </Button>
               </>
             )}
+          </div>
+          <div className="mt-4">
+            <Testimonial />
           </div>
         </div>
       </div>
