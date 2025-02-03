@@ -67,10 +67,10 @@ function Hero() {
               {isMobile ? "With just photos of your food" : "Say goodbye to manual food logging. Simply take a photo of your meal and let our AI do the rest. Get accurate nutrition information from USDA certified food database, track your macros, and get in shape with ease."}
             </p>
           </div>
-          <div className="flex flex-row gap-3">
+          <div className="flex md:flex-row flex-col gap-3 w-full md:w-auto items-center">
             <Button 
               size="lg" 
-              className="gap-4" 
+              className="gap-4 w-full md:w-auto" 
               variant="outline"
               onClick={() => window.location.href = "mailto:hello@jamie-patterson.com"}
             >
@@ -78,7 +78,7 @@ function Hero() {
             </Button>
             <Button 
               size="lg" 
-              className="gap-4"
+              className="gap-4 w-full md:w-auto"
               onClick={() => navigate("/auth")}
             >
               Get Started <MoveRight className="w-4 h-4" />
