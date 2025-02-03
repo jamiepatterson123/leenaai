@@ -86,7 +86,7 @@ function Hero() {
                   placeholder="Your email here"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-[64px] md:w-auto text-lg"
+                  className="w-full h-[64px] md:w-auto text-lg text-center"
                 />
                 <Button 
                   size="lg" 
