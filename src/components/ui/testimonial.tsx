@@ -32,7 +32,7 @@ function Testimonial() {
         />
       </div>
       <p className="px-2 text-xs text-muted-foreground">
-        Trusted by <strong className="font-medium text-foreground">60K+</strong> developers.
+        Trusted by <strong className="font-medium text-foreground">wellness professionals</strong>
       </p>
     </div>
   );
