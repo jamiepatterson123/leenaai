@@ -23,7 +23,7 @@ const Auth = () => {
 
         if (event === 'SIGNED_IN' && session) {
           console.log("User signed in, redirecting to home");
-          navigate("/");
+          navigate("/profile");
         }
         if (event === 'SIGNED_OUT') {
           setError("");
@@ -108,8 +108,13 @@ const Auth = () => {
             <p className="text-muted-foreground">
               {view === "sign_in" 
                 ? "Sign in to your account to continue"
-                : "Create an account to get started"}
+                : "Create an account with just your email"}
             </p>
+            {view === "sign_up" && (
+              <p className="text-sm text-muted-foreground">
+                You'll be able to set your password in your profile after signing up.
+              </p>
+            )}
           </div>
           
           {error && (
@@ -139,6 +144,7 @@ const Auth = () => {
             providers={["google"]}
             redirectTo={`${window.location.origin}/auth/callback`}
             view={view}
+            showLinks={false}
           />
         </div>
       </div>

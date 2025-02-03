@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,14 +19,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface PasswordFormData {
-  currentPassword: string;
+  currentPassword?: string;
   newPassword: string;
   confirmPassword: string;
 }
 
 export const PasswordChange = () => {
+  const [hasPassword, setHasPassword] = useState<boolean>(true);
   const form = useForm<PasswordFormData>({
     defaultValues: {
       currentPassword: "",
@@ -34,6 +36,17 @@ export const PasswordChange = () => {
       confirmPassword: "",
     }
   });
+
+  useEffect(() => {
+    const checkPasswordStatus = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.app_metadata?.provider === 'email' && !user?.user_metadata?.has_set_password) {
+        setHasPassword(false);
+      }
+    };
+
+    checkPasswordStatus();
+  }, []);
 
   const onSubmit = async (data: PasswordFormData) => {
     if (data.newPassword !== data.confirmPassword) {
@@ -53,20 +66,23 @@ export const PasswordChange = () => {
 
       if (error) throw error;
 
+      // Update user metadata to indicate password has been set
+      const { error: metadataError } = await supabase.auth.updateUser({
+        data: { has_set_password: true }
+      });
+
+      if (metadataError) throw metadataError;
+
+      setHasPassword(true);
       toast.success("Password updated successfully");
       
-      // Reset form with empty values
       form.reset({
         currentPassword: "",
         newPassword: "",
         confirmPassword: ""
       });
-      
-      // Force re-render of input fields
-      form.setValue("currentPassword", "");
-      form.setValue("newPassword", "");
-      form.setValue("confirmPassword", "");
     } catch (error: any) {
+      console.error("Error updating password:", error);
       toast.error(error.message || "Failed to update password");
     }
   };
@@ -74,31 +90,44 @@ export const PasswordChange = () => {
   return (
     <Card className="mt-6">
       <CardHeader>
-        <CardTitle>Change Password</CardTitle>
+        <CardTitle>{hasPassword ? "Change Password" : "Set Password"}</CardTitle>
         <CardDescription>
-          Update your password to keep your account secure
+          {hasPassword 
+            ? "Update your password to keep your account secure"
+            : "Set a password to secure your account for future logins"
+          }
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {!hasPassword && (
+          <Alert className="mb-6">
+            <AlertDescription>
+              You need to set a password to be able to log in to your account in the future.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="currentPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Current Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter current password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {hasPassword && (
+              <FormField
+                control={form.control}
+                name="currentPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Current Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="Enter current password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <FormField
               control={form.control}
@@ -137,7 +166,7 @@ export const PasswordChange = () => {
             />
 
             <Button type="submit" className="w-full">
-              Update Password
+              {hasPassword ? "Update Password" : "Set Password"}
             </Button>
           </form>
         </Form>
