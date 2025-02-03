@@ -5,12 +5,12 @@ import { useEffect, useState } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Star } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<"sign_in" | "sign_up">("sign_in");
 
   useEffect(() => {
     console.log("Auth component mounted");
@@ -132,11 +132,20 @@ const Auth = () => {
                 anchor: 'text-primary hover:text-primary/80',
               }
             }}
-            providers={["google"]}
+            providers={[]}
             redirectTo={`${window.location.origin}/auth/callback`}
             view="sign_in"
             showLinks={false}
           />
+
+          <div className="mt-8 p-6 bg-primary/5 rounded-lg">
+            <div className="flex items-center justify-center space-x-1 mb-3">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-5 h-5 fill-primary text-primary" />
+              ))}
+            </div>
+            <p className="text-center font-medium">A nutritionist in my pocket</p>
+          </div>
         </div>
       </div>
     </div>
