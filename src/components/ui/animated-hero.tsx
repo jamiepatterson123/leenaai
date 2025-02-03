@@ -3,9 +3,11 @@ import { motion } from "framer-motion";
 import { MoveRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 function Hero() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [titleNumber, setTitleNumber] = useState(0);
   const titles = useMemo(
     () => ["effortlessly", "accurately", "intelligently"],
@@ -62,8 +64,7 @@ function Hero() {
             </h1>
 
             <p className="text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-2xl text-center">
-              Say goodbye to manual food logging. Simply take a photo of your meal and let our AI do the rest. 
-              Get accurate nutrition information from USDA certified food database, track your macros, and get in shape with ease.
+              {isMobile ? "With just photos of your food..." : "Say goodbye to manual food logging. Simply take a photo of your meal and let our AI do the rest. Get accurate nutrition information from USDA certified food database, track your macros, and get in shape with ease."}
             </p>
           </div>
           <div className="flex flex-row gap-3">
