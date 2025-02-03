@@ -81,11 +81,11 @@ const Auth = () => {
   return (
     <div className="flex min-h-screen relative">
       <Button
-        onClick={() => setView(view === "sign_in" ? "sign_up" : "sign_in")}
+        onClick={() => navigate("/")}
         className="absolute top-4 right-4 z-10 bg-white text-primary border-primary hover:bg-primary/5"
         variant="outline"
       >
-        {view === "sign_in" ? "Sign Up" : "Sign In"}
+        Sign Up
       </Button>
 
       <div className="hidden md:flex md:w-1/2 bg-primary/5 items-center justify-center p-8">
@@ -102,19 +102,10 @@ const Auth = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left space-y-4">
-            <h2 className="text-2xl font-bold">
-              {view === "sign_in" ? "Sign In" : "Sign Up"}
-            </h2>
+            <h2 className="text-2xl font-bold">Sign In</h2>
             <p className="text-muted-foreground">
-              {view === "sign_in" 
-                ? "Sign in to your account to continue"
-                : "Create an account with just your email"}
+              Sign in to your account to continue
             </p>
-            {view === "sign_up" && (
-              <p className="text-sm text-muted-foreground">
-                You'll be able to set your password in your profile after signing up.
-              </p>
-            )}
           </div>
           
           {error && (
@@ -143,7 +134,7 @@ const Auth = () => {
             }}
             providers={["google"]}
             redirectTo={`${window.location.origin}/auth/callback`}
-            view={view}
+            view="sign_in"
             showLinks={false}
           />
         </div>
