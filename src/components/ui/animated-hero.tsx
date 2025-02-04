@@ -75,7 +75,7 @@ function Hero() {
             </h1>
 
             <p className="text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-2xl text-center">
-              {isMobile ? "With just photos of your food and advanced AI vision technology" : "With just photos of your food"}
+              With just photos of your food
             </p>
           </div>
           <div className="flex md:flex-row flex-col gap-3 w-full md:w-auto items-center">
