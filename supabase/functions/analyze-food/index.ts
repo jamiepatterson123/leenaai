@@ -56,7 +56,7 @@ serve(async (req) => {
 
     console.log('Sending request to OpenAI');
     const completion = await openai.createChatCompletion({
-      model: "gpt-4-vision-preview",
+      model: "gpt-4o",  // Using the recommended model
       messages: messages,
       max_tokens: 1000,
     });
@@ -75,7 +75,7 @@ serve(async (req) => {
       }`;
 
       const nutritionCompletion = await openai.createChatCompletion({
-        model: "gpt-4",
+        model: "gpt-4o-mini",  // Using the faster model for nutrition calculations
         messages: [
           { role: "system", content: "You are a nutrition expert." },
           { role: "user", content: nutritionPrompt }
