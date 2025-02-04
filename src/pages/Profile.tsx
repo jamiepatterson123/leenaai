@@ -16,11 +16,59 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { useQuery } from "@tanstack/react-query";
 
 const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileFormData | null>(null);
   const isMobile = useIsMobile();
+
+  // Query to check WhatsApp preferences
+  const { data: whatsappPrefs } = useQuery({
+    queryKey: ['whatsapp-preferences'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data, error } = await supabase
+        .from('whatsapp_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) return null;
+      return data;
+    }
+  });
+
+  // Query to check if user has set password
+  const { data: userMetadata } = useQuery({
+    queryKey: ['user-metadata'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user?.user_metadata;
+    }
+  });
+
+  const isProfileIncomplete = () => {
+    if (!profile) return true;
+
+    // Check if essential profile fields are filled
+    const hasBasicInfo = profile.height_cm && 
+                        profile.weight_kg && 
+                        profile.age && 
+                        profile.gender && 
+                        profile.activity_level && 
+                        profile.fitness_goals;
+
+    // Check if WhatsApp preferences are set
+    const hasWhatsAppSetup = whatsappPrefs?.phone_number;
+
+    // Check if password has been set (for email signup users)
+    const hasSetPassword = userMetadata?.has_set_password;
+
+    return !(hasBasicInfo && hasWhatsAppSetup && hasSetPassword);
+  };
 
   useEffect(() => {
     fetchProfile();
@@ -88,7 +136,7 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {isMobile && (
+      {isMobile && isProfileIncomplete() && (
         <Alert className="mb-6 relative overflow-hidden">
           <GlowEffect
             colors={['#0894FF', '#C959DD', '#FF2E54', '#FF9004']}
