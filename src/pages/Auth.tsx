@@ -144,7 +144,7 @@ const Auth = () => {
                 <Star key={i} className="w-5 h-5 fill-primary text-primary" />
               ))}
             </div>
-            <p className="text-center font-medium">A nutritionist in my pocket</p>
+            <p className="text-center font-medium">Like having a nutritionist in my pocket! Love it!</p>
           </div>
         </div>
       </div>
