@@ -1,5 +1,3 @@
-import { Star } from "lucide-react";
-
 function Testimonial() {
   return (
     <div className="flex items-center rounded-full border border-border bg-background p-1 shadow shadow-black/5">
@@ -32,13 +30,6 @@ function Testimonial() {
           height={20}
           alt="Avatar 04"
         />
-      </div>
-      <div className="flex items-center mx-2">
-        <Star size={12} fill="gold" stroke="gold" />
-        <Star size={12} fill="gold" stroke="gold" />
-        <Star size={12} fill="gold" stroke="gold" />
-        <Star size={12} fill="gold" stroke="gold" />
-        <Star size={12} fill="gold" stroke="gold" />
       </div>
       <p className="px-2 text-xs text-muted-foreground">
         Trusted by <strong className="font-medium text-foreground">wellness professionals</strong>
