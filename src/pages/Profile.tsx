@@ -144,8 +144,8 @@ const Profile = () => {
             blur="soft"
             duration={3}
           />
-          <AlertDescription className="relative z-10 text-white font-medium">
-            Fill out your profile in full now (1 min) to generate your custom targets, reminders and nutrition reports *important*
+          <AlertDescription className="relative z-10 text-white font-bold text-center">
+            Fill out your profile now to start generating your custom targets, reminders and nutrition reports (takes 1 min)
           </AlertDescription>
         </Alert>
       )}
