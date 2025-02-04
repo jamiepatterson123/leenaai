@@ -64,10 +64,15 @@ export const HomeDataSection = () => {
 
           {/* Weight Trend Chart Section */}
           <div className="w-full bg-white rounded-lg shadow-sm border border-border">
-            {weightData && weightData.length > 0 ? (
+            {isLoading ? (
+              <p className="text-center text-gray-500 p-4">Loading weight data...</p>
+            ) : weightData && weightData.length > 0 ? (
               <WeightTrendChart data={weightData} />
             ) : (
-              <p className="text-center text-gray-500">No weight data available</p>
+              <div className="p-4">
+                <p className="text-center text-gray-500 mb-2">No weight data available</p>
+                <p className="text-center text-sm text-gray-400">Add your first weight entry below</p>
+              </div>
             )}
           </div>
 

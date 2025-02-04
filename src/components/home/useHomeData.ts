@@ -13,12 +13,15 @@ export const useHomeData = () => {
         .gte("recorded_at", startDate.toISOString())
         .order("recorded_at", { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching weight data:", error);
+        throw error;
+      }
 
-      return weightHistory.map((entry) => ({
+      return weightHistory?.map((entry) => ({
         weight: entry.weight_kg,
         date: format(new Date(entry.recorded_at), "MMM d"),
-      }));
+      })) || [];
     },
   });
 
