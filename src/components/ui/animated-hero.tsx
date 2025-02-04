@@ -98,18 +98,17 @@ function Hero() {
               </>
             ) : (
               <>
-                <Button 
-                  size="lg" 
-                  className="gap-4 w-full md:w-auto" 
-                  variant="outline"
-                  onClick={() => window.location.href = "mailto:hello@jamie-patterson.com"}
-                >
-                  Learn More
-                </Button>
+                <Input
+                  type="email"
+                  placeholder="Your email here"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full h-[64px] md:w-auto text-lg text-center"
+                />
                 <Button 
                   size="lg" 
                   className="gap-4 w-full md:w-auto"
-                  onClick={() => navigate("/auth")}
+                  onClick={handleSubmit}
                 >
                   Get Started <MoveRight className="w-4 h-4" />
                 </Button>
