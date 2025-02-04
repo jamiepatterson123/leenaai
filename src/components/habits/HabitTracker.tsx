@@ -67,7 +67,7 @@ export const HabitTracker = () => {
   ];
 
   return (
-    <div className="w-full max-w-md mx-auto border border-gray-200 dark:border-gray-800 rounded-lg">
+    <div className="w-full max-w-md mx-auto bg-white rounded-lg border border-gray-200">
       <div className="p-4">
         <HabitTrackerHeader />
         <MonthNavigation
