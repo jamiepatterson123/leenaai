@@ -86,11 +86,11 @@ function Hero() {
                   placeholder="Your email here"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-[64px] md:w-auto text-lg text-center"
+                  className="w-[200px] h-[64px] md:w-[200px] text-lg text-center"
                 />
                 <Button 
                   size="lg" 
-                  className="gap-4 w-full md:w-auto h-[64px]"
+                  className="gap-4 w-[200px] md:w-[200px] h-[64px]"
                   onClick={handleSubmit}
                 >
                   Create a free account <MoveRight className="w-4 h-4" />
@@ -103,11 +103,11 @@ function Hero() {
                   placeholder="Your email here"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-[64px] md:w-auto text-lg text-center"
+                  className="w-[200px] h-[64px] md:w-[200px] text-lg text-center"
                 />
                 <Button 
                   size="lg" 
-                  className="gap-4 w-full md:w-auto h-[64px]"
+                  className="gap-4 w-[200px] md:w-[200px] h-[64px]"
                   onClick={handleSubmit}
                 >
                   Create a free account <MoveRight className="w-4 h-4" />
