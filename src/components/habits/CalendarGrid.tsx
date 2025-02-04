@@ -40,10 +40,10 @@ export const CalendarGrid = ({ days, loggedDays }: CalendarGridProps) => {
               key={date.toISOString()}
               onClick={() => handleDateClick(date)}
               className={`
-                aspect-square border flex items-center justify-center
-                ${isLogged ? 'bg-primary text-primary-foreground border-primary/30' : 'border-border/50'}
+                aspect-square flex items-center justify-center
+                ${isLogged ? 'bg-primary text-primary-foreground' : ''}
                 ${(isPreviousMonth || isNextMonth) ? 'text-muted-foreground/50' : 'text-muted-foreground'}
-                ${isCurrentDay ? 'border-2 border-primary' : ''}
+                ${isCurrentDay ? 'ring-2 ring-primary' : ''}
                 hover:bg-accent/50 transition-colors duration-200
               `}
             >

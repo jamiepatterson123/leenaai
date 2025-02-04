@@ -44,11 +44,11 @@ export const StreakCounter = () => {
   if (!streak || streak === 0) return null;
 
   return (
-    <Card className="border border-primary/20">
-      <CardContent className="p-4 flex items-center justify-center gap-2 bg-primary/10 rounded-[calc(var(--radius)-1px)]">
+    <div className="bg-white rounded-lg border border-gray-200">
+      <div className="p-4 flex items-center justify-center gap-2 bg-primary/10 rounded-[calc(var(--radius)-1px)]">
         <Medal className="w-5 h-5 text-primary" />
         <span className="text-lg font-medium">{streak} Day Streak!</span>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
