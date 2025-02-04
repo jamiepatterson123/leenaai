@@ -45,6 +45,11 @@ export const HomeDataSection = () => {
             <MacroCircles />
           </div>
 
+          {/* Natural Language Input - Mobile Only */}
+          <div className="md:hidden bg-white rounded-lg shadow-sm p-4">
+            <NaturalLanguageInput />
+          </div>
+
           {/* Food Input Section */}
           <div className="bg-white rounded-lg shadow-sm">
             <ImageAnalysisSection
@@ -72,7 +77,6 @@ export const HomeDataSection = () => {
           </div>
         </div>
       </div>
-      <NaturalLanguageInput />
     </div>
   );
 };

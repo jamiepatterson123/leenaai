@@ -91,7 +91,6 @@ export const NaturalLanguageInput = ({ onSuccess, selectedDate = new Date() }: N
         return;
       }
 
-      // Send to OpenAI for food analysis
       const { data, error } = await supabase.functions.invoke('analyze-food', {
         body: { 
           text: inputText,
@@ -115,8 +114,8 @@ export const NaturalLanguageInput = ({ onSuccess, selectedDate = new Date() }: N
   };
 
   return (
-    <div className="fixed bottom-20 left-0 right-0 p-4 bg-background border-t border-border md:hidden">
-      <div className="flex gap-2 items-center max-w-lg mx-auto">
+    <div className="w-full">
+      <div className="flex gap-2 items-center">
         <Input
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
