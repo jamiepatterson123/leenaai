@@ -93,7 +93,7 @@ function Hero() {
                   className="gap-4 w-[200px] md:w-[200px] h-[64px]"
                   onClick={handleSubmit}
                 >
-                  Try for free <MoveRight className="w-4 h-4" />
+                  Create a free account <MoveRight className="w-4 h-4" />
                 </Button>
               </>
             ) : (
@@ -110,7 +110,7 @@ function Hero() {
                   className="gap-4 w-[200px] md:w-[200px] h-[64px]"
                   onClick={handleSubmit}
                 >
-                  Try for free <MoveRight className="w-4 h-4" />
+                  Create a free account <MoveRight className="w-4 h-4" />
                 </Button>
               </>
             )}
