@@ -75,7 +75,7 @@ function Hero() {
             </h1>
 
             <p className="text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-2xl text-center">
-              {isMobile ? "With just photos of your food" : "Say goodbye to manual food logging. Simply take a photo of your meal and let our AI do the rest. Get accurate nutrition information from USDA certified food database, track your macros, and get in shape with ease."}
+              {isMobile ? "With just photos of your food and advanced AI vision technology" : "With just photos of your food and advanced AI vision technology. Get accurate nutrition information from USDA certified food database, track your macros, and get in shape with ease."}
             </p>
           </div>
           <div className="flex md:flex-row flex-col gap-3 w-full md:w-auto items-center">
