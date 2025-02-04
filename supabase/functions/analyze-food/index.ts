@@ -20,8 +20,13 @@ serve(async (req) => {
       throw new Error('Either text or image input is required');
     }
 
+    const apiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!apiKey) {
+      throw new Error('OpenAI API key not configured');
+    }
+
     const configuration = new Configuration({
-      apiKey: Deno.env.get('OPENAI_API_KEY'),
+      apiKey: apiKey,
     });
     const openai = new OpenAIApi(configuration);
 
@@ -56,7 +61,7 @@ serve(async (req) => {
 
     console.log('Sending request to OpenAI');
     const completion = await openai.createChatCompletion({
-      model: "gpt-4o",  // Using the recommended model
+      model: "gpt-4-vision-preview",
       messages: messages,
       max_tokens: 1000,
     });
@@ -75,7 +80,7 @@ serve(async (req) => {
       }`;
 
       const nutritionCompletion = await openai.createChatCompletion({
-        model: "gpt-4o-mini",  // Using the faster model for nutrition calculations
+        model: "gpt-4",
         messages: [
           { role: "system", content: "You are a nutrition expert." },
           { role: "user", content: nutritionPrompt }
@@ -98,8 +103,8 @@ serve(async (req) => {
       JSON.stringify({ foods }),
       { 
         headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
+          ...corsHeaders,
+          'Content-Type': 'application/json'
         } 
       }
     );
@@ -114,8 +119,8 @@ serve(async (req) => {
       { 
         status: 500,
         headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
+          ...corsHeaders,
+          'Content-Type': 'application/json'
         } 
       }
     );
