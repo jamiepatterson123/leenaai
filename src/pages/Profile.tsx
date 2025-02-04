@@ -145,7 +145,7 @@ const Profile = () => {
             duration={3}
           />
           <AlertDescription className="relative z-10 text-white font-medium">
-            Fill out your profile in full now (1 min)
+            Fill out your profile in full now (1 min) to generate your custom targets, reminders and nutrition reports *important*
           </AlertDescription>
         </Alert>
       )}
