@@ -114,7 +114,7 @@ export const NaturalLanguageInput = ({ onSuccess, selectedDate = new Date() }: N
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-[95%] mx-auto md:max-w-full">
       <div className="flex gap-2 items-center">
         <Input
           value={inputText}
@@ -127,6 +127,7 @@ export const NaturalLanguageInput = ({ onSuccess, selectedDate = new Date() }: N
           variant={isRecording ? "destructive" : "default"}
           onClick={isRecording ? stopRecording : startRecording}
           disabled={isProcessing}
+          className="shrink-0"
         >
           <Mic className="h-4 w-4" />
         </Button>
@@ -134,6 +135,7 @@ export const NaturalLanguageInput = ({ onSuccess, selectedDate = new Date() }: N
           size="icon"
           onClick={processNaturalLanguageInput}
           disabled={isProcessing || !inputText.trim()}
+          className="shrink-0"
         >
           {isProcessing ? (
             <Loader2 className="h-4 w-4 animate-spin" />
