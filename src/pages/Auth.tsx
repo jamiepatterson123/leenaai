@@ -1,6 +1,6 @@
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -9,12 +9,20 @@ import { Star } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<"sign_in" | "forgotten_password" | "update_password">("sign_in");
 
   useEffect(() => {
     console.log("Auth component mounted");
     let mounted = true;
+
+    // Check if we're in a password reset flow
+    const type = searchParams.get("type");
+    if (type === "recovery") {
+      setView("update_password");
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -27,6 +35,9 @@ const Auth = () => {
         }
         if (event === 'SIGNED_OUT') {
           setError("");
+        }
+        if (event === 'PASSWORD_RECOVERY') {
+          setView("update_password");
         }
         if (event === 'USER_UPDATED' && !session) {
           try {
@@ -72,7 +83,7 @@ const Auth = () => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
@@ -102,9 +113,15 @@ const Auth = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left space-y-4">
-            <h2 className="text-2xl font-bold">Sign In</h2>
+            <h2 className="text-2xl font-bold">
+              {view === "sign_in" && "Sign In"}
+              {view === "forgotten_password" && "Reset Password"}
+              {view === "update_password" && "Update Password"}
+            </h2>
             <p className="text-muted-foreground">
-              Sign in to your account to continue
+              {view === "sign_in" && "Sign in to your account to continue"}
+              {view === "forgotten_password" && "Enter your email to reset your password"}
+              {view === "update_password" && "Enter your new password"}
             </p>
           </div>
           
@@ -134,8 +151,8 @@ const Auth = () => {
             }}
             providers={[]}
             redirectTo={`${window.location.origin}/auth/callback`}
-            view="sign_in"
-            showLinks={false}
+            view={view}
+            showLinks={true}
           />
 
           <div className="mt-8 p-6 bg-primary/5 rounded-lg">
