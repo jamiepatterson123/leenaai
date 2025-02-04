@@ -25,7 +25,7 @@ export const HomeDataSection = () => {
       {/* Today's Macros - Mobile Only */}
       <div className="md:hidden w-full">
         <h2 className="text-lg font-semibold mb-4 text-center">Today</h2>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="bg-white rounded-lg p-4">
           <MacroCircles />
         </div>
       </div>
@@ -42,7 +42,7 @@ export const HomeDataSection = () => {
         {/* Right Column - Input Sections and Today's Nutrition */}
         <div className="space-y-4 h-full">
           {/* Today's Nutrition - Desktop Only */}
-          <div className="hidden md:block bg-white rounded-lg border border-gray-200 p-6">
+          <div className="hidden md:block bg-white rounded-lg p-6">
             <h2 className="text-lg font-semibold mb-4">Today's Nutrition</h2>
             <MacroCircles />
           </div>
