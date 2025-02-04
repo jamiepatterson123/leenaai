@@ -156,11 +156,12 @@ const Auth = () => {
             localization={{
               variables: {
                 sign_up: {
-                  link_text: "Don't have an account? Sign up",
-                  redirect_url: '/'
+                  link_text: "Don't have an account? Sign up"
                 }
               }
             }}
+            onlyThirdPartyProviders={false}
+            redirectToNextPath={"/"}
           />
 
           <div className="mt-8 p-6 bg-primary/5 rounded-lg">
