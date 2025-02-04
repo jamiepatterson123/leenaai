@@ -141,10 +141,10 @@ const Auth = () => {
           <div className="mt-8 p-6 bg-primary/5 rounded-lg">
             <div className="flex items-center justify-center space-x-1 mb-3">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 fill-primary text-primary" />
+                <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
               ))}
             </div>
-            <p className="text-center font-medium">Like having a nutritionist in my pocket! Love it!</p>
+            <p className="text-center font-medium">"Like having a nutritionist in my pocket! Love it!"</p>
           </div>
         </div>
       </div>
