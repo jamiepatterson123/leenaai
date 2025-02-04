@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { calculateTargets } from "@/utils/profileCalculations";
 import type { ProfileFormData } from "@/utils/profileCalculations";
 import { Info } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   HoverCard,
   HoverCardContent,
@@ -17,6 +19,7 @@ import {
 const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileFormData | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     fetchProfile();
@@ -84,6 +87,14 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {isMobile && (
+        <Alert className="mb-6 bg-primary text-primary-foreground">
+          <AlertDescription>
+            Fill out your profile in full now (1 min)
+          </AlertDescription>
+        </Alert>
+      )}
+      
       <div className="flex items-center gap-2 mb-8">
         <h1 className="text-3xl font-bold">Profile Settings</h1>
         <HoverCard>
