@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
 import { Header1 } from "@/components/ui/header";
 import { Hero } from "@/components/ui/animated-hero";
-import { Testimonial } from "@/components/ui/testimonial";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -24,9 +23,6 @@ const Landing = () => {
       <Header1 />
       <div className="pt-20">
         <Hero />
-      </div>
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 md:hidden">
-        <Testimonial />
       </div>
     </div>
   );
