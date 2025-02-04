@@ -161,7 +161,6 @@ const Auth = () => {
               }
             }}
             onlyThirdPartyProviders={false}
-            redirectToNextPath={"/"}
           />
 
           <div className="mt-8 p-6 bg-primary/5 rounded-lg">
