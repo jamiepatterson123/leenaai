@@ -5,6 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Content-Type': 'application/json',
 };
 
 serve(async (req) => {
@@ -14,16 +15,24 @@ serve(async (req) => {
   }
 
   try {
-    const { text, date } = await req.json();
-    console.log('Received request with:', { text, date });
-
-    if (!text) {
-      throw new Error('No text provided');
-    }
-
     const apiKey = Deno.env.get('OPENAI_API_KEY');
     if (!apiKey) {
-      throw new Error('OpenAI API key not configured');
+      console.error('OpenAI API key not configured');
+      return new Response(
+        JSON.stringify({ error: 'OpenAI API key not configured' }),
+        { status: 500, headers: corsHeaders }
+      );
+    }
+
+    const { text, date } = await req.json();
+    console.log('Received request:', { text, date });
+
+    if (!text) {
+      console.error('No text provided');
+      return new Response(
+        JSON.stringify({ error: 'No text provided' }),
+        { status: 400, headers: corsHeaders }
+      );
     }
 
     const configuration = new Configuration({ apiKey });
@@ -31,7 +40,6 @@ serve(async (req) => {
 
     console.log('Analyzing text with OpenAI...');
     
-    // First, extract food items and quantities
     const completion = await openai.createChatCompletion({
       model: "gpt-4o-mini",
       messages: [
@@ -48,14 +56,20 @@ serve(async (req) => {
     });
 
     if (!completion.data.choices[0]?.message?.content) {
-      throw new Error('No response from OpenAI');
+      console.error('No response from OpenAI');
+      return new Response(
+        JSON.stringify({ error: 'Failed to analyze food items' }),
+        { status: 500, headers: corsHeaders }
+      );
     }
 
     const foodItems = JSON.parse(completion.data.choices[0].message.content);
     console.log('Extracted food items:', foodItems);
 
-    // Then, get nutrition information for each food
+    // Get nutrition information for each food item
     const foods = await Promise.all(foodItems.map(async (item) => {
+      console.log(`Getting nutrition for ${item.name}...`);
+      
       const nutritionCompletion = await openai.createChatCompletion({
         model: "gpt-4o-mini",
         messages: [
@@ -77,6 +91,7 @@ serve(async (req) => {
       });
 
       if (!nutritionCompletion.data.choices[0]?.message?.content) {
+        console.error(`Failed to get nutrition data for ${item.name}`);
         throw new Error(`Failed to get nutrition data for ${item.name}`);
       }
 
@@ -96,12 +111,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ foods }),
-      { 
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        } 
-      }
+      { headers: corsHeaders }
     );
 
   } catch (error) {
@@ -109,14 +119,11 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        stack: error.stack 
+        details: error.stack 
       }),
       { 
         status: 500,
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        } 
+        headers: corsHeaders
       }
     );
   }
