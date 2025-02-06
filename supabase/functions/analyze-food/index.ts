@@ -4,6 +4,7 @@ import { Configuration, OpenAIApi } from "https://esm.sh/openai@4.20.1";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 serve(async (req) => {
@@ -46,6 +47,10 @@ serve(async (req) => {
       ],
     });
 
+    if (!completion.data.choices[0]?.message?.content) {
+      throw new Error('No response from OpenAI');
+    }
+
     const foodItems = JSON.parse(completion.data.choices[0].message.content);
     console.log('Extracted food items:', foodItems);
 
@@ -70,6 +75,10 @@ serve(async (req) => {
           }
         ],
       });
+
+      if (!nutritionCompletion.data.choices[0]?.message?.content) {
+        throw new Error(`Failed to get nutrition data for ${item.name}`);
+      }
 
       const nutrition = JSON.parse(nutritionCompletion.data.choices[0].message.content);
       console.log(`Nutrition data for ${item.name}:`, nutrition);
