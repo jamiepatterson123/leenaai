@@ -160,7 +160,6 @@ const Auth = () => {
                 }
               }
             }}
-            onlyThirdPartyProviders={false}
           />
 
           <div className="mt-8 p-6 bg-primary/5 rounded-lg">
