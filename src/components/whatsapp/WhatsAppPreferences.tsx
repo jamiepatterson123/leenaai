@@ -33,23 +33,39 @@ export const WhatsAppPreferences = () => {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
 
+        // First, let's get all preferences for this user
         const { data, error } = await supabase
           .from('whatsapp_preferences')
           .select('*')
           .eq('user_id', user.id)
-          .maybeSingle()
+          .order('created_at', { ascending: false })
+          .limit(1)
 
         if (error) throw error
 
-        if (data) {
+        // Use the most recent preference if it exists
+        if (data && data.length > 0) {
+          const mostRecent = data[0]
           setPreferences({
-            phone_number: data.phone_number,
-            reminders_enabled: data.reminders_enabled,
-            weekly_report_enabled: data.weekly_report_enabled,
-            daily_reminder_time: data.daily_reminder_time || '09:00',
-            weekly_report_day: data.weekly_report_day || 0,
-            timezone: data.timezone || 'UTC'
+            phone_number: mostRecent.phone_number,
+            reminders_enabled: mostRecent.reminders_enabled ?? true,
+            weekly_report_enabled: mostRecent.weekly_report_enabled ?? true,
+            daily_reminder_time: mostRecent.daily_reminder_time || '09:00',
+            weekly_report_day: mostRecent.weekly_report_day || 0,
+            timezone: mostRecent.timezone || 'UTC'
           })
+
+          // If we found multiple rows, clean up the duplicates
+          if (data.length > 1) {
+            console.log('Found multiple WhatsApp preferences, cleaning up...')
+            const oldPrefs = data.slice(1)
+            for (const pref of oldPrefs) {
+              await supabase
+                .from('whatsapp_preferences')
+                .delete()
+                .eq('id', pref.id)
+            }
+          }
         }
       } catch (error) {
         console.error('Error loading WhatsApp preferences:', error)
