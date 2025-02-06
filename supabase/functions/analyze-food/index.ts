@@ -29,7 +29,7 @@ serve(async (req) => {
 
     // For image analysis
     if (req.headers.get('content-type')?.includes('application/json')) {
-      const { image, text, date } = await req.json();
+      const { image, text } = await req.json();
       
       if (!image && !text) {
         console.error('No image or text provided');
@@ -39,10 +39,9 @@ serve(async (req) => {
         );
       }
 
-      // Handle text-based input
-      if (text) {
-        console.log('Processing text input:', text);
-        try {
+      try {
+        if (text) {
+          console.log('Processing text input:', text);
           const completion = await openai.createChatCompletion({
             model: "gpt-4o-mini",
             messages: [
@@ -82,7 +81,7 @@ serve(async (req) => {
             const nutritionData = JSON.parse(nutritionCompletion.data.choices[0]?.message?.content || '{}');
             return {
               ...item,
-              ...nutritionData
+              nutrition: nutritionData
             };
           }));
 
@@ -90,19 +89,10 @@ serve(async (req) => {
             JSON.stringify({ foods }),
             { headers: corsHeaders }
           );
-        } catch (error) {
-          console.error('Error processing text input:', error);
-          return new Response(
-            JSON.stringify({ error: 'Failed to process text input', details: error.message }),
-            { status: 500, headers: corsHeaders }
-          );
         }
-      }
 
-      // Handle image analysis
-      if (image) {
-        console.log('Processing image input');
-        try {
+        if (image) {
+          console.log('Processing image input');
           const completion = await openai.createChatCompletion({
             model: "gpt-4o-mini",
             messages: [
@@ -113,25 +103,45 @@ serve(async (req) => {
               {
                 role: "user",
                 content: [
-                  { type: "text", text: "What foods do you see in this image? List them with approximate quantities in grams." },
-                  { type: "image_url", image_url: { url: `data:image/jpeg;base64,${image}` } }
+                  { 
+                    type: "text", 
+                    text: "What foods do you see in this image? List them with approximate quantities in grams and provide nutritional information including calories, protein, carbs, and fat." 
+                  },
+                  { 
+                    type: "image_url", 
+                    image_url: { 
+                      url: `data:image/jpeg;base64,${image}` 
+                    } 
+                  }
                 ]
               }
             ]
           });
 
-          const foods = JSON.parse(completion.data.choices[0]?.message?.content || '[]');
+          if (!completion.data.choices[0]?.message?.content) {
+            throw new Error('No response from OpenAI');
+          }
+
+          const foods = JSON.parse(completion.data.choices[0].message.content);
+          console.log('Analysis result:', foods);
+
           return new Response(
             JSON.stringify({ foods }),
             { headers: corsHeaders }
           );
-        } catch (error) {
-          console.error('Error processing image:', error);
-          return new Response(
-            JSON.stringify({ error: 'Failed to process image', details: error.message }),
-            { status: 500, headers: corsHeaders }
-          );
         }
+      } catch (error) {
+        console.error('Error processing input:', error);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to process input', 
+            details: error.message 
+          }),
+          { 
+            status: 500, 
+            headers: corsHeaders 
+          }
+        );
       }
     }
 
@@ -141,13 +151,16 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error processing request:', error);
+    console.error('Error in analyze-food function:', error);
     return new Response(
       JSON.stringify({ 
-        error: error.message,
-        details: error.stack 
+        error: 'Failed to process request',
+        details: error.message 
       }),
-      { status: 500, headers: corsHeaders }
+      { 
+        status: 500, 
+        headers: corsHeaders 
+      }
     );
   }
 });
