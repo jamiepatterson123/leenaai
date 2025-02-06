@@ -13,11 +13,11 @@ serve(async (req) => {
   }
 
   try {
-    const { text, image, date } = await req.json();
-    console.log('Received request with:', { hasText: !!text, hasImage: !!image, date });
+    const { text, date } = await req.json();
+    console.log('Received request with:', { text, date });
 
-    if (!text && !image) {
-      throw new Error('Either text or image input is required');
+    if (!text) {
+      throw new Error('No text provided');
     }
 
     const apiKey = Deno.env.get('OPENAI_API_KEY');
@@ -25,71 +25,55 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    const configuration = new Configuration({
-      apiKey: apiKey,
-    });
+    const configuration = new Configuration({ apiKey });
     const openai = new OpenAIApi(configuration);
 
-    let prompt;
-    let messages;
-
-    if (text) {
-      console.log('Processing text input:', text);
-      prompt = `Extract food items and their approximate quantities from this text: "${text}"
-      Format the response as a JSON array of objects with these properties:
-      - name: food name
-      - weight_g: estimated weight in grams
-      - category: meal category (breakfast, lunch, dinner, or snacks)
-      Example: [{"name": "banana", "weight_g": 120, "category": "snacks"}]`;
-
-      messages = [
-        { role: "system", content: "You are a nutrition expert that extracts food information from natural language." },
-        { role: "user", content: prompt }
-      ];
-    } else if (image) {
-      console.log('Processing image input');
-      messages = [
-        {
-          role: "user",
-          content: [
-            { type: "text", text: "What food items do you see in this image? List them with estimated weights in grams." },
-            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${image}` } }
-          ],
-        },
-      ];
-    }
-
-    console.log('Sending request to OpenAI');
+    console.log('Analyzing text with OpenAI...');
+    
+    // First, extract food items and quantities
     const completion = await openai.createChatCompletion({
       model: "gpt-4o-mini",
-      messages: messages,
-      max_tokens: 1000,
+      messages: [
+        {
+          role: "system",
+          content: `Extract food items and their approximate quantities from this text. Format the response as a JSON array of objects with these properties:
+          - name: food name
+          - weight_g: estimated weight in grams
+          - category: meal category (breakfast, lunch, dinner, or snacks)
+          Example: [{"name": "banana", "weight_g": 120, "category": "snacks"}]`
+        },
+        { role: "user", content: text }
+      ],
     });
 
     const foodItems = JSON.parse(completion.data.choices[0].message.content);
-    console.log('Parsed food items:', foodItems);
+    console.log('Extracted food items:', foodItems);
 
-    // Now get nutrition information for each food item
+    // Then, get nutrition information for each food
     const foods = await Promise.all(foodItems.map(async (item) => {
-      const nutritionPrompt = `Provide nutritional information for ${item.weight_g}g of ${item.name} in this exact JSON format:
-      {
-        "calories": number,
-        "protein": number,
-        "carbs": number,
-        "fat": number
-      }`;
-
       const nutritionCompletion = await openai.createChatCompletion({
         model: "gpt-4o-mini",
         messages: [
-          { role: "system", content: "You are a nutrition expert." },
-          { role: "user", content: nutritionPrompt }
+          {
+            role: "system",
+            content: "You are a nutrition expert. Provide accurate nutritional information for the specified food quantity."
+          },
+          {
+            role: "user",
+            content: `Provide nutritional information for ${item.weight_g}g of ${item.name} in this exact JSON format:
+            {
+              "calories": number,
+              "protein": number of grams,
+              "carbs": number of grams,
+              "fat": number of grams
+            }`
+          }
         ],
       });
 
       const nutrition = JSON.parse(nutritionCompletion.data.choices[0].message.content);
       console.log(`Nutrition data for ${item.name}:`, nutrition);
-      
+
       return {
         name: item.name,
         weight_g: item.weight_g,
@@ -98,6 +82,8 @@ serve(async (req) => {
         state: 'raw'
       };
     }));
+
+    console.log('Processed all foods:', foods);
 
     return new Response(
       JSON.stringify({ foods }),
