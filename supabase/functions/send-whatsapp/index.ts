@@ -12,6 +12,9 @@ interface WhatsAppMessage {
   content: string
   message_type: string
   status: string
+  whatsapp_preferences: {
+    phone_number: string
+  }
 }
 
 Deno.serve(async (req) => {
@@ -21,15 +24,25 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
+    // Create Supabase client with service role key to bypass RLS
+    const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
     )
 
-    // Get pending messages
-    const { data: messages, error: fetchError } = await supabaseClient
+    // Get pending messages with their associated preferences
+    const { data: messages, error: fetchError } = await supabaseAdmin
       .from('whatsapp_messages')
-      .select('*, whatsapp_preferences!inner(phone_number)')
+      .select(`
+        *,
+        whatsapp_preferences!inner(phone_number)
+      `)
       .eq('status', 'pending')
       .limit(10)
 
@@ -68,9 +81,12 @@ Deno.serve(async (req) => {
         }
 
         // Update message status to sent
-        const { error: updateError } = await supabaseClient
+        const { error: updateError } = await supabaseAdmin
           .from('whatsapp_messages')
-          .update({ status: 'sent', updated_at: new Date().toISOString() })
+          .update({ 
+            status: 'sent',
+            updated_at: new Date().toISOString()
+          })
           .eq('id', message.id)
 
         if (updateError) {
@@ -81,9 +97,12 @@ Deno.serve(async (req) => {
         console.error(`Error processing message ${message.id}:`, error)
         
         // Update message status to failed
-        const { error: updateError } = await supabaseClient
+        const { error: updateError } = await supabaseAdmin
           .from('whatsapp_messages')
-          .update({ status: 'failed', updated_at: new Date().toISOString() })
+          .update({ 
+            status: 'failed',
+            updated_at: new Date().toISOString()
+          })
           .eq('id', message.id)
 
         if (updateError) {
