@@ -51,7 +51,7 @@ serve(async (req) => {
               messages: [
                 {
                   role: "system",
-                  content: "You are a nutrition expert. Extract food items and their approximate quantities from the user's input. Return the response as a JSON array with objects containing 'name' and 'weight_g' properties."
+                  content: "You are a nutrition expert. Extract food items and their approximate quantities from the user's input. Return ONLY a raw JSON array with no markdown formatting, no explanations, and no additional text."
                 },
                 {
                   role: "user",
@@ -66,7 +66,13 @@ serve(async (req) => {
             throw new Error('No response from OpenAI');
           }
 
-          const foodItems = JSON.parse(completion.choices[0].message.content);
+          // Remove any markdown formatting
+          const cleanContent = completion.choices[0].message.content
+            .replace(/```json\n?/g, '')
+            .replace(/```\n?/g, '')
+            .trim();
+
+          const foodItems = JSON.parse(cleanContent);
           console.log('Extracted food items:', foodItems);
 
           const foods = await Promise.all(foodItems.map(async (item: any) => {
@@ -81,7 +87,7 @@ serve(async (req) => {
                 messages: [
                   {
                     role: "system",
-                    content: "You are a nutrition expert. Provide accurate nutritional information for the specified food and weight. Return a JSON object with calories, protein (g), carbs (g), and fat (g)."
+                    content: "You are a nutrition expert. Provide accurate nutritional information for the specified food and weight. Return ONLY a raw JSON object with no markdown formatting, no explanations, and no additional text."
                   },
                   {
                     role: "user",
@@ -92,7 +98,13 @@ serve(async (req) => {
             });
 
             const nutritionCompletion = await nutritionResponse.json();
-            const nutritionData = JSON.parse(nutritionCompletion.choices[0]?.message?.content || '{}');
+            // Remove any markdown formatting
+            const cleanNutritionContent = nutritionCompletion.choices[0]?.message?.content
+              .replace(/```json\n?/g, '')
+              .replace(/```\n?/g, '')
+              .trim();
+
+            const nutritionData = JSON.parse(cleanNutritionContent || '{}');
             return {
               ...item,
               nutrition: nutritionData
@@ -108,7 +120,6 @@ serve(async (req) => {
         if (image) {
           console.log('Processing image input');
           
-          // Add validation for base64 image
           if (!image.match(/^[A-Za-z0-9+/=]+$/)) {
             throw new Error('Invalid base64 image data');
           }
@@ -126,14 +137,14 @@ serve(async (req) => {
               messages: [
                 {
                   role: "system",
-                  content: "You are a nutrition expert. Analyze the food in this image and provide nutritional information in a specific JSON format."
+                  content: "You are a nutrition expert. You must return ONLY a raw JSON array with no markdown formatting, no explanations, and no additional text. The response must be valid JSON that can be parsed directly."
                 },
                 {
                   role: "user",
                   content: [
                     {
                       type: "text",
-                      text: "Analyze this food image and return ONLY a JSON array in this exact format, with no additional text: [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]"
+                      text: "Return ONLY a JSON array in this exact format: [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]. Do not include any markdown formatting, explanations, or additional text."
                     },
                     {
                       type: "image_url",
@@ -163,7 +174,14 @@ serve(async (req) => {
 
           let parsedContent;
           try {
-            parsedContent = JSON.parse(completion.choices[0].message.content.trim());
+            // Remove any markdown formatting before parsing
+            const cleanContent = completion.choices[0].message.content
+              .replace(/```json\n?/g, '')
+              .replace(/```\n?/g, '')
+              .trim();
+            
+            console.log('Cleaned content:', cleanContent);
+            parsedContent = JSON.parse(cleanContent);
             console.log('Parsed content:', parsedContent);
 
             if (!Array.isArray(parsedContent)) {
