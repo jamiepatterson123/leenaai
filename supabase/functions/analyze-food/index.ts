@@ -108,8 +108,12 @@ serve(async (req) => {
         if (image) {
           console.log('Processing image input');
           
-          // Using the vision-specific endpoint and model
-          const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          // Add validation for base64 image
+          if (!image.match(/^[A-Za-z0-9+/=]+$/)) {
+            throw new Error('Invalid base64 image data');
+          }
+
+          const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${apiKey}`,
@@ -118,17 +122,18 @@ serve(async (req) => {
             body: JSON.stringify({
               model: "gpt-4-vision-preview",
               max_tokens: 1000,
+              temperature: 0.7,
               messages: [
                 {
                   role: "system",
-                  content: "You are a nutrition expert. Analyze the food in this image and provide detailed nutritional information. Return a valid JSON array of food items with their estimated weights and nutritional values in this exact format: [{\"name\": \"food name\", \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]"
+                  content: "You are a nutrition expert. Analyze the food in this image and provide nutritional information in a specific JSON format."
                 },
                 {
                   role: "user",
                   content: [
                     {
                       type: "text",
-                      text: "What foods do you see in this image? Return ONLY a JSON array of food items with their estimated weights and nutritional values. No explanation or other text."
+                      text: "Analyze this food image and return ONLY a JSON array in this exact format, with no additional text: [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]"
                     },
                     {
                       type: "image_url",
@@ -142,29 +147,44 @@ serve(async (req) => {
             }),
           });
 
-          const completion = await response.json();
+          if (!openAIResponse.ok) {
+            const errorData = await openAIResponse.json();
+            console.error('OpenAI API error:', errorData);
+            throw new Error(`OpenAI API error: ${JSON.stringify(errorData)}`);
+          }
+
+          const completion = await openAIResponse.json();
           console.log('Raw OpenAI response:', completion);
 
           if (!completion.choices?.[0]?.message?.content) {
-            throw new Error('No response from OpenAI');
+            console.error('No content in OpenAI response:', completion);
+            throw new Error('Empty response from OpenAI');
           }
 
+          let parsedContent;
           try {
-            const foods = JSON.parse(completion.choices[0].message.content);
-            console.log('Parsed foods:', foods);
+            parsedContent = JSON.parse(completion.choices[0].message.content.trim());
+            console.log('Parsed content:', parsedContent);
 
-            if (!Array.isArray(foods)) {
+            if (!Array.isArray(parsedContent)) {
               throw new Error('Response is not an array');
             }
 
+            // Validate the structure of each food item
+            parsedContent.forEach((item, index) => {
+              if (!item.name || typeof item.weight_g !== 'number' || !item.nutrition) {
+                throw new Error(`Invalid food item structure at index ${index}`);
+              }
+            });
+
             return new Response(
-              JSON.stringify({ foods }),
+              JSON.stringify({ foods: parsedContent }),
               { headers: corsHeaders }
             );
           } catch (parseError) {
-            console.error('Error parsing OpenAI response:', parseError);
-            console.log('Response content:', completion.choices[0].message.content);
-            throw new Error('Failed to parse OpenAI response');
+            console.error('Parse error:', parseError);
+            console.error('Raw content:', completion.choices[0].message.content);
+            throw new Error(`Failed to parse OpenAI response: ${parseError.message}`);
           }
         }
       } catch (error) {
@@ -172,7 +192,7 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({ 
             error: 'Failed to process input', 
-            details: error.message 
+            details: error.message,
           }),
           { 
             status: 500, 
