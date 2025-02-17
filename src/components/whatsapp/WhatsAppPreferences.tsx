@@ -1,3 +1,4 @@
+
 import React from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationToggle } from "./NotificationToggle";
@@ -30,6 +31,11 @@ export const WhatsAppPreferences = () => {
   });
 
   const updatePreferences = async (updates: Partial<typeof preferences>) => {
+    // Don't update if the value hasn't changed
+    if (preferences?.phone_number === updates.phone_number) {
+      return;
+    }
+
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) {
       toast.error("You must be logged in to update preferences");
