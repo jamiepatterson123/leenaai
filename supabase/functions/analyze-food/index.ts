@@ -1,5 +1,6 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { Configuration, OpenAIApi } from "https://esm.sh/openai@3.2.1";
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -24,10 +25,6 @@ serve(async (req) => {
       );
     }
 
-    const configuration = new Configuration({ apiKey });
-    const openai = new OpenAIApi(configuration);
-
-    // For image analysis
     if (req.headers.get('content-type')?.includes('application/json')) {
       const { image, text } = await req.json();
       
@@ -42,43 +39,60 @@ serve(async (req) => {
       try {
         if (text) {
           console.log('Processing text input:', text);
-          const completion = await openai.createChatCompletion({
-            model: "gpt-4o-mini",
-            messages: [
-              {
-                role: "system",
-                content: "You are a nutrition expert. Extract food items and their approximate quantities from the user's input. Return the response as a JSON array with objects containing 'name' and 'weight_g' properties."
-              },
-              {
-                role: "user",
-                content: text
-              }
-            ]
-          });
-
-          if (!completion.data.choices[0]?.message?.content) {
-            throw new Error('No response from OpenAI');
-          }
-
-          const foodItems = JSON.parse(completion.data.choices[0].message.content);
-          console.log('Extracted food items:', foodItems);
-
-          const foods = await Promise.all(foodItems.map(async (item: any) => {
-            const nutritionCompletion = await openai.createChatCompletion({
+          
+          const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${apiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
               model: "gpt-4o-mini",
               messages: [
                 {
                   role: "system",
-                  content: "You are a nutrition expert. Provide accurate nutritional information for the specified food and weight. Return a JSON object with calories, protein (g), carbs (g), and fat (g)."
+                  content: "You are a nutrition expert. Extract food items and their approximate quantities from the user's input. Return the response as a JSON array with objects containing 'name' and 'weight_g' properties."
                 },
                 {
                   role: "user",
-                  content: `Provide nutritional information for ${item.weight_g}g of ${item.name}`
+                  content: text
                 }
-              ]
+              ],
+            }),
+          });
+
+          const completion = await response.json();
+          if (!completion.choices?.[0]?.message?.content) {
+            throw new Error('No response from OpenAI');
+          }
+
+          const foodItems = JSON.parse(completion.choices[0].message.content);
+          console.log('Extracted food items:', foodItems);
+
+          const foods = await Promise.all(foodItems.map(async (item: any) => {
+            const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: "gpt-4o-mini",
+                messages: [
+                  {
+                    role: "system",
+                    content: "You are a nutrition expert. Provide accurate nutritional information for the specified food and weight. Return a JSON object with calories, protein (g), carbs (g), and fat (g)."
+                  },
+                  {
+                    role: "user",
+                    content: `Provide nutritional information for ${item.weight_g}g of ${item.name}`
+                  }
+                ],
+              }),
             });
 
-            const nutritionData = JSON.parse(nutritionCompletion.data.choices[0]?.message?.content || '{}');
+            const nutritionCompletion = await nutritionResponse.json();
+            const nutritionData = JSON.parse(nutritionCompletion.choices[0]?.message?.content || '{}');
             return {
               ...item,
               nutrition: nutritionData
@@ -93,36 +107,45 @@ serve(async (req) => {
 
         if (image) {
           console.log('Processing image input');
-          const completion = await openai.createChatCompletion({
-            model: "gpt-4o-mini",
-            messages: [
-              {
-                role: "system",
-                content: "You are a nutrition expert. Analyze the food in this image and provide detailed nutritional information. Return a JSON array of food items with their estimated weights and nutritional values."
-              },
-              {
-                role: "user",
-                content: [
-                  { 
-                    type: "text", 
-                    text: "What foods do you see in this image? List them with approximate quantities in grams and provide nutritional information including calories, protein, carbs, and fat." 
-                  },
-                  { 
-                    type: "image_url", 
-                    image_url: { 
-                      url: `data:image/jpeg;base64,${image}` 
-                    } 
-                  }
-                ]
-              }
-            ]
+          
+          const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${apiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: "gpt-4o-mini",
+              messages: [
+                {
+                  role: "system",
+                  content: "You are a nutrition expert. Analyze the food in this image and provide detailed nutritional information. Return a JSON array of food items with their estimated weights and nutritional values."
+                },
+                {
+                  role: "user",
+                  content: [
+                    { 
+                      type: "text", 
+                      text: "What foods do you see in this image? List them with approximate quantities in grams and provide nutritional information including calories, protein, carbs, and fat." 
+                    },
+                    { 
+                      type: "image_url", 
+                      image_url: { 
+                        url: `data:image/jpeg;base64,${image}` 
+                      } 
+                    }
+                  ]
+                }
+              ],
+            }),
           });
 
-          if (!completion.data.choices[0]?.message?.content) {
+          const completion = await response.json();
+          if (!completion.choices?.[0]?.message?.content) {
             throw new Error('No response from OpenAI');
           }
 
-          const foods = JSON.parse(completion.data.choices[0].message.content);
+          const foods = JSON.parse(completion.choices[0].message.content);
           console.log('Analysis result:', foods);
 
           return new Response(
