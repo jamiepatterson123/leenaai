@@ -84,4 +84,26 @@ export const TimezoneSelector = ({ value, onChange }: TimezoneSelectorProps) => 
     "Indian/Mauritius", "Indian/Reunion",
     "Pacific/Apia", "Pacific/Auckland", "Pacific/Bougainville", "Pacific/Chatham", "Pacific/Easter",
     "Pacific/Efate", "Pacific/Enderbury", "Pacific/Fakaofo", "Pacific/Fiji", "Pacific/Funafuti",
-    "Pacific/Galapagos", "Pacific/Gambier", "Pacific/Guadalcanal", "Pacific/Guam", "Pacific/
+    "Pacific/Galapagos", "Pacific/Gambier", "Pacific/Guadalcanal", "Pacific/Guam", "Pacific/Honolulu",
+    "Pacific/Kiritimati", "Pacific/Kosrae", "Pacific/Kwajalein", "Pacific/Majuro", "Pacific/Marquesas",
+    "Pacific/Midway", "Pacific/Nauru", "Pacific/Niue", "Pacific/Norfolk", "Pacific/Noumea",
+    "Pacific/Pago_Pago", "Pacific/Palau", "Pacific/Pitcairn", "Pacific/Pohnpei", "Pacific/Port_Moresby",
+    "Pacific/Rarotonga", "Pacific/Saipan", "Pacific/Tahiti", "Pacific/Tarawa", "Pacific/Tongatapu",
+    "Pacific/Wake", "Pacific/Wallis"
+  ];
+
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger>
+        <SelectValue placeholder="Select timezone" />
+      </SelectTrigger>
+      <SelectContent>
+        {timezones.map((timezone) => (
+          <SelectItem key={timezone} value={timezone}>
+            {timezone}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+};
