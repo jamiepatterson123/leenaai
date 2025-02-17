@@ -1,3 +1,4 @@
+
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -17,6 +18,9 @@ const Auth = () => {
   useEffect(() => {
     console.log("Auth component mounted");
     let mounted = true;
+
+    // Clear any stale auth data on mount
+    localStorage.removeItem('sb-tehosjvonqxuiziqjlry-auth-token');
 
     // Check if we're in a password reset flow
     const type = searchParams.get("type");
@@ -77,6 +81,20 @@ const Auth = () => {
       }
     };
 
+    // Force a session refresh
+    const refreshSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.refreshSession();
+        console.log("Session refresh result:", session, "Error:", error);
+        if (error) {
+          console.error("Session refresh error:", error);
+        }
+      } catch (e) {
+        console.error("Session refresh failed:", e);
+      }
+    };
+
+    refreshSession();
     checkSession();
 
     return () => {
