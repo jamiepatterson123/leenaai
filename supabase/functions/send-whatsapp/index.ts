@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
     // Process each message
     for (const message of messages) {
       try {
-        const whatsappApiUrl = 'https://graph.facebook.com/v17.0/YOUR_PHONE_NUMBER_ID/messages'
+        const whatsappApiUrl = 'https://graph.facebook.com/v17.0/15551753639/messages'
         const response = await fetch(whatsappApiUrl, {
           method: 'POST',
           headers: {
