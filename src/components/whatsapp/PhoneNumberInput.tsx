@@ -1,7 +1,7 @@
 
+import React, { useState, useEffect } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { useState } from "react"
 
 interface PhoneNumberInputProps {
   value: string;
@@ -12,7 +12,7 @@ export const PhoneNumberInput = ({ value, onChange }: PhoneNumberInputProps) => 
   const [localValue, setLocalValue] = useState(value);
 
   // Update local value when prop value changes
-  React.useEffect(() => {
+  useEffect(() => {
     setLocalValue(value);
   }, [value]);
 
