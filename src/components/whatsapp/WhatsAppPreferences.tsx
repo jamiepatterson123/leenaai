@@ -1,57 +1,66 @@
-import React from "react";
+
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { NotificationToggle } from "./NotificationToggle";
 import { PhoneNumberInput } from "./PhoneNumberInput";
+import { NotificationToggle } from "./NotificationToggle";
 import { TimezoneSelector } from "./TimezoneSelector";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const WhatsAppPreferences = () => {
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const queryClient = useQueryClient();
+
+  // Fetch existing preferences
   const { data: preferences, isLoading } = useQuery({
-    queryKey: ["whatsappPreferences"],
+    queryKey: ['whatsapp-preferences'],
     queryFn: async () => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error("Not authenticated");
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
 
       const { data, error } = await supabase
-        .from("whatsapp_preferences")
-        .select("*")
-        .eq("user_id", user.user.id)
-        .order("created_at", { ascending: false })
-        .limit(1);
+        .from('whatsapp_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (error) {
-        console.error("Error fetching WhatsApp preferences:", error);
-        throw error;
-      }
-
-      return data?.[0] || null;
-    },
+      if (error) throw error;
+      return data;
+    }
   });
 
-  const updatePreferences = async (updates: Partial<typeof preferences>) => {
-    const { data: user } = await supabase.auth.getUser();
-    if (!user.user) {
-      toast.error("You must be logged in to update preferences");
-      return;
+  useEffect(() => {
+    if (preferences?.phone_number) {
+      setPhoneNumber(preferences.phone_number);
     }
+  }, [preferences]);
 
-    const { error } = await supabase
-      .from("whatsapp_preferences")
-      .upsert({
-        user_id: user.user.id,
-        ...preferences,
-        ...updates,
-        updated_at: new Date().toISOString(),
-      });
+  const handlePhoneNumberChange = async (newPhoneNumber: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("You must be logged in to update preferences");
+        return;
+      }
 
-    if (error) {
-      console.error("Error updating WhatsApp preferences:", error);
-      toast.error("Failed to update preferences");
-      return;
+      setPhoneNumber(newPhoneNumber);
+
+      const { error } = await supabase
+        .from('whatsapp_preferences')
+        .upsert({
+          user_id: user.id,
+          phone_number: newPhoneNumber,
+        });
+
+      if (error) throw error;
+      
+      queryClient.invalidateQueries({ queryKey: ['whatsapp-preferences'] });
+      toast.success("Phone number updated successfully");
+    } catch (error) {
+      console.error('Error updating phone number:', error);
+      toast.error("Failed to update phone number");
     }
-
-    toast.success("Preferences updated successfully");
   };
 
   if (isLoading) {
@@ -59,28 +68,15 @@ export const WhatsAppPreferences = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <PhoneNumberInput
-        value={preferences?.phone_number || ""}
-        onChange={(phone_number) => updatePreferences({ phone_number })}
-      />
-      
-      <NotificationToggle
-        label="Daily Reminders"
-        enabled={preferences?.reminders_enabled ?? true}
-        onChange={(reminders_enabled) => updatePreferences({ reminders_enabled })}
-      />
-      
-      <NotificationToggle
-        label="Weekly Reports"
-        enabled={preferences?.weekly_report_enabled ?? true}
-        onChange={(weekly_report_enabled) => updatePreferences({ weekly_report_enabled })}
-      />
-      
-      <TimezoneSelector
-        value={preferences?.timezone || "UTC"}
-        onChange={(timezone) => updatePreferences({ timezone })}
-      />
-    </div>
+    <Card>
+      <CardContent className="pt-6 space-y-6">
+        <PhoneNumberInput
+          value={phoneNumber}
+          onChange={handlePhoneNumber => handlePhoneNumberChange(handlePhoneNumber)}
+        />
+        <NotificationToggle />
+        <TimezoneSelector />
+      </CardContent>
+    </Card>
   );
 };
