@@ -1,4 +1,3 @@
-
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 
@@ -13,17 +12,10 @@ export const PhoneNumberInput = ({ value, onChange }: PhoneNumberInputProps) => 
       <Label htmlFor="phone_number">WhatsApp Phone Number</Label>
       <Input
         id="phone_number"
-        type="text"
-        inputMode="tel"
         placeholder="+1234567890"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="font-mono"
-        autoComplete="tel"
       />
-      <p className="text-sm text-muted-foreground">
-        Enter your number in international format (e.g. +1234567890)
-      </p>
     </div>
-  );
-};
+  )
+}
