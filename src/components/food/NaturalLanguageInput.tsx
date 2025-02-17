@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Mic, Send, Loader2 } from 'lucide-react';
@@ -5,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
+import { saveFoodEntries } from '../analysis/FoodEntrySaver';
 
 interface NaturalLanguageInputProps {
   onSuccess?: () => void;
@@ -54,13 +56,11 @@ export const NaturalLanguageInput = ({ onSuccess, selectedDate = new Date() }: N
   const processAudioToText = async (audioBlob: Blob) => {
     setIsProcessing(true);
     try {
-      // Convert blob to base64
       const buffer = await audioBlob.arrayBuffer();
       const base64Audio = btoa(
         new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
       );
 
-      // Send to Supabase Edge Function for speech-to-text
       const { data, error } = await supabase.functions.invoke('voice-to-text', {
         body: { audio: base64Audio }
       });
@@ -101,6 +101,14 @@ export const NaturalLanguageInput = ({ onSuccess, selectedDate = new Date() }: N
       if (error) throw error;
 
       if (data?.foods) {
+        // Process and save the analyzed foods to the food diary
+        const foodEntries = data.foods.map((food: any) => ({
+          ...food,
+          state: 'logged',
+          category: 'uncategorized'
+        }));
+
+        await saveFoodEntries(foodEntries, selectedDate);
         toast.success('Food logged successfully');
         setInputText('');
         onSuccess?.();
