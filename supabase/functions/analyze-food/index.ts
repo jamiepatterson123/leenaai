@@ -108,6 +108,7 @@ serve(async (req) => {
         if (image) {
           console.log('Processing image input');
           
+          // Using the vision-specific endpoint and model
           const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -115,43 +116,56 @@ serve(async (req) => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              model: "gpt-4",
+              model: "gpt-4-vision-preview",
+              max_tokens: 1000,
               messages: [
                 {
                   role: "system",
-                  content: "You are a nutrition expert. Analyze the food in this image and provide detailed nutritional information. Return a JSON array of food items with their estimated weights and nutritional values."
+                  content: "You are a nutrition expert. Analyze the food in this image and provide detailed nutritional information. Return a valid JSON array of food items with their estimated weights and nutritional values in this exact format: [{\"name\": \"food name\", \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]"
                 },
                 {
                   role: "user",
                   content: [
-                    { 
-                      type: "text", 
-                      text: "What foods do you see in this image? List them with approximate quantities in grams and provide nutritional information including calories, protein, carbs, and fat." 
+                    {
+                      type: "text",
+                      text: "What foods do you see in this image? Return ONLY a JSON array of food items with their estimated weights and nutritional values. No explanation or other text."
                     },
-                    { 
-                      type: "image_url", 
-                      image_url: { 
-                        url: `data:image/jpeg;base64,${image}` 
-                      } 
+                    {
+                      type: "image_url",
+                      image_url: {
+                        url: `data:image/jpeg;base64,${image}`
+                      }
                     }
                   ]
                 }
-              ],
+              ]
             }),
           });
 
           const completion = await response.json();
+          console.log('Raw OpenAI response:', completion);
+
           if (!completion.choices?.[0]?.message?.content) {
             throw new Error('No response from OpenAI');
           }
 
-          const foods = JSON.parse(completion.choices[0].message.content);
-          console.log('Analysis result:', foods);
+          try {
+            const foods = JSON.parse(completion.choices[0].message.content);
+            console.log('Parsed foods:', foods);
 
-          return new Response(
-            JSON.stringify({ foods }),
-            { headers: corsHeaders }
-          );
+            if (!Array.isArray(foods)) {
+              throw new Error('Response is not an array');
+            }
+
+            return new Response(
+              JSON.stringify({ foods }),
+              { headers: corsHeaders }
+            );
+          } catch (parseError) {
+            console.error('Error parsing OpenAI response:', parseError);
+            console.log('Response content:', completion.choices[0].message.content);
+            throw new Error('Failed to parse OpenAI response');
+          }
         }
       } catch (error) {
         console.error('Error processing input:', error);
