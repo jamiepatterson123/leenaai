@@ -1,8 +1,5 @@
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-
-const whatsappApiKey = Deno.env.get('WHATSAPP_API_KEY')
-const whatsappApiUrl = 'https://graph.facebook.com/v17.0/155517536392139/messages'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,188 +7,93 @@ const corsHeaders = {
 }
 
 interface WhatsAppMessage {
-  phoneNumber: string
-  message: string
-  type: 'reminder' | 'weekly_report' | 'welcome'
-  userId?: string
+  id: string
+  user_id: string
+  content: string
+  message_type: string
+  status: string
 }
 
-const getWelcomeMessage = () => {
-  return `Welcome to Leena - the most advanced AI nutrition coaching app on the planet. 
-
-Leena will send you reminders via whatsapp as well as a weekly nutrition report detailing how you can improve your nutrition to reach your health goals. 
-
-Treat Leena like a real coach, if you have questions, just send a message through whatsapp and you'll get a response :) 
-
-Good luck and welcome to the team
-
-Leena.ai`
-}
-
-const generateWeeklyReport = async (userId: string) => {
-  try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-
-    if (!supabaseUrl || !supabaseKey) {
-      throw new Error('Missing Supabase configuration')
-    }
-
-    // Fetch this week's food diary entries
-    const foodResponse = await fetch(
-      `${supabaseUrl}/rest/v1/food_diary?user_id=eq.${userId}&select=*`,
-      {
-        headers: {
-          Authorization: `Bearer ${supabaseKey}`,
-          apikey: supabaseKey,
-        },
-      }
-    )
-    const foodEntries = await foodResponse.json()
-
-    // Fetch user's targets
-    const profileResponse = await fetch(
-      `${supabaseUrl}/rest/v1/profiles?user_id=eq.${userId}&select=*`,
-      {
-        headers: {
-          Authorization: `Bearer ${supabaseKey}`,
-          apikey: supabaseKey,
-        },
-      }
-    )
-    const profiles = await profileResponse.json()
-    const profile = profiles[0]
-
-    if (!profile) {
-      throw new Error('Profile not found')
-    }
-
-    // Calculate weekly averages
-    const totalEntries = foodEntries?.length || 0
-    const uniqueDays = new Set(foodEntries.map((entry: any) => entry.date)).size
-
-    if (totalEntries === 0) {
-      return "📊 Weekly Nutrition Report\n\nNo nutrition data was recorded this week. Start logging your meals to get detailed insights!"
-    }
-
-    const totals = foodEntries.reduce((acc: any, entry: any) => ({
-      calories: acc.calories + entry.calories,
-      protein: acc.protein + entry.protein,
-      carbs: acc.carbs + entry.carbs,
-      fat: acc.fat + entry.fat,
-    }), { calories: 0, protein: 0, carbs: 0, fat: 0 })
-
-    const dailyAverages = {
-      calories: Math.round(totals.calories / uniqueDays),
-      protein: Math.round(totals.protein / uniqueDays),
-      carbs: Math.round(totals.carbs / uniqueDays),
-      fat: Math.round(totals.fat / uniqueDays),
-    }
-
-    // Calculate percentage of target met
-    const targetPercentages = {
-      calories: Math.round((dailyAverages.calories / profile.target_calories) * 100),
-      protein: Math.round((dailyAverages.protein / profile.target_protein) * 100),
-      carbs: Math.round((dailyAverages.carbs / profile.target_carbs) * 100),
-      fat: Math.round((dailyAverages.fat / profile.target_fat) * 100),
-    }
-
-    // Generate insights
-    const insights: string[] = []
-    
-    if (uniqueDays < 7) {
-      insights.push(`• Try to log your meals every day for more accurate insights`)
-    }
-
-    if (dailyAverages.calories < profile.target_calories * 0.85) {
-      insights.push(`• Your calorie intake is below target. This might slow down your progress`)
-    } else if (dailyAverages.calories > profile.target_calories * 1.15) {
-      insights.push(`• Your calorie intake is above target. Consider adjusting portion sizes`)
-    }
-
-    if (dailyAverages.protein < profile.target_protein * 0.9) {
-      insights.push(`• Increase your protein intake to support muscle maintenance and recovery`)
-    }
-
-    // Generate report message
-    return `📊 Your Weekly Nutrition Report
-
-📝 Logging Consistency
-Days tracked: ${uniqueDays}/7 (${Math.round((uniqueDays/7)*100)}% consistency)
-
-📈 Daily Averages vs Targets
-🔥 Calories: ${dailyAverages.calories}/${profile.target_calories} (${targetPercentages.calories}%)
-🥩 Protein: ${dailyAverages.protein}g/${profile.target_protein}g (${targetPercentages.protein}%)
-🍚 Carbs: ${dailyAverages.carbs}g/${profile.target_carbs}g (${targetPercentages.carbs}%)
-🥑 Fat: ${dailyAverages.fat}g/${profile.target_fat}g (${targetPercentages.fat}%)
-
-💡 Weekly Insights:
-${insights.join('\n')}
-
-Keep up the great work! 💪
-Reply to this message if you need any help or advice.`
-
-  } catch (error) {
-    console.error('Error generating weekly report:', error)
-    return "Unable to generate weekly report at this time. Please try again later."
-  }
-}
-
-serve(async (req) => {
+Deno.serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    const { phoneNumber, message, type, userId }: WhatsAppMessage = await req.json()
-    let finalMessage = message
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    )
 
-    if (type === 'welcome') {
-      finalMessage = getWelcomeMessage()
-    } else if (type === 'reminder') {
-      finalMessage = `🍽️ Daily Nutrition Reminder
+    // Get pending messages
+    const { data: messages, error: fetchError } = await supabaseClient
+      .from('whatsapp_messages')
+      .select('*, whatsapp_preferences!inner(phone_number)')
+      .eq('status', 'pending')
+      .limit(10)
 
-Hey there! Time to log your meals and stay on track with your nutrition goals.
-
-📸 Simply take a photo of your food to log it instantly.
-💪 Stay consistent with your tracking for better results!
-
-Need help? Just reply to this message.`
-    } else if (type === 'weekly_report' && userId) {
-      finalMessage = await generateWeeklyReport(userId)
+    if (fetchError) {
+      console.error('Error fetching messages:', fetchError)
+      throw fetchError
     }
 
-    console.log('Sending WhatsApp message:', {
-      phoneNumber,
-      type,
-      messageLength: finalMessage.length
-    })
-
-    const response = await fetch(whatsappApiUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${whatsappApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        to: phoneNumber,
-        type: 'text',
-        text: { body: finalMessage }
-      }),
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('WhatsApp API error:', errorText)
-      throw new Error(`WhatsApp API error: ${errorText}`)
+    if (!messages || messages.length === 0) {
+      return new Response(
+        JSON.stringify({ message: 'No pending messages' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
-    const result = await response.json()
-    console.log('WhatsApp message sent:', result)
+    // Process each message
+    for (const message of messages) {
+      try {
+        const whatsappApiUrl = 'https://graph.facebook.com/v17.0/YOUR_PHONE_NUMBER_ID/messages'
+        const response = await fetch(whatsappApiUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Deno.env.get('WHATSAPP_API_KEY')}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messaging_product: 'whatsapp',
+            to: message.whatsapp_preferences.phone_number,
+            type: 'text',
+            text: { body: message.content }
+          })
+        })
+
+        if (!response.ok) {
+          throw new Error(`WhatsApp API error: ${response.statusText}`)
+        }
+
+        // Update message status to sent
+        const { error: updateError } = await supabaseClient
+          .from('whatsapp_messages')
+          .update({ status: 'sent', updated_at: new Date().toISOString() })
+          .eq('id', message.id)
+
+        if (updateError) {
+          console.error('Error updating message status:', updateError)
+        }
+
+      } catch (error) {
+        console.error(`Error processing message ${message.id}:`, error)
+        
+        // Update message status to failed
+        const { error: updateError } = await supabaseClient
+          .from('whatsapp_messages')
+          .update({ status: 'failed', updated_at: new Date().toISOString() })
+          .eq('id', message.id)
+
+        if (updateError) {
+          console.error('Error updating message status:', updateError)
+        }
+      }
+    }
 
     return new Response(
-      JSON.stringify({ success: true, result }),
+      JSON.stringify({ message: 'Messages processed successfully' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
