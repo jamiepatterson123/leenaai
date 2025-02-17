@@ -183,6 +183,7 @@ export type Database = {
         Row: {
           activity_level: string | null
           age: number | null
+          api_version: string | null
           created_at: string
           dietary_restrictions: string[] | null
           first_name: string | null
@@ -203,6 +204,7 @@ export type Database = {
         Insert: {
           activity_level?: string | null
           age?: number | null
+          api_version?: string | null
           created_at?: string
           dietary_restrictions?: string[] | null
           first_name?: string | null
@@ -223,6 +225,7 @@ export type Database = {
         Update: {
           activity_level?: string | null
           age?: number | null
+          api_version?: string | null
           created_at?: string
           dietary_restrictions?: string[] | null
           first_name?: string | null
