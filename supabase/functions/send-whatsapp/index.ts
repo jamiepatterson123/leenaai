@@ -12,8 +12,20 @@ const corsHeaders = {
 interface WhatsAppMessage {
   phoneNumber: string
   message: string
-  type: 'reminder' | 'weekly_report'
+  type: 'reminder' | 'weekly_report' | 'welcome'
   userId?: string
+}
+
+const getWelcomeMessage = () => {
+  return `Welcome to Leena - the most advanced AI nutrition coaching app on the planet. 
+
+Leena will send you reminders via whatsapp as well as a weekly nutrition report detailing how you can improve your nutrition to reach your health goals. 
+
+Treat Leena like a real coach, if you have questions, just send a message through whatsapp and you'll get a response :) 
+
+Good luck and welcome to the team
+
+Leena.ai`
 }
 
 const generateWeeklyReport = async (userId: string) => {
@@ -134,7 +146,9 @@ serve(async (req) => {
     const { phoneNumber, message, type, userId }: WhatsAppMessage = await req.json()
     let finalMessage = message
 
-    if (type === 'reminder') {
+    if (type === 'welcome') {
+      finalMessage = getWelcomeMessage()
+    } else if (type === 'reminder') {
       finalMessage = `🍽️ Daily Nutrition Reminder
 
 Hey there! Time to log your meals and stay on track with your nutrition goals.
