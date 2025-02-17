@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { CustomTargets } from "@/components/profile/CustomTargets";
@@ -134,22 +135,63 @@ const Profile = () => {
     return <div>Loading...</div>;
   }
 
+  const renderContent = () => {
+    if (isMobile) {
+      return (
+        <div className="space-y-6">
+          {isProfileIncomplete() && (
+            <Alert className="mb-6 relative overflow-hidden">
+              <GlowEffect
+                colors={['#0894FF', '#C959DD', '#FF2E54', '#FF9004']}
+                mode="flowHorizontal"
+                blur="soft"
+                duration={3}
+              />
+              <AlertDescription className="relative z-10 text-white font-bold text-center">
+                Important: Fill out your profile now to start generating your monthly custom targets, daily reminders and weekly nutrition reports (takes 1 min)
+              </AlertDescription>
+            </Alert>
+          )}
+          <WhatsAppPreferences />
+          <ProfileForm 
+            onSubmit={handleSubmit} 
+            onChange={handleChange}
+            initialData={profile || undefined} 
+          />
+          <CustomTargets 
+            initialData={{
+              target_protein: profile?.target_protein,
+              target_carbs: profile?.target_carbs,
+              target_fat: profile?.target_fat,
+            }}
+          />
+          <PasswordChange />
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        <ProfileForm 
+          onSubmit={handleSubmit} 
+          onChange={handleChange}
+          initialData={profile || undefined} 
+        />
+        <CustomTargets 
+          initialData={{
+            target_protein: profile?.target_protein,
+            target_carbs: profile?.target_carbs,
+            target_fat: profile?.target_fat,
+          }}
+        />
+        <WhatsAppPreferences />
+        <PasswordChange />
+      </div>
+    );
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
-      {isMobile && isProfileIncomplete() && (
-        <Alert className="mb-6 relative overflow-hidden">
-          <GlowEffect
-            colors={['#0894FF', '#C959DD', '#FF2E54', '#FF9004']}
-            mode="flowHorizontal"
-            blur="soft"
-            duration={3}
-          />
-          <AlertDescription className="relative z-10 text-white font-bold text-center">
-            Important: Fill out your profile now to start generating your monthly custom targets, daily reminders and weekly nutrition reports (takes 1 min)
-          </AlertDescription>
-        </Alert>
-      )}
-      
       <div className="flex items-center gap-2 mb-8">
         <h1 className="text-3xl font-bold">Profile Settings</h1>
         <HoverCard>
@@ -174,25 +216,7 @@ const Profile = () => {
         </HoverCard>
       </div>
 
-      <div className="space-y-6">
-        <ProfileForm 
-          onSubmit={handleSubmit} 
-          onChange={handleChange}
-          initialData={profile || undefined} 
-        />
-        
-        <CustomTargets 
-          initialData={{
-            target_protein: profile?.target_protein,
-            target_carbs: profile?.target_carbs,
-            target_fat: profile?.target_fat,
-          }}
-        />
-
-        <WhatsAppPreferences />
-
-        <PasswordChange />
-      </div>
+      {renderContent()}
     </div>
   );
 };
