@@ -10,8 +10,9 @@ interface PhoneNumberInputProps {
 export const PhoneNumberInput = ({ value, onChange }: PhoneNumberInputProps) => {
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    // Allow only numbers, plus sign, and spaces
-    if (/^[\d\s+]*$/.test(newValue)) {
+    // Only block characters that are definitely not part of a phone number
+    // Allow numbers, plus sign, spaces, parentheses, and hyphens
+    if (/^[0-9+\s()-]*$/.test(newValue)) {
       onChange(newValue);
     }
   };
@@ -21,11 +22,13 @@ export const PhoneNumberInput = ({ value, onChange }: PhoneNumberInputProps) => 
       <Label htmlFor="phone_number">WhatsApp Phone Number</Label>
       <Input
         id="phone_number"
-        type="tel"
+        type="text" // Changed from 'tel' to 'text' to ensure consistent behavior
+        inputMode="tel" // This triggers the phone keyboard on mobile
         placeholder="+1234567890"
         value={value}
         onChange={handlePhoneNumberChange}
         className="font-mono"
+        autoComplete="tel"
       />
       <p className="text-sm text-muted-foreground">
         Enter your number in international format (e.g. +1234567890)
