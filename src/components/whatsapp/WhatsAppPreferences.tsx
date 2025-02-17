@@ -31,18 +31,19 @@ export const WhatsAppPreferences = () => {
   });
 
   const updatePreferences = async (updates: Partial<typeof preferences>) => {
-    // Don't update if the value hasn't changed
-    if (preferences?.phone_number === updates.phone_number) {
-      return;
-    }
-
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) {
       toast.error("You must be logged in to update preferences");
       return;
     }
 
-    const { error } = await supabase
+    // Only proceed with update if there are actual changes
+    if (preferences?.phone_number === updates.phone_number) {
+      return;
+    }
+
+    // First, insert or update the preferences
+    const { error: preferencesError } = await supabase
       .from("whatsapp_preferences")
       .upsert({
         user_id: user.user.id,
@@ -51,10 +52,29 @@ export const WhatsAppPreferences = () => {
         updated_at: new Date().toISOString(),
       });
 
-    if (error) {
-      console.error("Error updating WhatsApp preferences:", error);
+    if (preferencesError) {
+      console.error("Error updating WhatsApp preferences:", preferencesError);
       toast.error("Failed to update preferences");
       return;
+    }
+
+    // If we're updating the phone number, manually create a welcome message
+    // This is needed because the trigger might not have the right status
+    if (updates.phone_number && updates.phone_number !== preferences?.phone_number) {
+      const { error: messageError } = await supabase
+        .from("whatsapp_messages")
+        .insert({
+          user_id: user.user.id,
+          content: "👋 Welcome to Leena.ai! Your WhatsApp integration is now active. You will receive daily reminders and weekly reports here.",
+          message_type: "welcome",
+          status: "pending"
+        });
+
+      if (messageError) {
+        console.error("Error creating welcome message:", messageError);
+        toast.error("Failed to send welcome message");
+        return;
+      }
     }
 
     toast.success("Preferences updated successfully");
