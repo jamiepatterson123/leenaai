@@ -1,5 +1,7 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 
 export interface TimezoneSelectorProps {
   value: string;
@@ -92,15 +94,28 @@ export const TimezoneSelector = ({ value, onChange }: TimezoneSelectorProps) => 
     "Pacific/Wake", "Pacific/Wallis"
   ];
 
+  const formatTimezoneLabel = (timezone: string) => {
+    try {
+      const now = new Date();
+      const offset = formatInTimeZone(now, timezone, 'xxx'); // Format as "+07:00" or "-07:00"
+      return `${timezone} (GMT${offset})`;
+    } catch (error) {
+      console.error(`Error formatting timezone ${timezone}:`, error);
+      return timezone;
+    }
+  };
+
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger>
-        <SelectValue placeholder="Select timezone" />
+        <SelectValue placeholder="Select timezone">
+          {value ? formatTimezoneLabel(value) : "Select timezone"}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent>
         {timezones.map((timezone) => (
           <SelectItem key={timezone} value={timezone}>
-            {timezone}
+            {formatTimezoneLabel(timezone)}
           </SelectItem>
         ))}
       </SelectContent>
