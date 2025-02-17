@@ -10,7 +10,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -29,7 +28,6 @@ serve(async (req) => {
       const { image, text } = await req.json();
       
       if (!image && !text) {
-        console.error('No image or text provided');
         return new Response(
           JSON.stringify({ error: 'No image or text provided' }),
           { status: 400, headers: corsHeaders }
@@ -39,7 +37,6 @@ serve(async (req) => {
       try {
         if (text) {
           console.log('Processing text input:', text);
-          
           const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -48,14 +45,15 @@ serve(async (req) => {
             },
             body: JSON.stringify({
               model: "gpt-4o",
+              temperature: 0.3,
               messages: [
                 {
                   role: "system",
-                  content: "You are a nutrition expert. Extract food items and their approximate quantities from the user's input. Return ONLY a raw JSON array with no markdown formatting, no explanations, and no additional text."
+                  content: "You are a JSON generator for food items. Output only valid JSON arrays containing food items. No markdown, no text, no explanations."
                 },
                 {
                   role: "user",
-                  content: text
+                  content: `Extract food items from this text and return a JSON array like this example (NO OTHER TEXT OR FORMATTING): [{"name":"apple","weight_g":100}]. Text: ${text}`
                 }
               ],
             }),
@@ -66,14 +64,14 @@ serve(async (req) => {
             throw new Error('No response from OpenAI');
           }
 
-          // Remove any markdown formatting
+          // Clean and parse the response
           const cleanContent = completion.choices[0].message.content
             .replace(/```json\n?/g, '')
-            .replace(/```\n?/g, '')
+            .replace(/```/g, '')
             .trim();
 
+          console.log('Cleaned content:', cleanContent);
           const foodItems = JSON.parse(cleanContent);
-          console.log('Extracted food items:', foodItems);
 
           const foods = await Promise.all(foodItems.map(async (item: any) => {
             const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -84,26 +82,27 @@ serve(async (req) => {
               },
               body: JSON.stringify({
                 model: "gpt-4o",
+                temperature: 0.3,
                 messages: [
                   {
                     role: "system",
-                    content: "You are a nutrition expert. Provide accurate nutritional information for the specified food and weight. Return ONLY a raw JSON object with no markdown formatting, no explanations, and no additional text."
+                    content: "You are a JSON generator for nutrition facts. Output only valid JSON objects. No markdown, no text, no explanations."
                   },
                   {
                     role: "user",
-                    content: `Provide nutritional information for ${item.weight_g}g of ${item.name}`
+                    content: `Return nutrition data as a JSON object like this example (NO OTHER TEXT OR FORMATTING): {"calories":50,"protein":0.5,"carbs":12,"fat":0.2}. Food: ${item.weight_g}g of ${item.name}`
                   }
                 ],
               }),
             });
 
             const nutritionCompletion = await nutritionResponse.json();
-            // Remove any markdown formatting
             const cleanNutritionContent = nutritionCompletion.choices[0]?.message?.content
               .replace(/```json\n?/g, '')
-              .replace(/```\n?/g, '')
+              .replace(/```/g, '')
               .trim();
 
+            console.log('Cleaned nutrition content:', cleanNutritionContent);
             const nutritionData = JSON.parse(cleanNutritionContent || '{}');
             return {
               ...item,
@@ -132,19 +131,19 @@ serve(async (req) => {
             },
             body: JSON.stringify({
               model: "gpt-4o",
+              temperature: 0.3,
               max_tokens: 1000,
-              temperature: 0.7,
               messages: [
                 {
                   role: "system",
-                  content: "You are a nutrition expert. You must return ONLY a raw JSON array with no markdown formatting, no explanations, and no additional text. The response must be valid JSON that can be parsed directly."
+                  content: "You are a JSON generator for food analysis. Output only valid JSON arrays with food items and their nutrition data. No markdown, no text, no explanations."
                 },
                 {
                   role: "user",
                   content: [
                     {
                       type: "text",
-                      text: "Return ONLY a JSON array in this exact format: [{\"name\": string, \"weight_g\": number, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}]. Do not include any markdown formatting, explanations, or additional text."
+                      text: "Return a JSON array like this example (NO OTHER TEXT OR FORMATTING): [{\"name\":\"food name\",\"weight_g\":100,\"nutrition\":{\"calories\":50,\"protein\":0.5,\"carbs\":12,\"fat\":0.2}}]"
                     },
                     {
                       type: "image_url",
@@ -168,27 +167,22 @@ serve(async (req) => {
           console.log('Raw OpenAI response:', completion);
 
           if (!completion.choices?.[0]?.message?.content) {
-            console.error('No content in OpenAI response:', completion);
             throw new Error('Empty response from OpenAI');
           }
 
-          let parsedContent;
           try {
-            // Remove any markdown formatting before parsing
             const cleanContent = completion.choices[0].message.content
               .replace(/```json\n?/g, '')
-              .replace(/```\n?/g, '')
+              .replace(/```/g, '')
               .trim();
             
             console.log('Cleaned content:', cleanContent);
-            parsedContent = JSON.parse(cleanContent);
-            console.log('Parsed content:', parsedContent);
+            const parsedContent = JSON.parse(cleanContent);
 
             if (!Array.isArray(parsedContent)) {
               throw new Error('Response is not an array');
             }
 
-            // Validate the structure of each food item
             parsedContent.forEach((item, index) => {
               if (!item.name || typeof item.weight_g !== 'number' || !item.nutrition) {
                 throw new Error(`Invalid food item structure at index ${index}`);
@@ -212,10 +206,7 @@ serve(async (req) => {
             error: 'Failed to process input', 
             details: error.message,
           }),
-          { 
-            status: 500, 
-            headers: corsHeaders 
-          }
+          { status: 500, headers: corsHeaders }
         );
       }
     }
@@ -232,10 +223,7 @@ serve(async (req) => {
         error: 'Failed to process request',
         details: error.message 
       }),
-      { 
-        status: 500, 
-        headers: corsHeaders 
-      }
+      { status: 500, headers: corsHeaders }
     );
   }
 });
