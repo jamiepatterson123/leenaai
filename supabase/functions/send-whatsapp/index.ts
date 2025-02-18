@@ -36,6 +36,8 @@ Deno.serve(async (req) => {
       }
     )
 
+    console.log("Fetching pending messages...");
+
     // Get pending messages with their associated preferences
     const { data: messages, error: fetchError } = await supabaseAdmin
       .from('whatsapp_messages')
@@ -51,6 +53,8 @@ Deno.serve(async (req) => {
       throw fetchError
     }
 
+    console.log(`Found ${messages?.length || 0} pending messages`);
+
     if (!messages || messages.length === 0) {
       return new Response(
         JSON.stringify({ message: 'No pending messages' }),
@@ -61,23 +65,32 @@ Deno.serve(async (req) => {
     // Process each message
     for (const message of messages) {
       try {
+        console.log(`Processing message ${message.id} for phone ${message.whatsapp_preferences.phone_number}`);
+        
         const whatsappApiUrl = 'https://graph.facebook.com/v17.0/15551753639/messages'
+        const whatsappPayload = {
+          messaging_product: 'whatsapp',
+          to: message.whatsapp_preferences.phone_number,
+          type: 'text',
+          text: { body: message.content }
+        };
+
+        console.log('Sending WhatsApp message with payload:', JSON.stringify(whatsappPayload));
+
         const response = await fetch(whatsappApiUrl, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${Deno.env.get('WHATSAPP_API_KEY')}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            messaging_product: 'whatsapp',
-            to: message.whatsapp_preferences.phone_number,
-            type: 'text',
-            text: { body: message.content }
-          })
+          body: JSON.stringify(whatsappPayload)
         })
 
+        const responseData = await response.json();
+        console.log('WhatsApp API response:', JSON.stringify(responseData));
+
         if (!response.ok) {
-          throw new Error(`WhatsApp API error: ${response.statusText}`)
+          throw new Error(`WhatsApp API error: ${response.statusText}, Response: ${JSON.stringify(responseData)}`)
         }
 
         // Update message status to sent
