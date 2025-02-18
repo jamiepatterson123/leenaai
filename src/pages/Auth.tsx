@@ -19,13 +19,15 @@ const Auth = () => {
     console.log("Auth component mounted");
     let mounted = true;
 
-    // Clear any stale auth data on mount
-    localStorage.removeItem('sb-tehosjvonqxuiziqjlry-auth-token');
-
     // Check if we're in a password reset flow
+    const access_token = searchParams.get("access_token");
     const type = searchParams.get("type");
-    if (type === "recovery") {
+    
+    console.log("URL params:", { type, access_token });
+
+    if (type === "recovery" || type === "signup") {
       setView("update_password");
+      console.log("Setting view to update_password");
     }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -34,20 +36,25 @@ const Auth = () => {
         if (!mounted) return;
 
         if (event === 'SIGNED_IN' && session) {
-          console.log("User signed in, redirecting to home");
+          console.log("User signed in, redirecting to profile");
           navigate("/profile");
         }
         if (event === 'SIGNED_OUT') {
           setError("");
         }
         if (event === 'PASSWORD_RECOVERY') {
+          console.log("Password recovery event received");
           setView("update_password");
         }
-        if (event === 'USER_UPDATED' && !session) {
+        if (event === 'USER_UPDATED') {
+          console.log("User updated event received");
           try {
             const { error: sessionError } = await supabase.auth.getSession();
             if (sessionError) {
               setError(sessionError.message);
+            } else {
+              // Successfully updated password
+              navigate("/profile");
             }
           } catch (e) {
             console.error("Session check error:", e);
@@ -65,7 +72,7 @@ const Auth = () => {
         
         if (mounted) {
           if (session) {
-            navigate("/");
+            navigate("/profile");
           }
           if (error) {
             setError(error.message);
@@ -81,20 +88,6 @@ const Auth = () => {
       }
     };
 
-    // Force a session refresh
-    const refreshSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.refreshSession();
-        console.log("Session refresh result:", session, "Error:", error);
-        if (error) {
-          console.error("Session refresh error:", error);
-        }
-      } catch (e) {
-        console.error("Session refresh failed:", e);
-      }
-    };
-
-    refreshSession();
     checkSession();
 
     return () => {
@@ -114,7 +107,7 @@ const Auth = () => {
         className="absolute top-4 right-4 z-10 bg-white text-primary border-primary hover:bg-primary/5"
         variant="outline"
       >
-        Sign Up
+        Back Home
       </Button>
 
       <div className="hidden md:flex md:w-1/2 bg-primary/5 items-center justify-center p-8">
@@ -168,7 +161,7 @@ const Auth = () => {
               }
             }}
             providers={[]}
-            redirectTo={`${window.location.origin}/auth/callback`}
+            redirectTo={`${window.location.origin}/auth`}
             view={view}
             showLinks={true}
             localization={{
