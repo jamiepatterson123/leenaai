@@ -6,6 +6,8 @@ import { PhoneNumberInput } from "./PhoneNumberInput";
 import { TimezoneSelector } from "./TimezoneSelector";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Beaker } from "lucide-react";
 
 export const WhatsAppPreferences = () => {
   const { data: preferences, isLoading } = useQuery({
@@ -27,6 +29,27 @@ export const WhatsAppPreferences = () => {
       }
 
       return data?.[0] || null;
+    },
+  });
+
+  const { data: isAdmin } = useQuery({
+    queryKey: ["isAdmin"],
+    queryFn: async () => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) return false;
+
+      const { data, error } = await supabase
+        .rpc('has_role', {
+          _user_id: user.user.id,
+          _role: 'admin'
+        });
+
+      if (error) {
+        console.error("Error checking admin role:", error);
+        return false;
+      }
+
+      return data || false;
     },
   });
 
@@ -59,7 +82,6 @@ export const WhatsAppPreferences = () => {
     }
 
     // If we're updating the phone number, manually create a welcome message
-    // This is needed because the trigger might not have the right status
     if (updates.phone_number && updates.phone_number !== preferences?.phone_number) {
       const { error: messageError } = await supabase
         .from("whatsapp_messages")
@@ -78,6 +100,33 @@ export const WhatsAppPreferences = () => {
     }
 
     toast.success("Preferences updated successfully");
+  };
+
+  const handleTestMessage = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("You must be logged in to send test messages");
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('send-test-whatsapp', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) throw error;
+      
+      if (data.success) {
+        toast.success("Test message sent successfully! Check your WhatsApp.");
+      } else {
+        throw new Error(data.error || "Failed to send test message");
+      }
+    } catch (error) {
+      console.error("Error sending test message:", error);
+      toast.error(error.message || "Failed to send test message");
+    }
   };
 
   if (isLoading) {
@@ -107,6 +156,22 @@ export const WhatsAppPreferences = () => {
         value={preferences?.timezone || "UTC"}
         onChange={(timezone) => updatePreferences({ timezone })}
       />
+
+      {isAdmin && (
+        <div className="pt-4 border-t">
+          <Button
+            onClick={handleTestMessage}
+            variant="outline"
+            className="w-full"
+          >
+            <Beaker className="w-4 h-4 mr-2" />
+            Send Test Message
+          </Button>
+          <p className="mt-2 text-sm text-muted-foreground">
+            This will send a test message to your configured WhatsApp number.
+          </p>
+        </div>
+      )}
     </div>
   );
 };
