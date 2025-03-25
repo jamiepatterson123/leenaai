@@ -1,8 +1,8 @@
+
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { MoveRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Testimonial } from "@/components/ui/testimonial";
@@ -11,7 +11,6 @@ function Hero() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [titleNumber, setTitleNumber] = useState(0);
-  const [email, setEmail] = useState("");
   const titles = useMemo(
     () => ["effortlessly", "accurately", "intelligently"],
     []
@@ -29,11 +28,7 @@ function Hero() {
   }, [titleNumber, titles]);
 
   const handleSubmit = () => {
-    if (email) {
-      navigate("/auth", { state: { email } });
-    } else {
-      navigate("/auth");
-    }
+    navigate("/auth");
   };
 
   return (
@@ -78,42 +73,14 @@ function Hero() {
               With just photos of your food
             </p>
           </div>
-          <div className="flex md:flex-row flex-col gap-3 w-full md:w-auto items-center">
-            {isMobile ? (
-              <>
-                <Input
-                  type="email"
-                  placeholder="Your email here"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-[200px] h-[64px] md:w-[200px] text-lg text-center"
-                />
-                <Button 
-                  size="lg" 
-                  className="gap-4 w-[200px] md:w-[200px] h-[64px]"
-                  onClick={handleSubmit}
-                >
-                  Start free <MoveRight className="w-4 h-4" />
-                </Button>
-              </>
-            ) : (
-              <>
-                <Input
-                  type="email"
-                  placeholder="Your email here"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-[200px] h-[64px] md:w-[200px] text-lg text-center"
-                />
-                <Button 
-                  size="lg" 
-                  className="gap-4 w-[200px] md:w-[200px] h-[64px]"
-                  onClick={handleSubmit}
-                >
-                  Start free <MoveRight className="w-4 h-4" />
-                </Button>
-              </>
-            )}
+          <div className="flex items-center">
+            <Button 
+              size="lg" 
+              className="gap-4 w-[200px] md:w-[200px] h-[64px]"
+              onClick={handleSubmit}
+            >
+              Start free <MoveRight className="w-4 h-4" />
+            </Button>
           </div>
           <div className="mt-4">
             <Testimonial />
