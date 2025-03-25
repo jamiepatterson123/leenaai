@@ -123,10 +123,10 @@ const Auth = () => {
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left space-y-4">
             <h2 className="text-2xl font-bold">
-              {view === "sign_in" && "Sign In"}
-              {view === "sign_up" && "Sign Up"}
-              {view === "forgotten_password" && "Reset Password"}
-              {view === "update_password" && "Update Password"}
+              {view === "sign_in" ? "Sign In" : ""}
+              {view === "sign_up" ? "Sign Up" : ""}
+              {view === "forgotten_password" ? "Reset Password" : ""}
+              {view === "update_password" ? "Update Password" : ""}
             </h2>
             <p className="text-muted-foreground">
               {view === "sign_in" && "Sign in to your account to continue"}
