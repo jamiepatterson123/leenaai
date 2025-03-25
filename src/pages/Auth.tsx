@@ -130,7 +130,7 @@ const Auth = () => {
             </h2>
             <p className="text-muted-foreground">
               {view === "sign_in" && "Sign in to your account to continue"}
-              {view === "sign_up" && "Create a free account to get started"}
+              {view === "sign_up" && "Create a free account to continue"}
               {view === "forgotten_password" && "Enter your email to reset your password"}
               {view === "update_password" && "Enter your new password"}
             </p>
