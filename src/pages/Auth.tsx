@@ -1,4 +1,3 @@
-
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -6,7 +5,6 @@ import { useEffect, useState } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Star } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -16,7 +14,6 @@ const Auth = () => {
   const [view, setView] = useState<"sign_in" | "sign_up" | "forgotten_password" | "update_password">("sign_in");
 
   useEffect(() => {
-    console.log("Auth component mounted");
     let mounted = true;
 
     // Check if we're in a password reset flow
@@ -166,7 +163,6 @@ const Auth = () => {
             redirectTo={`${window.location.origin}/auth`}
             view={view}
             showLinks={true}
-            onViewChange={newView => setView(newView as "sign_in" | "sign_up" | "forgotten_password" | "update_password")}
             localization={{
               variables: {
                 sign_up: {
@@ -175,15 +171,6 @@ const Auth = () => {
               }
             }}
           />
-
-          <div className="mt-8 p-6 bg-primary/5 rounded-lg">
-            <div className="flex items-center justify-center space-x-1 mb-3">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-              ))}
-            </div>
-            <p className="text-center font-medium">"Like having a nutritionist in my pocket! Love it!"</p>
-          </div>
         </div>
       </div>
     </div>
