@@ -13,7 +13,7 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<"sign_in" | "forgotten_password" | "update_password">("sign_in");
+  const [view, setView] = useState<"sign_in" | "sign_up" | "forgotten_password" | "update_password">("sign_in");
 
   useEffect(() => {
     console.log("Auth component mounted");
@@ -126,11 +126,13 @@ const Auth = () => {
           <div className="text-center md:text-left space-y-4">
             <h2 className="text-2xl font-bold">
               {view === "sign_in" && "Sign In"}
+              {view === "sign_up" && "Sign Up"}
               {view === "forgotten_password" && "Reset Password"}
               {view === "update_password" && "Update Password"}
             </h2>
             <p className="text-muted-foreground">
               {view === "sign_in" && "Sign in to your account to continue"}
+              {view === "sign_up" && "Create a free account to get started"}
               {view === "forgotten_password" && "Enter your email to reset your password"}
               {view === "update_password" && "Enter your new password"}
             </p>
@@ -164,6 +166,7 @@ const Auth = () => {
             redirectTo={`${window.location.origin}/auth`}
             view={view}
             showLinks={true}
+            onViewChange={newView => setView(newView as "sign_in" | "sign_up" | "forgotten_password" | "update_password")}
             localization={{
               variables: {
                 sign_up: {
