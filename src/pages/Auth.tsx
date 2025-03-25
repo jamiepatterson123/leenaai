@@ -94,6 +94,10 @@ const Auth = () => {
     };
   }, [navigate, searchParams]);
 
+  const toggleView = () => {
+    setView(view === "sign_in" ? "sign_up" : "sign_in");
+  };
+
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
@@ -102,10 +106,18 @@ const Auth = () => {
     <div className="flex min-h-screen relative">
       <Button
         onClick={() => navigate("/")}
-        className="absolute top-4 right-4 z-10 bg-white text-primary border-primary hover:bg-primary/5"
+        className="absolute top-4 left-4 z-10 bg-white text-primary border-primary hover:bg-primary/5"
         variant="outline"
       >
         Back Home
+      </Button>
+
+      <Button
+        onClick={toggleView}
+        className="absolute top-4 right-4 z-10 bg-white text-primary border-primary hover:bg-primary/5"
+        variant="outline"
+      >
+        {view === "sign_in" ? "Sign Up" : "Sign In"}
       </Button>
 
       <div className="hidden md:flex md:w-1/2 bg-primary/5 items-center justify-center p-8">
