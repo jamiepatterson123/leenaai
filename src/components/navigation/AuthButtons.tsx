@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Send, LogOut } from "lucide-react";
@@ -27,12 +28,19 @@ export const AuthButtons = ({ handleShare, session }: AuthButtonsProps) => {
     }
   };
 
+  const shareViaWhatsApp = () => {
+    const shareMessage = "This is an AI nutrition app which allows you to track your nutrition with photos of your food. It's free to use, check it out";
+    const encodedMessage = encodeURIComponent(shareMessage);
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   return (
     <div className="flex items-center gap-4">
       <Button
         variant="ghost"
         size="icon"
-        onClick={handleShare}
+        onClick={shareViaWhatsApp}
         className="text-muted-foreground"
       >
         <Send className="w-4 h-4" />
