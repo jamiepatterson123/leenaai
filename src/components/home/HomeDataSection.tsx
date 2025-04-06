@@ -1,3 +1,4 @@
+
 import React from "react";
 import { WeightInput } from "@/components/WeightInput";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
@@ -6,7 +7,6 @@ import { useHomeData } from "@/components/home/useHomeData";
 import { HabitTracker } from "@/components/habits/HabitTracker";
 import { MacroCircles } from "@/components/home/MacroCircles";
 import { WeightTrendChart } from "@/components/reports/WeightTrendChart";
-import { NaturalLanguageInput } from "@/components/food/NaturalLanguageInput";
 
 export const HomeDataSection = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
@@ -45,11 +45,6 @@ export const HomeDataSection = () => {
           <div className="hidden md:block bg-white rounded-lg p-6">
             <h2 className="text-lg font-semibold mb-4">Today's Nutrition</h2>
             <MacroCircles />
-          </div>
-
-          {/* Natural Language Input - Mobile Only */}
-          <div className="md:hidden bg-white rounded-lg border border-gray-200 p-4">
-            <NaturalLanguageInput />
           </div>
 
           {/* Food Input Section */}
