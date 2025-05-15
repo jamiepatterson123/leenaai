@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
@@ -19,9 +20,9 @@ const Landing = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       <Header1 />
-      <div className="pt-20">
+      <div className="flex-grow flex items-center justify-center">
         <Hero />
       </div>
     </div>
