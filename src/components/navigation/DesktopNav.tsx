@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -8,7 +7,6 @@ import { MoreDropdown } from "./MoreDropdown";
 import { supabase } from "@/integrations/supabase/client";
 import { NavItems } from "./NavItems";
 import { AuthButtons } from "./AuthButtons";
-import { motion } from "framer-motion";
 
 export const DesktopNav = ({ 
   handleShare, 
@@ -20,21 +18,6 @@ export const DesktopNav = ({
   toggleTheme: (checked: boolean) => void;
 }) => {
   const [session, setSession] = React.useState(null);
-  const [scrolled, setScrolled] = useState(false);
-    
-  useEffect(() => {
-    const handleScroll = () => {
-      const isScrolled = window.scrollY > 10;
-      if (isScrolled !== scrolled) {
-        setScrolled(isScrolled);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [scrolled]);
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -51,14 +34,7 @@ export const DesktopNav = ({
   }, []);
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className={`hidden md:flex items-center gap-4 transition-all duration-200 ${
-        scrolled ? "py-2" : "py-3"
-      }`}
-    >
+    <div className="hidden md:flex items-center gap-4">
       <NavigationMenu>
         <NavigationMenuList>
           <NavItems />
@@ -66,6 +42,6 @@ export const DesktopNav = ({
         </NavigationMenuList>
       </NavigationMenu>
       <AuthButtons handleShare={handleShare} session={session} />
-    </motion.div>
+    </div>
   );
 };

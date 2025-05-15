@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
@@ -16,22 +15,11 @@ const Landing = () => {
   }, [session, loading, navigate]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-pulse flex flex-col items-center gap-4">
-          <img 
-            src="/app-icon.png" 
-            alt="Leena.ai" 
-            className="h-12 w-12 opacity-70"
-          />
-          <div className="h-2 w-24 bg-muted rounded"></div>
-        </div>
-      </div>
-    );
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
   return (
-    <div className="min-h-screen overflow-x-hidden">
+    <div className="min-h-screen bg-white">
       <Header1 />
       <div className="pt-20">
         <Hero />

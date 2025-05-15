@@ -1,6 +1,3 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -33,17 +30,8 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased font-sans;
+    @apply bg-background text-foreground antialiased;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-heading font-medium;
-  }
-}
-
-/* Card styling enhancements */
-.card {
-  @apply shadow-card transition-shadow hover:shadow-soft;
 }
 
 /* Override dropdown and popup backgrounds to ensure solid white */
@@ -53,17 +41,4 @@
 
 [data-radix-popper-content-wrapper] > * {
   @apply bg-white !important;
-}
-
-/* Button hover animations */
-.btn-hover-effect {
-  @apply relative overflow-hidden transition-all duration-300;
-}
-
-.btn-hover-effect::after {
-  @apply content-[''] absolute top-0 h-full w-0 left-0 bg-white/10 transition-all duration-300;
-}
-
-.btn-hover-effect:hover::after {
-  @apply w-full;
 }

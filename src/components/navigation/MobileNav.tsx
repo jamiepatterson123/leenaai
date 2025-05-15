@@ -1,11 +1,9 @@
-
 import React, { useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, Book, User, LineChart } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthButtons } from "./AuthButtons";
-import { motion } from "framer-motion";
 
 interface MobileNavProps {
   onAddClick: () => void;
@@ -59,12 +57,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
           <div className="absolute top-5 right-4 z-50">
             <AuthButtons handleShare={() => {}} session={session} />
           </div>
-          <motion.nav 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed bottom-0 left-0 right-0 bg-white border-t border-border/40 py-3 px-4 z-50 shadow-soft"
-          >
+          <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/40 py-2 px-4 z-50">
             <div className="flex justify-around items-center max-w-xl mx-auto">
               <Link to="/" className={`flex flex-col items-center ${isActive('/')}`}>
                 <Home className="h-6 w-6" />
@@ -77,15 +70,9 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
               <div className="flex flex-col items-center">
                 <button 
                   onClick={handleCircleClick}
-                  className="w-14 h-14 rounded-full border-2 border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-center"
+                  className="w-14 h-14 rounded-full border-2 border-[#9a9a9a] hover:bg-gray-50 transition-colors"
                   aria-label="Upload photo"
-                >
-                  <span className="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center">
-                    <span className="sr-only">Add photo</span>
-                    <span className="block w-6 h-0.5 bg-primary"></span>
-                    <span className="block h-6 w-0.5 bg-primary absolute"></span>
-                  </span>
-                </button>
+                />
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -104,7 +91,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
                 <User className="h-6 w-6" />
               </Link>
             </div>
-          </motion.nav>
+          </nav>
         </>
       )}
     </>

@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -18,10 +17,6 @@ export default {
       },
     },
     extend: {
-      fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        heading: ['Outfit', 'sans-serif'],
-      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -48,10 +43,6 @@ export default {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
         },
-      },
-      boxShadow: {
-        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.06)',
-        'card': '0 2px 8px -1px rgba(0, 0, 0, 0.08)',
       },
       keyframes: {
         "fade-up": {
