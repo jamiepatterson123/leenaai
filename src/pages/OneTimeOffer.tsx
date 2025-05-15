@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -128,7 +129,10 @@ Lock in our best rate. This page disappears after you leave — and you will nev
             </Button>
             <Button onClick={handleUpgrade} size="lg" className="w-full sm:w-auto order-1 sm:order-2">
               <Star className="mr-2 h-4 w-4" />
-              Get 2 months free
+              <div className="flex flex-col items-center">
+                <span className="text-xl font-bold">Get 2 months free</span>
+                <span className="text-xs font-medium">Only $8.25/month billed annually</span>
+              </div>
             </Button>
           </CardFooter>
         </Card>
