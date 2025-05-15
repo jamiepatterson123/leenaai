@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -63,7 +64,8 @@ const OneTimeOffer = () => {
   };
   
   const handleSkip = () => {
-    navigate("/dashboard");
+    // Redirect to profile page instead of dashboard
+    navigate("/profile");
   };
   
   return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
