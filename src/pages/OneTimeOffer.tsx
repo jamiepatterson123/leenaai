@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -16,27 +17,30 @@ const OneTimeOffer = () => {
     // Track OTO page view
     trackOneTimeOfferView();
     
-    // Get subscription ID from URL if it exists
+    // Check for preview mode first
     const url = new URL(window.location.href);
-    const successParam = url.searchParams.get("subscription_success");
-    const previewMode = location.search.includes("preview=true");
-    
+    const previewMode = url.searchParams.get("preview") === "true";
     setIsPreview(previewMode);
     
-    // If user didn't come from successful checkout and it's not in preview mode, redirect to dashboard
+    // Only redirect if not in preview mode and not from successful checkout
+    const successParam = url.searchParams.get("subscription_success");
     if (successParam !== "true" && !previewMode) {
+      console.log("Redirecting to dashboard - not from successful checkout and not in preview mode");
       navigate("/dashboard");
     }
   }, [navigate, location]);
   
   const handleUpgrade = () => {
     // Use the new product price ID for yearly checkout
-    // In a real implementation, you would get this from Stripe or your database
     redirectToYearlyCheckout("price_1RP4bMLKGAMmFDpiFaJZpYlb");
   };
   
   const handleSkip = () => {
-    navigate("/dashboard");
+    if (isPreview) {
+      navigate("/dashboard");
+    } else {
+      navigate("/dashboard");
+    }
   };
 
   return (
