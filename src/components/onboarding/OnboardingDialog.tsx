@@ -1,3 +1,4 @@
+
 "use client";
 
 import { cn } from "@/lib/utils";
@@ -10,12 +11,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
+import { HomescreenTutorial } from "./HomescreenTutorial";
 
 export function OnboardingDialog() {
   const [step, setStep] = useState(1);
@@ -35,6 +36,11 @@ export function OnboardingDialog() {
     {
       title: "Smart Goals",
       description: "We'll help you set and track personalized nutrition goals based on your needs.",
+    },
+    {
+      title: "Add to Homescreen",
+      description: "Get quick access by adding Leena.ai to your phone's homescreen.",
+      isHomescreenTutorial: true,
     },
     {
       title: "Ready to Start?",
@@ -65,15 +71,19 @@ export function OnboardingDialog() {
       }}
     >
       <DialogContent className="gap-0 p-0">
-        <div className="p-2">
-          <img
-            className="w-full rounded-lg"
-            src="/placeholder.svg"
-            width={382}
-            height={216}
-            alt="Leena.ai tutorial"
-          />
-        </div>
+        {stepContent[step - 1].isHomescreenTutorial ? (
+          <HomescreenTutorial />
+        ) : (
+          <div className="p-2">
+            <img
+              className="w-full rounded-lg"
+              src="/placeholder.svg"
+              width={382}
+              height={216}
+              alt="Leena.ai tutorial"
+            />
+          </div>
+        )}
         <div className="space-y-6 px-6 pb-6 pt-3">
           <DialogHeader>
             <DialogTitle>{stepContent[step - 1].title}</DialogTitle>
