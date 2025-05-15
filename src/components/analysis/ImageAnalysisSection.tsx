@@ -1,3 +1,4 @@
+
 import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "sonner";
@@ -9,6 +10,8 @@ import { FoodVerificationDialog } from "./FoodVerificationDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useSubscription } from "@/hooks/useSubscription";
+import { SubscriptionModal } from "@/components/subscription/SubscriptionModal";
 
 interface ImageAnalysisSectionProps {
   analyzing: boolean;
@@ -38,10 +41,12 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const [showVerification, setShowVerification] = useState(false);
   const [analyzedFoods, setAnalyzedFoods] = useState([]);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const componentRef = React.useRef<HTMLDivElement>(null);
+  const { incrementUsage, hasFreeUsesRemaining, isSubscribed } = useSubscription();
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -65,6 +70,13 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     
     if (analyzing) {
       toast.error("Please wait for the current analysis to complete");
+      return;
+    }
+
+    // Check if user has free uses remaining or is subscribed
+    const canProceed = await incrementUsage();
+    if (!canProceed) {
+      setShowSubscriptionModal(true);
       return;
     }
 
@@ -155,6 +167,10 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
         onClose={() => setShowVerification(false)}
         foods={analyzedFoods}
         onConfirm={handleConfirmFoods}
+      />
+      <SubscriptionModal
+        open={showSubscriptionModal}
+        onOpenChange={setShowSubscriptionModal}
       />
     </div>
   );

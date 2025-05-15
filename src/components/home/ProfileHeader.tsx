@@ -1,15 +1,25 @@
-import { ProfileRow } from "@/integrations/supabase/types/profiles";
+
+import React from "react";
+import { format } from "date-fns";
+import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
 
 interface ProfileHeaderProps {
-  profile: ProfileRow | null;
+  profile: any;
 }
 
-export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
-  if (!profile?.first_name) return null;
-  
+export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile }) => {
   return (
-    <h1 className="text-3xl font-bold mb-6 text-primary">
-      Welcome back, {profile.first_name}
-    </h1>
+    <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 space-y-4 md:space-y-0 bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight">
+          {profile?.first_name ? `Hello, ${profile.first_name}` : "Welcome!"}
+        </h1>
+        <p className="text-muted-foreground">
+          {format(new Date(), "EEEE, MMMM d, yyyy")}
+        </p>
+      </div>
+      
+      <SubscriptionBadge />
+    </div>
   );
 };
