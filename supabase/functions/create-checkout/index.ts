@@ -55,12 +55,18 @@ serve(async (req) => {
       logStep("Existing customer found", { customerId });
     }
 
+    // Get request body if it exists
+    const requestBody = req.body ? await req.json() : {};
+    const priceId = requestBody.price_id || "price_1RP3dMLKGAMmFDpiq07LsXmG"; // Use specified price or default
+    
+    logStep("Using price ID", { priceId });
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price: "price_1RP3dMLKGAMmFDpiq07LsXmG", // Using the specific Price ID
+          price: priceId, // Using the provided Price ID
           quantity: 1,
         },
       ],

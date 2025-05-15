@@ -26,9 +26,9 @@ const OneTimeOffer = () => {
   }, [navigate]);
   
   const handleUpgrade = () => {
-    // Get subscription ID if available
+    // Use the new product price ID for yearly checkout
     // In a real implementation, you would get this from Stripe or your database
-    redirectToYearlyCheckout();
+    redirectToYearlyCheckout("price_1RP4bMLKGAMmFDpiFaJZpYlb");
   };
   
   const handleSkip = () => {

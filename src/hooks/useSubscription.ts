@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
@@ -218,7 +217,7 @@ export const useSubscription = () => {
     }
   };
 
-  const redirectToYearlyCheckout = async (monthlySubscriptionId?: string) => {
+  const redirectToYearlyCheckout = async (priceId?: string) => {
     if (!session) {
       toast({
         title: "Error",
@@ -232,7 +231,10 @@ export const useSubscription = () => {
     
     try {
       const { data, error } = await supabase.functions.invoke("create-yearly-checkout", {
-        body: { subscription_id: monthlySubscriptionId }
+        body: { 
+          subscription_id: priceId ? undefined : undefined,
+          price_id: priceId || "price_1RP4bMLKGAMmFDpiFaJZpYlb" // Use provided price ID or the default
+        }
       });
       
       if (error) {
