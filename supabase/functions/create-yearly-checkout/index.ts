@@ -11,7 +11,7 @@ const corsHeaders = {
 // Helper logging function
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
+  console.log(`[CREATE-YEARLY-CHECKOUT] ${step}${detailsStr}`);
 };
 
 serve(async (req) => {
@@ -53,6 +53,27 @@ serve(async (req) => {
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
       logStep("Existing customer found", { customerId });
+
+      // Find active subscriptions for this customer
+      const subscriptions = await stripe.subscriptions.list({
+        customer: customerId,
+        status: 'active',
+        limit: 1,
+      });
+
+      // Store subscription ID to cancel later
+      if (subscriptions.data.length > 0) {
+        const subscriptionId = subscriptions.data[0].id;
+        logStep("Found active subscription that will be replaced", { subscriptionId });
+      }
+    }
+
+    // Parse request body to get subscription ID to cancel
+    let monthlySubscriptionId = null;
+    if (req.headers.get("content-type")?.includes("application/json")) {
+      const body = await req.json();
+      monthlySubscriptionId = body.subscription_id;
+      logStep("Received subscription ID to cancel", { monthlySubscriptionId });
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -60,16 +81,29 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price: "price_1RP3dMLKGAMmFDpiq07LsXmG", // Using the specific Price ID
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "Leena.ai Premium Yearly",
+              description: "Annual subscription to Leena.ai Premium (Save 17%)"
+            },
+            unit_amount: 9900, // $99.00
+            recurring: {
+              interval: "year"
+            }
+          },
           quantity: 1,
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/oto?subscription_success=true`,
-      cancel_url: `${req.headers.get("origin")}/dashboard?subscription_cancelled=true`,
+      success_url: `${req.headers.get("origin")}/dashboard?yearly_success=true${monthlySubscriptionId ? `&cancel_monthly=${monthlySubscriptionId}` : ''}`,
+      cancel_url: `${req.headers.get("origin")}/dashboard`,
+      metadata: {
+        monthly_subscription_id: monthlySubscriptionId
+      }
     });
     
-    logStep("Checkout session created", { sessionId: session.id, url: session.url });
+    logStep("Yearly checkout session created", { sessionId: session.id, url: session.url });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

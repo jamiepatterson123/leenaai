@@ -11,7 +11,7 @@ const corsHeaders = {
 // Helper logging function
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
+  console.log(`[CANCEL-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
 serve(async (req) => {
@@ -44,34 +44,35 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // Parse request body to get subscription ID to cancel
+    if (!req.headers.get("content-type")?.includes("application/json")) {
+      throw new Error("Request must include JSON body with subscription_id");
+    }
+    
+    const body = await req.json();
+    const subscriptionId = body.subscription_id;
+    
+    if (!subscriptionId) {
+      throw new Error("subscription_id is required");
+    }
+    
+    logStep("Received subscription ID to cancel", { subscriptionId });
+
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     
-    // Check if a Stripe customer already exists for this user
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    let customerId;
+    // Cancel the subscription
+    const canceledSubscription = await stripe.subscriptions.cancel(subscriptionId);
     
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-      logStep("Existing customer found", { customerId });
-    }
-
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
-      customer_email: customerId ? undefined : user.email,
-      line_items: [
-        {
-          price: "price_1RP3dMLKGAMmFDpiq07LsXmG", // Using the specific Price ID
-          quantity: 1,
-        },
-      ],
-      mode: "subscription",
-      success_url: `${req.headers.get("origin")}/oto?subscription_success=true`,
-      cancel_url: `${req.headers.get("origin")}/dashboard?subscription_cancelled=true`,
+    logStep("Subscription canceled", { 
+      subscriptionId: canceledSubscription.id,
+      status: canceledSubscription.status
     });
-    
-    logStep("Checkout session created", { sessionId: session.id, url: session.url });
 
-    return new Response(JSON.stringify({ url: session.url }), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      subscription_id: canceledSubscription.id,
+      status: canceledSubscription.status
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });

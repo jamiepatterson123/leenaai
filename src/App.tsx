@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
@@ -9,6 +10,7 @@ import { Navigation } from "./components/Navigation";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
 import WhatsApp from "./pages/WhatsApp";
+import OneTimeOffer from "./pages/OneTimeOffer";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { useSession } from "./hooks/useSession";
 
@@ -73,6 +75,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <WhatsApp />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/oto"
+          element={
+            <ProtectedRoute>
+              <OneTimeOffer />
             </ProtectedRoute>
           }
         />

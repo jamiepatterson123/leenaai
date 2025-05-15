@@ -42,3 +42,18 @@ export const trackInitiateCheckout = (value: number, currency: string = 'USD') =
     currency
   });
 };
+
+export const trackOneTimeOfferView = () => {
+  trackEvent('ViewContent', {
+    content_name: 'yearly_offer',
+    content_type: 'product'
+  });
+};
+
+export const trackOneTimeOfferPurchase = (value: number, currency: string = 'USD') => {
+  trackEvent('Purchase', { 
+    value, 
+    currency,
+    content_name: 'yearly_offer'
+  });
+};

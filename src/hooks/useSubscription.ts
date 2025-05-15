@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
 import { toast } from "@/hooks/use-toast";
-import { trackPurchase, trackSubscriptionStart } from "@/utils/metaPixel";
+import { trackPurchase, trackSubscriptionStart, trackInitiateCheckout, trackOneTimeOfferView, trackOneTimeOfferPurchase } from "@/utils/metaPixel";
 
 export interface SubscriptionState {
   isLoading: boolean;
@@ -46,6 +46,8 @@ export const useSubscription = () => {
     const url = new URL(window.location.href);
     const successParam = url.searchParams.get("subscription_success");
     const cancelledParam = url.searchParams.get("subscription_cancelled");
+    const yearlySuccessParam = url.searchParams.get("yearly_success");
+    const cancelMonthlyParam = url.searchParams.get("cancel_monthly");
     
     if (successParam === "true") {
       toast({
@@ -73,6 +75,27 @@ export const useSubscription = () => {
       // Remove params from URL
       url.searchParams.delete("subscription_cancelled");
       window.history.replaceState({}, document.title, url.toString());
+    } else if (yearlySuccessParam === "true") {
+      toast({
+        title: "Yearly subscription successful!",
+        description: "Thanks for upgrading to the annual plan!",
+        variant: "default",
+      });
+      
+      // Track yearly purchase with Meta Pixel
+      trackOneTimeOfferPurchase(99, 'USD');
+      
+      // If there's a monthly subscription to cancel
+      if (cancelMonthlyParam) {
+        cancelSubscription(cancelMonthlyParam);
+      }
+      
+      // Remove params from URL
+      url.searchParams.delete("yearly_success");
+      url.searchParams.delete("cancel_monthly");
+      window.history.replaceState({}, document.title, url.toString());
+      // Refresh subscription status
+      checkSubscription();
     }
   }, []);
 
@@ -195,6 +218,69 @@ export const useSubscription = () => {
     }
   };
 
+  const redirectToYearlyCheckout = async (monthlySubscriptionId?: string) => {
+    if (!session) {
+      toast({
+        title: "Error",
+        description: "Please log in to subscribe",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setState((prev) => ({ ...prev, isLoading: true }));
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("create-yearly-checkout", {
+        body: { subscription_id: monthlySubscriptionId }
+      });
+      
+      if (error) {
+        console.error("Error creating yearly checkout session:", error);
+        toast({
+          title: "Error",
+          description: "Failed to create yearly checkout session",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Track InitiateCheckout event with Meta Pixel
+      trackInitiateCheckout(99, 'USD');
+      
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
+    } catch (error) {
+      console.error("Exception creating yearly checkout session:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create yearly checkout session",
+        variant: "destructive",
+      });
+    } finally {
+      setState((prev) => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const cancelSubscription = async (subscriptionId: string) => {
+    if (!session) return;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("cancel-subscription", {
+        body: { subscription_id: subscriptionId }
+      });
+      
+      if (error) {
+        console.error("Error canceling subscription:", error);
+        return;
+      }
+      
+      console.log("Monthly subscription canceled successfully:", data);
+    } catch (error) {
+      console.error("Exception canceling subscription:", error);
+    }
+  };
+
   const redirectToCustomerPortal = async () => {
     if (!session) {
       toast({
@@ -239,6 +325,7 @@ export const useSubscription = () => {
     checkSubscription,
     incrementUsage,
     redirectToCheckout,
+    redirectToYearlyCheckout,
     redirectToCustomerPortal,
   };
 };

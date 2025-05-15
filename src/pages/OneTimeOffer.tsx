@@ -1,0 +1,142 @@
+
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Check, Star, ArrowRight, X } from "lucide-react";
+import { useSubscription } from "@/hooks/useSubscription";
+import { trackOneTimeOfferView } from "@/utils/metaPixel";
+
+const OneTimeOffer = () => {
+  const navigate = useNavigate();
+  const { redirectToYearlyCheckout } = useSubscription();
+  
+  useEffect(() => {
+    // Track OTO page view
+    trackOneTimeOfferView();
+    
+    // Get subscription ID from URL if it exists
+    const url = new URL(window.location.href);
+    const successParam = url.searchParams.get("subscription_success");
+    
+    // If user didn't come from successful checkout, redirect to dashboard
+    if (successParam !== "true") {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+  
+  const handleUpgrade = () => {
+    // Get subscription ID if available
+    // In a real implementation, you would get this from Stripe or your database
+    redirectToYearlyCheckout();
+  };
+  
+  const handleSkip = () => {
+    navigate("/dashboard");
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-4xl mx-auto py-8">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center p-2 bg-green-100 text-green-800 rounded-full mb-4">
+            <Check className="w-8 h-8" />
+          </div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">🎉 Welcome to Leena.ai Premium!</h1>
+          <p className="text-xl text-gray-600">Your monthly subscription is now active</p>
+        </div>
+        
+        <Card className="border-2 border-primary shadow-lg">
+          <CardHeader className="text-center bg-primary/5 border-b">
+            <div className="flex justify-center mb-2">
+              <div className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
+                <Star className="h-4 w-4" />
+                <span>Exclusive Offer</span>
+              </div>
+            </div>
+            <CardTitle className="text-2xl sm:text-3xl">Get 17% Off with Annual Billing</CardTitle>
+            <CardDescription className="text-base">
+              This special offer is only available right now
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="flex flex-col md:flex-row gap-6 md:gap-12 justify-center">
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg mb-4">Monthly Plan (Current)</h3>
+                <div className="text-3xl font-bold mb-2">$10<span className="text-base font-normal text-muted-foreground">/month</span></div>
+                <p className="text-muted-foreground mb-6">$120 billed over a year</p>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                    Unlimited nutrition tracking
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                    AI food photo analysis
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                    Monthly billing
+                  </li>
+                </ul>
+              </div>
+              
+              <div className="w-full md:w-auto flex justify-center">
+                <div className="h-full flex items-center">
+                  <ArrowRight className="h-8 w-8 text-primary" />
+                </div>
+              </div>
+              
+              <div className="flex-1 relative">
+                <div className="absolute -top-4 right-0 left-0 mx-auto w-max">
+                  <div className="bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                    SAVE $21
+                  </div>
+                </div>
+                <div className="border-2 border-primary rounded-lg p-6 bg-primary/5">
+                  <h3 className="font-semibold text-lg mb-4">Annual Plan (Best Value)</h3>
+                  <div className="text-3xl font-bold mb-2">$99<span className="text-base font-normal text-muted-foreground">/year</span></div>
+                  <p className="text-muted-foreground mb-6">Only $8.25 per month equivalent</p>
+                  <ul className="space-y-2">
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                      <span>Everything in monthly plan</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                      <span className="font-medium">17% discount ($21 savings)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                      <span>Hassle-free annual billing</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                      <span>Priority customer support</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-col sm:flex-row gap-4 justify-between pt-6">
+            <Button variant="outline" onClick={handleSkip} className="w-full sm:w-auto order-2 sm:order-1">
+              <X className="mr-2 h-4 w-4" />
+              No thanks, continue with monthly
+            </Button>
+            <Button onClick={handleUpgrade} size="lg" className="w-full sm:w-auto order-1 sm:order-2">
+              <Star className="mr-2 h-4 w-4" />
+              Upgrade to annual plan
+            </Button>
+          </CardFooter>
+        </Card>
+        
+        <div className="text-center mt-6 text-sm text-gray-500">
+          <p>Your subscription can be canceled anytime through your account settings.</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default OneTimeOffer;
