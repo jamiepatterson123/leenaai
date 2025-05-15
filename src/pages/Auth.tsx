@@ -8,6 +8,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { trackEvent } from "@/utils/metaPixel";
+import type { AuthChangeEvent } from "@supabase/supabase-js";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -66,9 +67,9 @@ const Auth = () => {
     
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        // Track signup events - fixed type comparison issue
-        if (event === 'SIGNED_UP') {
+      (event: AuthChangeEvent, session) => {
+        // Track signup events
+        if (event === "SIGNED_UP") {
           console.log("User signed up, tracking in Meta Pixel");
           trackEvent('CompleteRegistration', {
             content_name: 'free_trial',
