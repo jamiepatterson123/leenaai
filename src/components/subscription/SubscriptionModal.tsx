@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Dialog,
@@ -11,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loader2, Lock, Check } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
+import { trackEvent } from "@/utils/metaPixel";
 
 interface SubscriptionModalProps {
   open: boolean;
@@ -28,8 +28,26 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
     redirectToCheckout 
   } = useSubscription();
 
+  // Track modal open
+  React.useEffect(() => {
+    if (open) {
+      trackEvent('SubscriptionModalView', {
+        usageCount,
+        freeUsesRemaining
+      });
+    }
+  }, [open, usageCount, freeUsesRemaining]);
+
   const handleUpgrade = async () => {
     await redirectToCheckout();
+  };
+
+  const handleContinueFreeTrial = () => {
+    trackEvent('ContinueFreeTrial', {
+      usageCount,
+      freeUsesRemaining
+    });
+    onOpenChange(false);
   };
 
   return (
@@ -80,7 +98,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
         <DialogFooter>
           <Button 
             variant="outline" 
-            onClick={() => onOpenChange(false)}
+            onClick={handleContinueFreeTrial}
             disabled={isLoading || freeUsesRemaining <= 0}
           >
             {freeUsesRemaining > 0 ? "Continue Free Trial" : "Cancel"}

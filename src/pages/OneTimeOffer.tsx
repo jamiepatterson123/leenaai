@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -68,7 +67,8 @@ const OneTimeOffer = () => {
     navigate("/profile");
   };
   
-  return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center p-2 bg-green-100 text-green-800 rounded-full mb-4">
@@ -182,7 +182,8 @@ const OneTimeOffer = () => {
           <p>Your subscription can be canceled anytime through your account settings.</p>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default OneTimeOffer;

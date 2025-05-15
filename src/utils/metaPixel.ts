@@ -11,6 +11,19 @@ export const trackEvent = (eventName: string, params?: Record<string, any>) => {
   }
 };
 
+// Track free trial usage
+export const trackFreeTrialUsage = (usageCount: number) => {
+  trackEvent('FreeTrial', { 
+    usage_count: usageCount,
+    remaining: 10 - usageCount
+  });
+};
+
+// Track free trial exhausted (when user hits the limit)
+export const trackFreeTrialExhausted = () => {
+  trackEvent('FreeTrialExhausted');
+};
+
 // E-commerce specific events
 export const trackPurchase = (value: number, currency: string = 'USD', transactionId?: string) => {
   trackEvent('Purchase', { 
@@ -20,11 +33,12 @@ export const trackPurchase = (value: number, currency: string = 'USD', transacti
   });
 };
 
-export const trackSubscriptionStart = (value: number, currency: string = 'USD', subscriptionId?: string) => {
+export const trackSubscriptionStart = (value: number, currency: string = 'USD', subscriptionId?: string, plan: string = 'monthly') => {
   trackEvent('Subscribe', { 
     value, 
     currency,
-    subscription_id: subscriptionId
+    subscription_id: subscriptionId,
+    subscription_plan: plan
   });
 };
 
@@ -56,4 +70,8 @@ export const trackOneTimeOfferPurchase = (value: number, currency: string = 'USD
     currency,
     content_name: 'yearly_offer'
   });
+};
+
+export const trackSubscriptionCancelled = () => {
+  trackEvent('SubscriptionCancelled');
 };

@@ -2,7 +2,16 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
 import { toast } from "@/hooks/use-toast";
-import { trackPurchase, trackSubscriptionStart, trackInitiateCheckout, trackOneTimeOfferView, trackOneTimeOfferPurchase } from "@/utils/metaPixel";
+import { 
+  trackPurchase, 
+  trackSubscriptionStart, 
+  trackInitiateCheckout, 
+  trackOneTimeOfferView, 
+  trackOneTimeOfferPurchase,
+  trackFreeTrialUsage,
+  trackFreeTrialExhausted,
+  trackSubscriptionCancelled
+} from "@/utils/metaPixel";
 
 export interface SubscriptionState {
   isLoading: boolean;
@@ -58,7 +67,7 @@ export const useSubscription = () => {
       // Track purchase event with Meta Pixel
       trackPurchase(10, 'USD');
       // Also track subscription start event
-      trackSubscriptionStart(10, 'USD');
+      trackSubscriptionStart(10, 'USD', undefined, 'monthly');
       
       // Remove params from URL
       url.searchParams.delete("subscription_success");
@@ -156,6 +165,16 @@ export const useSubscription = () => {
       
       console.log("Updated usage data:", data);
       
+      // Track free trial usage with Meta Pixel
+      if (data.usage_count) {
+        trackFreeTrialUsage(data.usage_count);
+        
+        // Track when free trial is exhausted
+        if (data.usage_count >= 10 && !data.has_free_uses_remaining) {
+          trackFreeTrialExhausted();
+        }
+      }
+      
       setState((prev) => ({
         ...prev,
         usageCount: data.usage_count || prev.usageCount,
@@ -188,6 +207,9 @@ export const useSubscription = () => {
     setState((prev) => ({ ...prev, isLoading: true }));
     
     try {
+      // Track InitiateCheckout event with Meta Pixel
+      trackInitiateCheckout(10, 'USD');
+      
       const { data, error } = await supabase.functions.invoke("create-checkout", {});
       
       if (error) {
@@ -199,9 +221,6 @@ export const useSubscription = () => {
         });
         return;
       }
-      
-      // Track InitiateCheckout event with Meta Pixel
-      trackInitiateCheckout(10, 'USD');
       
       // Redirect to Stripe Checkout
       window.location.href = data.url;
@@ -276,6 +295,9 @@ export const useSubscription = () => {
         console.error("Error canceling subscription:", error);
         return;
       }
+      
+      // Track subscription cancellation
+      trackSubscriptionCancelled();
       
       console.log("Monthly subscription canceled successfully:", data);
     } catch (error) {
