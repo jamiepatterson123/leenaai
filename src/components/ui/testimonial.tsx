@@ -1,3 +1,4 @@
+
 function Testimonial() {
   return (
     <div className="flex items-center rounded-full border border-border bg-background p-1 shadow shadow-black/5">
@@ -32,7 +33,7 @@ function Testimonial() {
         />
       </div>
       <p className="px-2 text-xs text-muted-foreground">
-        Trusted by <strong className="font-medium text-foreground">wellness professionals</strong>
+        Created by <strong className="font-medium text-foreground">wellness professionals</strong>
       </p>
     </div>
   );
