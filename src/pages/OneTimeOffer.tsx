@@ -64,7 +64,7 @@ const OneTimeOffer = () => {
                 <span>Exclusive Offer</span>
               </div>
             </div>
-            <CardTitle className="text-2xl sm:text-3xl">Get 17% Off with Annual Billing</CardTitle>
+            <CardTitle className="text-2xl sm:text-3xl">Get Two Months Free with Annual Billing</CardTitle>
             <CardDescription className="text-base">
               This special offer is only available right now
             </CardDescription>
@@ -100,7 +100,7 @@ const OneTimeOffer = () => {
               <div className="flex-1 relative">
                 <div className="absolute -top-4 right-0 left-0 mx-auto w-max">
                   <div className="bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                    SAVE $21
+                    TWO MONTHS FREE
                   </div>
                 </div>
                 <div className="border-2 border-primary rounded-lg p-6 bg-primary/5">
@@ -114,7 +114,7 @@ const OneTimeOffer = () => {
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
-                      <span className="font-medium">17% discount ($21 savings)</span>
+                      <span className="font-medium">2 months free ($21 savings)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
@@ -136,7 +136,7 @@ const OneTimeOffer = () => {
             </Button>
             <Button onClick={handleUpgrade} size="lg" className="w-full sm:w-auto order-1 sm:order-2">
               <Star className="mr-2 h-4 w-4" />
-              Upgrade to annual plan
+              Get 2 months free
             </Button>
           </CardFooter>
         </Card>
