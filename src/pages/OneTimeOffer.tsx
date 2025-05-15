@@ -25,10 +25,11 @@ const OneTimeOffer = () => {
     // Only redirect if not in preview mode and not from successful checkout
     const successParam = url.searchParams.get("subscription_success");
     if (successParam !== "true" && !previewMode) {
-      console.log("Redirecting to dashboard - not from successful checkout and not in preview mode");
-      navigate("/dashboard");
+      // Disable automatic redirect to allow preview mode to work
+      // navigate("/dashboard");
+      console.log("Preview mode is disabled or not from successful checkout");
     }
-  }, [navigate, location]);
+  }, []);
   
   const handleUpgrade = () => {
     // Use the new product price ID for yearly checkout
@@ -36,11 +37,7 @@ const OneTimeOffer = () => {
   };
   
   const handleSkip = () => {
-    if (isPreview) {
-      navigate("/dashboard");
-    } else {
-      navigate("/dashboard");
-    }
+    navigate("/dashboard");
   };
 
   return (
