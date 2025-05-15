@@ -57,9 +57,9 @@ const OneTimeOffer = () => {
     return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
   };
 
+  // Direct link to Stripe payment
   const handleUpgrade = () => {
-    // Use the new product price ID for yearly checkout
-    redirectToYearlyCheckout("price_1RP4bMLKGAMmFDpiFaJZpYlb");
+    window.location.href = "https://buy.stripe.com/7sIbM0aekffE42AeUU";
   };
 
   const handleSkip = () => {
