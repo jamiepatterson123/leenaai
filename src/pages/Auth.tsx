@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { trackEvent } from "@/utils/metaPixel";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -58,6 +59,14 @@ const Auth = () => {
             console.error("Session check error:", e);
             setError("Failed to check authentication status. Please try again.");
           }
+        }
+        // Track signup events
+        if (event === 'SIGNED_UP') {
+          console.log("User signed up, tracking in Meta Pixel");
+          trackEvent('CompleteRegistration', {
+            content_name: 'free_trial',
+            status: true
+          });
         }
       }
     );

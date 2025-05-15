@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
 import { toast } from "@/hooks/use-toast";
+import { trackPurchase, trackSubscriptionStart } from "@/utils/metaPixel";
 
 export interface SubscriptionState {
   isLoading: boolean;
@@ -52,6 +53,12 @@ export const useSubscription = () => {
         description: "You now have unlimited access.",
         variant: "default",
       });
+      
+      // Track purchase event with Meta Pixel
+      trackPurchase(10, 'USD');
+      // Also track subscription start event
+      trackSubscriptionStart(10, 'USD');
+      
       // Remove params from URL
       url.searchParams.delete("subscription_success");
       window.history.replaceState({}, document.title, url.toString());
@@ -170,6 +177,9 @@ export const useSubscription = () => {
         });
         return;
       }
+      
+      // Track InitiateCheckout event with Meta Pixel
+      trackInitiateCheckout(10, 'USD');
       
       // Redirect to Stripe Checkout
       window.location.href = data.url;
