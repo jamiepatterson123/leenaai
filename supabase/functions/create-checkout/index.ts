@@ -60,15 +60,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price_data: {
-            currency: "usd",
-            product_data: { 
-              name: "Leena.ai Premium Subscription",
-              description: "Unlimited nutrition tracking and analysis"
-            },
-            unit_amount: 1000, // $10.00 in cents
-            recurring: { interval: "month" },
-          },
+          price: "price_1RP3dMLKGAMmFDpiq07LsXmG", // Using the specific Price ID
           quantity: 1,
         },
       ],
