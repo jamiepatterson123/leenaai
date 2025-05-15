@@ -1,6 +1,5 @@
-
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Star, ArrowRight, X } from "lucide-react";
@@ -9,7 +8,9 @@ import { trackOneTimeOfferView } from "@/utils/metaPixel";
 
 const OneTimeOffer = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { redirectToYearlyCheckout } = useSubscription();
+  const [isPreview, setIsPreview] = useState(false);
   
   useEffect(() => {
     // Track OTO page view
@@ -18,12 +19,15 @@ const OneTimeOffer = () => {
     // Get subscription ID from URL if it exists
     const url = new URL(window.location.href);
     const successParam = url.searchParams.get("subscription_success");
+    const previewMode = location.search.includes("preview=true");
     
-    // If user didn't come from successful checkout, redirect to dashboard
-    if (successParam !== "true") {
+    setIsPreview(previewMode);
+    
+    // If user didn't come from successful checkout and it's not in preview mode, redirect to dashboard
+    if (successParam !== "true" && !previewMode) {
       navigate("/dashboard");
     }
-  }, [navigate]);
+  }, [navigate, location]);
   
   const handleUpgrade = () => {
     // Use the new product price ID for yearly checkout
@@ -44,6 +48,11 @@ const OneTimeOffer = () => {
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">🎉 Welcome to Leena.ai Premium!</h1>
           <p className="text-xl text-gray-600">Your monthly subscription is now active</p>
+          {isPreview && (
+            <div className="mt-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-md inline-block">
+              Preview Mode
+            </div>
+          )}
         </div>
         
         <Card className="border-2 border-primary shadow-lg">

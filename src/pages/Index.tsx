@@ -33,7 +33,7 @@ export default function Index() {
   }, [session]);
 
   const handlePreviewOTO = () => {
-    navigate("/oto?subscription_success=true");
+    navigate("/oto?subscription_success=true&preview=true");
   };
 
   return (
