@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
@@ -50,21 +50,32 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-primary">Leena.ai</h1>
-          <p className="mt-2 text-gray-600">
-            Sign in to track your nutrition journey
-          </p>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* Logo Header */}
+      <div className="w-full p-4 bg-white shadow-sm">
+        <div className="container mx-auto">
+          <Link to="/" className="inline-block">
+            <h1 className="text-2xl font-bold text-primary">Leena.ai</h1>
+          </Link>
         </div>
+      </div>
+      
+      <div className="flex-grow flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+          <div className="mb-8 text-center">
+            <h1 className="text-3xl font-bold text-primary">Sign In</h1>
+            <p className="mt-2 text-gray-600">
+              Sign in to track your nutrition journey
+            </p>
+          </div>
 
-        <SupabaseAuth
-          supabaseClient={supabase}
-          appearance={{ theme: ThemeSupa }}
-          providers={[]}
-          redirectTo={`${window.location.origin}/auth/callback`}
-        />
+          <SupabaseAuth
+            supabaseClient={supabase}
+            appearance={{ theme: ThemeSupa }}
+            providers={[]}
+            redirectTo={`${window.location.origin}/auth/callback`}
+          />
+        </div>
       </div>
     </div>
   );
