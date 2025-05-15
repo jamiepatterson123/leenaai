@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Check, Star, ArrowRight, X, Timer } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
-
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,7 +31,6 @@ const OneTimeOffer = () => {
       console.log("Preview mode is disabled or not from successful checkout");
     }
   }, []);
-
   useEffect(() => {
     // Set up the countdown timer
     const timer = setInterval(() => {
@@ -51,7 +48,7 @@ const OneTimeOffer = () => {
   }, []);
 
   // Format the time remaining as MM:SS
-  const formatTime = (seconds) => {
+  const formatTime = seconds => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
@@ -61,11 +58,9 @@ const OneTimeOffer = () => {
   const handleUpgrade = () => {
     window.location.href = "https://buy.stripe.com/7sIbM0aekffE42AeUU";
   };
-
   const handleSkip = () => {
     navigate("/dashboard");
   };
-
   return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
@@ -81,11 +76,7 @@ const OneTimeOffer = () => {
         
         {/* FOMO Timer */}
         <div className="mb-6 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-700">
-            <Timer className="h-5 w-5" />
-            <span className="font-semibold">{formatTime(timeRemaining)}</span>
-            <span>⏳ This one-time offer expires when the timer hits zero.</span>
-          </div>
+          
         </div>
         
         <Card className="border-2 border-primary shadow-lg">
@@ -97,8 +88,7 @@ const OneTimeOffer = () => {
               </div>
             </div>
             <CardTitle className="text-2xl sm:text-3xl">Get Two Months Free with Annual Billing</CardTitle>
-            <CardDescription className="text-base">🎁 One-Time Offer: Save Forever – Only Available On This Page
-Lock in our best rate. This page disappears after you leave — and you will never see it again.</CardDescription>
+            <CardDescription className="text-base">🎁 One-Time Offer: Save Forever – Only Available On This Page Lock in our best rate. This page disappears after you leave and you won't it again.</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-6 md:gap-12 justify-center">
