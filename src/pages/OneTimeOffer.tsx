@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,22 +5,22 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Check, Star, ArrowRight, X } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
-
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { redirectToYearlyCheckout } = useSubscription();
+  const {
+    redirectToYearlyCheckout
+  } = useSubscription();
   const [isPreview, setIsPreview] = useState(false);
-  
   useEffect(() => {
     // Track OTO page view
     trackOneTimeOfferView();
-    
+
     // Check for preview mode first
     const url = new URL(window.location.href);
     const previewMode = url.searchParams.get("preview") === "true";
     setIsPreview(previewMode);
-    
+
     // Only redirect if not in preview mode and not from successful checkout
     const successParam = url.searchParams.get("subscription_success");
     if (successParam !== "true" && !previewMode) {
@@ -30,18 +29,14 @@ const OneTimeOffer = () => {
       console.log("Preview mode is disabled or not from successful checkout");
     }
   }, []);
-  
   const handleUpgrade = () => {
     // Use the new product price ID for yearly checkout
     redirectToYearlyCheckout("price_1RP4bMLKGAMmFDpiFaJZpYlb");
   };
-  
   const handleSkip = () => {
     navigate("/dashboard");
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
+  return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center p-2 bg-green-100 text-green-800 rounded-full mb-4">
@@ -49,11 +44,9 @@ const OneTimeOffer = () => {
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">🎉 Welcome to Leena.ai Premium!</h1>
           <p className="text-xl text-gray-600">Your monthly subscription is now active</p>
-          {isPreview && (
-            <div className="mt-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-md inline-block">
+          {isPreview && <div className="mt-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-md inline-block">
               Preview Mode
-            </div>
-          )}
+            </div>}
         </div>
         
         <Card className="border-2 border-primary shadow-lg">
@@ -65,9 +58,8 @@ const OneTimeOffer = () => {
               </div>
             </div>
             <CardTitle className="text-2xl sm:text-3xl">Get Two Months Free with Annual Billing</CardTitle>
-            <CardDescription className="text-base">
-              This special offer is only available right now
-            </CardDescription>
+            <CardDescription className="text-base">🎁 One-Time Offer: Save Forever – Only Available On This Page
+Lock in our best rate. This page disappears after you leave — and you will never see it again.</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-6 md:gap-12 justify-center">
@@ -106,7 +98,7 @@ const OneTimeOffer = () => {
                 <div className="border-2 border-primary rounded-lg p-6 bg-primary/5">
                   <h3 className="font-semibold text-lg mb-4">Annual Plan (Best Value)</h3>
                   <div className="text-3xl font-bold mb-2">$99<span className="text-base font-normal text-muted-foreground">/year</span></div>
-                  <p className="text-muted-foreground mb-6">Only $8.25 per month equivalent</p>
+                  <p className="text-muted-foreground mb-6">Or just $8.25 per month equivalent</p>
                   <ul className="space-y-2">
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
@@ -114,7 +106,7 @@ const OneTimeOffer = () => {
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
-                      <span className="font-medium">2 months free ($21 savings)</span>
+                      <span className="font-medium">2 months free </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
@@ -145,8 +137,6 @@ const OneTimeOffer = () => {
           <p>Your subscription can be canceled anytime through your account settings.</p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default OneTimeOffer;
