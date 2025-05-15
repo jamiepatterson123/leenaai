@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { CustomTargets } from "@/components/profile/CustomTargets";
@@ -12,6 +11,7 @@ import { Info } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { GlowEffect } from "@/components/ui/glow-effect";
+import { useLocation } from "react-router-dom";
 import {
   HoverCard,
   HoverCardContent,
@@ -23,6 +23,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileFormData | null>(null);
   const isMobile = useIsMobile();
+  const location = useLocation();
 
   // Query to check WhatsApp preferences
   const { data: whatsappPrefs } = useQuery({
@@ -50,6 +51,23 @@ const Profile = () => {
       return user?.user_metadata;
     }
   });
+
+  // Check for yearly_success parameter
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const yearlySuccess = searchParams.get('yearly_success');
+    
+    if (yearlySuccess === 'true') {
+      toast.success("Thank you for upgrading to an annual plan!", {
+        description: "Please complete your profile setup to get the most out of Leena.ai",
+        duration: 6000,
+      });
+      
+      // Clean up the URL by removing the parameter
+      const newUrl = `${window.location.pathname}`;
+      window.history.replaceState({}, document.title, newUrl);
+    }
+  }, [location]);
 
   const isProfileIncomplete = () => {
     if (!profile) return true;
