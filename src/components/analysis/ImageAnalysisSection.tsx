@@ -1,7 +1,6 @@
-
 import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/use-toast";
 import { analyzeImage } from "./ImageAnalyzer";
 import { saveFoodEntries } from "./FoodEntrySaver";
 import { useQueryClient } from "@tanstack/react-query";

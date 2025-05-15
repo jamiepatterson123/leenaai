@@ -47,14 +47,22 @@ export const useSubscription = () => {
     const cancelledParam = url.searchParams.get("subscription_cancelled");
     
     if (successParam === "true") {
-      toast.success("Subscription successful! You now have unlimited access.");
+      toast({
+        title: "Subscription successful!",
+        description: "You now have unlimited access.",
+        variant: "default",
+      });
       // Remove params from URL
       url.searchParams.delete("subscription_success");
       window.history.replaceState({}, document.title, url.toString());
       // Refresh subscription status
       checkSubscription();
     } else if (cancelledParam === "true") {
-      toast.info("Subscription cancelled. You can try again later.");
+      toast({
+        title: "Subscription cancelled",
+        description: "You can try again later.",
+        variant: "default",
+      });
       // Remove params from URL
       url.searchParams.delete("subscription_cancelled");
       window.history.replaceState({}, document.title, url.toString());
@@ -71,7 +79,11 @@ export const useSubscription = () => {
       
       if (error) {
         console.error("Error checking subscription:", error);
-        toast.error("Failed to check subscription status");
+        toast({
+          title: "Error",
+          description: "Failed to check subscription status",
+          variant: "destructive",
+        });
         return;
       }
       
@@ -87,7 +99,11 @@ export const useSubscription = () => {
       });
     } catch (error) {
       console.error("Exception checking subscription:", error);
-      toast.error("Failed to check subscription status");
+      toast({
+        title: "Error",
+        description: "Failed to check subscription status",
+        variant: "destructive",
+      });
     } finally {
       setState((prev) => ({ ...prev, isLoading: false }));
     }
@@ -101,7 +117,11 @@ export const useSubscription = () => {
       
       if (error) {
         console.error("Error incrementing usage:", error);
-        toast.error("Failed to update usage count");
+        toast({
+          title: "Error",
+          description: "Failed to update usage count",
+          variant: "destructive",
+        });
         return false;
       }
       
@@ -117,14 +137,22 @@ export const useSubscription = () => {
       return data.has_free_uses_remaining;
     } catch (error) {
       console.error("Exception incrementing usage:", error);
-      toast.error("Failed to update usage count");
+      toast({
+        title: "Error",
+        description: "Failed to update usage count",
+        variant: "destructive",
+      });
       return false;
     }
   };
 
   const redirectToCheckout = async () => {
     if (!session) {
-      toast.error("Please log in to subscribe");
+      toast({
+        title: "Error",
+        description: "Please log in to subscribe",
+        variant: "destructive",
+      });
       return;
     }
     
@@ -135,7 +163,11 @@ export const useSubscription = () => {
       
       if (error) {
         console.error("Error creating checkout session:", error);
-        toast.error("Failed to create checkout session");
+        toast({
+          title: "Error",
+          description: "Failed to create checkout session",
+          variant: "destructive",
+        });
         return;
       }
       
@@ -143,7 +175,11 @@ export const useSubscription = () => {
       window.location.href = data.url;
     } catch (error) {
       console.error("Exception creating checkout session:", error);
-      toast.error("Failed to create checkout session");
+      toast({
+        title: "Error",
+        description: "Failed to create checkout session",
+        variant: "destructive",
+      });
     } finally {
       setState((prev) => ({ ...prev, isLoading: false }));
     }
@@ -151,7 +187,11 @@ export const useSubscription = () => {
 
   const redirectToCustomerPortal = async () => {
     if (!session) {
-      toast.error("Please log in to manage your subscription");
+      toast({
+        title: "Error",
+        description: "Please log in to manage your subscription",
+        variant: "destructive",
+      });
       return;
     }
     
@@ -162,7 +202,11 @@ export const useSubscription = () => {
       
       if (error) {
         console.error("Error creating portal session:", error);
-        toast.error("Failed to create customer portal session");
+        toast({
+          title: "Error",
+          description: "Failed to create customer portal session",
+          variant: "destructive",
+        });
         return;
       }
       
@@ -170,7 +214,11 @@ export const useSubscription = () => {
       window.location.href = data.url;
     } catch (error) {
       console.error("Exception creating portal session:", error);
-      toast.error("Failed to create customer portal session");
+      toast({
+        title: "Error",
+        description: "Failed to create customer portal session",
+        variant: "destructive",
+      });
     } finally {
       setState((prev) => ({ ...prev, isLoading: false }));
     }
