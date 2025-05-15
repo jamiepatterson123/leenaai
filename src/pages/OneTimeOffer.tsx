@@ -3,9 +3,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Star, ArrowRight, X } from "lucide-react";
+import { Check, Star, ArrowRight, X, Timer } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
+
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -13,6 +14,8 @@ const OneTimeOffer = () => {
     redirectToYearlyCheckout
   } = useSubscription();
   const [isPreview, setIsPreview] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(5 * 60); // 5 minutes in seconds
+
   useEffect(() => {
     // Track OTO page view
     trackOneTimeOfferView();
@@ -30,13 +33,39 @@ const OneTimeOffer = () => {
       console.log("Preview mode is disabled or not from successful checkout");
     }
   }, []);
+
+  useEffect(() => {
+    // Set up the countdown timer
+    const timer = setInterval(() => {
+      setTimeRemaining(prevTime => {
+        if (prevTime <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+
+    // Clean up the timer
+    return () => clearInterval(timer);
+  }, []);
+
+  // Format the time remaining as MM:SS
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  };
+
   const handleUpgrade = () => {
     // Use the new product price ID for yearly checkout
     redirectToYearlyCheckout("price_1RP4bMLKGAMmFDpiFaJZpYlb");
   };
+
   const handleSkip = () => {
     navigate("/dashboard");
   };
+
   return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
@@ -48,6 +77,15 @@ const OneTimeOffer = () => {
           {isPreview && <div className="mt-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-md inline-block">
               Preview Mode
             </div>}
+        </div>
+        
+        {/* FOMO Timer */}
+        <div className="mb-6 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-700">
+            <Timer className="h-5 w-5" />
+            <span className="font-semibold">{formatTime(timeRemaining)}</span>
+            <span>⏳ This one-time offer expires when the timer hits zero.</span>
+          </div>
         </div>
         
         <Card className="border-2 border-primary shadow-lg">
