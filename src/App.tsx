@@ -13,6 +13,7 @@ import WhatsApp from "./pages/WhatsApp";
 import OneTimeOffer from "./pages/OneTimeOffer";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { useSession } from "./hooks/useSession";
+import { AuthLoading } from "./components/auth/AuthLoading";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,7 +28,11 @@ function AppRoutes() {
   const { session, loading } = useSession();
 
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <AuthLoading />
+      </div>
+    );
   }
 
   return (

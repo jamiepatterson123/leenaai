@@ -59,7 +59,10 @@ const Auth = () => {
           console.error("Session check error:", e);
           setError("Failed to check authentication status. Please try again.");
         } finally {
-          setLoading(false);
+          // Ensure there's at least a brief visible loading state
+          setTimeout(() => {
+            setLoading(false);
+          }, 500);
         }
       };
       checkAuth();
@@ -89,7 +92,12 @@ const Auth = () => {
   }, [navigate]);
 
   if (loading) {
-    return <AuthLoading />;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <AuthLoading />
+        <p className="mt-4 text-muted-foreground">Preparing your account...</p>
+      </div>
+    );
   }
 
   return (
