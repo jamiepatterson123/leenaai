@@ -48,7 +48,7 @@ function Hero() {
               } : {
                 y: titleNumber > index ? -150 : 150,
                 opacity: 0
-              }} className="absolute font-semibold py-[15px] px-[10px]">
+              }} className="absolute font-semibold px-[10px] py-0 my-0">
                     {title}
                   </motion.span>)}
               </span>
