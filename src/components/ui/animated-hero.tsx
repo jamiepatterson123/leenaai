@@ -75,6 +75,7 @@ function Hero() {
           </div>
           <div className="flex items-center">
             <Button 
+              variant="gradient"
               size="lg" 
               className="gap-4 w-[200px] md:w-[200px] h-[64px] font-poppins"
               onClick={handleSubmit}
