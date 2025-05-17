@@ -63,12 +63,7 @@ export const SubscriptionBadge: React.FC = () => {
       <Button 
         variant="outline" 
         size="sm" 
-        className="text-xs h-8 border bg-white text-black border-transparent bg-clip-padding p-[1px]"
-        style={{ 
-          backgroundImage: "linear-gradient(white, white), linear-gradient(to right, #D946EF, #8B5CF6)", 
-          backgroundOrigin: "border-box",
-          backgroundClip: "padding-box, border-box"
-        }}
+        className="text-xs h-8"
         onClick={() => window.location.href = "https://buy.stripe.com/eVq5kEafs8RweClb1Oe7m01"}
       >
         <ArrowRight className="h-3 w-3 mr-1" />
