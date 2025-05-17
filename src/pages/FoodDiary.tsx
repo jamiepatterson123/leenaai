@@ -1,4 +1,3 @@
-
 import React from "react";
 import { FoodDiary } from "@/components/FoodDiary";
 import { Card } from "@/components/ui/card";
@@ -7,7 +6,6 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { parse, format } from "date-fns";
 import { HabitTracker } from "@/components/habits/HabitTracker";
 import { NaturalLanguageInput } from "@/components/food/NaturalLanguageInput";
-
 const FoodDiaryPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -22,12 +20,10 @@ const FoodDiaryPage = () => {
       navigate(`/food-diary?date=${format(date, 'yyyy-MM-dd')}`);
     }
   };
-  
   const refreshDiary = () => {
     // This function is passed to components that modify the food diary
     // to trigger a refresh when needed
   };
-  
   return <div className="max-w-7xl mx-auto md:px-4 py-6 mb-5">
       <div className="grid grid-cols-1 md:grid-cols-[1fr,300px] gap-6">
         {/* Main content area - nutrition info */}
@@ -38,13 +34,7 @@ const FoodDiaryPage = () => {
         {/* Sidebar - calendar and image analysis */}
         <div className="order-2 md:order-2 space-y-6">
           <div className="w-full">
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-3">Quick Add</h3>
-              <NaturalLanguageInput 
-                onSuccess={refreshDiary}
-                selectedDate={selectedDate} 
-              />
-            </Card>
+            
           </div>
           
           <div className="px-4 md:px-0">
@@ -54,5 +44,4 @@ const FoodDiaryPage = () => {
       </div>
     </div>;
 };
-
 export default FoodDiaryPage;
