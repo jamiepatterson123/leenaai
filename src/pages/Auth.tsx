@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
@@ -7,13 +6,11 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { UserPlus, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 const Auth = () => {
   const navigate = useNavigate();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [authView, setAuthView] = useState<"sign_in" | "sign_up">("sign_in");
-  
   useEffect(() => {
     // Check active session
     supabase.auth.getSession().then(({
@@ -45,11 +42,9 @@ const Auth = () => {
       navigate("/dashboard");
     }
   }, [session, navigate]);
-
   const toggleAuthView = () => {
     setAuthView(authView === "sign_in" ? "sign_up" : "sign_in");
   };
-
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center justify-center">
@@ -66,23 +61,14 @@ const Auth = () => {
             <h1 className="text-black font-semibold text-base">Leena.ai</h1>
           </Link>
           
-          <Button 
-            variant="gradient" 
-            size="sm" 
-            onClick={toggleAuthView}
-            className="flex items-center gap-2"
-          >
-            {authView === "sign_in" ? (
-              <>
+          <Button variant="gradient" size="sm" onClick={toggleAuthView} className="flex items-center gap-2">
+            {authView === "sign_in" ? <>
                 <UserPlus size={16} />
-                <span className="font-semibold">Sign Up</span>
-              </>
-            ) : (
-              <>
+                <span>Sign Up</span>
+              </> : <>
                 <LogIn size={16} />
-                <span className="font-semibold">Sign In</span>
-              </>
-            )}
+                <span>Sign In</span>
+              </>}
           </Button>
         </div>
       </div>
@@ -91,41 +77,27 @@ const Auth = () => {
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold text-gradient">{authView === "sign_in" ? "Sign In" : "Sign Up"}</h1>
-            <p className="mt-2 text-gray-600 font-semibold">
+            <p className="mt-2 text-gray-600 font-normal">
               {authView === "sign_in" ? "Welcome back to Leena.ai" : "Start tracking your nutrition for free"}
             </p>
           </div>
 
-          <SupabaseAuth 
-            supabaseClient={supabase}
-            appearance={{
-              theme: ThemeSupa,
-              style: {
-                button: {
-                  background: 'linear-gradient(to right, #D946EF, #8B5CF6)',
-                  border: 'none',
-                  color: 'white',
-                  fontWeight: 600,  /* Changed to semi-bold (600) */
-                },
-                anchor: {
-                  color: '#D946EF',
-                  fontWeight: 600,  /* Changed to semi-bold (600) */
-                },
-                label: {
-                  fontWeight: 600,  /* Added semi-bold (600) to labels */
-                },
-                input: {
-                  fontWeight: 500,  /* Added medium weight to inputs */
-                }
-              },
-            }}
-            providers={[]} 
-            redirectTo={`${window.location.origin}/auth/callback`} 
-            view={authView} 
-          />
+          <SupabaseAuth supabaseClient={supabase} appearance={{
+          theme: ThemeSupa,
+          style: {
+            button: {
+              background: 'linear-gradient(to right, #D946EF, #8B5CF6)',
+              border: 'none',
+              color: 'white',
+              fontWeight: 500
+            },
+            anchor: {
+              color: '#D946EF'
+            }
+          }
+        }} providers={[]} redirectTo={`${window.location.origin}/auth/callback`} view={authView} />
         </div>
       </div>
     </div>;
 };
-
 export default Auth;
