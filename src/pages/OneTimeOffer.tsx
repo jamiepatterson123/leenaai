@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,6 @@ import { Check, Star, ArrowRight, X, Timer } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
-
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,13 +15,16 @@ const OneTimeOffer = () => {
   const [isPreview, setIsPreview] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(5 * 60); // 5 minutes in seconds
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   useEffect(() => {
     // Check authentication status
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({
+      data: {
+        session
+      }
+    }) => {
       setIsLoggedIn(!!session);
     });
-    
+
     // Track OTO page view
     trackOneTimeOfferView();
 
@@ -38,7 +39,6 @@ const OneTimeOffer = () => {
       console.log("Preview mode is disabled or not from successful checkout");
     }
   }, []);
-
   useEffect(() => {
     // Set up the countdown timer
     const timer = setInterval(() => {
@@ -67,7 +67,6 @@ const OneTimeOffer = () => {
     // This URL should be configured in the Stripe dashboard to redirect to /profile?yearly_success=true
     window.location.href = "https://buy.stripe.com/7sIbM0aekffE42AeUU";
   };
-  
   const handleSkip = () => {
     // If logged in, redirect to profile page, otherwise to homepage
     if (isLoggedIn) {
@@ -76,9 +75,7 @@ const OneTimeOffer = () => {
       navigate("/");
     }
   };
-  
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
+  return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center p-2 bg-green-100 text-green-800 rounded-full mb-4">
@@ -93,13 +90,7 @@ const OneTimeOffer = () => {
         
         {/* FOMO Timer */}
         <div className="mb-6 text-center">
-          <div className="flex items-center justify-center gap-2 text-lg font-medium">
-            <Timer className="h-5 w-5 text-red-500" />
-            <span>⏳ This one-time offer expires when the timer hits zero: </span>
-            <span className="bg-red-100 text-red-700 px-3 py-1 rounded-md font-mono">
-              {formatTime(timeRemaining)}
-            </span>
-          </div>
+          
         </div>
         
         <Card className="border-2 border-primary shadow-lg">
@@ -192,8 +183,6 @@ const OneTimeOffer = () => {
           <p>Your subscription can be canceled anytime through your account settings.</p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default OneTimeOffer;
