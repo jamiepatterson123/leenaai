@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
@@ -109,17 +110,40 @@ const Auth = () => {
                 message: {
                   fontWeight: 500
                 }
+              },
+              // Custom localization to control the text displayed
+              localization: {
+                variables: {
+                  sign_in: {
+                    link_text: "Don't have an account? Sign up"
+                  },
+                  sign_up: {
+                    link_text: "Already have an account? Sign in"
+                  }
+                }
               }
             }} 
             providers={[]} 
             redirectTo={`${window.location.origin}/auth/callback`} 
-            view={authView} 
-            onViewChange={(newView) => {
-              if (newView === 'sign_in' || newView === 'sign_up') {
-                setAuthView(newView);
-              }
-            }}
+            view={authView}
+            // Handle view changes when the link is clicked by user
+            showLinks={true}
+            // Pass a callback that will be called when the view changes
+            // This connects the toggle link behavior to our state
+            magicLink={false}
           />
+
+          {/* Add custom link handler since onViewChange isn't supported */}
+          <div className="mt-4 text-center">
+            <button 
+              onClick={toggleAuthView}
+              className="text-primary font-semibold hover:underline"
+            >
+              {authView === "sign_in" 
+                ? "Don't have an account? Sign up" 
+                : "Already have an account? Sign in"}
+            </button>
+          </div>
         </div>
       </div>
     </div>;
