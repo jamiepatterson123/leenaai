@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Dialog,
@@ -24,7 +25,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   const { 
     isLoading, 
     usageCount, 
-    freeUsesRemaining, 
+    hasFreeUsesRemaining, 
     redirectToCheckout 
   } = useSubscription();
 
@@ -33,10 +34,10 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
     if (open) {
       trackEvent('SubscriptionModalView', {
         usageCount,
-        freeUsesRemaining
+        hasFreeUsesRemaining
       });
     }
-  }, [open, usageCount, freeUsesRemaining]);
+  }, [open, usageCount, hasFreeUsesRemaining]);
 
   const handleUpgrade = async () => {
     await redirectToCheckout();
@@ -45,7 +46,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   const handleContinueFreeTrial = () => {
     trackEvent('ContinueFreeTrial', {
       usageCount,
-      freeUsesRemaining
+      hasFreeUsesRemaining
     });
     onOpenChange(false);
   };
@@ -60,9 +61,9 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
           </DialogTitle>
           <DialogDescription>
             You've used {usageCount} out of your 10 free nutrition logs.
-            {freeUsesRemaining <= 0 
+            {!hasFreeUsesRemaining 
               ? " Subscribe to continue tracking your nutrition!" 
-              : ` You have ${freeUsesRemaining} free uses remaining.`}
+              : ` You have free uses remaining.`}
           </DialogDescription>
         </DialogHeader>
 
@@ -99,9 +100,9 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
           <Button 
             variant="outline" 
             onClick={handleContinueFreeTrial}
-            disabled={isLoading || freeUsesRemaining <= 0}
+            disabled={isLoading || !hasFreeUsesRemaining}
           >
-            {freeUsesRemaining > 0 ? "Continue Free Trial" : "Cancel"}
+            {hasFreeUsesRemaining > 0 ? "Continue Free Trial" : "Cancel"}
           </Button>
           <Button onClick={handleUpgrade} disabled={isLoading}>
             {isLoading ? (

@@ -58,7 +58,7 @@ export const SubscriptionBadge: React.FC = () => {
 
   return (
     <div className="flex flex-col sm:flex-row items-center gap-2">
-      <div className="text-xs text-muted-foreground">
+      <div className="text-xs text-muted-foreground text-left w-full">
         {statusText}
       </div>
       <Button 
