@@ -16,7 +16,7 @@ function Testimonial() {
           Created by <strong className="font-medium text-foreground">wellness professionals</strong>
         </p>
       </div>
-      <p className="text-sm font-normal">"This is by far the quickest and easiest I've ever tracked my nutrition - super cool!"</p>
+      <p className="text-sm font-normal">"This is by far the quickest and easiest I've ever tracked my nutrition - super cool!" - Jamie P</p>
     </div>;
 }
 export { Testimonial };
