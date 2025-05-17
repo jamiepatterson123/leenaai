@@ -72,7 +72,7 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/oto?subscription_success=true`,
+      success_url: `https://getleen.ai/oto?subscription_success=true`,
       cancel_url: `${req.headers.get("origin")}/dashboard?subscription_cancelled=true`,
     });
     
