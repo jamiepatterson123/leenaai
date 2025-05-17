@@ -11,14 +11,9 @@ import { MacroDailyChart } from "./MacroDailyChart";
 import { ChartSettings, VisibleCharts } from "./ChartSettings";
 import { TimeRange } from "./TimeRangeSelector";
 import { WaterConsumptionChart } from "./WaterConsumptionChart";
-import { 
-  processWeightData, 
-  processCalorieData, 
-  processMacroData, 
-  processWaterData,
-  processMealData 
-} from "./DataProcessor";
-import { startOfDay, endOfDay, subDays, subWeeks, subMonths } from "date-fns";
+import { NutritionTable } from "./NutritionTable";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ReportsContentProps {
   weightData: any[];
@@ -51,7 +46,10 @@ export const ReportsContent = ({
     carbsDaily: true,
     fatDaily: true,
     waterConsumption: true,
+    nutritionTable: true,
   });
+
+  const [viewMode, setViewMode] = useState<"charts" | "table">("charts");
 
   const handleToggleChart = (chart: keyof VisibleCharts) => {
     setVisibleCharts(prev => ({
@@ -60,39 +58,26 @@ export const ReportsContent = ({
     }));
   };
 
-  // Calculate date range based on timeRange
-  const endDate = endOfDay(new Date());
-  let startDate;
-  
-  switch (timeRange) {
-    case "1w":
-      startDate = startOfDay(subWeeks(endDate, 1));
-      break;
-    case "2w":
-      startDate = startOfDay(subWeeks(endDate, 2));
-      break;
-    case "1m":
-      startDate = startOfDay(subMonths(endDate, 1));
-      break;
-    case "2m":
-      startDate = startOfDay(subMonths(endDate, 2));
-      break;
-    case "6m":
-      startDate = startOfDay(subMonths(endDate, 6));
-      break;
-    case "1y":
-      startDate = startOfDay(subMonths(endDate, 12));
-      break;
-    default:
-      startDate = startOfDay(subDays(endDate, 7));
-  }
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
 
-  // Process data for charts with date range
-  const processedWeightData = processWeightData(weightData, startDate, endDate);
-  const processedCalorieData = processCalorieData(calorieData, startDate, endDate);
-  const processedMacroData = processMacroData(macroData, startDate, endDate);
-  const processedMealData = processMealData(mealData, startDate, endDate);
-  const processedWaterData = processWaterData(waterData, startDate, endDate);
+      const { data } = await supabase
+        .from("profiles")
+        .select("target_calories, target_protein, target_carbs, target_fat")
+        .eq("user_id", user.id)
+        .single();
+
+      return data;
+    },
+  });
+
+  const targetCalories = profile?.target_calories || 2000;
+  const targetProtein = profile?.target_protein || 150;
+  const targetCarbs = profile?.target_carbs || 200;
+  const targetFat = profile?.target_fat || 70;
 
   if (isLoading) {
     return (
@@ -109,67 +94,84 @@ export const ReportsContent = ({
       <ChartSettings 
         visibleCharts={visibleCharts} 
         onToggleChart={handleToggleChart}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
       
-      <div className="grid gap-4 md:gap-6">
-        {/* Weight Trend */}
-        {visibleCharts.weightTrend && (
-          <WeightTrendChart 
-            data={processedWeightData}
-          />
-        )}
-        
-        {/* Calories per day */}
-        {visibleCharts.calories && (
-          <CalorieChart data={processedCalorieData} />
-        )}
-        
-        {/* Macronutrients daily charts */}
-        {visibleCharts.proteinDaily && (
-          <MacroDailyChart 
-            data={processedMacroData}
-            type="protein"
-          />
-        )}
-        {visibleCharts.carbsDaily && (
-          <MacroDailyChart 
-            data={processedMacroData}
-            type="carbs"
-          />
-        )}
-        {visibleCharts.fatDaily && (
-          <MacroDailyChart 
-            data={processedMacroData}
-            type="fat"
-          />
-        )}
-        
-        {/* Calories per meal and state */}
-        {visibleCharts.mealDistribution && (
-          <MealDistributionChart data={processedMealData} />
-        )}
-        {visibleCharts.calorieState && (
-          <CalorieStateChart data={processedMealData} />
-        )}
-        
-        {/* Macronutrient averages */}
-        {visibleCharts.macros && (
-          <MacroChart data={processedMacroData} />
-        )}
-        
-        {/* Weekly averages vs targets */}
-        {visibleCharts.calorieTargets && (
-          <CalorieTargetsChart data={processedCalorieData} />
-        )}
-        {visibleCharts.macroTargets && (
-          <MacroTargetsChart data={processedMacroData} />
-        )}
+      {viewMode === "charts" ? (
+        <div className="grid gap-4 md:gap-6">
+          {/* Weight Trend */}
+          {visibleCharts.weightTrend && (
+            <WeightTrendChart 
+              data={weightData}
+            />
+          )}
+          
+          {/* Calories per day */}
+          {visibleCharts.calories && (
+            <CalorieChart data={calorieData} />
+          )}
+          
+          {/* Macronutrients daily charts */}
+          {visibleCharts.proteinDaily && (
+            <MacroDailyChart 
+              data={macroData}
+              type="protein"
+            />
+          )}
+          {visibleCharts.carbsDaily && (
+            <MacroDailyChart 
+              data={macroData}
+              type="carbs"
+            />
+          )}
+          {visibleCharts.fatDaily && (
+            <MacroDailyChart 
+              data={macroData}
+              type="fat"
+            />
+          )}
+          
+          {/* Calories per meal and state */}
+          {visibleCharts.mealDistribution && (
+            <MealDistributionChart data={mealData} />
+          )}
+          {visibleCharts.calorieState && (
+            <CalorieStateChart data={mealData} />
+          )}
+          
+          {/* Macronutrient averages */}
+          {visibleCharts.macros && (
+            <MacroChart data={macroData} />
+          )}
+          
+          {/* Weekly averages vs targets */}
+          {visibleCharts.calorieTargets && (
+            <CalorieTargetsChart data={calorieData} />
+          )}
+          {visibleCharts.macroTargets && (
+            <MacroTargetsChart data={macroData} />
+          )}
 
-        {/* Water consumption chart */}
-        {visibleCharts.waterConsumption && processedWaterData.length > 0 && (
-          <WaterConsumptionChart data={processedWaterData} />
-        )}
-      </div>
+          {/* Water consumption chart */}
+          {visibleCharts.waterConsumption && waterData.length > 0 && (
+            <WaterConsumptionChart data={waterData} />
+          )}
+        </div>
+      ) : (
+        <div className="grid gap-4 md:gap-6">
+          {/* Nutrition Table */}
+          {visibleCharts.nutritionTable && (
+            <NutritionTable 
+              data={macroData}
+              targetCalories={targetCalories}
+              targetProtein={targetProtein}
+              targetCarbs={targetCarbs}
+              targetFat={targetFat}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 };
