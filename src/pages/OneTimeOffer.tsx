@@ -142,7 +142,7 @@ const OneTimeOffer = () => {
           
         </div>
         
-        <Card className="border-2 border-primary shadow-lg">
+        <Card className="border-2 border-gradient-to-r from-[#D946EF] to-[#8B5CF6] shadow-lg">
           <CardHeader className="text-center bg-primary/5 border-b">
             <div className="flex justify-center mb-2">
               <div className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
