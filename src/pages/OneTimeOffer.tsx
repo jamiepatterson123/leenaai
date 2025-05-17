@@ -151,7 +151,7 @@ const OneTimeOffer = () => {
               </div>
             </div>
             <CardTitle className="text-2xl sm:text-3xl">Get Two Months Free with Annual Billing - Today Only</CardTitle>
-            <CardDescription className="text-base">This Is A One-Time Offer – Only Available On This Page. Get two months free when you sign up for an annual membership.</CardDescription>
+            <CardDescription className="text-base">This Is A One-Time Offer – Only Available On This Page. Get two months free when you upgrade to an annual membership today.</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-6 md:gap-12 justify-center">
