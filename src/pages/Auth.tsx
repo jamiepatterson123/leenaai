@@ -106,7 +106,7 @@ const Auth = () => {
             <div className="mb-8 text-center">
               <h1 className="text-3xl font-bold text-gradient">Reset Password</h1>
               <p className="mt-2 text-gray-600 font-normal">
-                Enter your email to receive a password reset link
+                Enter your email to receive a password reset link. The future of quick+ easy nutrition tracking.
               </p>
             </div>
             
