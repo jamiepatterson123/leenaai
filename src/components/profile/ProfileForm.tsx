@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -124,7 +125,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
         />
       </div>
 
-      <Button type="submit" className="w-full">
+      <Button type="submit" variant="gradient" className="w-full">
         Save Profile
       </Button>
     </form>
