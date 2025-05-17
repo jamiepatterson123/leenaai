@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
@@ -10,6 +11,7 @@ import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Send, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
 export const Navigation = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
   const [nutritionData, setNutritionData] = React.useState(null);
@@ -22,12 +24,14 @@ export const Navigation = () => {
 
   // If there's no session or we're on the auth page, don't render the navigation
   if (!session || window.location.pathname === '/auth') return null;
+  
   const handleShare = () => {
     const shareMessage = "This is an AI nutrition app which allows you to track your nutrition with photos of your food. It's free to use, check it out";
     const encodedMessage = encodeURIComponent(shareMessage);
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
     window.open(whatsappUrl, '_blank');
   };
+  
   const handleSignOut = async () => {
     try {
       const {
@@ -43,10 +47,12 @@ export const Navigation = () => {
       toast.error("Error signing out");
     }
   };
+  
   const theme = "light" as const;
   const toggleTheme = (checked: boolean) => {
     // Implement theme toggle functionality
   };
+  
   const handleFileSelect = async (file: File) => {
     if (!file) {
       toast.error("No file selected");
@@ -68,7 +74,9 @@ export const Navigation = () => {
       }
     }, 100);
   };
-  return <div className="border-b">
+  
+  return (
+    <div className="border-b">
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
         <h1 className="text-slate-950 font-semibold text-xl">Leena.ai</h1>
         
@@ -96,5 +104,6 @@ export const Navigation = () => {
           <MobileNav onAddClick={() => {}} onFileSelect={handleFileSelect} />
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };

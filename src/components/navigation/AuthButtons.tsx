@@ -1,18 +1,22 @@
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Send, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
 interface AuthButtonsProps {
   handleShare: () => void;
   session: any;
 }
+
 export const AuthButtons = ({
   handleShare,
   session
 }: AuthButtonsProps) => {
   const navigate = useNavigate();
+
   const handleSignOut = async () => {
     try {
       const {
@@ -28,14 +32,23 @@ export const AuthButtons = ({
       toast.error("Error signing out");
     }
   };
+
   const shareViaWhatsApp = () => {
     const shareMessage = "This is an AI nutrition app which allows you to track your nutrition with photos of your food. It's free to use, check it out";
     const encodedMessage = encodeURIComponent(shareMessage);
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
     window.open(whatsappUrl, '_blank');
   };
-  return <div className="flex items-center gap-4">
-      
-      {session}
-    </div>;
+
+  return (
+    <div className="flex items-center gap-4">
+      {/* Don't render the session object directly */}
+      {/* We can display user information if needed */}
+      {session?.user?.email && (
+        <span className="text-sm text-muted-foreground hidden md:inline">
+          {session.user.email}
+        </span>
+      )}
+    </div>
+  );
 };
