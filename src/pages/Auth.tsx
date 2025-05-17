@@ -181,6 +181,20 @@ const Auth = () => {
             message: {
               fontWeight: 500
             }
+          },
+          variables: {
+            default: {
+              colors: {
+                brand: '#8B5CF6',
+                brandAccent: '#D946EF'
+              },
+              labels: {
+                button: {
+                  sign_up: 'Create Free Account',
+                  sign_in: 'Sign In'
+                }
+              }
+            }
           }
         }} providers={[]} redirectTo={`${window.location.origin}/auth/callback`} view={authView} showLinks={false} // Hide the default links
         magicLink={false} />
