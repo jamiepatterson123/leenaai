@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -11,7 +10,6 @@ import { toast } from "sonner";
 import { AuthLoading } from "@/components/auth/AuthLoading";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,14 +18,13 @@ const Auth = () => {
   const [authView, setAuthView] = useState<"sign_in" | "sign_up" | "forgotten_password">("sign_in");
   const [email, setEmail] = useState<string>("");
   const [resetLoading, setResetLoading] = useState(false);
-
   useEffect(() => {
     // Check if we have an initialView in the location state
     const initialView = location.state?.initialView;
     if (initialView === "sign_up") {
       setAuthView("sign_up");
     }
-    
+
     // Check active session
     supabase.auth.getSession().then(({
       data: {
@@ -58,30 +55,25 @@ const Auth = () => {
       navigate("/dashboard");
     }
   }, [session, navigate]);
-
   const toggleAuthView = () => {
     setAuthView(authView === "sign_in" ? "sign_up" : "sign_in");
   };
-
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!email) {
       toast.error("Please enter your email address");
       return;
     }
-    
     setResetLoading(true);
-    
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/profile`,
+      const {
+        error
+      } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback?next=/profile`
       });
-      
       if (error) {
         throw error;
       }
-      
       toast.success("Password reset email sent! Check your inbox.");
       setAuthView("sign_in");
     } catch (error: any) {
@@ -90,17 +82,15 @@ const Auth = () => {
       setResetLoading(false);
     }
   };
-
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">
         <AuthLoading />
       </div>;
   }
-  
+
   // Password reset view
   if (authView === "forgotten_password") {
-    return (
-      <div className="min-h-screen flex flex-col bg-gray-50 font-poppins">
+    return <div className="min-h-screen flex flex-col bg-gray-50 font-poppins">
         {/* Logo Header */}
         <div className="w-full p-4 bg-white shadow-sm">
           <div className="container mx-auto flex justify-between items-center">
@@ -124,45 +114,25 @@ const Auth = () => {
                 <Label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address
                 </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
-                  placeholder="Your email address"
-                />
+                <Input id="email" name="email" type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary" placeholder="Your email address" />
               </div>
               
               <div>
-                <Button
-                  type="submit"
-                  variant="gradient"
-                  className="w-full"
-                  disabled={resetLoading}
-                >
+                <Button type="submit" variant="gradient" className="w-full" disabled={resetLoading}>
                   {resetLoading ? 'Sending...' : 'Send Reset Link'}
                 </Button>
               </div>
               
               <div className="text-center">
-                <button 
-                  type="button"
-                  onClick={() => setAuthView("sign_in")}
-                  className="text-primary font-semibold hover:underline"
-                >
+                <button type="button" onClick={() => setAuthView("sign_in")} className="text-primary font-semibold hover:underline">
                   Back to Sign In
                 </button>
               </div>
             </form>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   return <div className="min-h-screen flex flex-col bg-gray-50 font-poppins">
       {/* Logo Header with Sign Up button */}
       <div className="w-full p-4 bg-white shadow-sm">
@@ -174,7 +144,7 @@ const Auth = () => {
           <Button variant="gradient" size="sm" onClick={toggleAuthView} className="flex items-center gap-2">
             {authView === "sign_in" ? <>
                 <UserPlus size={16} />
-                <span className="font-semibold">Create Free Account</span>
+                <span className="font-semibold">Create Free Profile</span>
               </> : <>
                 <LogIn size={16} />
                 <span className="font-semibold">Sign In</span>
@@ -190,65 +160,45 @@ const Auth = () => {
               {authView === "sign_in" ? "Sign In" : "Create Your Free Profile"}
             </h1>
             <p className="mt-2 text-gray-600 font-normal">
-              {authView === "sign_in" 
-                ? "Welcome back to Leena.ai" 
-                : "Leena tracks calories and macros from a single photo — no typing, no barcodes."}
+              {authView === "sign_in" ? "Welcome back to Leena.ai" : "Leena tracks calories and macros from a single photo — no typing, no barcodes."}
             </p>
           </div>
 
-          <SupabaseAuth 
-            supabaseClient={supabase} 
-            appearance={{
-              theme: ThemeSupa,
-              style: {
-                button: {
-                  background: 'linear-gradient(to right, #D946EF, #8B5CF6)',
-                  border: 'none',
-                  color: 'white',
-                  fontWeight: 500
-                },
-                anchor: {
-                  color: '#D946EF',
-                  fontWeight: 600
-                },
-                message: {
-                  fontWeight: 500
-                }
-              }
-            }} 
-            providers={[]} 
-            redirectTo={`${window.location.origin}/auth/callback`} 
-            view={authView}
-            showLinks={false} // Hide the default links
-            magicLink={false}
-          />
+          <SupabaseAuth supabaseClient={supabase} appearance={{
+          theme: ThemeSupa,
+          style: {
+            button: {
+              background: 'linear-gradient(to right, #D946EF, #8B5CF6)',
+              border: 'none',
+              color: 'white',
+              fontWeight: 500
+            },
+            anchor: {
+              color: '#D946EF',
+              fontWeight: 600
+            },
+            message: {
+              fontWeight: 500
+            }
+          }
+        }} providers={[]} redirectTo={`${window.location.origin}/auth/callback`} view={authView} showLinks={false} // Hide the default links
+        magicLink={false} />
 
           {/* Custom link handler that properly toggles between sign-in and sign-up views */}
           <div className="mt-4 text-center">
-            <button 
-              onClick={toggleAuthView}
-              className="text-gradient font-normal hover:underline"
-            >
-              {authView === "sign_in" 
-                ? "Don't have an account? Create Your Free Profile" 
-                : "Already have an account? Sign in"}
+            <button onClick={toggleAuthView} className="text-gradient font-normal hover:underline">
+              {authView === "sign_in" ? "Don't have an account? Create Your Free Profile" : "Already have an account? Sign in"}
             </button>
             
             {/* Password reset link - only show in sign_in view */}
-            {authView === "sign_in" && (
-              <div className="mt-2">
-                <button 
-                  onClick={() => setAuthView("forgotten_password")}
-                  className="text-gradient font-normal hover:underline text-sm"
-                >
+            {authView === "sign_in" && <div className="mt-2">
+                <button onClick={() => setAuthView("forgotten_password")} className="text-gradient font-normal hover:underline text-sm">
                   Forgot your password?
                 </button>
-              </div>
-            )}
+              </div>}
           </div>
         </div>
       </div>
     </div>;
 };
-
 export default Auth;
