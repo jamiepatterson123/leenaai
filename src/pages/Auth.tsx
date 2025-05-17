@@ -220,7 +220,7 @@ const Auth = () => {
           <div className="mt-4 text-center">
             <button 
               onClick={toggleAuthView}
-              className="text-primary font-semibold hover:underline"
+              className="text-gradient font-normal hover:underline"
             >
               {authView === "sign_in" 
                 ? "Don't have an account? Sign up" 
@@ -232,7 +232,7 @@ const Auth = () => {
               <div className="mt-2">
                 <button 
                   onClick={() => setAuthView("forgotten_password")}
-                  className="text-primary font-semibold hover:underline text-sm"
+                  className="text-gradient font-normal hover:underline text-sm"
                 >
                   Forgot your password?
                 </button>
