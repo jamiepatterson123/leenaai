@@ -62,7 +62,7 @@ const Auth = () => {
       <div className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-primary">{authView === "sign_in" ? "Sign In" : "Sign Up"}</h1>
+            <h1 className="text-3xl font-bold text-gradient">{authView === "sign_in" ? "Sign In" : "Sign Up"}</h1>
             <p className="mt-2 text-gray-600">
               {authView === "sign_in" ? "Welcome back to Leena.ai" : "Start tracking your nutrition for free"}
             </p>
