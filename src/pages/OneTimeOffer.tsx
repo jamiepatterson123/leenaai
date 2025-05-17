@@ -209,7 +209,7 @@ const OneTimeOffer = () => {
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
-                      <span>Access to all future AI upgrades and features</span>
+                      <span>Access all future AI features</span>
                     </li>
                     
                   </ul>
