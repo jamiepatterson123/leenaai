@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { MoveRight } from "lucide-react";
@@ -21,7 +22,8 @@ function Hero() {
     return () => clearTimeout(timeoutId);
   }, [titleNumber, titles]);
   const handleSubmit = () => {
-    navigate("/auth");
+    // Navigate to auth page with sign-up view
+    navigate("/auth", { state: { initialView: "sign_up" } });
   };
   return <div className="w-full">
       <div className="container mx-auto">

@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [authView, setAuthView] = useState<"sign_in" | "sign_up" | "forgotten_password">("sign_in");
@@ -21,6 +22,12 @@ const Auth = () => {
   const [resetLoading, setResetLoading] = useState(false);
 
   useEffect(() => {
+    // Check if we have an initialView in the location state
+    const initialView = location.state?.initialView;
+    if (initialView === "sign_up") {
+      setAuthView("sign_up");
+    }
+    
     // Check active session
     supabase.auth.getSession().then(({
       data: {
@@ -43,7 +50,7 @@ const Auth = () => {
       }
     });
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, location.state]);
 
   // If already authenticated, redirect to dashboard
   useEffect(() => {
