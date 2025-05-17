@@ -34,16 +34,13 @@ function Hero() {
   return (
     <div className="w-full">
       <div className="container mx-auto">
-        <div className="flex flex-col justify-between min-h-[70vh] py-12">
-          {/* Top section with AI badge */}
-          <div className="mb-10 mt-16">
+        <div className="flex gap-8 items-center justify-center flex-col">
+          <div>
             <Button variant="secondary" size="sm" className="gap-4">
               AI-Powered Food Tracking <MoveRight className="w-4 h-4" />
             </Button>
           </div>
-          
-          {/* Middle section with main text content */}
-          <div className="flex gap-8 flex-col mb-10">
+          <div className="flex gap-4 flex-col">
             <h1 className="text-5xl md:text-7xl max-w-2xl tracking-tighter text-center font-regular font-poppins">
               <span className="text-gradient">Track your nutrition</span>
               <span className="relative flex w-full justify-center overflow-hidden text-center md:pb-4 md:pt-1">
@@ -76,9 +73,7 @@ function Hero() {
               With just photos of your food
             </p>
           </div>
-          
-          {/* Call to action button */}
-          <div className="flex items-center justify-center mb-12">
+          <div className="flex items-center">
             <Button 
               variant="gradient"
               size="lg" 
@@ -88,9 +83,7 @@ function Hero() {
               Start free <MoveRight className="w-4 h-4" />
             </Button>
           </div>
-          
-          {/* Testimonial section */}
-          <div className="mt-auto">
+          <div className="mt-4">
             <Testimonial />
           </div>
         </div>

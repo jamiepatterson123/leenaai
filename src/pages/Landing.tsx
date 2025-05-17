@@ -22,11 +22,11 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Header1 />
-      <div className="flex-grow">
+      <div className="flex-grow flex items-center justify-center">
         <Hero />
       </div>
     </div>
   );
-}
+};
 
 export default Landing;
