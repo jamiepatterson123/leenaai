@@ -7,6 +7,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -131,8 +132,8 @@ const OneTimeOffer = () => {
           <div className="inline-flex items-center justify-center p-2 bg-green-100 text-green-800 rounded-full mb-4">
             <Check className="w-8 h-8" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">🎉 Welcome to Leena.ai Premium!</h1>
-          <p className="text-xl text-gray-600">Your monthly subscription is now active</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome to Leena.ai</h1>
+          <p className="text-xl text-gray-600">Your monthly membership is now active</p>
           {isPreview}
         </div>
         
@@ -236,4 +237,5 @@ const OneTimeOffer = () => {
       </div>
     </div>;
 };
+
 export default OneTimeOffer;
