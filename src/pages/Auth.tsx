@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { AuthLoading } from "@/components/auth/AuthLoading";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -144,7 +145,7 @@ const Auth = () => {
           <Button variant="gradient" size="sm" onClick={toggleAuthView} className="flex items-center gap-2">
             {authView === "sign_in" ? <>
                 <UserPlus size={16} />
-                <span className="font-semibold">Create Free Profile</span>
+                <span className="font-semibold">Create Free Account</span>
               </> : <>
                 <LogIn size={16} />
                 <span className="font-semibold">Sign In</span>
@@ -157,7 +158,7 @@ const Auth = () => {
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold text-gradient">
-              {authView === "sign_in" ? "Sign In" : "Create Your Free Profile"}
+              {authView === "sign_in" ? "Sign In" : "Create A Free Account"}
             </h1>
             <p className="mt-2 text-gray-600 font-normal">
               {authView === "sign_in" ? "Welcome back to Leena.ai" : "Leena tracks calories and macros from a single photo — no typing, no barcodes."}
@@ -187,7 +188,7 @@ const Auth = () => {
           {/* Custom link handler that properly toggles between sign-in and sign-up views */}
           <div className="mt-4 text-center">
             <button onClick={toggleAuthView} className="text-gradient font-normal hover:underline">
-              {authView === "sign_in" ? "Don't have an account? Create Your Free Profile" : "Already have an account? Sign in"}
+              {authView === "sign_in" ? "Don't have an account? Create A Free Account" : "Already have an account? Sign in"}
             </button>
             
             {/* Password reset link - only show in sign_in view */}
@@ -201,4 +202,5 @@ const Auth = () => {
       </div>
     </div>;
 };
+
 export default Auth;
