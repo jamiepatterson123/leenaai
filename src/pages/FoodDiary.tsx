@@ -36,7 +36,7 @@ const FoodDiaryPage = () => {
         
         {/* Sidebar - calendar and image analysis */}
         <div className="order-2 md:order-2 space-y-6">
-          <Card className="rounded-lg bg-white border border-gray-200">
+          <Card className="rounded-lg bg-white border border-gray-200 overflow-hidden">
             <Calendar
               mode="single"
               selected={selectedDate}
