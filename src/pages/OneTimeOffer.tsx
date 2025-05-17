@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -131,10 +130,10 @@ const OneTimeOffer = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-pink-100 to-purple-100 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center p-2 bg-green-100 text-green-800 rounded-full mb-4">
+          <div className="inline-flex items-center justify-center p-2 bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] text-white rounded-full mb-4">
             <Check className="w-8 h-8" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">🎉 Welcome to Leena.ai Premium!</h1>
@@ -168,15 +167,15 @@ const OneTimeOffer = () => {
                 <p className="text-muted-foreground mb-6">That's $10 per month</p>
                 <ul className="space-y-2">
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                    <Check className="h-5 w-5 text-[#D946EF] mt-0.5" /> 
                     Unlimited nutrition tracking
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                    <Check className="h-5 w-5 text-[#D946EF] mt-0.5" /> 
                     AI food photo analysis
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                    <Check className="h-5 w-5 text-[#D946EF] mt-0.5" /> 
                     Monthly billing
                   </li>
                 </ul>
@@ -184,35 +183,35 @@ const OneTimeOffer = () => {
               
               <div className="w-full md:w-auto flex justify-center">
                 <div className="h-full flex items-center">
-                  <ArrowRight className="h-8 w-8 text-primary" />
+                  <ArrowRight className="h-8 w-8 text-[#D946EF]" />
                 </div>
               </div>
               
               <div className="flex-1 relative">
                 <div className="absolute -top-4 right-0 left-0 mx-auto w-max">
-                  <div className="bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <div className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] text-white text-xs font-bold px-3 py-1 rounded-full">
                     TWO MONTHS FREE
                   </div>
                 </div>
-                <div className="border-2 border-primary rounded-lg p-6 bg-primary/5">
+                <div className="border-2 border-[#D946EF] rounded-lg p-6 bg-purple-50/50">
                   <h3 className="font-semibold text-lg mb-4">Annual Plan (Best Value)</h3>
                   <div className="text-3xl font-bold mb-2">$99<span className="text-base font-normal text-muted-foreground">/year</span></div>
                   <p className="text-muted-foreground mb-6">Or just $8.25 per month equivalent</p>
                   <ul className="space-y-2">
                     <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                      <Check className="h-5 w-5 text-[#8B5CF6] mt-0.5" /> 
                       <span>Everything in monthly plan</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                      <Check className="h-5 w-5 text-[#8B5CF6] mt-0.5" /> 
                       <span className="font-medium">2 months free </span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                      <Check className="h-5 w-5 text-[#8B5CF6] mt-0.5" /> 
                       <span>Hassle-free annual billing</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                      <Check className="h-5 w-5 text-[#8B5CF6] mt-0.5" /> 
                       <span>Priority customer support</span>
                     </li>
                   </ul>
