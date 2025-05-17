@@ -1,14 +1,11 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Star, ArrowRight, X, Timer, Loader2 } from "lucide-react";
+import { Check, Star, ArrowRight, X, Timer } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -18,9 +15,6 @@ const OneTimeOffer = () => {
   const [isPreview, setIsPreview] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(5 * 60); // 5 minutes in seconds
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [monthlySubscriptionId, setMonthlySubscriptionId] = useState<string | null>(null);
-  
   useEffect(() => {
     // Check authentication status
     supabase.auth.getSession().then(({
@@ -29,16 +23,6 @@ const OneTimeOffer = () => {
       }
     }) => {
       setIsLoggedIn(!!session);
-      
-      // If logged in, check for any active subscriptions
-      if (session) {
-        // Get subscription data from localStorage or query from API
-        const urlParams = new URLSearchParams(location.search);
-        const subscriptionId = urlParams.get('subscription_id');
-        if (subscriptionId) {
-          setMonthlySubscriptionId(subscriptionId);
-        }
-      }
     });
 
     // Track OTO page view
@@ -55,7 +39,6 @@ const OneTimeOffer = () => {
       console.log("Preview mode is disabled or not from successful checkout");
     }
   }, []);
-  
   useEffect(() => {
     // Set up the countdown timer
     const timer = setInterval(() => {
@@ -79,47 +62,6 @@ const OneTimeOffer = () => {
     return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
   };
 
-  // Handle upgrade to yearly plan
-  const handleUpgradeToYearly = async () => {
-    if (!isLoggedIn) {
-      toast.error("Please log in to upgrade your subscription");
-      navigate("/auth");
-      return;
-    }
-    
-    if (!monthlySubscriptionId) {
-      // If we don't have a monthly subscription ID, fall back to the regular checkout
-      redirectToYearlyCheckout();
-      return;
-    }
-    
-    setIsProcessing(true);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke("upgrade-to-yearly", {
-        body: { monthly_subscription_id: monthlySubscriptionId }
-      });
-      
-      if (error) {
-        throw new Error(error.message);
-      }
-      
-      if (data.success) {
-        toast.success("Successfully upgraded to yearly plan!");
-        navigate("/dashboard?yearly_upgraded=true");
-      } else {
-        throw new Error("Failed to upgrade subscription");
-      }
-    } catch (error) {
-      console.error("Error upgrading subscription:", error);
-      toast.error("Failed to upgrade: " + (error.message || "Unknown error"));
-      // Fall back to the regular checkout process
-      redirectToYearlyCheckout();
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   // Direct link to Stripe payment
   const handleSkip = () => {
     // If logged in, redirect to profile page, otherwise to homepage
@@ -129,12 +71,10 @@ const OneTimeOffer = () => {
       navigate("/");
     }
   };
-  
-  return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
+  return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center p-2 bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] text-white rounded-full mb-4">
+          <div className="inline-flex items-center justify-center p-2 bg-green-100 text-green-800 rounded-full mb-4">
             <Check className="w-8 h-8" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">🎉 Welcome to Leena.ai Premium!</h1>
@@ -168,15 +108,15 @@ const OneTimeOffer = () => {
                 <p className="text-muted-foreground mb-6">That's $10 per month</p>
                 <ul className="space-y-2">
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-[#D946EF] mt-0.5" /> 
+                    <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
                     Unlimited nutrition tracking
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-[#D946EF] mt-0.5" /> 
+                    <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
                     AI food photo analysis
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-[#D946EF] mt-0.5" /> 
+                    <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
                     Monthly billing
                   </li>
                 </ul>
@@ -184,35 +124,32 @@ const OneTimeOffer = () => {
               
               <div className="w-full md:w-auto flex justify-center">
                 <div className="h-full flex items-center">
-                  <ArrowRight className="h-8 w-8 text-[#D946EF]" />
+                  <ArrowRight className="h-8 w-8 text-primary" />
                 </div>
               </div>
               
               <div className="flex-1 relative">
                 <div className="absolute -top-4 right-0 left-0 mx-auto w-max">
-                  <div className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <div className="bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">
                     TWO MONTHS FREE
                   </div>
                 </div>
-                <div className="border-2 border-[#D946EF] rounded-lg p-6 bg-white">
+                <div className="border-2 border-primary rounded-lg p-6 bg-primary/5">
                   <h3 className="font-semibold text-lg mb-4">Annual Plan (Best Value)</h3>
                   <div className="text-3xl font-bold mb-2">$99<span className="text-base font-normal text-muted-foreground">/year</span></div>
                   <p className="text-muted-foreground mb-6">Or just $8.25 per month equivalent</p>
                   <ul className="space-y-2">
+                    
                     <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-[#8B5CF6] mt-0.5" /> 
-                      <span>Everything in monthly plan</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-[#8B5CF6] mt-0.5" /> 
+                      <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
                       <span className="font-medium">2 months free </span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-[#8B5CF6] mt-0.5" /> 
+                      <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
                       <span>Hassle-free annual billing</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-[#8B5CF6] mt-0.5" /> 
+                      <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
                       <span>Priority customer support</span>
                     </li>
                   </ul>
@@ -225,26 +162,15 @@ const OneTimeOffer = () => {
               <X className="mr-2 h-4 w-4" />
               No thanks, continue
             </Button>
-            <Button 
-              size="lg" 
-              className="w-full sm:w-auto order-1 sm:order-2 h-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] hover:opacity-90"
-              onClick={handleUpgradeToYearly}
-              disabled={isProcessing}
-            >
-              {isProcessing ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
+            <a href="https://buy.stripe.com/7sIbM0aekffE42AeUU" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto order-1 sm:order-2">
+              <Button size="lg" className="w-full h-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] hover:opacity-90">
                 <Star className="mr-2 h-4 w-4" />
-              )}
-              <div className="flex flex-col items-center">
-                <span className="text-xl font-bold">
-                  {isProcessing ? "Processing..." : "Get 2 months free today"}
-                </span>
-                <span className="text-xs font-medium">
-                  {isProcessing ? "Please wait" : "Only $8.25/month billed annually"}
-                </span>
-              </div>
-            </Button>
+                <div className="flex flex-col items-center">
+                  <span className="text-xl font-bold">Get 2 months free today</span>
+                  <span className="text-xs font-medium">Only $8.25/month billed annually</span>
+                </div>
+              </Button>
+            </a>
           </CardFooter>
         </Card>
         
@@ -252,8 +178,6 @@ const OneTimeOffer = () => {
           <p>Your subscription can be canceled anytime through your account settings.</p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default OneTimeOffer;
