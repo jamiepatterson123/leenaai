@@ -97,8 +97,8 @@ const OneTimeOffer = () => {
                 <span>Exclusive Offer</span>
               </div>
             </div>
-            <CardTitle className="text-2xl sm:text-3xl">Get Two Months Free with Annual Billing</CardTitle>
-            <CardDescription className="text-base">This Is A One-Time Offer – Only Available On This Page. Get two months free. This page disappears after you leave and you won't see it anywhere else.</CardDescription>
+            <CardTitle className="text-2xl sm:text-3xl">Get Two Months Free with Annual Billing - Today Only</CardTitle>
+            <CardDescription className="text-base">This Is A One-Time Offer – Only Available On This Page. Get two months free when you sign up for one year. </CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-6 md:gap-12 justify-center">
