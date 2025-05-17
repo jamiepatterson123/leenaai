@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, ArrowRight, X, Timer, Loader2, Star } from "lucide-react";
+import { Check, ArrowRight, X, Timer, Loader2, Star, ShieldCheck } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
@@ -213,8 +213,18 @@ const OneTimeOffer = () => {
                       <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
                       <span>Access all future AI features</span>
                     </li>
-                    
                   </ul>
+                  
+                  {/* Money-back guarantee section */}
+                  <div className="mt-6 pt-4 border-t border-gray-100">
+                    <div className="flex items-start gap-2">
+                      <ShieldCheck className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" /> 
+                      <div>
+                        <span className="font-medium text-sm">7-Day Money-Back Guarantee</span>
+                        <p className="text-xs text-muted-foreground mt-1">Not satisfied? Get a full refund within 7 days, no questions asked.</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
