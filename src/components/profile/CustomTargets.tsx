@@ -7,6 +7,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { MacroTargetInputs } from "./MacroTargetInputs";
 import { calculateCaloriesFromMacros } from "@/utils/macroCalculations";
+import { Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface CustomTargetsFormData {
   target_calories: number;
@@ -68,7 +75,21 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Custom Macro Targets</CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle>Custom Macro Targets</CardTitle>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="inline-flex items-center justify-center rounded-full w-6 h-6 hover:bg-gray-100 transition-colors">
+                  <Info className="h-4 w-4 text-gray-500" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p>If you already know your calorie and macro targets, you can add them here</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
