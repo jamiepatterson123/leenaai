@@ -1,11 +1,11 @@
 
 import React from "react";
 import { FoodDiary } from "@/components/FoodDiary";
-import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { parse, format } from "date-fns";
+import { HabitTracker } from "@/components/habits/HabitTracker";
 
 const FoodDiaryPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,14 +36,9 @@ const FoodDiaryPage = () => {
         
         {/* Sidebar - calendar and image analysis */}
         <div className="order-2 md:order-2 space-y-6">
-          <Card className="rounded-lg bg-white border border-gray-200 overflow-hidden">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={handleDateSelect}
-              className="w-full"
-            />
-          </Card>
+          <div className="w-full">
+            <HabitTracker />
+          </div>
           
           <div className="px-4 md:px-0">
             <ImageAnalysisSection
