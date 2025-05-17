@@ -174,7 +174,7 @@ const Auth = () => {
           <Button variant="gradient" size="sm" onClick={toggleAuthView} className="flex items-center gap-2">
             {authView === "sign_in" ? <>
                 <UserPlus size={16} />
-                <span className="font-semibold">Create Your Free Profile</span>
+                <span className="font-semibold">Create Free Account</span>
               </> : <>
                 <LogIn size={16} />
                 <span className="font-semibold">Sign In</span>
