@@ -6,7 +6,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "./ui/popover";
-import { Info } from "lucide-react";
 
 interface MacroProgressBarProps {
   label: string;
@@ -28,32 +27,27 @@ export const MacroProgressBar: React.FC<MacroProgressBarProps> = ({
       case "Calories":
         return {
           title: "Calories",
-          description: "Calories are units of energy. Your body needs calories to function properly. Tracking calories helps you maintain, gain, or lose weight depending on your fitness goals.",
-          tips: "For weight loss, consume fewer calories than you burn. For maintenance, balance intake with output. For muscle gain, consume slightly more than you need."
+          description: "Calories are units of energy. Your body needs calories to function properly. Tracking calories helps you maintain, gain, or lose weight depending on your fitness goals. For weight loss, consume fewer calories than you burn. For maintenance, balance intake with output. For muscle gain, consume slightly more than you need."
         };
       case "Protein":
         return {
           title: "Protein",
-          description: "Proteins are essential nutrients made of amino acids. They are the building blocks of muscle tissue and vital for recovery after exercise.",
-          tips: "Aim for 1.6-2.2g per kg of body weight if you're active. Good sources include lean meats, eggs, dairy, legumes, and plant-based protein sources."
+          description: "Proteins are essential nutrients made of amino acids. They are the building blocks of muscle tissue and vital for recovery after exercise. Aim for 1.6-2.2g per kg of body weight if you're active. Good sources include lean meats, eggs, dairy, legumes, and plant-based protein sources."
         };
       case "Carbs":
         return {
           title: "Carbohydrates",
-          description: "Carbs are your body's primary energy source, especially for high-intensity exercise. They fuel your brain, muscles, and other organs.",
-          tips: "Focus on complex carbs like whole grains, fruits, and vegetables for sustained energy. Time carb intake around workouts for optimal performance."
+          description: "Carbs are your body's primary energy source, especially for high-intensity exercise. They fuel your brain, muscles, and other organs. Focus on complex carbs like whole grains, fruits, and vegetables for sustained energy. Time carb intake around workouts for optimal performance."
         };
       case "Fat":
         return {
           title: "Fat",
-          description: "Dietary fats are essential for hormone production, nutrient absorption, and cell health. They provide more than twice the energy per gram compared to carbs and protein.",
-          tips: "Prioritize unsaturated fats from sources like avocados, nuts, seeds, and olive oil. Limit saturated and trans fats for better heart health."
+          description: "Dietary fats are essential for hormone production, nutrient absorption, and cell health. They provide more than twice the energy per gram compared to carbs and protein. Prioritize unsaturated fats from sources like avocados, nuts, seeds, and olive oil. Limit saturated and trans fats for better heart health."
         };
       default:
         return {
           title: label,
-          description: "This nutrient is important to track for optimal health and performance.",
-          tips: "Consult a nutrition professional for personalized advice."
+          description: "This nutrient is important to track for optimal health and performance. Consult a nutrition professional for personalized advice."
         };
     }
   };
@@ -65,17 +59,14 @@ export const MacroProgressBar: React.FC<MacroProgressBarProps> = ({
       <div className="flex justify-between items-center">
         <Popover>
           <PopoverTrigger asChild>
-            <span className="text-sm font-medium flex items-center gap-1 cursor-pointer hover:text-primary transition-colors">
+            <span className="text-sm font-medium cursor-pointer hover:text-primary transition-colors">
               {label}
-              <Info className="h-3.5 w-3.5 text-muted-foreground" />
             </span>
           </PopoverTrigger>
           <PopoverContent className="w-80 p-4">
             <div className="space-y-2">
               <h4 className="font-semibold text-lg">{nutrientInfo.title}</h4>
               <p className="text-sm text-muted-foreground">{nutrientInfo.description}</p>
-              <h5 className="font-medium text-sm mt-2">Tips:</h5>
-              <p className="text-sm text-muted-foreground">{nutrientInfo.tips}</p>
             </div>
           </PopoverContent>
         </Popover>
