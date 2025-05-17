@@ -12,9 +12,9 @@ import Landing from "./pages/Landing";
 import WhatsApp from "./pages/WhatsApp";
 import OneTimeOffer from "./pages/OneTimeOffer";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
-import { useSession } from "./hooks/useSession";
 import { AuthLoading } from "./components/auth/AuthLoading";
 
+// Create a new QueryClient instance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -24,20 +24,11 @@ const queryClient = new QueryClient({
   }
 });
 
+// Separate AppRoutes into a proper React function component
 function AppRoutes() {
-  const { session, loading } = useSession();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <AuthLoading />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen pb-10">
-      {session && <Navigation />}
+      <Navigation />
       <Routes>
         <Route path="/auth" element={<Auth />} />
         <Route path="/auth/callback" element={<Auth />} />
@@ -90,9 +81,7 @@ function AppRoutes() {
         {/* Landing page or redirect to dashboard if authenticated */}
         <Route
           path="/"
-          element={
-            session ? <Navigate to="/dashboard" replace /> : <Landing />
-          }
+          element={<Landing />}
         />
         
         {/* Catch-all route - redirect to home for any page not found */}
@@ -103,6 +92,7 @@ function AppRoutes() {
   );
 }
 
+// Main App component
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
