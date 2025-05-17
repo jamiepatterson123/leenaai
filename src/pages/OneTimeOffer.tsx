@@ -7,7 +7,6 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -206,16 +205,13 @@ const OneTimeOffer = () => {
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
-                      <span>Priority customer support</span>
+                      <span>Your nutrition tracking covered for the next year</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
-                      <span>Access to all future AI upgrades</span>
+                      <span>Access to all future AI upgrades and features</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
-                      <span>Effortless nutrition tracking covered for the next one year</span>
-                    </li>
+                    
                   </ul>
                 </div>
               </div>
