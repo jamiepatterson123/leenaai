@@ -94,6 +94,9 @@ function AppRoutes() {
             session ? <Navigate to="/dashboard" replace /> : <Landing />
           }
         />
+        
+        {/* Catch-all route - redirect to home for any page not found */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <Toaster position="top-right" />
     </div>
