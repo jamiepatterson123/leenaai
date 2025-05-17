@@ -110,30 +110,16 @@ const Auth = () => {
                 message: {
                   fontWeight: 500
                 }
-              },
-              // Custom localization to control the text displayed
-              localization: {
-                variables: {
-                  sign_in: {
-                    link_text: "Don't have an account? Sign up"
-                  },
-                  sign_up: {
-                    link_text: "Already have an account? Sign in"
-                  }
-                }
               }
             }} 
             providers={[]} 
             redirectTo={`${window.location.origin}/auth/callback`} 
             view={authView}
-            // Handle view changes when the link is clicked by user
-            showLinks={true}
-            // Pass a callback that will be called when the view changes
-            // This connects the toggle link behavior to our state
+            showLinks={false} // Hide the default links
             magicLink={false}
           />
 
-          {/* Add custom link handler since onViewChange isn't supported */}
+          {/* Custom link handler that properly toggles between sign-in and sign-up views */}
           <div className="mt-4 text-center">
             <button 
               onClick={toggleAuthView}
