@@ -7,11 +7,13 @@ import { useHomeData } from "@/components/home/useHomeData";
 import { HabitTracker } from "@/components/habits/HabitTracker";
 import { MacroCircles } from "@/components/home/MacroCircles";
 import { WeightTrendChart } from "@/components/reports/WeightTrendChart";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const HomeDataSection = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
   const [nutritionData, setNutritionData] = React.useState<any>(null);
   const imageAnalysisSectionRef = React.useRef<any>(null);
+  const isMobile = useIsMobile();
 
   const { isLoading, weightData } = useHomeData();
 
@@ -59,8 +61,8 @@ export const HomeDataSection = () => {
             />
           </div>
 
-          {/* Weight Trend Chart Section */}
-          <div className="w-full bg-white rounded-lg border border-gray-200">
+          {/* Weight Trend Chart Section - Hidden on Mobile */}
+          <div className="hidden md:block w-full bg-white rounded-lg border border-gray-200">
             {isLoading ? (
               <p className="text-center text-gray-500 p-4">Loading weight data...</p>
             ) : weightData && weightData.length > 0 ? (
