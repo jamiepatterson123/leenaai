@@ -25,8 +25,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   const { 
     isLoading, 
     usageCount, 
-    hasFreeUsesRemaining, 
-    redirectToCheckout 
+    hasFreeUsesRemaining
   } = useSubscription();
 
   // Track modal open
@@ -39,8 +38,9 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
     }
   }, [open, usageCount, hasFreeUsesRemaining]);
 
-  const handleUpgrade = async () => {
-    await redirectToCheckout();
+  const handleUpgrade = () => {
+    // Direct link to the Stripe checkout URL
+    window.location.href = "https://buy.stripe.com/eVq5kEafs8RweClb1Oe7m01";
   };
 
   const handleContinueFreeTrial = () => {

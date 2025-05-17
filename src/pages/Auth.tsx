@@ -182,17 +182,12 @@ const Auth = () => {
               fontWeight: 500
             }
           },
+          // Fix the type issue by using the correct object structure for ThemeSupa
           variables: {
             default: {
               colors: {
                 brand: '#8B5CF6',
                 brandAccent: '#D946EF'
-              },
-              labels: {
-                button: {
-                  sign_up: 'Create Free Account',
-                  sign_in: 'Sign In'
-                }
               }
             }
           }
