@@ -12,7 +12,6 @@ export const SubscriptionBadge: React.FC = () => {
     dailyLimitReached,
     isWithinFirst24Hours,
     hoursUntilNextUse,
-    redirectToCheckout,
     redirectToCustomerPortal
   } = useSubscription();
 
@@ -65,7 +64,7 @@ export const SubscriptionBadge: React.FC = () => {
         variant="outline" 
         size="sm" 
         className="text-xs h-8"
-        onClick={redirectToCheckout}
+        onClick={() => window.location.href = "https://buy.stripe.com/eVq5kEafs8RweClb1Oe7m01"}
       >
         <Star className="h-3 w-3 mr-1" />
         Upgrade to Unlimited Food Logging
