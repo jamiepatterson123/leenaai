@@ -9,8 +9,9 @@ import { useNavigate } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Send, LogOut } from "lucide-react";
+import { Send, LogOut, Upgrade } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSubscription } from "@/hooks/useSubscription";
 
 export const Navigation = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
@@ -20,6 +21,7 @@ export const Navigation = () => {
   const {
     session
   } = useSession();
+  const { redirectToCheckout, isSubscribed } = useSubscription();
   const selectedDate = new Date();
 
   // If there's no session or we're on the auth page, don't render the navigation
@@ -89,6 +91,16 @@ export const Navigation = () => {
             </SheetTrigger>
             <SheetContent side="right" className="w-[250px] sm:w-[300px]">
               <div className="flex flex-col gap-4 mt-6">
+                {!isSubscribed && (
+                  <Button 
+                    variant="gradient" 
+                    className="flex items-center justify-start gap-3" 
+                    onClick={redirectToCheckout}
+                  >
+                    <Upgrade className="h-4 w-4" />
+                    Upgrade to Premium
+                  </Button>
+                )}
                 <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={handleShare}>
                   <Send className="h-4 w-4" />
                   Share

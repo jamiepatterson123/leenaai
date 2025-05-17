@@ -14,10 +14,11 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Send, LogOut } from "lucide-react";
+import { Send, LogOut, Upgrade } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useSubscription } from "@/hooks/useSubscription";
 
 export const DesktopNav = ({ 
   handleShare, 
@@ -30,6 +31,7 @@ export const DesktopNav = ({
 }) => {
   const [session, setSession] = React.useState(null);
   const navigate = useNavigate();
+  const { redirectToCheckout, isSubscribed } = useSubscription();
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -76,6 +78,16 @@ export const DesktopNav = ({
         </SheetTrigger>
         <SheetContent side="right" className="w-[250px] sm:w-[300px]">
           <div className="flex flex-col gap-4 mt-6">
+            {!isSubscribed && (
+              <Button 
+                variant="gradient" 
+                className="flex items-center justify-start gap-3" 
+                onClick={redirectToCheckout}
+              >
+                <Upgrade className="h-4 w-4" />
+                Upgrade to Premium
+              </Button>
+            )}
             <Button
               variant="ghost"
               className="flex items-center justify-start gap-3"
