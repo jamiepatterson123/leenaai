@@ -102,7 +102,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
             onClick={handleContinueFreeTrial}
             disabled={isLoading || !hasFreeUsesRemaining}
           >
-            {hasFreeUsesRemaining > 0 ? "Continue Free Trial" : "Cancel"}
+            {hasFreeUsesRemaining ? "Continue Free Trial" : "Cancel"}
           </Button>
           <Button onClick={handleUpgrade} disabled={isLoading}>
             {isLoading ? (

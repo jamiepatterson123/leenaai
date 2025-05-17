@@ -61,6 +61,7 @@ serve(async (req) => {
     
     logStep("Using price ID", { priceId });
 
+    // Always redirect to the /oto page without requiring authentication
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,

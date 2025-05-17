@@ -42,6 +42,9 @@ function AppRoutes() {
         <Route path="/auth" element={<Auth />} />
         <Route path="/auth/callback" element={<Auth />} />
         
+        {/* Make the OTO page accessible without authentication */}
+        <Route path="/oto" element={<OneTimeOffer />} />
+        
         {/* Protected Routes */}
         <Route
           path="/dashboard"
@@ -80,14 +83,6 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <WhatsApp />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/oto"
-          element={
-            <ProtectedRoute>
-              <OneTimeOffer />
             </ProtectedRoute>
           }
         />

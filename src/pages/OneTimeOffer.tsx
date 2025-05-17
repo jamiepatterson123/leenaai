@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Check, Star, ArrowRight, X, Timer } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
+import { supabase } from "@/integrations/supabase/client";
 
 const OneTimeOffer = () => {
   const navigate = useNavigate();
@@ -14,8 +16,14 @@ const OneTimeOffer = () => {
   } = useSubscription();
   const [isPreview, setIsPreview] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(5 * 60); // 5 minutes in seconds
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
+    // Check authentication status
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+    
     // Track OTO page view
     trackOneTimeOfferView();
 
@@ -27,8 +35,6 @@ const OneTimeOffer = () => {
     // Only redirect if not in preview mode and not from successful checkout
     const successParam = url.searchParams.get("subscription_success");
     if (successParam !== "true" && !previewMode) {
-      // Disable automatic redirect to allow preview mode to work
-      // navigate("/dashboard");
       console.log("Preview mode is disabled or not from successful checkout");
     }
   }, []);
@@ -63,8 +69,12 @@ const OneTimeOffer = () => {
   };
   
   const handleSkip = () => {
-    // Redirect to profile page instead of dashboard
-    navigate("/profile");
+    // If logged in, redirect to profile page, otherwise to homepage
+    if (isLoggedIn) {
+      navigate("/profile");
+    } else {
+      navigate("/");
+    }
   };
   
   return (
@@ -166,7 +176,7 @@ const OneTimeOffer = () => {
           <CardFooter className="flex flex-col sm:flex-row gap-4 justify-between pt-6">
             <Button variant="outline" onClick={handleSkip} className="w-full sm:w-auto order-2 sm:order-1">
               <X className="mr-2 h-4 w-4" />
-              No thanks, continue with monthly
+              No thanks, continue
             </Button>
             <Button onClick={handleUpgrade} size="lg" className="w-full sm:w-auto order-1 sm:order-2">
               <Star className="mr-2 h-4 w-4" />
