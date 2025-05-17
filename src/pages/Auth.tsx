@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -174,7 +173,7 @@ const Auth = () => {
           <Button variant="gradient" size="sm" onClick={toggleAuthView} className="flex items-center gap-2">
             {authView === "sign_in" ? <>
                 <UserPlus size={16} />
-                <span className="font-semibold">Sign Up</span>
+                <span className="font-semibold">Create Your Free Profile</span>
               </> : <>
                 <LogIn size={16} />
                 <span className="font-semibold">Sign In</span>
@@ -187,7 +186,7 @@ const Auth = () => {
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold text-gradient">
-              {authView === "sign_in" ? "Sign In" : "Sign Up"}
+              {authView === "sign_in" ? "Sign In" : "Create Your Free Profile"}
             </h1>
             <p className="mt-2 text-gray-600 font-normal">
               {authView === "sign_in" 
@@ -230,7 +229,7 @@ const Auth = () => {
               className="text-gradient font-normal hover:underline"
             >
               {authView === "sign_in" 
-                ? "Don't have an account? Sign up" 
+                ? "Don't have an account? Create Your Free Profile" 
                 : "Already have an account? Sign in"}
             </button>
             
