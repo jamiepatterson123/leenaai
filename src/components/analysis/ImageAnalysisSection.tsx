@@ -11,6 +11,8 @@ import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSubscription } from "@/hooks/useSubscription";
 import { SubscriptionModal } from "@/components/subscription/SubscriptionModal";
+import { triggerSuccessConfetti } from "@/utils/confetti";
+
 interface ImageAnalysisSectionProps {
   analyzing: boolean;
   setAnalyzing: (analyzing: boolean) => void;
@@ -134,6 +136,10 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       setShowVerification(false);
       setAnalyzing(false);
       setNutritionData(null);
+      
+      // Trigger confetti animation when food is successfully logged
+      triggerSuccessConfetti();
+      
       toast.success("Food added to diary!");
       if (isMobile) {
         navigate("/food-diary");

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +5,7 @@ import { NutritionCard } from "./NutritionCard";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useEffect } from "react";
+import { triggerSuccessConfetti } from "@/utils/confetti";
 
 interface FoodDiaryProps {
   selectedDate: Date;
@@ -103,6 +103,9 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
 
       if (error) throw error;
 
+      // Trigger confetti animation when food category is updated
+      triggerSuccessConfetti();
+      
       toast.success(`Moved to ${category}`);
       queryClient.invalidateQueries({ queryKey: ["foodDiary", formattedDate] });
     } catch (error) {

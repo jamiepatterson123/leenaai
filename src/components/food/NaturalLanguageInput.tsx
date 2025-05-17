@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Mic, Send, Loader2 } from 'lucide-react';
@@ -7,6 +6,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { saveFoodEntries } from '../analysis/FoodEntrySaver';
+import { triggerSuccessConfetti } from '@/utils/confetti';
 
 interface NaturalLanguageInputProps {
   onSuccess?: () => void;
@@ -109,6 +109,10 @@ export const NaturalLanguageInput = ({ onSuccess, selectedDate = new Date() }: N
         }));
 
         await saveFoodEntries(foodEntries, selectedDate);
+        
+        // Trigger confetti animation when food is successfully logged
+        triggerSuccessConfetti();
+        
         toast.success('Food logged successfully');
         setInputText('');
         onSuccess?.();
