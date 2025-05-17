@@ -30,15 +30,15 @@ export const WaterConsumptionChart = ({ data }: WaterConsumptionChartProps) => {
   };
 
   return (
-    <div className="rounded-xl border bg-card p-6">
-      <div className="mb-4">
+    <div className="rounded-xl border bg-card overflow-hidden">
+      <div className="px-6 pt-6">
         <h3 className="font-semibold">Water Consumption</h3>
         <p className="text-sm text-muted-foreground">Daily water intake in ml</p>
       </div>
       <div className="h-[300px]">
         <ChartContainer config={chartConfig}>
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+            <AreaChart data={data} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis
                 dataKey="timestamp"
