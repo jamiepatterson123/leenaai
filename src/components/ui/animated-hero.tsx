@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { MoveRight } from "lucide-react";
@@ -6,16 +5,11 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Testimonial } from "@/components/ui/testimonial";
-
 function Hero() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [titleNumber, setTitleNumber] = useState(0);
-  const titles = useMemo(
-    () => ["effortlessly", "accurately", "intelligently"],
-    []
-  );
-
+  const titles = useMemo(() => ["effortlessly", "accurately", "intelligently"], []);
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (titleNumber === titles.length - 1) {
@@ -26,13 +20,10 @@ function Hero() {
     }, 2000);
     return () => clearTimeout(timeoutId);
   }, [titleNumber, titles]);
-
   const handleSubmit = () => {
     navigate("/auth");
   };
-
-  return (
-    <div className="w-full">
+  return <div className="w-full">
       <div className="container mx-auto">
         <div className="flex gap-8 items-center justify-center flex-col">
           <div>
@@ -45,27 +36,21 @@ function Hero() {
               <span className="text-gradient">Track your nutrition</span>
               <span className="relative flex w-full justify-center overflow-hidden text-center md:pb-4 md:pt-1">
                 &nbsp;
-                {titles.map((title, index) => (
-                  <motion.span
-                    key={index}
-                    className="absolute font-semibold min-h-[60px] flex items-center"
-                    initial={{ opacity: 0, y: "-100" }}
-                    transition={{ type: "spring", stiffness: 50 }}
-                    animate={
-                      titleNumber === index
-                        ? {
-                            y: 0,
-                            opacity: 1,
-                          }
-                        : {
-                            y: titleNumber > index ? -150 : 150,
-                            opacity: 0,
-                          }
-                    }
-                  >
+                {titles.map((title, index) => <motion.span key={index} initial={{
+                opacity: 0,
+                y: "-100"
+              }} transition={{
+                type: "spring",
+                stiffness: 50
+              }} animate={titleNumber === index ? {
+                y: 0,
+                opacity: 1
+              } : {
+                y: titleNumber > index ? -150 : 150,
+                opacity: 0
+              }} className="absolute font-semibold py-[15px] px-[10px]">
                     {title}
-                  </motion.span>
-                ))}
+                  </motion.span>)}
               </span>
             </h1>
 
@@ -74,12 +59,7 @@ function Hero() {
             </p>
           </div>
           <div className="flex items-center">
-            <Button 
-              variant="gradient"
-              size="lg" 
-              className="gap-4 w-[200px] md:w-[200px] h-[64px] font-poppins"
-              onClick={handleSubmit}
-            >
+            <Button variant="gradient" size="lg" className="gap-4 w-[200px] md:w-[200px] h-[64px] font-poppins" onClick={handleSubmit}>
               Start free <MoveRight className="w-4 h-4" />
             </Button>
           </div>
@@ -88,8 +68,6 @@ function Hero() {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 }
-
 export { Hero };
