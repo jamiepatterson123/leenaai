@@ -8,6 +8,9 @@ import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { UserPlus, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { AuthLoading } from "@/components/auth/AuthLoading";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -83,10 +86,7 @@ const Auth = () => {
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          <p className="mt-4 text-sm text-gray-500">Loading...</p>
-        </div>
+        <AuthLoading />
       </div>;
   }
   
@@ -114,10 +114,10 @@ const Auth = () => {
             
             <form onSubmit={handleResetPassword} className="space-y-6">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <Label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address
-                </label>
-                <input
+                </Label>
+                <Input
                   id="email"
                   name="email"
                   type="email"
