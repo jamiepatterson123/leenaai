@@ -1,9 +1,12 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
+import { UserPlus, LogIn } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -42,6 +45,11 @@ const Auth = () => {
       navigate("/dashboard");
     }
   }, [session, navigate]);
+
+  const toggleAuthView = () => {
+    setAuthView(authView === "sign_in" ? "sign_up" : "sign_in");
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center justify-center">
@@ -51,12 +59,31 @@ const Auth = () => {
       </div>;
   }
   return <div className="min-h-screen flex flex-col bg-gray-50 font-poppins">
-      {/* Logo Header */}
+      {/* Logo Header with Sign Up button */}
       <div className="w-full p-4 bg-white shadow-sm">
-        <div className="container mx-auto">
+        <div className="container mx-auto flex justify-between items-center">
           <Link to="/" className="inline-block">
             <h1 className="text-black font-semibold text-base">Leena.ai</h1>
           </Link>
+          
+          <Button 
+            variant="gradient" 
+            size="sm" 
+            onClick={toggleAuthView}
+            className="flex items-center gap-2"
+          >
+            {authView === "sign_in" ? (
+              <>
+                <UserPlus size={16} />
+                <span>Sign Up</span>
+              </>
+            ) : (
+              <>
+                <LogIn size={16} />
+                <span>Sign In</span>
+              </>
+            )}
+          </Button>
         </div>
       </div>
       
