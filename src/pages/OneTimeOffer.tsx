@@ -208,6 +208,14 @@ const OneTimeOffer = () => {
                       <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
                       <span>Priority customer support</span>
                     </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                      <span>Access to all future AI upgrades</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
+                      <span>Nutrition tracking covered for the next one year</span>
+                    </li>
                   </ul>
                 </div>
               </div>
