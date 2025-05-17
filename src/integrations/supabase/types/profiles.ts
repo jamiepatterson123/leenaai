@@ -16,7 +16,7 @@ export type ProfileRow = {
   target_protein: number | null;
   target_carbs: number | null;
   target_fat: number | null;
-  chart_settings: Record<string, any> | null;
+  chart_settings: ChartSettingsType | null;
 };
 
 export type ProfileInsert = {
@@ -36,7 +36,7 @@ export type ProfileInsert = {
   target_protein?: number | null;
   target_carbs?: number | null;
   target_fat?: number | null;
-  chart_settings?: Record<string, any> | null;
+  chart_settings?: ChartSettingsType | null;
 };
 
 export type ProfileUpdate = {
@@ -56,5 +56,13 @@ export type ProfileUpdate = {
   target_protein?: number | null;
   target_carbs?: number | null;
   target_fat?: number | null;
-  chart_settings?: Record<string, any> | null;
+  chart_settings?: ChartSettingsType | null;
+};
+
+// Define a type for chart settings that's compatible with JSON
+export type ChartSettingsType = {
+  visibleCharts?: {
+    [key: string]: boolean;
+  };
+  viewMode?: "charts" | "table";
 };

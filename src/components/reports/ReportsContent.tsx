@@ -14,6 +14,7 @@ import { WaterConsumptionChart } from "./WaterConsumptionChart";
 import { NutritionTable } from "./NutritionTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { ChartSettingsType } from "@/integrations/supabase/types/profiles";
 
 interface ReportsContentProps {
   weightData: any[];
@@ -58,14 +59,20 @@ export const ReportsContent = ({
   // Load saved settings when profile is fetched
   useEffect(() => {
     if (profile?.chart_settings) {
+      const chartSettings = profile.chart_settings as ChartSettingsType;
+      
       // Load saved visible charts if available
-      if (profile.chart_settings.visibleCharts) {
-        setVisibleCharts(profile.chart_settings.visibleCharts);
+      if (chartSettings.visibleCharts) {
+        // Safely merge the saved settings with defaults
+        setVisibleCharts(prev => ({
+          ...prev,
+          ...chartSettings.visibleCharts
+        }));
       }
       
       // Load saved view mode if available
-      if (profile.chart_settings.viewMode) {
-        setViewMode(profile.chart_settings.viewMode);
+      if (chartSettings.viewMode) {
+        setViewMode(chartSettings.viewMode);
       }
     }
   }, [profile]);

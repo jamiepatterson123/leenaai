@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -6,6 +7,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ChartSettingsType } from "@/integrations/supabase/types/profiles";
+
 export interface VisibleCharts {
   weightTrend: boolean;
   calorieTargets: boolean;
@@ -36,12 +39,14 @@ export const defaultVisibleCharts: VisibleCharts = {
   waterConsumption: true,
   nutritionTable: false
 };
+
 interface ChartSettingsProps {
   visibleCharts: VisibleCharts;
   onToggleChart: (chart: keyof VisibleCharts) => void;
   viewMode: "charts" | "table";
   onViewModeChange: (mode: "charts" | "table") => void;
 }
+
 export const ChartSettings = ({
   visibleCharts,
   onToggleChart,
@@ -60,14 +65,19 @@ export const ChartSettings = ({
         toast.error("You must be logged in to save settings");
         return;
       }
+      
+      // Convert to a JSON-compatible format
+      const chartSettingsData: ChartSettingsType = {
+        visibleCharts: { ...visibleCharts },
+        viewMode
+      };
+      
       const {
         error
       } = await supabase.from("profiles").update({
-        chart_settings: {
-          visibleCharts,
-          viewMode
-        }
+        chart_settings: chartSettingsData
       }).eq("user_id", user.id);
+      
       if (error) {
         console.error("Error saving chart settings:", error);
         toast.error("Failed to save chart settings");
@@ -79,7 +89,9 @@ export const ChartSettings = ({
       toast.error("An unexpected error occurred");
     }
   };
-  return <div className="rounded-lg border shadow-sm p-4">
+  
+  return (
+    <div className="rounded-lg border shadow-sm p-4">
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold">View Mode</h3>
@@ -92,7 +104,8 @@ export const ChartSettings = ({
           </TabsList>
         </Tabs>
 
-        {viewMode === "charts" && <Accordion type="single" collapsible className="w-full">
+        {viewMode === "charts" && (
+          <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="visible-charts" className="border-none">
               <AccordionTrigger className="py-0">
                 <h3 className="text-lg font-semibold">Visible Charts</h3>
@@ -146,12 +159,24 @@ export const ChartSettings = ({
                 </div>
               </AccordionContent>
             </AccordionItem>
-          </Accordion>}
+          </Accordion>
+        )}
 
-        {viewMode === "table" && <div>
+        {viewMode === "table" && (
+          <div>
             <h3 className="text-lg font-semibold mb-4">Table Options</h3>
             
-          </div>}
+          </div>
+        )}
+        
+        {/* Add Save Settings button */}
+        <Button 
+          onClick={saveChartSettingsAsDefault} 
+          className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] text-white"
+        >
+          Save as Default Settings
+        </Button>
       </div>
-    </div>;
+    </div>
+  );
 };
