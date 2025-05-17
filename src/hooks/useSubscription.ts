@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
@@ -17,9 +18,13 @@ export interface SubscriptionState {
   isLoading: boolean;
   isSubscribed: boolean;
   usageCount: number;
-  freeUsesRemaining: number;
+  dailyLimitReached: boolean;
   hasFreeUsesRemaining: boolean;
   subscriptionEnd: Date | null;
+  firstUsageTime: Date | null;
+  lastUsageTime: Date | null;
+  hoursUntilNextUse: number;
+  isWithinFirst24Hours: boolean;
 }
 
 export const useSubscription = () => {
@@ -28,9 +33,13 @@ export const useSubscription = () => {
     isLoading: true,
     isSubscribed: false,
     usageCount: 0,
-    freeUsesRemaining: 10,
+    dailyLimitReached: false,
     hasFreeUsesRemaining: true,
-    subscriptionEnd: null
+    subscriptionEnd: null,
+    firstUsageTime: null,
+    lastUsageTime: null,
+    hoursUntilNextUse: 0,
+    isWithinFirst24Hours: false
   });
 
   // Check subscription status on mount and when session changes
@@ -42,9 +51,13 @@ export const useSubscription = () => {
         isLoading: false,
         isSubscribed: false,
         usageCount: 0,
-        freeUsesRemaining: 10,
+        dailyLimitReached: false,
         hasFreeUsesRemaining: true,
-        subscriptionEnd: null
+        subscriptionEnd: null,
+        firstUsageTime: null,
+        lastUsageTime: null,
+        hoursUntilNextUse: 0,
+        isWithinFirst24Hours: false
       });
     }
   }, [session]);
@@ -127,13 +140,22 @@ export const useSubscription = () => {
       
       console.log("Subscription data:", data);
       
+      const now = new Date();
+      const firstTime = data.first_usage_time ? new Date(data.first_usage_time) : null;
+      const isWithinFirst24Hours = firstTime && 
+        (now.getTime() - firstTime.getTime() < 24 * 60 * 60 * 1000);
+      
       setState({
         isLoading: false,
         isSubscribed: data.subscribed || false,
         usageCount: data.usage_count || 0,
-        freeUsesRemaining: data.free_uses_remaining || 0,
+        dailyLimitReached: data.daily_limit_reached || false,
         hasFreeUsesRemaining: data.has_free_uses_remaining || false,
-        subscriptionEnd: data.subscription_end ? new Date(data.subscription_end) : null
+        subscriptionEnd: data.subscription_end ? new Date(data.subscription_end) : null,
+        firstUsageTime: data.first_usage_time ? new Date(data.first_usage_time) : null,
+        lastUsageTime: data.last_usage_time ? new Date(data.last_usage_time) : null,
+        hoursUntilNextUse: data.hours_until_next_use || 0,
+        isWithinFirst24Hours
       });
     } catch (error) {
       console.error("Exception checking subscription:", error);
@@ -170,7 +192,7 @@ export const useSubscription = () => {
         trackFreeTrialUsage(data.usage_count);
         
         // Track when free trial is exhausted
-        if (data.usage_count >= 10 && !data.has_free_uses_remaining) {
+        if (data.daily_limit_reached) {
           trackFreeTrialExhausted();
         }
       }
@@ -178,11 +200,14 @@ export const useSubscription = () => {
       setState((prev) => ({
         ...prev,
         usageCount: data.usage_count || prev.usageCount,
-        freeUsesRemaining: data.free_uses_remaining || prev.freeUsesRemaining,
-        hasFreeUsesRemaining: data.has_free_uses_remaining || prev.hasFreeUsesRemaining,
+        dailyLimitReached: data.daily_limit_reached || false,
+        hasFreeUsesRemaining: data.has_free_uses_remaining || false,
+        lastUsageTime: new Date(),
+        isWithinFirst24Hours: data.within_first_24_hours || false,
+        hoursUntilNextUse: data.hours_until_next_use || 0
       }));
       
-      return data.has_free_uses_remaining;
+      return !data.daily_limit_reached;
     } catch (error) {
       console.error("Exception incrementing usage:", error);
       toast({

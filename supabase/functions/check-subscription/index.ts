@@ -63,6 +63,9 @@ serve(async (req) => {
     let usageCount = 0;
     let subscriptionEnd = null;
     let stripeCustomerId = null;
+    let firstUsageTime = null;
+    let lastUsageTime = null;
+    let dailyLimitReached = false;
 
     // Check if user is in Stripe
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
@@ -91,10 +94,36 @@ serve(async (req) => {
       logStep("No Stripe customer found");
     }
 
-    // Use existing usage count if available
+    // Use existing data if available
     if (subscriberData) {
       usageCount = subscriberData.usage_count;
+      firstUsageTime = subscriberData.first_usage_time;
+      lastUsageTime = subscriberData.last_usage_time;
+
+      // Check if this is within first 24 hours of usage
+      const now = new Date();
+      const firstTime = firstUsageTime ? new Date(firstUsageTime) : null;
+      const lastTime = lastUsageTime ? new Date(lastUsageTime) : null;
+      
+      const isWithinFirst24Hours = firstTime && 
+        (now.getTime() - firstTime.getTime() < 24 * 60 * 60 * 1000);
+      
+      if (!hasSubscription) {
+        if (isWithinFirst24Hours) {
+          // Within first 24 hours: limit is 5 uses
+          dailyLimitReached = usageCount >= 5;
+        } else {
+          // After first 24 hours: check if it's been 24 hours since last usage
+          if (lastTime) {
+            const hoursSinceLastUsage = (now.getTime() - lastTime.getTime()) / (60 * 60 * 1000);
+            dailyLimitReached = hoursSinceLastUsage < 24;
+          }
+        }
+      }
     }
+
+    // Current timestamp
+    const now = new Date().toISOString();
 
     // Upsert subscriber record
     await supabaseClient
@@ -107,7 +136,9 @@ serve(async (req) => {
         subscription_tier: hasSubscription ? "premium" : "free",
         subscription_end: subscriptionEnd,
         usage_count: usageCount,
-        updated_at: new Date().toISOString(),
+        first_usage_time: firstUsageTime || now,
+        last_usage_time: lastUsageTime || now,
+        updated_at: now,
       }, { onConflict: "user_id" });
 
     logStep("Database updated", { 
@@ -115,13 +146,25 @@ serve(async (req) => {
       usage_count: usageCount 
     });
 
+    const hasRemaining = hasSubscription || !dailyLimitReached;
+
+    // Calculate hours until next available use
+    let hoursUntilNextUse = 0;
+    if (!hasSubscription && lastUsageTime) {
+      const lastTime = new Date(lastUsageTime);
+      hoursUntilNextUse = Math.max(0, 24 - (new Date().getTime() - lastTime.getTime()) / (60 * 60 * 1000));
+    }
+
     return new Response(
       JSON.stringify({
         subscribed: hasSubscription,
         usage_count: usageCount,
         subscription_end: subscriptionEnd,
-        free_uses_remaining: Math.max(0, 10 - usageCount),
-        has_free_uses_remaining: usageCount < 10 || hasSubscription
+        daily_limit_reached: dailyLimitReached,
+        has_free_uses_remaining: hasRemaining,
+        first_usage_time: firstUsageTime,
+        last_usage_time: lastUsageTime,
+        hours_until_next_use: hoursUntilNextUse
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

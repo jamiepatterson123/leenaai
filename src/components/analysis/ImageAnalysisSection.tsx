@@ -1,3 +1,4 @@
+
 import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "@/components/ui/use-toast";
@@ -45,7 +46,14 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const componentRef = React.useRef<HTMLDivElement>(null);
-  const { incrementUsage, hasFreeUsesRemaining, isSubscribed } = useSubscription();
+  const { 
+    incrementUsage, 
+    dailyLimitReached, 
+    isSubscribed,
+    usageCount,
+    isWithinFirst24Hours,
+    hoursUntilNextUse
+  } = useSubscription();
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -73,8 +81,28 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
 
     // Check if user has free uses remaining or is subscribed
-    const canProceed = await incrementUsage();
-    if (!canProceed) {
+    if (dailyLimitReached && !isSubscribed) {
+      const hours = Math.ceil(hoursUntilNextUse);
+      const minutes = Math.round((hoursUntilNextUse % 1) * 60);
+      
+      let timeMessage = "";
+      if (hours > 0) {
+        timeMessage = `${hours} hour${hours !== 1 ? 's' : ''}`;
+      }
+      if (minutes > 0) {
+        timeMessage += `${timeMessage ? ' and ' : ''}${minutes} minute${minutes !== 1 ? 's' : ''}`;
+      }
+      
+      const limitMessage = isWithinFirst24Hours
+        ? "You've used all 5 free uploads for your first 24 hours."
+        : "You've used your free upload for today.";
+        
+      toast({
+        title: "Usage limit reached",
+        description: `${limitMessage} Next upload available in ${timeMessage}. Upgrade to premium for unlimited uploads.`,
+        variant: "destructive",
+      });
+      
       setShowSubscriptionModal(true);
       return;
     }
@@ -93,6 +121,23 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       console.log("Analysis result:", result);
       
       if (result?.foods) {
+        // Check if user has free uses remaining or is subscribed after analysis
+        const canProceed = await incrementUsage();
+        if (!canProceed) {
+          const messageText = isWithinFirst24Hours
+            ? "You've used all 5 free uploads for your first 24 hours."
+            : "You've used your free upload for today.";
+          
+          toast({
+            title: "Usage limit reached",
+            description: `${messageText} Upgrade to premium for unlimited uploads.`,
+            variant: "destructive",
+          });
+          setShowSubscriptionModal(true);
+          setAnalyzing(false);
+          return;
+        }
+        
         setAnalyzedFoods(result.foods);
         setShowVerification(true);
       } else {
@@ -140,6 +185,26 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
   }, []);
 
+  // Display usage information
+  const getUsageMessage = () => {
+    if (isSubscribed) return null;
+    
+    let message = "";
+    if (isWithinFirst24Hours) {
+      message = `${5 - usageCount} of 5 free uploads remaining today`;
+    } else {
+      message = dailyLimitReached 
+        ? `Next free upload available in ${Math.ceil(hoursUntilNextUse)} hours` 
+        : "1 free upload available today";
+    }
+    
+    return (
+      <div className="text-xs text-center text-gray-500 mt-2">
+        {message}
+      </div>
+    );
+  };
+
   if (analyzing && !showVerification && isMobile) {
     return (
       <div className="fixed inset-0 bg-white flex items-center justify-center z-[100]">
@@ -154,8 +219,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   }
 
   return (
-    <div className={`space-y-8 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
+    <div className={`space-y-4 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
       <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
+      {getUsageMessage()}
       {analyzing && !showVerification && !isMobile && (
         <p className="text-center text-gray-500 animate-fade-in font-light">
           {loadingMessages[currentMessageIndex]}

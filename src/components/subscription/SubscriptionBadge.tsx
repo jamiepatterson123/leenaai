@@ -8,8 +8,10 @@ export const SubscriptionBadge: React.FC = () => {
   const { 
     isLoading, 
     isSubscribed, 
-    usageCount, 
-    freeUsesRemaining, 
+    usageCount,
+    dailyLimitReached,
+    isWithinFirst24Hours,
+    hoursUntilNextUse,
     redirectToCheckout,
     redirectToCustomerPortal
   } = useSubscription();
@@ -43,10 +45,21 @@ export const SubscriptionBadge: React.FC = () => {
     );
   }
 
+  // Free tier badge
+  let statusText = '';
+  if (isWithinFirst24Hours) {
+    statusText = `${5 - usageCount} of 5 free uploads left`;
+  } else if (dailyLimitReached) {
+    const hours = Math.ceil(hoursUntilNextUse);
+    statusText = `Next upload in ${hours}h`;
+  } else {
+    statusText = "1 free upload available";
+  }
+
   return (
     <div className="flex flex-col sm:flex-row items-center gap-2">
       <div className="text-xs text-muted-foreground">
-        <span className="font-medium">{freeUsesRemaining}</span> of 10 free uses left
+        {statusText}
       </div>
       <Button 
         variant="outline" 

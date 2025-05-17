@@ -29,7 +29,7 @@ serve(async (req) => {
     const user = userData.user;
     if (!user?.id) throw new Error("User not authenticated");
 
-    console.log(`Incrementing usage count for user ${user.id}`);
+    console.log(`Checking usage limits for user ${user.id}`);
 
     // Get current subscriber data
     const { data: subscriber, error: selectError } = await supabaseClient
@@ -42,18 +42,21 @@ serve(async (req) => {
       throw new Error(`Error fetching subscriber: ${selectError.message}`);
     }
 
-    // If no subscriber record exists yet, create one with usage_count = 1
+    // If no subscriber record exists yet, create one with usage_count = 1 and first_usage_time = now
     if (!subscriber) {
+      const now = new Date();
       await supabaseClient.from("subscribers").insert({
         user_id: user.id,
         email: user.email,
         usage_count: 1,
+        first_usage_time: now.toISOString(),
+        last_usage_time: now.toISOString()
       });
 
       return new Response(
         JSON.stringify({
           usage_count: 1,
-          free_uses_remaining: 9,
+          daily_limit_reached: false,
           has_free_uses_remaining: true,
         }),
         {
@@ -63,14 +66,69 @@ serve(async (req) => {
       );
     }
 
-    // Only increment if not subscribed
-    if (!subscriber.subscribed) {
-      const newCount = subscriber.usage_count + 1;
+    // If user is subscribed, they have unlimited usage
+    if (subscriber.subscribed) {
+      console.log(`User ${user.id} is subscribed, no limits apply`);
+      
+      return new Response(
+        JSON.stringify({
+          usage_count: subscriber.usage_count,
+          daily_limit_reached: false,
+          has_free_uses_remaining: true,
+          subscribed: true,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
 
-      // Update subscriber record with incremented usage count
+    // Check if this is within first 24 hours of usage
+    const now = new Date();
+    const firstUsageTime = subscriber.first_usage_time ? new Date(subscriber.first_usage_time) : null;
+    const lastUsageTime = subscriber.last_usage_time ? new Date(subscriber.last_usage_time) : null;
+    
+    const isWithinFirst24Hours = firstUsageTime && 
+      (now.getTime() - firstUsageTime.getTime() < 24 * 60 * 60 * 1000);
+    
+    let dailyLimitReached = false;
+    let canUseService = false;
+
+    if (isWithinFirst24Hours) {
+      // Within first 24 hours: limit is 5 uses
+      if (subscriber.usage_count < 5) {
+        canUseService = true;
+      } else {
+        dailyLimitReached = true;
+      }
+    } else {
+      // After first 24 hours: check if it's been 24 hours since last usage
+      if (lastUsageTime) {
+        const hoursSinceLastUsage = (now.getTime() - lastUsageTime.getTime()) / (60 * 60 * 1000);
+        if (hoursSinceLastUsage >= 24) {
+          canUseService = true;
+        } else {
+          dailyLimitReached = true;
+        }
+      } else {
+        // No last usage time recorded, allow usage
+        canUseService = true;
+      }
+    }
+
+    if (canUseService) {
+      // Update subscriber record with incremented usage count and last usage time
+      const newCount = subscriber.usage_count + 1;
+      
       await supabaseClient
         .from("subscribers")
-        .update({ usage_count: newCount, updated_at: new Date().toISOString() })
+        .update({ 
+          usage_count: newCount, 
+          last_usage_time: now.toISOString(),
+          first_usage_time: firstUsageTime ? firstUsageTime.toISOString() : now.toISOString(),
+          updated_at: new Date().toISOString() 
+        })
         .eq("user_id", user.id);
 
       console.log(`Usage count incremented to ${newCount} for user ${user.id}`);
@@ -78,8 +136,9 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           usage_count: newCount,
-          free_uses_remaining: Math.max(0, 10 - newCount),
-          has_free_uses_remaining: newCount < 10,
+          daily_limit_reached: false,
+          has_free_uses_remaining: true,
+          within_first_24_hours: isWithinFirst24Hours,
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -87,14 +146,16 @@ serve(async (req) => {
         }
       );
     } else {
-      console.log(`User ${user.id} is subscribed, not incrementing usage`);
+      console.log(`Usage limit reached for user ${user.id}`);
       
       return new Response(
         JSON.stringify({
           usage_count: subscriber.usage_count,
-          free_uses_remaining: 0,
-          has_free_uses_remaining: true, // Subscribed users can always use the app
-          subscribed: true,
+          daily_limit_reached: true,
+          has_free_uses_remaining: false,
+          hours_until_next_use: lastUsageTime ? 
+            24 - (now.getTime() - lastUsageTime.getTime()) / (60 * 60 * 1000) : 0,
+          within_first_24_hours: isWithinFirst24Hours,
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
