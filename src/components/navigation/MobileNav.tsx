@@ -1,3 +1,4 @@
+
 import React, { useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, Book, User, LineChart } from "lucide-react";
@@ -32,8 +33,8 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
 
   const isActive = (path: string) => {
     return location.pathname === path
-      ? "text-primary"
-      : "text-muted-foreground hover:text-primary transition-colors";
+      ? "text-[#D946EF]"
+      : "text-muted-foreground hover:text-[#D946EF] transition-colors";
   };
 
   const handleCircleClick = () => {
