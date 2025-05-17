@@ -7,12 +7,15 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { UserPlus, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const Auth = () => {
   const navigate = useNavigate();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [authView, setAuthView] = useState<"sign_in" | "sign_up">("sign_in");
+  const [authView, setAuthView] = useState<"sign_in" | "sign_up" | "forgotten_password">("sign_in");
+  const [email, setEmail] = useState<string>("");
+  const [resetLoading, setResetLoading] = useState(false);
 
   useEffect(() => {
     // Check active session
@@ -50,6 +53,34 @@ const Auth = () => {
     setAuthView(authView === "sign_in" ? "sign_up" : "sign_in");
   };
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    
+    setResetLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback?next=/profile`,
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast.success("Password reset email sent! Check your inbox.");
+      setAuthView("sign_in");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send reset password email");
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center justify-center">
@@ -57,6 +88,72 @@ const Auth = () => {
           <p className="mt-4 text-sm text-gray-500">Loading...</p>
         </div>
       </div>;
+  }
+  
+  // Password reset view
+  if (authView === "forgotten_password") {
+    return (
+      <div className="min-h-screen flex flex-col bg-gray-50 font-poppins">
+        {/* Logo Header */}
+        <div className="w-full p-4 bg-white shadow-sm">
+          <div className="container mx-auto flex justify-between items-center">
+            <Link to="/" className="inline-block">
+              <h1 className="text-black font-semibold text-base">Leena.ai</h1>
+            </Link>
+          </div>
+        </div>
+        
+        <div className="flex-grow flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+            <div className="mb-8 text-center">
+              <h1 className="text-3xl font-bold text-gradient">Reset Password</h1>
+              <p className="mt-2 text-gray-600 font-normal">
+                Enter your email to receive a password reset link
+              </p>
+            </div>
+            
+            <form onSubmit={handleResetPassword} className="space-y-6">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
+                  placeholder="Your email address"
+                />
+              </div>
+              
+              <div>
+                <Button
+                  type="submit"
+                  variant="gradient"
+                  className="w-full"
+                  disabled={resetLoading}
+                >
+                  {resetLoading ? 'Sending...' : 'Send Reset Link'}
+                </Button>
+              </div>
+              
+              <div className="text-center">
+                <button 
+                  type="button"
+                  onClick={() => setAuthView("sign_in")}
+                  className="text-primary font-semibold hover:underline"
+                >
+                  Back to Sign In
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return <div className="min-h-screen flex flex-col bg-gray-50 font-poppins">
@@ -129,6 +226,18 @@ const Auth = () => {
                 ? "Don't have an account? Sign up" 
                 : "Already have an account? Sign in"}
             </button>
+            
+            {/* Password reset link - only show in sign_in view */}
+            {authView === "sign_in" && (
+              <div className="mt-2">
+                <button 
+                  onClick={() => setAuthView("forgotten_password")}
+                  className="text-primary font-semibold hover:underline text-sm"
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
