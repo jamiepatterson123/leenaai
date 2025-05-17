@@ -58,7 +58,7 @@ const Auth = () => {
       <div className="w-full p-4 bg-white shadow-sm">
         <div className="container mx-auto">
           <Link to="/" className="inline-block">
-            <h1 className="text-2xl font-bold text-primary">Leena.ai</h1>
+            <h1 className="text-2xl font-semibold text-black">Leena.ai</h1>
           </Link>
         </div>
       </div>
