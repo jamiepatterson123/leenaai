@@ -183,7 +183,7 @@ const OneTimeOffer = () => {
               
               <div className="flex-1 relative">
                 <div className="absolute -top-4 right-0 left-0 mx-auto w-max">
-                  <div className="bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <div className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] text-white text-xs font-bold px-3 py-1 rounded-full">
                     TWO MONTHS FREE
                   </div>
                 </div>
