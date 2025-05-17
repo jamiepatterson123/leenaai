@@ -6,6 +6,7 @@ import { Check, Star, ArrowRight, X, Timer } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
+
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -15,6 +16,7 @@ const OneTimeOffer = () => {
   const [isPreview, setIsPreview] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(5 * 60); // 5 minutes in seconds
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   useEffect(() => {
     // Check authentication status
     supabase.auth.getSession().then(({
@@ -102,14 +104,14 @@ const OneTimeOffer = () => {
               </div>
             </div>
             <CardTitle className="text-2xl sm:text-3xl">Get Two Months Free with Annual Billing</CardTitle>
-            <CardDescription className="text-base">Only Available On This Page. Get two months free for committing to your health for one year. This page disappears after you leave and you won't see it again.</CardDescription>
+            <CardDescription className="text-base">This Is A One-Time Offer – Only Available On This Page. Get two months free for committing to your health for one year. This page disappears after you leave and you won't see it again.</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-6 md:gap-12 justify-center">
               <div className="flex-1">
                 <h3 className="font-semibold text-lg mb-4">Monthly Plan (Current)</h3>
-                <div className="text-3xl font-bold mb-2">$10<span className="text-base font-normal text-muted-foreground">/month</span></div>
-                <p className="text-muted-foreground mb-6">$120 billed over a year</p>
+                <div className="text-3xl font-bold mb-2">$120<span className="text-base font-normal text-muted-foreground">/year</span></div>
+                <p className="text-muted-foreground mb-6">That's $10 per month</p>
                 <ul className="space-y-2">
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
@@ -169,7 +171,7 @@ const OneTimeOffer = () => {
               <X className="mr-2 h-4 w-4" />
               No thanks, continue
             </Button>
-            <Button onClick={handleUpgrade} size="lg" className="w-full sm:w-auto order-1 sm:order-2">
+            <Button onClick={handleUpgrade} size="lg" className="w-full sm:w-auto order-1 sm:order-2 bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] hover:opacity-90">
               <Star className="mr-2 h-4 w-4" />
               <div className="flex flex-col items-center">
                 <span className="text-xl font-bold">Get 2 months free today</span>
@@ -185,4 +187,5 @@ const OneTimeOffer = () => {
       </div>
     </div>;
 };
+
 export default OneTimeOffer;
