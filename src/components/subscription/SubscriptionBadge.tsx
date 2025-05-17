@@ -68,7 +68,7 @@ export const SubscriptionBadge: React.FC = () => {
         onClick={redirectToCheckout}
       >
         <Star className="h-3 w-3 mr-1" />
-        Upgrade to Premium
+        Upgrade to Unlimited Food Logging
       </Button>
     </div>
   );
