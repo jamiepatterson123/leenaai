@@ -1,4 +1,3 @@
-
 import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "@/components/ui/use-toast";
@@ -12,7 +11,6 @@ import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSubscription } from "@/hooks/useSubscription";
 import { SubscriptionModal } from "@/components/subscription/SubscriptionModal";
-
 interface ImageAnalysisSectionProps {
   analyzing: boolean;
   setAnalyzing: (analyzing: boolean) => void;
@@ -21,21 +19,14 @@ interface ImageAnalysisSectionProps {
   selectedDate: Date;
   onSuccess?: () => void;
 }
-
-const loadingMessages = [
-  "Counting calories...",
-  "Calculating carbs...",
-  "Calculating protein...",
-  "Calculating fats..."
-];
-
+const loadingMessages = ["Counting calories...", "Calculating carbs...", "Calculating protein...", "Calculating fats..."];
 export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>(({
   analyzing,
   setAnalyzing,
   nutritionData,
   setNutritionData,
   selectedDate,
-  onSuccess,
+  onSuccess
 }, ref) => {
   const [resetUpload, setResetUpload] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
@@ -46,35 +37,31 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const componentRef = React.useRef<HTMLDivElement>(null);
-  const { 
-    incrementUsage, 
-    dailyLimitReached, 
+  const {
+    incrementUsage,
+    dailyLimitReached,
     isSubscribed,
     usageCount,
     isWithinFirst24Hours,
     hoursUntilNextUse
   } = useSubscription();
-
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (analyzing && !showVerification) {
       interval = setInterval(() => {
-        setCurrentMessageIndex((prev) => (prev + 1) % loadingMessages.length);
+        setCurrentMessageIndex(prev => (prev + 1) % loadingMessages.length);
       }, 2000);
     }
     return () => {
       if (interval) clearInterval(interval);
     };
   }, [analyzing, showVerification]);
-
   const handleImageSelect = async (image: File) => {
     if (!image) {
       toast.error("No image selected");
       return;
     }
-
     console.log("handleImageSelect called with image:", image);
-    
     if (analyzing) {
       toast.error("Please wait for the current analysis to complete");
       return;
@@ -83,8 +70,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     // Check if user has free uses remaining or is subscribed
     if (dailyLimitReached && !isSubscribed) {
       const hours = Math.ceil(hoursUntilNextUse);
-      const minutes = Math.round((hoursUntilNextUse % 1) * 60);
-      
+      const minutes = Math.round(hoursUntilNextUse % 1 * 60);
       let timeMessage = "";
       if (hours > 0) {
         timeMessage = `${hours} hour${hours !== 1 ? 's' : ''}`;
@@ -92,52 +78,39 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       if (minutes > 0) {
         timeMessage += `${timeMessage ? ' and ' : ''}${minutes} minute${minutes !== 1 ? 's' : ''}`;
       }
-      
-      const limitMessage = isWithinFirst24Hours
-        ? "You've used all 5 free uploads for your first 24 hours."
-        : "You've used your free upload for today.";
-        
+      const limitMessage = isWithinFirst24Hours ? "You've used all 5 free uploads for your first 24 hours." : "You've used your free upload for today.";
       toast({
         title: "Usage limit reached",
         description: `${limitMessage} Next upload available in ${timeMessage}. Upgrade to premium for unlimited uploads.`,
-        variant: "destructive",
+        variant: "destructive"
       });
-      
       setShowSubscriptionModal(true);
       return;
     }
-
     setAnalyzing(true);
     setResetUpload(false);
     setCurrentMessageIndex(0);
-    
     try {
       console.log("Starting image analysis...");
       const result = await analyzeImage(image, {
         setNutritionData,
-        saveFoodEntries: async () => {}, // Don't save immediately
+        saveFoodEntries: async () => {} // Don't save immediately
       });
-      
       console.log("Analysis result:", result);
-      
       if (result?.foods) {
         // Check if user has free uses remaining or is subscribed after analysis
         const canProceed = await incrementUsage();
         if (!canProceed) {
-          const messageText = isWithinFirst24Hours
-            ? "You've used all 5 free uploads for your first 24 hours."
-            : "You've used your free upload for today.";
-          
+          const messageText = isWithinFirst24Hours ? "You've used all 5 free uploads for your first 24 hours." : "You've used your free upload for today.";
           toast({
             title: "Usage limit reached",
             description: `${messageText} Upgrade to premium for unlimited uploads.`,
-            variant: "destructive",
+            variant: "destructive"
           });
           setShowSubscriptionModal(true);
           setAnalyzing(false);
           return;
         }
-        
         setAnalyzedFoods(result.foods);
         setShowVerification(true);
       } else {
@@ -151,19 +124,17 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       setAnalyzing(false);
     }
   };
-
   const handleConfirmFoods = async (foods: any[]) => {
     try {
       await saveFoodEntries(foods, selectedDate);
-      await queryClient.invalidateQueries({ 
-        queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")] 
+      await queryClient.invalidateQueries({
+        queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")]
       });
       setResetUpload(true);
       setShowVerification(false);
       setAnalyzing(false);
       setNutritionData(null);
       toast.success("Food added to diary!");
-      
       if (isMobile) {
         navigate("/food-diary");
       } else {
@@ -174,11 +145,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       toast.error("Failed to save food entries");
     }
   };
-
   useImperativeHandle(ref, () => ({
     handleImageSelect
   }));
-
   React.useEffect(() => {
     if (componentRef.current) {
       (componentRef.current as any).handleImageSelect = handleImageSelect;
@@ -188,57 +157,32 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   // Display usage information
   const getUsageMessage = () => {
     if (isSubscribed) return null;
-    
     let message = "";
     if (isWithinFirst24Hours) {
       message = `${5 - usageCount} of 5 free uploads remaining today`;
     } else {
-      message = dailyLimitReached 
-        ? `Next free upload available in ${Math.ceil(hoursUntilNextUse)} hours` 
-        : "1 free upload available today";
+      message = dailyLimitReached ? `Next free upload available in ${Math.ceil(hoursUntilNextUse)} hours` : "1 free upload available today";
     }
-    
-    return (
-      <div className="text-xs text-center text-gray-500 mt-2">
-        {message}
-      </div>
-    );
+    return;
   };
-
   if (analyzing && !showVerification && isMobile) {
-    return (
-      <div className="fixed inset-0 bg-white flex items-center justify-center z-[100]">
+    return <div className="fixed inset-0 bg-white flex items-center justify-center z-[100]">
         <div className="text-center space-y-6 px-4">
           <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
           <p className="text-2xl font-light text-gray-500 animate-fade-in">
             {loadingMessages[currentMessageIndex]}
           </p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className={`space-y-4 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
+  return <div className={`space-y-4 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
       <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
       {getUsageMessage()}
-      {analyzing && !showVerification && !isMobile && (
-        <p className="text-center text-gray-500 animate-fade-in font-light">
+      {analyzing && !showVerification && !isMobile && <p className="text-center text-gray-500 animate-fade-in font-light">
           {loadingMessages[currentMessageIndex]}
-        </p>
-      )}
-      <FoodVerificationDialog
-        isOpen={showVerification}
-        onClose={() => setShowVerification(false)}
-        foods={analyzedFoods}
-        onConfirm={handleConfirmFoods}
-      />
-      <SubscriptionModal
-        open={showSubscriptionModal}
-        onOpenChange={setShowSubscriptionModal}
-      />
-    </div>
-  );
+        </p>}
+      <FoodVerificationDialog isOpen={showVerification} onClose={() => setShowVerification(false)} foods={analyzedFoods} onConfirm={handleConfirmFoods} />
+      <SubscriptionModal open={showSubscriptionModal} onOpenChange={setShowSubscriptionModal} />
+    </div>;
 });
-
 ImageAnalysisSection.displayName = "ImageAnalysisSection";
