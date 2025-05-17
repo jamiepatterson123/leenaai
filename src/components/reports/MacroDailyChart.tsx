@@ -72,25 +72,27 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
   const average = chartData.reduce((sum, entry) => sum + entry.value, 0) / chartData.length;
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <h2 className="text-2xl font-semibold">{getTitle()}</h2>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-5 w-5 p-0">
-              <Info className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-xs">
-            <p>{getTooltipContent()}</p>
-          </DialogContent>
-        </Dialog>
+    <Card className="bg-white overflow-hidden">
+      <div className="px-6 pt-6">
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="text-2xl font-semibold">{getTitle()}</h2>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-5 w-5 p-0">
+                <Info className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-xs">
+              <p>{getTooltipContent()}</p>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={chartData}
-            margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
+            margin={{ top: 20, right: 5, left: 5, bottom: 20 }}
           >
             <CartesianGrid 
               strokeDasharray="3 3" 
