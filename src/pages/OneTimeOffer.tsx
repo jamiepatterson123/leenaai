@@ -169,10 +169,10 @@ const OneTimeOffer = () => {
               <X className="mr-2 h-4 w-4" />
               No thanks, continue
             </Button>
-            <Button onClick={handleUpgrade} size="lg" className="w-full sm:w-auto order-1 sm:order-2 bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] hover:opacity-90">
+            <Button onClick={handleUpgrade} size="lg" className="w-full sm:w-auto order-1 sm:order-2">
               <Star className="mr-2 h-4 w-4" />
               <div className="flex flex-col items-center">
-                <span className="text-xl font-bold">Get 2 months free</span>
+                <span className="text-xl font-bold">Get 2 months free today</span>
                 <span className="text-xs font-medium">Only $8.25/month billed annually</span>
               </div>
             </Button>
