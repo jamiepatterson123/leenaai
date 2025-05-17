@@ -79,23 +79,25 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
   );
 
   return (
-    <Card className="p-6 bg-white">
-      <div className="flex items-center gap-2 mb-6">
-        <h2 className="text-2xl font-semibold">Weight Trend</h2>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-5 w-5 p-0"
-            >
-              <Info className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-xs">
-            <p>Track your weight changes over time to monitor progress toward your goals.</p>
-          </DialogContent>
-        </Dialog>
+    <Card className="bg-white overflow-hidden">
+      <div className="px-6 pt-6">
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="text-2xl font-semibold">Weight Trend</h2>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-5 w-5 p-0"
+              >
+                <Info className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-xs">
+              <p>Track your weight changes over time to monitor progress toward your goals.</p>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
       <div className="h-[400px] w-full">
         <WeightChartConfig

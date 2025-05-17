@@ -50,7 +50,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
     <ResponsiveContainer width="100%" height="100%">
       <LineChart
         data={data}
-        margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+        margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
         onClick={isMobile ? handleClick : undefined}
         onMouseLeave={handleMouseLeave}
       >
