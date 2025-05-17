@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
+
 const Auth = () => {
   const navigate = useNavigate();
   const [session, setSession] = useState<Session | null>(null);
@@ -68,11 +69,29 @@ const Auth = () => {
             </p>
           </div>
 
-          <SupabaseAuth supabaseClient={supabase} appearance={{
-          theme: ThemeSupa
-        }} providers={[]} redirectTo={`${window.location.origin}/auth/callback`} view={authView} />
+          <SupabaseAuth 
+            supabaseClient={supabase}
+            appearance={{
+              theme: ThemeSupa,
+              style: {
+                button: {
+                  background: 'linear-gradient(to right, #D946EF, #8B5CF6)',
+                  border: 'none',
+                  color: 'white',
+                  fontWeight: 500,
+                },
+                anchor: {
+                  color: '#D946EF',
+                },
+              },
+            }}
+            providers={[]} 
+            redirectTo={`${window.location.origin}/auth/callback`} 
+            view={authView} 
+          />
         </div>
       </div>
     </div>;
 };
+
 export default Auth;
