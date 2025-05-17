@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -187,7 +188,7 @@ const OneTimeOffer = () => {
                     TWO MONTHS FREE
                   </div>
                 </div>
-                <div className="border-2 border-[#D946EF] border-r-[#8B5CF6] border-b-[#8B5CF6] rounded-lg p-6 bg-primary/5">
+                <div className="border-2 border-[#D946EF] border-r-[#8B5CF6] border-b-[#8B5CF6] rounded-lg p-6 bg-white">
                   <h3 className="font-semibold text-lg mb-4">Annual Plan (Best Value)</h3>
                   <div className="text-3xl font-bold mb-2">$99<span className="text-base font-normal text-muted-foreground">/year</span></div>
                   <p className="text-muted-foreground mb-6">Or just $8.25 per month equivalent</p>
