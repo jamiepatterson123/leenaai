@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -80,7 +81,7 @@ export const CustomTargets = ({ initialData }: { initialData?: Partial<CustomTar
           />
 
           <div className="mt-6">
-            <Button type="submit" className="w-full">Save Targets</Button>
+            <Button type="submit" variant="gradient" className="w-full font-semibold">Save Targets</Button>
           </div>
         </form>
       </CardContent>

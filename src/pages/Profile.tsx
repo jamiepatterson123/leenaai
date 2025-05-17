@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { CustomTargets } from "@/components/profile/CustomTargets";
@@ -19,6 +18,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { useQuery } from "@tanstack/react-query";
+import { StyleWrapper } from "@/components/profile/StyleWrapper";
 
 const Profile = () => {
   const [loading, setLoading] = useState(true);
@@ -179,7 +179,9 @@ const Profile = () => {
               </AlertDescription>
             </Alert>
           )}
-          <WhatsAppPreferences />
+          <StyleWrapper>
+            <WhatsAppPreferences />
+          </StyleWrapper>
           <ProfileForm 
             onSubmit={handleSubmit} 
             onChange={handleChange}
@@ -192,7 +194,9 @@ const Profile = () => {
               target_fat: profile?.target_fat,
             }}
           />
-          <PasswordChange />
+          <StyleWrapper>
+            <PasswordChange />
+          </StyleWrapper>
         </div>
       );
     }
@@ -211,8 +215,12 @@ const Profile = () => {
             target_fat: profile?.target_fat,
           }}
         />
-        <WhatsAppPreferences />
-        <PasswordChange />
+        <StyleWrapper>
+          <WhatsAppPreferences />
+        </StyleWrapper>
+        <StyleWrapper>
+          <PasswordChange />
+        </StyleWrapper>
       </div>
     );
   };
