@@ -25,7 +25,8 @@ interface CalorieStateChartProps {
 
 export const CalorieStateChart = ({ data }: CalorieStateChartProps) => {
   const states = ["liquid", "solid"];
-  const colors = ["#D946EF", "#8B5CF6"]; // Updated to pink/purple gradient colors
+  // Updated colors: Purple, Pink, Yellow, Orange
+  const colors = ["#8B5CF6", "#D946EF", "#FACC15", "#F97316"];
 
   const processedData = states.map((state) => {
     const totalCalories = data

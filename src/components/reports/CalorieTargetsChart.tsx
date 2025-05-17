@@ -58,8 +58,8 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
   const getBarColor = (value: number, target: number) => {
     const percentage = (value / target) * 100;
     if (percentage > 110) return "#ef4444"; // red
-    if (percentage >= 90 && percentage <= 110) return "#D946EF"; // Updated to magenta pink
-    return "#f97316"; // orange
+    if (percentage >= 90 && percentage <= 110) return "#8B5CF6"; // Vibrant Purple
+    return "#F97316"; // Vibrant Orange
   };
   
   return (
@@ -126,10 +126,10 @@ export const CalorieTargetsChart = ({ data }: CalorieTargetsChartProps) => {
                     statusColor = "text-red-500";
                   } else if (percentage >= 90 && percentage <= 110) {
                     status = "Within target ✓";
-                    statusColor = "text-[#D946EF]"; // Updated to magenta pink
+                    statusColor = "text-[#8B5CF6]"; // Vibrant Purple
                   } else {
                     status = "Under target";
-                    statusColor = "text-orange-500";
+                    statusColor = "text-[#F97316]"; // Vibrant Orange
                   }
 
                   return (

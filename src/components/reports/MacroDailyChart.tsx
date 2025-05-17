@@ -44,11 +44,11 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
   const getColor = () => {
     switch (type) {
       case "protein":
-        return "#D946EF"; // Changed to pink
+        return "#D946EF"; // Vibrant Pink
       case "carbs":
-        return "#9b87f5"; // Changed to primary purple
+        return "#FACC15"; // Vibrant Yellow
       case "fat":
-        return "#8B5CF6"; // Changed to vivid purple
+        return "#F97316"; // Vibrant Orange
     }
   };
 

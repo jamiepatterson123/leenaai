@@ -58,7 +58,7 @@ export const MacroRing: React.FC<MacroRingProps> = ({
             cy="50"
             r="40"
             fill="none"
-            stroke="#9b87f5" // Updated to primary purple
+            stroke="#FACC15" // Vibrant Yellow
             strokeWidth="20"
             strokeDasharray={`${(carbsDegrees / 360) * 251.2} 251.2`}
             strokeDashoffset={`${-((proteinDegrees / 360) * 251.2)}`}
@@ -69,7 +69,7 @@ export const MacroRing: React.FC<MacroRingProps> = ({
             cy="50"
             r="40"
             fill="none"
-            stroke="#8B5CF6" // Updated to vivid purple
+            stroke="#F97316" // Vibrant Orange
             strokeWidth="20"
             strokeDasharray={`${(fatDegrees / 360) * 251.2} 251.2`}
             strokeDashoffset={`${-(((proteinDegrees + carbsDegrees) / 360) * 251.2)}`}
@@ -77,8 +77,8 @@ export const MacroRing: React.FC<MacroRingProps> = ({
           />
           <defs>
             <linearGradient id="proteinGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#D946EF" />
-              <stop offset="100%" stopColor="#8B5CF6" />
+              <stop offset="0%" stopColor="#D946EF" /> {/* Vibrant Pink */}
+              <stop offset="100%" stopColor="#8B5CF6" /> {/* Vibrant Purple */}
             </linearGradient>
           </defs>
         </svg>
@@ -97,11 +97,11 @@ export const MacroRing: React.FC<MacroRingProps> = ({
           <span className="text-sm">Protein ({Math.round(protein)}g)</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-[#9b87f5]"></div>
+          <div className="w-3 h-3 rounded-full bg-[#FACC15]"></div> {/* Vibrant Yellow */}
           <span className="text-sm">Carbs ({Math.round(carbs)}g)</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-[#8B5CF6]"></div>
+          <div className="w-3 h-3 rounded-full bg-[#F97316]"></div> {/* Vibrant Orange */}
           <span className="text-sm">Fat ({Math.round(fat)}g)</span>
         </div>
       </div>

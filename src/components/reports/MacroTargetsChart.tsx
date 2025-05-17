@@ -58,19 +58,19 @@ export const MacroTargetsChart = ({ data }: MacroTargetsChartProps) => {
       name: "Protein",
       value: averages.protein / data.length,
       target: profile?.target_protein || 150,
-      color: "#D946EF", // Updated to magenta pink
+      color: "#D946EF", // Vibrant Pink
     },
     {
       name: "Carbs",
       value: averages.carbs / data.length,
       target: profile?.target_carbs || 200,
-      color: "#9b87f5", // Updated to primary purple
+      color: "#FACC15", // Vibrant Yellow
     },
     {
       name: "Fat",
       value: averages.fat / data.length,
       target: profile?.target_fat || 70,
-      color: "#8B5CF6", // Updated to vivid purple
+      color: "#F97316", // Vibrant Orange
     },
   ];
 

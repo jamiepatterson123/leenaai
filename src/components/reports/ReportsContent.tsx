@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { WeightTrendChart } from "./WeightTrendChart";
 import { CalorieTargetsChart } from "./CalorieTargetsChart";
@@ -9,6 +10,7 @@ import { CalorieStateChart } from "./CalorieStateChart";
 import { MacroDailyChart } from "./MacroDailyChart";
 import { ChartSettings, VisibleCharts } from "./ChartSettings";
 import { TimeRange } from "./TimeRangeSelector";
+import { WaterConsumptionChart } from "./WaterConsumptionChart";
 import { 
   processWeightData, 
   processCalorieData, 
@@ -48,7 +50,7 @@ export const ReportsContent = ({
     proteinDaily: true,
     carbsDaily: true,
     fatDaily: true,
-    waterConsumption: false,
+    waterConsumption: true,
   });
 
   const handleToggleChart = (chart: keyof VisibleCharts) => {
@@ -90,6 +92,7 @@ export const ReportsContent = ({
   const processedCalorieData = processCalorieData(calorieData, startDate, endDate);
   const processedMacroData = processMacroData(macroData, startDate, endDate);
   const processedMealData = processMealData(mealData, startDate, endDate);
+  const processedWaterData = processWaterData(waterData, startDate, endDate);
 
   if (isLoading) {
     return (
@@ -100,11 +103,6 @@ export const ReportsContent = ({
       </div>
     );
   }
-
-  console.log('Weight Data:', processedWeightData);
-  console.log('Calorie Data:', processedCalorieData);
-  console.log('Macro Data:', processedMacroData);
-  console.log('Meal Data:', processedMealData);
 
   return (
     <div className="grid gap-4 md:gap-6">
@@ -165,6 +163,11 @@ export const ReportsContent = ({
         )}
         {visibleCharts.macroTargets && (
           <MacroTargetsChart data={processedMacroData} />
+        )}
+
+        {/* Water consumption chart */}
+        {visibleCharts.waterConsumption && processedWaterData.length > 0 && (
+          <WaterConsumptionChart data={processedWaterData} />
         )}
       </div>
     </div>

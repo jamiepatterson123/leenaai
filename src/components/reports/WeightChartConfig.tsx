@@ -89,7 +89,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
         <Line
           type="monotone"
           dataKey="weight"
-          stroke="#D946EF"
+          stroke="#D946EF" // Vibrant pink
           strokeWidth={1.5}
           dot={{ r: 3, strokeWidth: 1, fill: "#fff" }}
           activeDot={{

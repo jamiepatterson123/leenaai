@@ -94,12 +94,12 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
             />
             <Bar
               dataKey="calories"
-              fill="url(#purpleGradient)"
+              fill="url(#calorieGradient)"
               radius={[4, 4, 0, 0]}
               barSize={40}
             />
             <defs>
-              <linearGradient id="purpleGradient" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="calorieGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#D946EF" />
                 <stop offset="100%" stopColor="#8B5CF6" />
               </linearGradient>

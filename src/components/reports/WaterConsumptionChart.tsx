@@ -23,8 +23,8 @@ export const WaterConsumptionChart = ({ data }: WaterConsumptionChartProps) => {
     water: {
       label: "Water Consumption",
       theme: {
-        light: "#D946EF", // Updated to magenta pink
-        dark: "#8B5CF6", // Updated to vivid purple
+        light: "#D946EF", // Vibrant pink
+        dark: "#8B5CF6", // Vibrant purple
       },
     },
   };
