@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -172,7 +173,7 @@ const Auth = () => {
               background: 'linear-gradient(to right, #D946EF, #8B5CF6)',
               border: 'none',
               color: 'white',
-              fontWeight: 500
+              fontWeight: 600  // Changed from 500 to 600 to make it semi-bold
             },
             anchor: {
               color: '#D946EF',
@@ -192,7 +193,15 @@ const Auth = () => {
             }
           }
         }} providers={[]} redirectTo={`${window.location.origin}/auth/callback`} view={authView} showLinks={false} // Hide the default links
-        magicLink={false} />
+        magicLink={false} 
+        localization={{
+          variables: {
+            sign_up: {
+              button_label: 'Create Free Account'
+            }
+          }
+        }}
+        />
 
           {/* Custom link handler that properly toggles between sign-in and sign-up views */}
           <div className="mt-4 text-center">
