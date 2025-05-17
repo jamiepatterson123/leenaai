@@ -48,7 +48,7 @@ function Testimonial() {
           Created by <strong className="font-medium text-foreground">wellness professionals</strong>
         </p>
       </div>
-      <p className="text-sm font-medium">Trusted by thousands of fitness enthusiasts</p>
+      <p className="text-sm font-medium">⭐ "Leena helped me reach my fitness goals!" - Sarah K.</p>
     </div>
   );
 }
