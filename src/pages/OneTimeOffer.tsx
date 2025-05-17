@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -130,7 +131,7 @@ const OneTimeOffer = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-100 to-purple-100 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center p-2 bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] text-white rounded-full mb-4">
@@ -193,7 +194,7 @@ const OneTimeOffer = () => {
                     TWO MONTHS FREE
                   </div>
                 </div>
-                <div className="border-2 border-[#D946EF] rounded-lg p-6 bg-purple-50/50">
+                <div className="border-2 border-[#D946EF] rounded-lg p-6 bg-white">
                   <h3 className="font-semibold text-lg mb-4">Annual Plan (Best Value)</h3>
                   <div className="text-3xl font-bold mb-2">$99<span className="text-base font-normal text-muted-foreground">/year</span></div>
                   <p className="text-muted-foreground mb-6">Or just $8.25 per month equivalent</p>
