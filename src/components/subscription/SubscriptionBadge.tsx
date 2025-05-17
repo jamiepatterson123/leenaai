@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
@@ -61,7 +60,7 @@ export const SubscriptionBadge: React.FC = () => {
         {statusText}
       </div>
       <Button 
-        variant="outline" 
+        variant="gradient" 
         size="sm" 
         className="text-xs h-8"
         onClick={() => window.location.href = "https://buy.stripe.com/eVq5kEafs8RweClb1Oe7m01"}
