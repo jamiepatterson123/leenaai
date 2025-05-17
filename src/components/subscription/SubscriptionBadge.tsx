@@ -1,7 +1,8 @@
+
 import React from "react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowRight, CreditCard } from "lucide-react";
+import { Loader2, ArrowRight, CreditCard, Star } from "lucide-react";
 
 export const SubscriptionBadge: React.FC = () => {
   const { 
@@ -66,7 +67,7 @@ export const SubscriptionBadge: React.FC = () => {
         onClick={() => window.location.href = "https://buy.stripe.com/eVq5kEafs8RweClb1Oe7m01"}
       >
         <ArrowRight className="h-3 w-3 mr-1" />
-        Upgrade to Unlimited Food Logging
+        Upgrade for unlimited photo logging
       </Button>
     </div>
   );
