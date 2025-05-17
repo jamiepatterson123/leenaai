@@ -1,4 +1,8 @@
 
+-- Add chart_settings column to profiles table
+ALTER TABLE profiles 
+ADD COLUMN IF NOT EXISTS chart_settings JSONB DEFAULT NULL;
+
 -- Add first_usage_time and last_usage_time columns to subscribers table
 ALTER TABLE subscribers 
 ADD COLUMN IF NOT EXISTS first_usage_time TIMESTAMPTZ,
