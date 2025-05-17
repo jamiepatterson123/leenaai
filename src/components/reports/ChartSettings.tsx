@@ -1,7 +1,10 @@
+
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+
 export interface VisibleCharts {
   weightTrend: boolean;
   calorieTargets: boolean;
@@ -16,12 +19,14 @@ export interface VisibleCharts {
   waterConsumption: boolean;
   nutritionTable: boolean;
 }
+
 interface ChartSettingsProps {
   visibleCharts: VisibleCharts;
   onToggleChart: (chart: keyof VisibleCharts) => void;
   viewMode: "charts" | "table";
   onViewModeChange: (mode: "charts" | "table") => void;
 }
+
 export const ChartSettings = ({
   visibleCharts,
   onToggleChart,
@@ -40,57 +45,63 @@ export const ChartSettings = ({
           </Tabs>
         </div>
 
-        {viewMode === "charts" && <>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Visible Charts</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center space-x-2">
-                  <Switch id="weight-trend" checked={visibleCharts.weightTrend} onCheckedChange={() => onToggleChart("weightTrend")} />
-                  <Label htmlFor="weight-trend">Weight Trend</Label>
+        {viewMode === "charts" && 
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="visible-charts" className="border-none">
+              <AccordionTrigger className="py-0">
+                <h3 className="text-lg font-semibold">Visible Charts</h3>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch id="weight-trend" checked={visibleCharts.weightTrend} onCheckedChange={() => onToggleChart("weightTrend")} />
+                    <Label htmlFor="weight-trend">Weight Trend</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch id="calorie-targets" checked={visibleCharts.calorieTargets} onCheckedChange={() => onToggleChart("calorieTargets")} />
+                    <Label htmlFor="calorie-targets">Calorie Targets</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch id="calories" checked={visibleCharts.calories} onCheckedChange={() => onToggleChart("calories")} />
+                    <Label htmlFor="calories">Daily Calories</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch id="meal-distribution" checked={visibleCharts.mealDistribution} onCheckedChange={() => onToggleChart("mealDistribution")} />
+                    <Label htmlFor="meal-distribution">Meal Distribution</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch id="calorie-state" checked={visibleCharts.calorieState} onCheckedChange={() => onToggleChart("calorieState")} />
+                    <Label htmlFor="calorie-state">Liquid/Solid Calories</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch id="macros" checked={visibleCharts.macros} onCheckedChange={() => onToggleChart("macros")} />
+                    <Label htmlFor="macros">Macronutrient Averages</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch id="macro-targets" checked={visibleCharts.macroTargets} onCheckedChange={() => onToggleChart("macroTargets")} />
+                    <Label htmlFor="macro-targets">Macro Targets</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch id="protein-daily" checked={visibleCharts.proteinDaily} onCheckedChange={() => onToggleChart("proteinDaily")} />
+                    <Label htmlFor="protein-daily">Daily Protein</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch id="carbs-daily" checked={visibleCharts.carbsDaily} onCheckedChange={() => onToggleChart("carbsDaily")} />
+                    <Label htmlFor="carbs-daily">Daily Carbs</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch id="fat-daily" checked={visibleCharts.fatDaily} onCheckedChange={() => onToggleChart("fatDaily")} />
+                    <Label htmlFor="fat-daily">Daily Fat</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch id="water-consumption" checked={visibleCharts.waterConsumption} onCheckedChange={() => onToggleChart("waterConsumption")} />
+                    <Label htmlFor="water-consumption">Water Consumption</Label>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="calorie-targets" checked={visibleCharts.calorieTargets} onCheckedChange={() => onToggleChart("calorieTargets")} />
-                  <Label htmlFor="calorie-targets">Calorie Targets</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="calories" checked={visibleCharts.calories} onCheckedChange={() => onToggleChart("calories")} />
-                  <Label htmlFor="calories">Daily Calories</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="meal-distribution" checked={visibleCharts.mealDistribution} onCheckedChange={() => onToggleChart("mealDistribution")} />
-                  <Label htmlFor="meal-distribution">Meal Distribution</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="calorie-state" checked={visibleCharts.calorieState} onCheckedChange={() => onToggleChart("calorieState")} />
-                  <Label htmlFor="calorie-state">Liquid/Solid Calories</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="macros" checked={visibleCharts.macros} onCheckedChange={() => onToggleChart("macros")} />
-                  <Label htmlFor="macros">Macronutrient Averages</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="macro-targets" checked={visibleCharts.macroTargets} onCheckedChange={() => onToggleChart("macroTargets")} />
-                  <Label htmlFor="macro-targets">Macro Targets</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="protein-daily" checked={visibleCharts.proteinDaily} onCheckedChange={() => onToggleChart("proteinDaily")} />
-                  <Label htmlFor="protein-daily">Daily Protein</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="carbs-daily" checked={visibleCharts.carbsDaily} onCheckedChange={() => onToggleChart("carbsDaily")} />
-                  <Label htmlFor="carbs-daily">Daily Carbs</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="fat-daily" checked={visibleCharts.fatDaily} onCheckedChange={() => onToggleChart("fatDaily")} />
-                  <Label htmlFor="fat-daily">Daily Fat</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="water-consumption" checked={visibleCharts.waterConsumption} onCheckedChange={() => onToggleChart("waterConsumption")} />
-                  <Label htmlFor="water-consumption">Water Consumption</Label>
-                </div>
-              </div>
-            </div>
-          </>}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        }
 
         {viewMode === "table" && <div>
             <h3 className="text-lg font-semibold mb-4">Table Options</h3>
