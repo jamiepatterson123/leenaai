@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
@@ -88,7 +87,7 @@ const Auth = () => {
             <p className="mt-2 text-gray-600 font-normal">
               {authView === "sign_in" 
                 ? "Welcome back to Leena.ai" 
-                : "Start tracking your nutrition using your photos - try it out free"}
+                : "Try tracking your nutrition with photos for free"}
             </p>
           </div>
 
@@ -109,21 +108,6 @@ const Auth = () => {
                 },
                 message: {
                   fontWeight: 500
-                }
-              },
-              // Override the text for the toggle link
-              localization: {
-                variables: {
-                  sign_in: {
-                    link_text: authView === "sign_in" 
-                      ? "Don't have an account? Sign up" 
-                      : "Already have an account? Sign in"
-                  },
-                  sign_up: {
-                    link_text: authView === "sign_up" 
-                      ? "Already have an account? Sign in" 
-                      : "Don't have an account? Sign up"
-                  }
                 }
               }
             }} 
