@@ -7,6 +7,8 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { GlowEffect } from "@/components/ui/glow-effect";
+
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -142,7 +144,7 @@ const OneTimeOffer = () => {
         </div>
         
         <Card className="border-2 border-gradient-to-r from-[#D946EF] to-[#8B5CF6] shadow-lg">
-          <CardHeader className="text-center bg-primary/5 border-b">
+          <CardHeader className="text-center bg-white border-b relative overflow-hidden">
             <div className="flex justify-center mb-2">
               <div className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
                 <Star className="h-4 w-4" />

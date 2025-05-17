@@ -1,4 +1,5 @@
 
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
@@ -41,6 +42,10 @@
     @apply bg-clip-text text-transparent;
     background-image: linear-gradient(to right, #D946EF, #8B5CF6);
   }
+  
+  .border-gradient-to-r {
+    border-image: linear-gradient(to right, #D946EF, #8B5CF6) 1;
+  }
 }
 
 /* Override dropdown and popup backgrounds to ensure solid white */
@@ -51,3 +56,4 @@
 [data-radix-popper-content-wrapper] > * {
   @apply bg-white !important;
 }
+
