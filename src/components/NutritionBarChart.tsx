@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   BarChart,
@@ -24,7 +25,7 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
   const getBarColor = (value: number, target: number) => {
     const percentage = (value / target) * 100;
     if (percentage > 110) return "url(#redGradient)";
-    if (percentage >= 90 && percentage <= 110) return "url(#greenGradient)";
+    if (percentage >= 90 && percentage <= 110) return "url(#purpleGradient)";
     return "url(#orangeGradient)";
   };
 
@@ -41,9 +42,9 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
               <stop offset="0%" stopColor="#ef4444" />
               <stop offset="100%" stopColor="#dc2626" />
             </linearGradient>
-            <linearGradient id="greenGradient" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#22c55e" />
-              <stop offset="100%" stopColor="#15803d" />
+            <linearGradient id="purpleGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#D946EF" />
+              <stop offset="100%" stopColor="#8B5CF6" />
             </linearGradient>
             <linearGradient id="orangeGradient" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="#f97316" />
@@ -77,7 +78,7 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
             height={36}
             payload={[
               { value: 'Daily Target', type: 'rect', color: '#334155' },
-              { value: 'Consumed Amount', type: 'rect', color: '#22c55e' },
+              { value: 'Consumed Amount', type: 'rect', color: '#D946EF' },
             ]}
           />
           <Tooltip
@@ -93,7 +94,7 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
                   statusColor = "text-red-500";
                 } else if (percentage >= 90 && percentage <= 110) {
                   status = "Within target ✓";
-                  statusColor = "text-green-600";
+                  statusColor = "text-[#D946EF]";
                 } else {
                   status = "Under target";
                   statusColor = "text-orange-500";

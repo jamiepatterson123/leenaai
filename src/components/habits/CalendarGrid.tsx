@@ -1,3 +1,4 @@
+
 import React from "react";
 import { format, isSameDay, isToday } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -41,9 +42,9 @@ export const CalendarGrid = ({ days, loggedDays }: CalendarGridProps) => {
               onClick={() => handleDateClick(date)}
               className={`
                 aspect-square flex items-center justify-center
-                ${isLogged ? 'bg-primary text-primary-foreground' : ''}
+                ${isLogged ? 'bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] text-white' : ''}
                 ${(isPreviousMonth || isNextMonth) ? 'text-muted-foreground/50' : 'text-muted-foreground'}
-                ${isCurrentDay ? 'ring-2 ring-primary' : ''}
+                ${isCurrentDay ? 'ring-2 ring-[#D946EF]' : ''}
                 hover:bg-accent/50 transition-colors duration-200
               `}
             >

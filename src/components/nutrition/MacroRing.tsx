@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card } from "@/components/ui/card";
 
@@ -47,7 +48,7 @@ export const MacroRing: React.FC<MacroRingProps> = ({
             cy="50"
             r="40"
             fill="none"
-            stroke="#22c55e"
+            stroke="url(#proteinGradient)"
             strokeWidth="20"
             strokeDasharray={`${(proteinDegrees / 360) * 251.2} 251.2`}
             className="transition-all duration-500"
@@ -74,6 +75,12 @@ export const MacroRing: React.FC<MacroRingProps> = ({
             strokeDashoffset={`${-(((proteinDegrees + carbsDegrees) / 360) * 251.2)}`}
             className="transition-all duration-500"
           />
+          <defs>
+            <linearGradient id="proteinGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#D946EF" />
+              <stop offset="100%" stopColor="#8B5CF6" />
+            </linearGradient>
+          </defs>
         </svg>
 
         {/* Center text */}
@@ -86,7 +93,7 @@ export const MacroRing: React.FC<MacroRingProps> = ({
       {/* Legend with gram targets */}
       <div className="mt-6 flex justify-center gap-4">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-[#22c55e]"></div>
+          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6]"></div>
           <span className="text-sm">Protein ({Math.round(protein)}g)</span>
         </div>
         <div className="flex items-center gap-2">

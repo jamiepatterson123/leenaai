@@ -1,3 +1,4 @@
+
 import {
   Bar,
   BarChart,
@@ -76,7 +77,7 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
                     <div className="rounded-lg border bg-background p-2 shadow-sm">
                       <div className="grid gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-[#22c55e]" />
+                          <div className="h-2 w-2 rounded-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6]" />
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
                             Calories
                           </span>
@@ -93,10 +94,16 @@ export const CalorieChart = ({ data }: CalorieChartProps) => {
             />
             <Bar
               dataKey="calories"
-              fill="#22c55e"
+              fill="url(#purpleGradient)"
               radius={[4, 4, 0, 0]}
               barSize={40}
             />
+            <defs>
+              <linearGradient id="purpleGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#D946EF" />
+                <stop offset="100%" stopColor="#8B5CF6" />
+              </linearGradient>
+            </defs>
           </BarChart>
         </ResponsiveContainer>
       </div>

@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Info } from "lucide-react";
 import {
@@ -24,7 +25,7 @@ interface CalorieStateChartProps {
 
 export const CalorieStateChart = ({ data }: CalorieStateChartProps) => {
   const states = ["liquid", "solid"];
-  const colors = ["#06b6d4", "#22c55e"];
+  const colors = ["#D946EF", "#8B5CF6"];
 
   const processedData = states.map((state) => {
     const totalCalories = data

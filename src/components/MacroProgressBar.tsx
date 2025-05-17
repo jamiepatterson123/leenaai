@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Progress } from "./ui/progress";
 
@@ -26,10 +27,17 @@ export const MacroProgressBar: React.FC<MacroProgressBarProps> = ({
         </div>
       </div>
       <div className="h-3 w-full bg-muted rounded-full overflow-hidden">
-        <div 
-          className={`h-full ${color} transition-all duration-300 rounded-full`}
-          style={{ width: `${percentage}%` }}
-        />
+        {color === "bg-primary" ? (
+          <div 
+            className="h-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] transition-all duration-300 rounded-full"
+            style={{ width: `${percentage}%` }}
+          />
+        ) : (
+          <div 
+            className={`h-full ${color} transition-all duration-300 rounded-full`}
+            style={{ width: `${percentage}%` }}
+          />
+        )}
       </div>
     </div>
   );

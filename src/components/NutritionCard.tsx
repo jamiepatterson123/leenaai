@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { TotalNutrition } from "./nutrition/TotalNutrition";
@@ -79,14 +80,14 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <ChevronLeft 
-              className="w-6 h-6 text-primary cursor-pointer hover:text-primary/80" 
+              className="w-6 h-6 text-[#D946EF] cursor-pointer hover:text-[#8B5CF6]" 
               onClick={() => handleDateChange('prev')}
             />
             <h2 className="text-xl md:text-2xl font-bold">
               {format(selectedDate, "MMMM d, yyyy")}
             </h2>
             <ChevronRight 
-              className="w-6 h-6 text-primary cursor-pointer hover:text-primary/80" 
+              className="w-6 h-6 text-[#D946EF] cursor-pointer hover:text-[#8B5CF6]" 
               onClick={() => handleDateChange('next')}
             />
           </div>
