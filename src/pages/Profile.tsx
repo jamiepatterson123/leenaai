@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { CustomTargets } from "@/components/profile/CustomTargets";
@@ -22,6 +23,7 @@ import { useQuery } from "@tanstack/react-query";
 const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileFormData | null>(null);
+  const [profileSaved, setProfileSaved] = useState(false);
   const isMobile = useIsMobile();
   const location = useLocation();
 
@@ -136,6 +138,10 @@ const Profile = () => {
 
       if (error) throw error;
       toast.success("Profile updated successfully");
+      
+      // Set the profile as saved to hide the reminder on mobile
+      setProfileSaved(true);
+      
       await fetchProfile();
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -153,11 +159,14 @@ const Profile = () => {
     return <div>Loading...</div>;
   }
 
+  // Only show the reminder if the profile is incomplete and it hasn't been saved yet on mobile
+  const showReminder = isMobile ? (isProfileIncomplete() && !profileSaved) : isProfileIncomplete();
+
   const renderContent = () => {
     if (isMobile) {
       return (
         <div className="space-y-6">
-          {isProfileIncomplete() && (
+          {showReminder && (
             <Alert className="mb-6 relative overflow-hidden">
               <GlowEffect
                 colors={['#0894FF', '#C959DD', '#FF2E54', '#FF9004']}
