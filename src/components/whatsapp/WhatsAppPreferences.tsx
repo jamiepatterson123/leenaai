@@ -1,3 +1,4 @@
+
 import React from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationToggle } from "./NotificationToggle";
@@ -7,6 +8,8 @@ import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Beaker } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 export const WhatsAppPreferences = () => {
   const {
     data: preferences,
@@ -134,31 +137,40 @@ export const WhatsAppPreferences = () => {
   if (isLoading) {
     return <div>Loading preferences...</div>;
   }
-  return <div className="space-y-6 rounded-sm">
-      <PhoneNumberInput value={preferences?.phone_number || ""} onChange={phone_number => updatePreferences({
-      phone_number
-    })} />
-      
-      <NotificationToggle label="Daily Reminders" enabled={preferences?.reminders_enabled ?? true} onChange={reminders_enabled => updatePreferences({
-      reminders_enabled
-    })} />
-      
-      <NotificationToggle label="Weekly Reports" enabled={preferences?.weekly_report_enabled ?? true} onChange={weekly_report_enabled => updatePreferences({
-      weekly_report_enabled
-    })} />
-      
-      <TimezoneSelector value={preferences?.timezone || "UTC"} onChange={timezone => updatePreferences({
-      timezone
-    })} />
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>WhatsApp Notifications</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          <PhoneNumberInput value={preferences?.phone_number || ""} onChange={phone_number => updatePreferences({
+          phone_number
+        })} />
+          
+          <NotificationToggle label="Daily Reminders" enabled={preferences?.reminders_enabled ?? true} onChange={reminders_enabled => updatePreferences({
+          reminders_enabled
+        })} />
+          
+          <NotificationToggle label="Weekly Reports" enabled={preferences?.weekly_report_enabled ?? true} onChange={weekly_report_enabled => updatePreferences({
+          weekly_report_enabled
+        })} />
+          
+          <TimezoneSelector value={preferences?.timezone || "UTC"} onChange={timezone => updatePreferences({
+          timezone
+        })} />
 
-      {isAdmin && <div className="pt-4 border-t">
-          <Button onClick={handleTestMessage} variant="outline" className="w-full">
-            <Beaker className="w-4 h-4 mr-2" />
-            Send Test Message
-          </Button>
-          <p className="mt-2 text-sm text-muted-foreground">
-            This will send a test message to your configured WhatsApp number.
-          </p>
-        </div>}
-    </div>;
+          {isAdmin && <div className="pt-4 border-t">
+              <Button onClick={handleTestMessage} variant="outline" className="w-full">
+                <Beaker className="w-4 h-4 mr-2" />
+                Send Test Message
+              </Button>
+              <p className="mt-2 text-sm text-muted-foreground">
+                This will send a test message to your configured WhatsApp number.
+              </p>
+            </div>}
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
