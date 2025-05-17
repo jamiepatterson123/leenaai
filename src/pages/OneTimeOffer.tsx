@@ -6,6 +6,7 @@ import { Check, Star, ArrowRight, X, Timer } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
+
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -135,7 +136,7 @@ const OneTimeOffer = () => {
                     TWO MONTHS FREE
                   </div>
                 </div>
-                <div className="border-2 border-primary rounded-lg p-6 bg-primary/5">
+                <div className="border-gradient-purple p-6 bg-primary/5 rounded-lg">
                   <h3 className="font-semibold text-lg mb-4">Annual Plan (Best Value)</h3>
                   <div className="text-3xl font-bold mb-2">$99<span className="text-base font-normal text-muted-foreground">/year</span></div>
                   <p className="text-muted-foreground mb-6">Or just $8.25 per month equivalent</p>
@@ -181,4 +182,5 @@ const OneTimeOffer = () => {
       </div>
     </div>;
 };
+
 export default OneTimeOffer;
