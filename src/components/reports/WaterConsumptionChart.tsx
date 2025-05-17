@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Area,
@@ -22,8 +23,8 @@ export const WaterConsumptionChart = ({ data }: WaterConsumptionChartProps) => {
     water: {
       label: "Water Consumption",
       theme: {
-        light: "#0ea5e9",
-        dark: "#38bdf8",
+        light: "#D946EF", // Updated to magenta pink
+        dark: "#8B5CF6", // Updated to vivid purple
       },
     },
   };

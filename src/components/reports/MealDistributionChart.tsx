@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Info } from "lucide-react";
 import {
@@ -24,7 +25,7 @@ interface MealDistributionChartProps {
 
 export const MealDistributionChart = ({ data }: MealDistributionChartProps) => {
   const mealCategories = ["Breakfast", "Lunch", "Dinner", "Snacks"];
-  const colors = ["#ea384c", "#06b6d4", "#FFD700", "#22c55e"];
+  const colors = ["#D946EF", "#9b87f5", "#8B5CF6", "#E5DEFF"]; // Updated to pink/purple gradient palette
 
   const processedData = mealCategories.map((category) => {
     const totalCalories = data

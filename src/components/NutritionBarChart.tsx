@@ -55,12 +55,12 @@ export const NutritionBarChart: React.FC<NutritionChartProps> = ({ data }) => {
               <stop offset="100%" stopColor="#334155" />
             </linearGradient>
             <linearGradient id="proteinGradient" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#ef4444" />
-              <stop offset="100%" stopColor="#dc2626" />
+              <stop offset="0%" stopColor="#D946EF" />
+              <stop offset="100%" stopColor="#9b87f5" />
             </linearGradient>
             <linearGradient id="fatGradient" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#3b82f6" />
-              <stop offset="100%" stopColor="#2563eb" />
+              <stop offset="0%" stopColor="#9b87f5" />
+              <stop offset="100%" stopColor="#8B5CF6" />
             </linearGradient>
           </defs>
           

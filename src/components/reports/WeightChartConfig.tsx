@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   ResponsiveContainer,
@@ -88,7 +89,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
         <Line
           type="monotone"
           dataKey="weight"
-          stroke="#2563eb"
+          stroke="#D946EF"
           strokeWidth={1.5}
           dot={{ r: 3, strokeWidth: 1, fill: "#fff" }}
           activeDot={{

@@ -58,7 +58,7 @@ export const MacroRing: React.FC<MacroRingProps> = ({
             cy="50"
             r="40"
             fill="none"
-            stroke="#eab308"
+            stroke="#9b87f5" // Updated to primary purple
             strokeWidth="20"
             strokeDasharray={`${(carbsDegrees / 360) * 251.2} 251.2`}
             strokeDashoffset={`${-((proteinDegrees / 360) * 251.2)}`}
@@ -69,7 +69,7 @@ export const MacroRing: React.FC<MacroRingProps> = ({
             cy="50"
             r="40"
             fill="none"
-            stroke="#ef4444"
+            stroke="#8B5CF6" // Updated to vivid purple
             strokeWidth="20"
             strokeDasharray={`${(fatDegrees / 360) * 251.2} 251.2`}
             strokeDashoffset={`${-(((proteinDegrees + carbsDegrees) / 360) * 251.2)}`}
@@ -97,11 +97,11 @@ export const MacroRing: React.FC<MacroRingProps> = ({
           <span className="text-sm">Protein ({Math.round(protein)}g)</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-[#eab308]"></div>
+          <div className="w-3 h-3 rounded-full bg-[#9b87f5]"></div>
           <span className="text-sm">Carbs ({Math.round(carbs)}g)</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-[#ef4444]"></div>
+          <div className="w-3 h-3 rounded-full bg-[#8B5CF6]"></div>
           <span className="text-sm">Fat ({Math.round(fat)}g)</span>
         </div>
       </div>

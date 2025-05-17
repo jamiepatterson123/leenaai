@@ -1,3 +1,4 @@
+
 import {
   Bar,
   BarChart,
@@ -112,7 +113,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
                     <div className="rounded-lg border bg-background p-2 shadow-sm">
                       <div className="grid gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-[#ea384c]" />
+                          <div className="h-2 w-2 rounded-full bg-[#D946EF]" />
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
                             Protein
                           </span>
@@ -123,7 +124,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-[#FFD700]" />
+                          <div className="h-2 w-2 rounded-full bg-[#9b87f5]" />
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
                             Carbohydrates
                           </span>
@@ -134,7 +135,7 @@ export const MacroChart = ({ data }: MacroChartProps) => {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-[#06b6d4]" />
+                          <div className="h-2 w-2 rounded-full bg-[#8B5CF6]" />
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
                             Fat
                           </span>
@@ -153,21 +154,21 @@ export const MacroChart = ({ data }: MacroChartProps) => {
             />
             <Bar
               dataKey="protein"
-              fill="#ea384c"
+              fill="#D946EF"
               radius={[4, 4, 0, 0]}
               name="Protein"
               barSize={40}
             />
             <Bar
               dataKey="carbs"
-              fill="#FFD700"
+              fill="#9b87f5"
               radius={[4, 4, 0, 0]}
               name="Carbohydrates"
               barSize={40}
             />
             <Bar
               dataKey="fat"
-              fill="#06b6d4"
+              fill="#8B5CF6"
               radius={[4, 4, 0, 0]}
               name="Fat"
               barSize={40}

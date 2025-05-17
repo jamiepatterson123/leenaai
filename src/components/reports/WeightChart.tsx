@@ -1,3 +1,4 @@
+
 import { format } from "date-fns";
 import {
   Area,
@@ -55,8 +56,8 @@ export const WeightChart = ({ data }: WeightChartProps) => {
           <AreaChart data={convertedData}>
             <defs>
               <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgb(14, 165, 233)" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="rgb(14, 165, 233)" stopOpacity={0} />
+                <stop offset="0%" stopColor="#D946EF" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#8B5CF6" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis
@@ -97,7 +98,7 @@ export const WeightChart = ({ data }: WeightChartProps) => {
             <Area
               type="monotone"
               dataKey="weight"
-              stroke="rgb(14, 165, 233)"
+              stroke="#D946EF"
               fillOpacity={1}
               fill="url(#weightGradient)"
               strokeWidth={2}

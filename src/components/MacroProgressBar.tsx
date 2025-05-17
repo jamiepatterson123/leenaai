@@ -27,7 +27,7 @@ export const MacroProgressBar: React.FC<MacroProgressBarProps> = ({
         </div>
       </div>
       <div className="h-3 w-full bg-muted rounded-full overflow-hidden">
-        {color === "bg-primary" ? (
+        {color === "bg-primary" || color === "bg-green-500" ? (
           <div 
             className="h-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] transition-all duration-300 rounded-full"
             style={{ width: `${percentage}%` }}
