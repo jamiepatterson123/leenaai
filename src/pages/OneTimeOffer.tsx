@@ -1,11 +1,14 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Star, ArrowRight, X, Timer } from "lucide-react";
+import { Check, Star, ArrowRight, X, Timer, Loader2 } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -15,6 +18,9 @@ const OneTimeOffer = () => {
   const [isPreview, setIsPreview] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(5 * 60); // 5 minutes in seconds
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [monthlySubscriptionId, setMonthlySubscriptionId] = useState<string | null>(null);
+  
   useEffect(() => {
     // Check authentication status
     supabase.auth.getSession().then(({
@@ -23,6 +29,16 @@ const OneTimeOffer = () => {
       }
     }) => {
       setIsLoggedIn(!!session);
+      
+      // If logged in, check for any active subscriptions
+      if (session) {
+        // Get subscription data from localStorage or query from API
+        const urlParams = new URLSearchParams(location.search);
+        const subscriptionId = urlParams.get('subscription_id');
+        if (subscriptionId) {
+          setMonthlySubscriptionId(subscriptionId);
+        }
+      }
     });
 
     // Track OTO page view
@@ -39,6 +55,7 @@ const OneTimeOffer = () => {
       console.log("Preview mode is disabled or not from successful checkout");
     }
   }, []);
+  
   useEffect(() => {
     // Set up the countdown timer
     const timer = setInterval(() => {
@@ -62,6 +79,47 @@ const OneTimeOffer = () => {
     return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
   };
 
+  // Handle upgrade to yearly plan
+  const handleUpgradeToYearly = async () => {
+    if (!isLoggedIn) {
+      toast.error("Please log in to upgrade your subscription");
+      navigate("/auth");
+      return;
+    }
+    
+    if (!monthlySubscriptionId) {
+      // If we don't have a monthly subscription ID, fall back to the regular checkout
+      redirectToYearlyCheckout();
+      return;
+    }
+    
+    setIsProcessing(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("upgrade-to-yearly", {
+        body: { monthly_subscription_id: monthlySubscriptionId }
+      });
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+      if (data.success) {
+        toast.success("Successfully upgraded to yearly plan!");
+        navigate("/dashboard?yearly_upgraded=true");
+      } else {
+        throw new Error("Failed to upgrade subscription");
+      }
+    } catch (error) {
+      console.error("Error upgrading subscription:", error);
+      toast.error("Failed to upgrade: " + (error.message || "Unknown error"));
+      // Fall back to the regular checkout process
+      redirectToYearlyCheckout();
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   // Direct link to Stripe payment
   const handleSkip = () => {
     // If logged in, redirect to profile page, otherwise to homepage
@@ -71,7 +129,9 @@ const OneTimeOffer = () => {
       navigate("/");
     }
   };
-  return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
+  
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center p-2 bg-green-100 text-green-800 rounded-full mb-4">
@@ -165,15 +225,26 @@ const OneTimeOffer = () => {
               <X className="mr-2 h-4 w-4" />
               No thanks, continue
             </Button>
-            <a href="https://buy.stripe.com/7sIbM0aekffE42AeUU" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto order-1 sm:order-2">
-              <Button size="lg" className="w-full h-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] hover:opacity-90">
+            <Button 
+              size="lg" 
+              className="w-full sm:w-auto order-1 sm:order-2 h-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] hover:opacity-90"
+              onClick={handleUpgradeToYearly}
+              disabled={isProcessing}
+            >
+              {isProcessing ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
                 <Star className="mr-2 h-4 w-4" />
-                <div className="flex flex-col items-center">
-                  <span className="text-xl font-bold">Get 2 months free today</span>
-                  <span className="text-xs font-medium">Only $8.25/month billed annually</span>
-                </div>
-              </Button>
-            </a>
+              )}
+              <div className="flex flex-col items-center">
+                <span className="text-xl font-bold">
+                  {isProcessing ? "Processing..." : "Get 2 months free today"}
+                </span>
+                <span className="text-xs font-medium">
+                  {isProcessing ? "Please wait" : "Only $8.25/month billed annually"}
+                </span>
+              </div>
+            </Button>
           </CardFooter>
         </Card>
         
@@ -181,6 +252,8 @@ const OneTimeOffer = () => {
           <p>Your subscription can be canceled anytime through your account settings.</p>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default OneTimeOffer;
