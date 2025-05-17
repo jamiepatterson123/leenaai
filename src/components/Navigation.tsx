@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
@@ -8,35 +7,32 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
 import { Menu } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Send, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 export const Navigation = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
   const [nutritionData, setNutritionData] = React.useState(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { session } = useSession();
+  const {
+    session
+  } = useSession();
   const selectedDate = new Date();
-  
+
   // If there's no session or we're on the auth page, don't render the navigation
   if (!session || window.location.pathname === '/auth') return null;
-  
   const handleShare = () => {
     const shareMessage = "This is an AI nutrition app which allows you to track your nutrition with photos of your food. It's free to use, check it out";
     const encodedMessage = encodeURIComponent(shareMessage);
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
     window.open(whatsappUrl, '_blank');
   };
-  
   const handleSignOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
+      const {
+        error
+      } = await supabase.auth.signOut();
       if (error) {
         toast.error("Error signing out");
         return;
@@ -47,12 +43,10 @@ export const Navigation = () => {
       toast.error("Error signing out");
     }
   };
-  
   const theme = "light" as const;
   const toggleTheme = (checked: boolean) => {
     // Implement theme toggle functionality
   };
-  
   const handleFileSelect = async (file: File) => {
     if (!file) {
       toast.error("No file selected");
@@ -74,33 +68,23 @@ export const Navigation = () => {
       }
     }, 100);
   };
-  
-  return (
-    <div className="border-b">
+  return <div className="border-b">
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
         <h1 className="text-slate-950 font-semibold text-xl">Leena.ai</h1>
         
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-muted-foreground">
+            <Button variant="ghost" size="icon" className="text-muted-foreground text-right">
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-[250px] sm:w-[300px]">
             <div className="flex flex-col gap-4 mt-6">
-              <Button
-                variant="ghost"
-                className="flex items-center justify-start gap-3"
-                onClick={handleShare}
-              >
+              <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={handleShare}>
                 <Send className="h-4 w-4" />
                 Share
               </Button>
-              <Button
-                variant="ghost"
-                className="flex items-center justify-start gap-3"
-                onClick={handleSignOut}
-              >
+              <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4" />
                 Log out
               </Button>
@@ -112,6 +96,5 @@ export const Navigation = () => {
           <MobileNav onAddClick={() => {}} onFileSelect={handleFileSelect} />
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
