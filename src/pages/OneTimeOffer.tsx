@@ -65,10 +65,6 @@ const OneTimeOffer = () => {
   };
 
   // Direct link to Stripe payment
-  const handleUpgrade = () => {
-    // This URL should be configured in the Stripe dashboard to redirect to /profile?yearly_success=true
-    window.location.href = "https://buy.stripe.com/7sIbM0aekffE42AeUU";
-  };
   const handleSkip = () => {
     // If logged in, redirect to profile page, otherwise to homepage
     if (isLoggedIn) {
@@ -77,6 +73,7 @@ const OneTimeOffer = () => {
       navigate("/");
     }
   };
+  
   return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
@@ -171,13 +168,15 @@ const OneTimeOffer = () => {
               <X className="mr-2 h-4 w-4" />
               No thanks, continue
             </Button>
-            <Button onClick={handleUpgrade} size="lg" className="w-full sm:w-auto order-1 sm:order-2 bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] hover:opacity-90">
-              <Star className="mr-2 h-4 w-4" />
-              <div className="flex flex-col items-center">
-                <span className="text-xl font-bold">Get 2 months free today</span>
-                <span className="text-xs font-medium">Only $8.25/month billed annually</span>
-              </div>
-            </Button>
+            <a href="https://buy.stripe.com/7sIbM0aekffE42AeUU" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto order-1 sm:order-2">
+              <Button size="lg" className="w-full h-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] hover:opacity-90">
+                <Star className="mr-2 h-4 w-4" />
+                <div className="flex flex-col items-center">
+                  <span className="text-xl font-bold">Get 2 months free today</span>
+                  <span className="text-xs font-medium">Only $8.25/month billed annually</span>
+                </div>
+              </Button>
+            </a>
           </CardFooter>
         </Card>
         
