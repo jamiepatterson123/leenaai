@@ -20,6 +20,22 @@ export interface VisibleCharts {
   nutritionTable: boolean;
 }
 
+// Set default values to the current toggle states
+export const defaultVisibleCharts: VisibleCharts = {
+  weightTrend: true,
+  calorieTargets: true,
+  calories: true,
+  mealDistribution: true,
+  calorieState: true,
+  macros: true,
+  macroTargets: true,
+  proteinDaily: true,
+  carbsDaily: true,
+  fatDaily: true,
+  waterConsumption: true,
+  nutritionTable: false
+};
+
 interface ChartSettingsProps {
   visibleCharts: VisibleCharts;
   onToggleChart: (chart: keyof VisibleCharts) => void;
@@ -58,7 +74,7 @@ export const ChartSettings = ({
                       id="weight-trend" 
                       checked={visibleCharts.weightTrend} 
                       onCheckedChange={() => onToggleChart("weightTrend")}
-                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-200"
                     />
                     <Label htmlFor="weight-trend">Weight Trend</Label>
                   </div>
@@ -67,7 +83,7 @@ export const ChartSettings = ({
                       id="calorie-targets" 
                       checked={visibleCharts.calorieTargets} 
                       onCheckedChange={() => onToggleChart("calorieTargets")}
-                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-200"
                     />
                     <Label htmlFor="calorie-targets">Calorie Targets</Label>
                   </div>
@@ -76,7 +92,7 @@ export const ChartSettings = ({
                       id="calories" 
                       checked={visibleCharts.calories} 
                       onCheckedChange={() => onToggleChart("calories")}
-                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-200"
                     />
                     <Label htmlFor="calories">Daily Calories</Label>
                   </div>
@@ -85,7 +101,7 @@ export const ChartSettings = ({
                       id="meal-distribution" 
                       checked={visibleCharts.mealDistribution} 
                       onCheckedChange={() => onToggleChart("mealDistribution")}
-                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-200"
                     />
                     <Label htmlFor="meal-distribution">Meal Distribution</Label>
                   </div>
@@ -94,7 +110,7 @@ export const ChartSettings = ({
                       id="calorie-state" 
                       checked={visibleCharts.calorieState} 
                       onCheckedChange={() => onToggleChart("calorieState")}
-                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-200"
                     />
                     <Label htmlFor="calorie-state">Liquid/Solid Calories</Label>
                   </div>
@@ -103,7 +119,7 @@ export const ChartSettings = ({
                       id="macros" 
                       checked={visibleCharts.macros} 
                       onCheckedChange={() => onToggleChart("macros")}
-                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-200"
                     />
                     <Label htmlFor="macros">Macronutrient Averages</Label>
                   </div>
@@ -112,7 +128,7 @@ export const ChartSettings = ({
                       id="macro-targets" 
                       checked={visibleCharts.macroTargets} 
                       onCheckedChange={() => onToggleChart("macroTargets")}
-                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-200"
                     />
                     <Label htmlFor="macro-targets">Macro Targets</Label>
                   </div>
@@ -121,7 +137,7 @@ export const ChartSettings = ({
                       id="protein-daily" 
                       checked={visibleCharts.proteinDaily} 
                       onCheckedChange={() => onToggleChart("proteinDaily")}
-                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-200"
                     />
                     <Label htmlFor="protein-daily">Daily Protein</Label>
                   </div>
@@ -130,7 +146,7 @@ export const ChartSettings = ({
                       id="carbs-daily" 
                       checked={visibleCharts.carbsDaily} 
                       onCheckedChange={() => onToggleChart("carbsDaily")}
-                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-200"
                     />
                     <Label htmlFor="carbs-daily">Daily Carbs</Label>
                   </div>
@@ -139,7 +155,7 @@ export const ChartSettings = ({
                       id="fat-daily" 
                       checked={visibleCharts.fatDaily} 
                       onCheckedChange={() => onToggleChart("fatDaily")}
-                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-200"
                     />
                     <Label htmlFor="fat-daily">Daily Fat</Label>
                   </div>
@@ -148,7 +164,7 @@ export const ChartSettings = ({
                       id="water-consumption" 
                       checked={visibleCharts.waterConsumption} 
                       onCheckedChange={() => onToggleChart("waterConsumption")}
-                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-200"
                     />
                     <Label htmlFor="water-consumption">Water Consumption</Label>
                   </div>
@@ -165,4 +181,3 @@ export const ChartSettings = ({
       </div>
     </div>;
 };
-

@@ -6,6 +6,7 @@ import { TimeRange } from "@/components/reports/TimeRangeSelector";
 import { useReportsData } from "@/components/reports/useReportsData";
 import { processCalorieData, processMacroData, processMealData } from "@/components/reports/DataProcessor";
 import { startOfDay, endOfDay, subDays, subWeeks, subMonths } from "date-fns";
+import { defaultVisibleCharts } from "@/components/reports/ChartSettings";
 
 export const Reports = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>("1w");
