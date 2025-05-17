@@ -1,3 +1,4 @@
+
 export type ProfileRow = {
   id: string;
   user_id: string | null;
@@ -15,6 +16,7 @@ export type ProfileRow = {
   target_protein: number | null;
   target_carbs: number | null;
   target_fat: number | null;
+  chart_settings: Record<string, any> | null;
 };
 
 export type ProfileInsert = {
@@ -34,6 +36,7 @@ export type ProfileInsert = {
   target_protein?: number | null;
   target_carbs?: number | null;
   target_fat?: number | null;
+  chart_settings?: Record<string, any> | null;
 };
 
 export type ProfileUpdate = {
@@ -53,4 +56,5 @@ export type ProfileUpdate = {
   target_protein?: number | null;
   target_carbs?: number | null;
   target_fat?: number | null;
+  chart_settings?: Record<string, any> | null;
 };

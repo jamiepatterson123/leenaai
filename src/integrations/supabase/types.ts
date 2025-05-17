@@ -184,6 +184,7 @@ export type Database = {
           activity_level: string | null
           age: number | null
           api_version: string | null
+          chart_settings: Json | null
           created_at: string
           dietary_restrictions: string[] | null
           first_name: string | null
@@ -205,6 +206,7 @@ export type Database = {
           activity_level?: string | null
           age?: number | null
           api_version?: string | null
+          chart_settings?: Json | null
           created_at?: string
           dietary_restrictions?: string[] | null
           first_name?: string | null
@@ -226,6 +228,7 @@ export type Database = {
           activity_level?: string | null
           age?: number | null
           api_version?: string | null
+          chart_settings?: Json | null
           created_at?: string
           dietary_restrictions?: string[] | null
           first_name?: string | null
@@ -270,7 +273,9 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          first_usage_time: string | null
           id: string
+          last_usage_time: string | null
           stripe_customer_id: string | null
           subscribed: boolean
           subscription_end: string | null
@@ -282,7 +287,9 @@ export type Database = {
         Insert: {
           created_at?: string
           email: string
+          first_usage_time?: string | null
           id?: string
+          last_usage_time?: string | null
           stripe_customer_id?: string | null
           subscribed?: boolean
           subscription_end?: string | null
@@ -294,7 +301,9 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string
+          first_usage_time?: string | null
           id?: string
+          last_usage_time?: string | null
           stripe_customer_id?: string | null
           subscribed?: boolean
           subscription_end?: string | null
