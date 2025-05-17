@@ -54,47 +54,102 @@ export const ChartSettings = ({
               <AccordionContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                   <div className="flex items-center space-x-2">
-                    <Switch id="weight-trend" checked={visibleCharts.weightTrend} onCheckedChange={() => onToggleChart("weightTrend")} />
+                    <Switch 
+                      id="weight-trend" 
+                      checked={visibleCharts.weightTrend} 
+                      onCheckedChange={() => onToggleChart("weightTrend")}
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                    />
                     <Label htmlFor="weight-trend">Weight Trend</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Switch id="calorie-targets" checked={visibleCharts.calorieTargets} onCheckedChange={() => onToggleChart("calorieTargets")} />
+                    <Switch 
+                      id="calorie-targets" 
+                      checked={visibleCharts.calorieTargets} 
+                      onCheckedChange={() => onToggleChart("calorieTargets")}
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                    />
                     <Label htmlFor="calorie-targets">Calorie Targets</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Switch id="calories" checked={visibleCharts.calories} onCheckedChange={() => onToggleChart("calories")} />
+                    <Switch 
+                      id="calories" 
+                      checked={visibleCharts.calories} 
+                      onCheckedChange={() => onToggleChart("calories")}
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                    />
                     <Label htmlFor="calories">Daily Calories</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Switch id="meal-distribution" checked={visibleCharts.mealDistribution} onCheckedChange={() => onToggleChart("mealDistribution")} />
+                    <Switch 
+                      id="meal-distribution" 
+                      checked={visibleCharts.mealDistribution} 
+                      onCheckedChange={() => onToggleChart("mealDistribution")}
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                    />
                     <Label htmlFor="meal-distribution">Meal Distribution</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Switch id="calorie-state" checked={visibleCharts.calorieState} onCheckedChange={() => onToggleChart("calorieState")} />
+                    <Switch 
+                      id="calorie-state" 
+                      checked={visibleCharts.calorieState} 
+                      onCheckedChange={() => onToggleChart("calorieState")}
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                    />
                     <Label htmlFor="calorie-state">Liquid/Solid Calories</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Switch id="macros" checked={visibleCharts.macros} onCheckedChange={() => onToggleChart("macros")} />
+                    <Switch 
+                      id="macros" 
+                      checked={visibleCharts.macros} 
+                      onCheckedChange={() => onToggleChart("macros")}
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                    />
                     <Label htmlFor="macros">Macronutrient Averages</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Switch id="macro-targets" checked={visibleCharts.macroTargets} onCheckedChange={() => onToggleChart("macroTargets")} />
+                    <Switch 
+                      id="macro-targets" 
+                      checked={visibleCharts.macroTargets} 
+                      onCheckedChange={() => onToggleChart("macroTargets")}
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                    />
                     <Label htmlFor="macro-targets">Macro Targets</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Switch id="protein-daily" checked={visibleCharts.proteinDaily} onCheckedChange={() => onToggleChart("proteinDaily")} />
+                    <Switch 
+                      id="protein-daily" 
+                      checked={visibleCharts.proteinDaily} 
+                      onCheckedChange={() => onToggleChart("proteinDaily")}
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                    />
                     <Label htmlFor="protein-daily">Daily Protein</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Switch id="carbs-daily" checked={visibleCharts.carbsDaily} onCheckedChange={() => onToggleChart("carbsDaily")} />
+                    <Switch 
+                      id="carbs-daily" 
+                      checked={visibleCharts.carbsDaily} 
+                      onCheckedChange={() => onToggleChart("carbsDaily")}
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                    />
                     <Label htmlFor="carbs-daily">Daily Carbs</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Switch id="fat-daily" checked={visibleCharts.fatDaily} onCheckedChange={() => onToggleChart("fatDaily")} />
+                    <Switch 
+                      id="fat-daily" 
+                      checked={visibleCharts.fatDaily} 
+                      onCheckedChange={() => onToggleChart("fatDaily")}
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                    />
                     <Label htmlFor="fat-daily">Daily Fat</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Switch id="water-consumption" checked={visibleCharts.waterConsumption} onCheckedChange={() => onToggleChart("waterConsumption")} />
+                    <Switch 
+                      id="water-consumption" 
+                      checked={visibleCharts.waterConsumption} 
+                      onCheckedChange={() => onToggleChart("waterConsumption")}
+                      className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-input"
+                    />
                     <Label htmlFor="water-consumption">Water Consumption</Label>
                   </div>
                 </div>
@@ -110,3 +165,4 @@ export const ChartSettings = ({
       </div>
     </div>;
 };
+
