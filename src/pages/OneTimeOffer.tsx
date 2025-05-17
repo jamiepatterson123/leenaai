@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,6 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,7 +18,6 @@ const OneTimeOffer = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [monthlySubscriptionId, setMonthlySubscriptionId] = useState<string | null>(null);
-  
   useEffect(() => {
     // Check authentication status
     supabase.auth.getSession().then(({
@@ -29,7 +26,7 @@ const OneTimeOffer = () => {
       }
     }) => {
       setIsLoggedIn(!!session);
-      
+
       // If logged in, check for any active subscriptions
       if (session) {
         // Get subscription data from localStorage or query from API
@@ -55,7 +52,6 @@ const OneTimeOffer = () => {
       console.log("Preview mode is disabled or not from successful checkout");
     }
   }, []);
-  
   useEffect(() => {
     // Set up the countdown timer
     const timer = setInterval(() => {
@@ -86,24 +82,24 @@ const OneTimeOffer = () => {
       navigate("/auth");
       return;
     }
-    
     if (!monthlySubscriptionId) {
       // If we don't have a monthly subscription ID, fall back to the regular checkout
       redirectToYearlyCheckout();
       return;
     }
-    
     setIsProcessing(true);
-    
     try {
-      const { data, error } = await supabase.functions.invoke("upgrade-to-yearly", {
-        body: { monthly_subscription_id: monthlySubscriptionId }
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke("upgrade-to-yearly", {
+        body: {
+          monthly_subscription_id: monthlySubscriptionId
+        }
       });
-      
       if (error) {
         throw new Error(error.message);
       }
-      
       if (data.success) {
         toast.success("Successfully upgraded to yearly plan!");
         navigate("/dashboard?yearly_upgraded=true");
@@ -129,9 +125,7 @@ const OneTimeOffer = () => {
       navigate("/");
     }
   };
-  
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
+  return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center p-2 bg-green-100 text-green-800 rounded-full mb-4">
@@ -139,9 +133,7 @@ const OneTimeOffer = () => {
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">🎉 Welcome to Leena.ai Premium!</h1>
           <p className="text-xl text-gray-600">Your monthly subscription is now active</p>
-          {isPreview && <div className="mt-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-md inline-block">
-              Preview Mode
-            </div>}
+          {isPreview}
         </div>
         
         {/* FOMO Timer */}
@@ -225,24 +217,15 @@ const OneTimeOffer = () => {
               <X className="mr-2 h-4 w-4" />
               No thanks, continue
             </Button>
-            <Button 
-              size="lg" 
-              className="w-full sm:w-auto order-1 sm:order-2 h-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] hover:opacity-90"
-              onClick={handleUpgradeToYearly}
-              disabled={isProcessing}
-            >
-              {isProcessing ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <div className="flex flex-col items-center">
+            <Button size="lg" className="w-full sm:w-auto order-1 sm:order-2 h-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] hover:opacity-90" onClick={handleUpgradeToYearly} disabled={isProcessing}>
+              {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <div className="flex flex-col items-center">
                   <span className="text-xl font-bold">
                     {isProcessing ? "Processing..." : "Get 2 months free today"}
                   </span>
                   <span className="text-xs font-medium">
                     {isProcessing ? "Please wait" : "Only $8.25/month billed annually"}
                   </span>
-                </div>
-              )}
+                </div>}
             </Button>
           </CardFooter>
         </Card>
@@ -251,8 +234,6 @@ const OneTimeOffer = () => {
           <p>Your subscription can be canceled anytime through your account settings.</p>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default OneTimeOffer;
