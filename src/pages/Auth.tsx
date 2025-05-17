@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -162,7 +161,9 @@ const Auth = () => {
               {authView === "sign_in" ? "Sign In" : "Create A Free Account"}
             </h1>
             <p className="mt-2 text-gray-600 font-normal">
-              {authView === "sign_in" ? "Welcome back to Leena.ai. Just quick and easy nutrition tracking." : "Leena tracks calories and macros from a single photo — no typing, no barcodes. Just quick and easy nutrition tracking."}
+              {authView === "sign_in" ? 
+                "Welcome back to Leena.ai. Just quick and easy nutrition tracking." : 
+                "Leena accurately tracks calories and macros from a single photo — no typing, no barcodes. Just quick and easy nutrition tracking."}
             </p>
           </div>
 
