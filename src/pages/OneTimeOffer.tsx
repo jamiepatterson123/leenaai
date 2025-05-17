@@ -1,9 +1,8 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Star, ArrowRight, X, Timer, Loader2 } from "lucide-react";
+import { Check, ArrowRight, X, Timer, Loader2 } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
@@ -234,16 +233,15 @@ const OneTimeOffer = () => {
               {isProcessing ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <Star className="mr-2 h-4 w-4" />
+                <div className="flex flex-col items-center">
+                  <span className="text-xl font-bold">
+                    {isProcessing ? "Processing..." : "Get 2 months free today"}
+                  </span>
+                  <span className="text-xs font-medium">
+                    {isProcessing ? "Please wait" : "Only $8.25/month billed annually"}
+                  </span>
+                </div>
               )}
-              <div className="flex flex-col items-center">
-                <span className="text-xl font-bold">
-                  {isProcessing ? "Processing..." : "Get 2 months free today"}
-                </span>
-                <span className="text-xs font-medium">
-                  {isProcessing ? "Please wait" : "Only $8.25/month billed annually"}
-                </span>
-              </div>
             </Button>
           </CardFooter>
         </Card>
