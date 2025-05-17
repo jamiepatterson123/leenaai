@@ -106,7 +106,7 @@ const Auth = () => {
             <div className="mb-8 text-center">
               <h1 className="text-3xl font-bold text-gradient">Reset Password</h1>
               <p className="mt-2 text-gray-600 font-normal">
-                Enter your email to receive a password reset link. The future of quick+ easy nutrition tracking. Just quick and easy nutrition tracking.
+                Enter your email to receive a password reset link. The future of quick+ easy nutrition tracking. Just quick and easy nutrition tracking using the latest in AI vision technology.
               </p>
             </div>
             
@@ -162,8 +162,8 @@ const Auth = () => {
             </h1>
             <p className="mt-2 text-gray-600 font-normal">
               {authView === "sign_in" ? 
-                "Welcome back to Leena.ai. Just quick and easy nutrition tracking." : 
-                "Leena accurately tracks calories and macros from a single photo — no typing, no barcodes. Just quick and easy nutrition tracking."}
+                "Welcome back to Leena.ai. Just quick and easy nutrition tracking using the latest in AI vision technology." : 
+                "Leena accurately tracks calories and macros from a single photo — no typing, no barcodes. Just quick and easy nutrition tracking using the latest in AI vision technology."}
             </p>
           </div>
 
