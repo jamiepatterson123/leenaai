@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { CustomTargets } from "@/components/profile/CustomTargets";
@@ -179,9 +180,6 @@ const Profile = () => {
               </AlertDescription>
             </Alert>
           )}
-          <StyleWrapper>
-            <WhatsAppPreferences />
-          </StyleWrapper>
           <ProfileForm 
             onSubmit={handleSubmit} 
             onChange={handleChange}
@@ -194,6 +192,9 @@ const Profile = () => {
               target_fat: profile?.target_fat,
             }}
           />
+          <StyleWrapper>
+            <WhatsAppPreferences />
+          </StyleWrapper>
           <StyleWrapper>
             <PasswordChange />
           </StyleWrapper>
