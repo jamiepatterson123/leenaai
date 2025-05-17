@@ -140,8 +140,8 @@ const OneTimeOffer = () => {
                 </div>
                 <div className="border-2 border-primary rounded-lg p-6 bg-primary/5">
                   <h3 className="font-semibold text-lg mb-4">Annual Plan (Best Value)</h3>
-                  <div className="text-3xl font-bold mb-2">$120<span className="text-base font-normal text-muted-foreground">/year</span></div>
-                  <p className="text-muted-foreground mb-6">Or just $10 per month</p>
+                  <div className="text-3xl font-bold mb-2">$99<span className="text-base font-normal text-muted-foreground">/year</span></div>
+                  <p className="text-muted-foreground mb-6">Or just $8.25 per month equivalent</p>
                   <ul className="space-y-2">
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
