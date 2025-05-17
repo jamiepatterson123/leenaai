@@ -75,12 +75,12 @@ const Auth = () => {
             {authView === "sign_in" ? (
               <>
                 <UserPlus size={16} />
-                <span>Sign Up</span>
+                <span className="font-semibold">Sign Up</span>
               </>
             ) : (
               <>
                 <LogIn size={16} />
-                <span>Sign In</span>
+                <span className="font-semibold">Sign In</span>
               </>
             )}
           </Button>
@@ -91,7 +91,7 @@ const Auth = () => {
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold text-gradient">{authView === "sign_in" ? "Sign In" : "Sign Up"}</h1>
-            <p className="mt-2 text-gray-600">
+            <p className="mt-2 text-gray-600 font-semibold">
               {authView === "sign_in" ? "Welcome back to Leena.ai" : "Start tracking your nutrition for free"}
             </p>
           </div>
@@ -105,11 +105,18 @@ const Auth = () => {
                   background: 'linear-gradient(to right, #D946EF, #8B5CF6)',
                   border: 'none',
                   color: 'white',
-                  fontWeight: 500,
+                  fontWeight: 600,  /* Changed to semi-bold (600) */
                 },
                 anchor: {
                   color: '#D946EF',
+                  fontWeight: 600,  /* Changed to semi-bold (600) */
                 },
+                label: {
+                  fontWeight: 600,  /* Added semi-bold (600) to labels */
+                },
+                input: {
+                  fontWeight: 500,  /* Added medium weight to inputs */
+                }
               },
             }}
             providers={[]} 

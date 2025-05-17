@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -10,7 +11,7 @@ function Header1() {
                     Leena.ai
                 </Link>
                 <Link to="/auth">
-                    <Button variant="outline">Sign in</Button>
+                    <Button variant="outline" className="font-semibold">Sign in</Button>
                 </Link>
             </div>
         </header>
