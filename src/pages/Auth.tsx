@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
@@ -6,11 +7,13 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { UserPlus, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
 const Auth = () => {
   const navigate = useNavigate();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [authView, setAuthView] = useState<"sign_in" | "sign_up">("sign_in");
+
   useEffect(() => {
     // Check active session
     supabase.auth.getSession().then(({
@@ -42,9 +45,11 @@ const Auth = () => {
       navigate("/dashboard");
     }
   }, [session, navigate]);
+
   const toggleAuthView = () => {
     setAuthView(authView === "sign_in" ? "sign_up" : "sign_in");
   };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center justify-center">
@@ -53,6 +58,7 @@ const Auth = () => {
         </div>
       </div>;
   }
+
   return <div className="min-h-screen flex flex-col bg-gray-50 font-poppins">
       {/* Logo Header with Sign Up button */}
       <div className="w-full p-4 bg-white shadow-sm">
@@ -64,10 +70,10 @@ const Auth = () => {
           <Button variant="gradient" size="sm" onClick={toggleAuthView} className="flex items-center gap-2">
             {authView === "sign_in" ? <>
                 <UserPlus size={16} />
-                <span>Sign Up</span>
+                <span className="font-semibold">Sign Up</span>
               </> : <>
                 <LogIn size={16} />
-                <span>Sign In</span>
+                <span className="font-semibold">Sign In</span>
               </>}
           </Button>
         </div>
@@ -76,28 +82,63 @@ const Auth = () => {
       <div className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-gradient">{authView === "sign_in" ? "Sign In" : "Sign Up"}</h1>
+            <h1 className="text-3xl font-bold text-gradient">
+              {authView === "sign_in" ? "Sign In" : "Sign Up"}
+            </h1>
             <p className="mt-2 text-gray-600 font-normal">
-              {authView === "sign_in" ? "Welcome back to Leena.ai" : "Start tracking your nutrition for free"}
+              {authView === "sign_in" 
+                ? "Welcome back to Leena.ai" 
+                : "Start tracking your nutrition using your photos - try it out free"}
             </p>
           </div>
 
-          <SupabaseAuth supabaseClient={supabase} appearance={{
-          theme: ThemeSupa,
-          style: {
-            button: {
-              background: 'linear-gradient(to right, #D946EF, #8B5CF6)',
-              border: 'none',
-              color: 'white',
-              fontWeight: 500
-            },
-            anchor: {
-              color: '#D946EF'
-            }
-          }
-        }} providers={[]} redirectTo={`${window.location.origin}/auth/callback`} view={authView} />
+          <SupabaseAuth 
+            supabaseClient={supabase} 
+            appearance={{
+              theme: ThemeSupa,
+              style: {
+                button: {
+                  background: 'linear-gradient(to right, #D946EF, #8B5CF6)',
+                  border: 'none',
+                  color: 'white',
+                  fontWeight: 500
+                },
+                anchor: {
+                  color: '#D946EF',
+                  fontWeight: 600
+                },
+                message: {
+                  fontWeight: 500
+                }
+              },
+              // Override the text for the toggle link
+              localization: {
+                variables: {
+                  sign_in: {
+                    link_text: authView === "sign_in" 
+                      ? "Don't have an account? Sign up" 
+                      : "Already have an account? Sign in"
+                  },
+                  sign_up: {
+                    link_text: authView === "sign_up" 
+                      ? "Already have an account? Sign in" 
+                      : "Don't have an account? Sign up"
+                  }
+                }
+              }
+            }} 
+            providers={[]} 
+            redirectTo={`${window.location.origin}/auth/callback`} 
+            view={authView} 
+            onViewChange={(newView) => {
+              if (newView === 'sign_in' || newView === 'sign_up') {
+                setAuthView(newView);
+              }
+            }}
+          />
         </div>
       </div>
     </div>;
 };
+
 export default Auth;
