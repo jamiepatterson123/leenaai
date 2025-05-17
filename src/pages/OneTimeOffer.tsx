@@ -6,7 +6,6 @@ import { Check, Star, ArrowRight, X, Timer } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
-
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,7 +15,6 @@ const OneTimeOffer = () => {
   const [isPreview, setIsPreview] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(5 * 60); // 5 minutes in seconds
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   useEffect(() => {
     // Check authentication status
     supabase.auth.getSession().then(({
@@ -73,7 +71,6 @@ const OneTimeOffer = () => {
       navigate("/");
     }
   };
-  
   return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
@@ -101,7 +98,7 @@ const OneTimeOffer = () => {
               </div>
             </div>
             <CardTitle className="text-2xl sm:text-3xl">Get Two Months Free with Annual Billing</CardTitle>
-            <CardDescription className="text-base">This Is A One-Time Offer – Only Available On This Page. Get two months free for committing to your health for one year. This page disappears after you leave and you won't see it again.</CardDescription>
+            <CardDescription className="text-base">This Is A One-Time Offer – Only Available On This Page. Get two months free. This page disappears after you leave and you won't see it anywhere else.</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-6 md:gap-12 justify-center">
@@ -186,5 +183,4 @@ const OneTimeOffer = () => {
       </div>
     </div>;
 };
-
 export default OneTimeOffer;
