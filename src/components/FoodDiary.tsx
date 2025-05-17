@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -141,7 +142,7 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
   console.log("Transformed foods data:", foods);
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden">
+    <div className="w-full">
       <NutritionCard 
         foods={foods} 
         onDelete={handleDelete} 
