@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { WeightTrendChart } from "./WeightTrendChart";
 import { CalorieTargetsChart } from "./CalorieTargetsChart";
 import { CalorieChart } from "./CalorieChart";
@@ -8,7 +8,7 @@ import { MacroTargetsChart } from "./MacroTargetsChart";
 import { MealDistributionChart } from "./MealDistributionChart";
 import { CalorieStateChart } from "./CalorieStateChart";
 import { MacroDailyChart } from "./MacroDailyChart";
-import { ChartSettings, VisibleCharts } from "./ChartSettings";
+import { ChartSettings, VisibleCharts, defaultVisibleCharts } from "./ChartSettings";
 import { TimeRange } from "./TimeRangeSelector";
 import { WaterConsumptionChart } from "./WaterConsumptionChart";
 import { NutritionTable } from "./NutritionTable";
@@ -34,30 +34,11 @@ export const ReportsContent = ({
   isLoading,
   timeRange
 }: ReportsContentProps) => {
-  const [visibleCharts, setVisibleCharts] = useState<VisibleCharts>({
-    weightTrend: true,
-    calorieTargets: true,
-    calories: true,
-    mealDistribution: true,
-    calorieState: true,
-    macros: true,
-    macroTargets: true,
-    proteinDaily: true,
-    carbsDaily: true,
-    fatDaily: true,
-    waterConsumption: true,
-    nutritionTable: true,
-  });
-
+  // States for chart visibility and view mode
+  const [visibleCharts, setVisibleCharts] = useState<VisibleCharts>({...defaultVisibleCharts});
   const [viewMode, setViewMode] = useState<"charts" | "table">("charts");
 
-  const handleToggleChart = (chart: keyof VisibleCharts) => {
-    setVisibleCharts(prev => ({
-      ...prev,
-      [chart]: !prev[chart]
-    }));
-  };
-
+  // Get user profile with chart settings
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -66,13 +47,35 @@ export const ReportsContent = ({
 
       const { data } = await supabase
         .from("profiles")
-        .select("target_calories, target_protein, target_carbs, target_fat")
+        .select("target_calories, target_protein, target_carbs, target_fat, chart_settings")
         .eq("user_id", user.id)
         .single();
 
       return data;
     },
   });
+
+  // Load saved settings when profile is fetched
+  useEffect(() => {
+    if (profile?.chart_settings) {
+      // Load saved visible charts if available
+      if (profile.chart_settings.visibleCharts) {
+        setVisibleCharts(profile.chart_settings.visibleCharts);
+      }
+      
+      // Load saved view mode if available
+      if (profile.chart_settings.viewMode) {
+        setViewMode(profile.chart_settings.viewMode);
+      }
+    }
+  }, [profile]);
+
+  const handleToggleChart = (chart: keyof VisibleCharts) => {
+    setVisibleCharts(prev => ({
+      ...prev,
+      [chart]: !prev[chart]
+    }));
+  };
 
   const targetCalories = profile?.target_calories || 2000;
   const targetProtein = profile?.target_protein || 150;

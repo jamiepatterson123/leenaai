@@ -4,6 +4,9 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export interface VisibleCharts {
   weightTrend: boolean;
@@ -49,17 +52,57 @@ export const ChartSettings = ({
   viewMode,
   onViewModeChange
 }: ChartSettingsProps) => {
+  // Function to save current chart settings to user profile
+  const saveChartSettingsAsDefault = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error("You must be logged in to save settings");
+        return;
+      }
+      
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          chart_settings: {
+            visibleCharts,
+            viewMode
+          }
+        })
+        .eq("user_id", user.id);
+      
+      if (error) {
+        console.error("Error saving chart settings:", error);
+        toast.error("Failed to save chart settings");
+      } else {
+        toast.success("Chart settings saved as default");
+      }
+    } catch (err) {
+      console.error("Error in saveChartSettingsAsDefault:", err);
+      toast.error("An unexpected error occurred");
+    }
+  };
+  
   return <div className="rounded-lg border shadow-sm p-4">
       <div className="flex flex-col gap-4">
-        <div>
-          <h3 className="text-lg font-semibold mb-4">View Mode</h3>
-          <Tabs defaultValue={viewMode} className="w-full" onValueChange={value => onViewModeChange(value as "charts" | "table")}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="charts">Charts</TabsTrigger>
-              <TabsTrigger value="table">Table</TabsTrigger>
-            </TabsList>
-          </Tabs>
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold">View Mode</h3>
+          <Button 
+            onClick={saveChartSettingsAsDefault}
+            variant="outline" 
+            size="sm"
+            className="text-xs bg-gradient-to-r from-[#D946EF]/20 to-[#8B5CF6]/20 hover:from-[#D946EF]/30 hover:to-[#8B5CF6]/30"
+          >
+            Save As Default
+          </Button>
         </div>
+        <Tabs defaultValue={viewMode} className="w-full" onValueChange={value => onViewModeChange(value as "charts" | "table")}>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="charts">Charts</TabsTrigger>
+            <TabsTrigger value="table">Table</TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {viewMode === "charts" && 
           <Accordion type="single" collapsible className="w-full">
