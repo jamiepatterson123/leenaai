@@ -14,7 +14,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Send, LogOut, Upgrade } from "lucide-react";
+import { Send, LogOut, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -84,7 +84,7 @@ export const DesktopNav = ({
                 className="flex items-center justify-start gap-3" 
                 onClick={redirectToCheckout}
               >
-                <Upgrade className="h-4 w-4" />
+                <ArrowUp className="h-4 w-4" />
                 Upgrade to Premium
               </Button>
             )}

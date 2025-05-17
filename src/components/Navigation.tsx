@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Send, LogOut, Upgrade } from "lucide-react";
+import { Send, LogOut, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSubscription } from "@/hooks/useSubscription";
 
@@ -97,7 +97,7 @@ export const Navigation = () => {
                     className="flex items-center justify-start gap-3" 
                     onClick={redirectToCheckout}
                   >
-                    <Upgrade className="h-4 w-4" />
+                    <ArrowUp className="h-4 w-4" />
                     Upgrade to Premium
                   </Button>
                 )}
