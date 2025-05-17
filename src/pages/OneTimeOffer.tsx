@@ -205,7 +205,7 @@ const OneTimeOffer = () => {
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
-                      <span>Your nutrition tracking covered for the next year</span>
+                      <span>One year nutrition tracking</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
