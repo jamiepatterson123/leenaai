@@ -41,6 +41,19 @@
     @apply bg-clip-text text-transparent;
     background-image: linear-gradient(to right, #D946EF, #8B5CF6);
   }
+  
+  .border-gradient-purple {
+    @apply relative;
+  }
+  
+  .border-gradient-purple::before {
+    content: '';
+    @apply absolute inset-0 rounded-lg p-[2px] -z-10;
+    background: linear-gradient(to right, #D946EF, #8B5CF6);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
 }
 
 /* Override dropdown and popup backgrounds to ensure solid white */

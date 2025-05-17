@@ -15,6 +15,7 @@ const OneTimeOffer = () => {
   const [isPreview, setIsPreview] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(5 * 60); // 5 minutes in seconds
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
   useEffect(() => {
     // Check authentication status
     supabase.auth.getSession().then(({
@@ -71,7 +72,7 @@ const OneTimeOffer = () => {
       navigate("/");
     }
   };
-  return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
+  return <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center p-2 bg-green-100 text-green-800 rounded-full mb-4">
@@ -89,7 +90,7 @@ const OneTimeOffer = () => {
           
         </div>
         
-        <Card className="border-2 border-primary shadow-lg">
+        <Card className="border-2 border-gradient-purple shadow-lg">
           <CardHeader className="text-center bg-primary/5 border-b">
             <div className="flex justify-center mb-2">
               <div className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
