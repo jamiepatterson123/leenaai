@@ -80,13 +80,9 @@ export const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
         <h1 className="text-slate-950 font-semibold text-xl">Leena.ai</h1>
         
-        <div className="hidden md:block">
-          <DesktopNav handleShare={handleShare} theme={theme} toggleTheme={toggleTheme} />
-        </div>
-        
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden">
+            <Button variant="ghost" size="icon" className="text-muted-foreground">
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>

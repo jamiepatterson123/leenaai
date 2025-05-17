@@ -60,7 +60,7 @@ export const DesktopNav = ({
   };
 
   return (
-    <div className="hidden md:flex items-center gap-4">
+    <div className="hidden md:flex items-center gap-4 justify-end">
       <NavigationMenu>
         <NavigationMenuList>
           <NavItems />
