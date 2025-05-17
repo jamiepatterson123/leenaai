@@ -1,3 +1,4 @@
+
 import { Star } from "lucide-react";
 function Testimonial() {
   return <div className="flex flex-col items-center space-y-3">
@@ -15,7 +16,7 @@ function Testimonial() {
           Created by <strong className="font-medium text-foreground">wellness professionals</strong>
         </p>
       </div>
-      <p className="text-sm font-normal">"Leena helped me reach my fitness goals!" - Sarah K.</p>
+      <p className="text-sm font-normal">"This is by far the quickest and easiest I've ever tracked my nutrition - super cool!"</p>
     </div>;
 }
 export { Testimonial };
