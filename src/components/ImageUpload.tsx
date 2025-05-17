@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Upload, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -57,7 +58,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, resetPr
             />
           ) : (
             <div className="text-center">
-              <Upload className="mx-auto h-10 w-10 text-primary" strokeWidth={1} />
+              <Upload className="mx-auto h-10 w-10 text-[#D946EF]" strokeWidth={1} />
               <p className="mt-2 text-sm text-gray-600">
                 Click or drag image to upload
               </p>
