@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   NavigationMenu,
@@ -7,6 +8,16 @@ import { MoreDropdown } from "./MoreDropdown";
 import { supabase } from "@/integrations/supabase/client";
 import { NavItems } from "./NavItems";
 import { AuthButtons } from "./AuthButtons";
+import { Menu } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Send, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export const DesktopNav = ({ 
   handleShare, 
@@ -18,6 +29,7 @@ export const DesktopNav = ({
   toggleTheme: (checked: boolean) => void;
 }) => {
   const [session, setSession] = React.useState(null);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -33,6 +45,20 @@ export const DesktopNav = ({
     return () => subscription.unsubscribe();
   }, []);
 
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        toast.error("Error signing out");
+        return;
+      }
+      navigate("/auth");
+      toast.success("Signed out successfully");
+    } catch (error) {
+      toast.error("Error signing out");
+    }
+  };
+
   return (
     <div className="hidden md:flex items-center gap-4">
       <NavigationMenu>
@@ -41,7 +67,34 @@ export const DesktopNav = ({
           <MoreDropdown />
         </NavigationMenuList>
       </NavigationMenu>
-      <AuthButtons handleShare={handleShare} session={session} />
+      
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="ghost" size="icon" className="text-muted-foreground">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="right" className="w-[250px] sm:w-[300px]">
+          <div className="flex flex-col gap-4 mt-6">
+            <Button
+              variant="ghost"
+              className="flex items-center justify-start gap-3"
+              onClick={handleShare}
+            >
+              <Send className="h-4 w-4" />
+              Share
+            </Button>
+            <Button
+              variant="ghost"
+              className="flex items-center justify-start gap-3"
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-4 w-4" />
+              Log out
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
