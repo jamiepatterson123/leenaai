@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, ArrowRight, X, Timer, Loader2, Star, PartyPopper } from "lucide-react";
+import { Check, ArrowRight, X, Timer, Loader2, Star } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
@@ -131,7 +131,7 @@ const OneTimeOffer = () => {
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center p-2 bg-green-100 text-green-800 rounded-full mb-4">
-            <PartyPopper className="w-8 h-8" />
+            <Check className="w-8 h-8" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome to Leena.ai</h1>
           <p className="text-xl text-gray-600">Your monthly membership is now active</p>
