@@ -80,25 +80,27 @@ export const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
         <h1 className="text-slate-950 font-semibold text-xl">Leena.ai</h1>
         
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-muted-foreground text-right">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-[250px] sm:w-[300px]">
-            <div className="flex flex-col gap-4 mt-6">
-              <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={handleShare}>
-                <Send className="h-4 w-4" />
-                Share
+        <div className="absolute top-0 right-0 mt-4 mr-4 z-10">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-muted-foreground text-right">
+                <Menu className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4" />
-                Log out
-              </Button>
-            </div>
-          </SheetContent>
-        </Sheet>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[250px] sm:w-[300px]">
+              <div className="flex flex-col gap-4 mt-6">
+                <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={handleShare}>
+                  <Send className="h-4 w-4" />
+                  Share
+                </Button>
+                <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4" />
+                  Log out
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
         
         <div className="md:hidden">
           <MobileNav onAddClick={() => {}} onFileSelect={handleFileSelect} />
