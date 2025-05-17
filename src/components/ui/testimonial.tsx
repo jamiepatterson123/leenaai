@@ -1,6 +1,7 @@
+
 import { Star } from "lucide-react";
 function Testimonial() {
-  return <div className="flex flex-col items-center space-y-3">
+  return <div className="flex flex-col items-center space-y-3 md:space-y-3 space-y-5">
       <div className="flex items-center justify-center">
         {[...Array(5)].map((_, i) => <Star key={i} size={18} className="text-amber-400 fill-amber-400" />)}
       </div>
@@ -15,7 +16,7 @@ function Testimonial() {
           Created by <strong className="font-medium text-foreground">wellness professionals</strong>
         </p>
       </div>
-      <p className="text-sm font-normal my-[20px]">"This is by far the quickest and easiest I've ever tracked my nutrition - super cool!" - Jamie P</p>
+      <p className="text-sm font-normal md:my-[20px] my-[40px]">"This is by far the quickest and easiest I've ever tracked my nutrition - super cool!" - Jamie P</p>
     </div>;
 }
 export { Testimonial };
