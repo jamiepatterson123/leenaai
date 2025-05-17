@@ -49,11 +49,11 @@ export const WeightChart = ({ data }: WeightChartProps) => {
   const unitLabel = preferredUnits === 'imperial' ? 'lbs' : 'kg';
 
   return (
-    <Card className="p-6">
-      <h2 className="text-2xl font-semibold mb-6">Weight Progress</h2>
+    <Card className="w-full h-full overflow-hidden">
+      <h2 className="text-2xl font-semibold p-6 pb-0 mb-0">Weight Progress</h2>
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={convertedData}>
+          <AreaChart data={convertedData} margin={{ top: 20, right: 0, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#D946EF" stopOpacity={0.3} />
@@ -66,6 +66,7 @@ export const WeightChart = ({ data }: WeightChartProps) => {
               fontSize={12}
               tickLine={false}
               axisLine={false}
+              padding={{ left: 0, right: 0 }}
             />
             <YAxis
               stroke="#888888"
@@ -73,6 +74,7 @@ export const WeightChart = ({ data }: WeightChartProps) => {
               tickLine={false}
               axisLine={false}
               tickFormatter={(value) => `${value}${unitLabel}`}
+              padding={{ top: 0, bottom: 0 }}
             />
             <Tooltip
               content={({ active, payload }) => {
