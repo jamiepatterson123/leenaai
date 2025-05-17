@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,6 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -215,7 +213,7 @@ const OneTimeOffer = () => {
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
-                      <span>Nutrition tracking covered for the next one year</span>
+                      <span>Effortless nutrition tracking covered for the next one year</span>
                     </li>
                   </ul>
                 </div>
@@ -246,5 +244,4 @@ const OneTimeOffer = () => {
       </div>
     </div>;
 };
-
 export default OneTimeOffer;
