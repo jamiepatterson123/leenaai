@@ -53,7 +53,7 @@ const Auth = () => {
       </div>;
   }
   
-  return <div className="min-h-screen flex flex-col bg-gray-50">
+  return <div className="min-h-screen flex flex-col bg-gray-50 font-poppins">
       {/* Logo Header */}
       <div className="w-full p-4 bg-white shadow-sm">
         <div className="container mx-auto">
@@ -82,10 +82,6 @@ const Auth = () => {
             providers={[]} 
             redirectTo={`${window.location.origin}/auth/callback`}
             view={authView}
-            onViewChange={newView => {
-              // TypeScript doesn't perfectly type this from Supabase
-              setAuthView(newView as "sign_in" | "sign_up");
-            }}
           />
         </div>
       </div>
