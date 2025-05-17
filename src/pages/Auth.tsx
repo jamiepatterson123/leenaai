@@ -9,6 +9,7 @@ const Auth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [authView, setAuthView] = useState<"sign_in" | "sign_up">("sign_in");
+  
   useEffect(() => {
     // Check active session
     supabase.auth.getSession().then(({
@@ -53,7 +54,7 @@ const Auth = () => {
       <div className="w-full p-4 bg-white shadow-sm">
         <div className="container mx-auto">
           <Link to="/" className="inline-block">
-            <h1 className="text-primary font-semibold text-base">Leena.ai</h1>
+            <h1 className="text-black font-semibold text-base">Leena.ai</h1>
           </Link>
         </div>
       </div>
