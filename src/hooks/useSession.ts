@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Session, AuthChangeEvent } from "@supabase/supabase-js";
-import { triggerSuccessConfetti } from "@/utils/confetti";
 
 export const useSession = () => {
   const [session, setSession] = useState<Session | null>(null);
@@ -34,14 +33,7 @@ export const useSession = () => {
               setSession(newSession);
               queryClient.clear(); // Clear query cache on sign in
               
-              // Mark as just authenticated for confetti celebration
-              sessionStorage.setItem('just_authenticated', 'true');
-              
-              // For direct access to the dashboard after sign in
-              if (window.location.pathname === '/dashboard') {
-                triggerSuccessConfetti();
-                sessionStorage.removeItem('just_authenticated');
-              }
+              // We no longer set confetti here - only for sign-up events in Auth.tsx
             } else if (event === 'SIGNED_OUT') {
               setSession(null);
               queryClient.clear(); // Clear query cache on sign out

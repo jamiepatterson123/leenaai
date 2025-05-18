@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { AuthLoading } from "@/components/auth/AuthLoading";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { triggerSuccessConfetti, triggerSignUpConfetti } from "@/utils/confetti";
+import { triggerSignUpConfetti } from "@/utils/confetti";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -48,10 +48,8 @@ const Auth = () => {
       
       if (event === "SIGNED_IN") {
         setSession(session);
-        // Trigger confetti animation for sign-ins
-        triggerSuccessConfetti();
         navigate("/dashboard");
-      } else if (event === "SIGNED_UP") {
+      } else if (event === "USER_CREATED") {
         // Trigger the more elaborate confetti for new sign-ups
         triggerSignUpConfetti();
       } else if (event === "SIGNED_OUT") {

@@ -5,7 +5,6 @@ import { Send, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { triggerSuccessConfetti } from "@/utils/confetti";
 
 interface AuthButtonsProps {
   handleShare: () => void;
