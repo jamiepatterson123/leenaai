@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
@@ -56,7 +57,7 @@ export const SubscriptionBadge: React.FC = () => {
       <div className="text-xs text-muted-foreground text-left w-full">
         {statusText}
       </div>
-      <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => window.location.href = "https://buy.stripe.com/eVq5kEafs8RweClb1Oe7m01"}>
+      <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => window.location.href = "https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02"}>
         <ArrowRight className="h-3 w-3 mr-1" />
         Upgrade for unlimited photo logging
       </Button>

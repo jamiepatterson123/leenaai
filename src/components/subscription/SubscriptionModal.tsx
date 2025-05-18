@@ -41,7 +41,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
 
   const handleUpgrade = () => {
     // Direct link to the Stripe checkout URL
-    window.location.href = "https://buy.stripe.com/eVq5kEafs8RweClb1Oe7m01";
+    window.location.href = "https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02";
   };
 
   const handleContinueFreeTrial = () => {
