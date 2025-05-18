@@ -2,6 +2,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { trackSubscriptionStartServerSide, trackSubscriptionCancelledServerSide } from "../../src/utils/metaCAPI.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,6 +27,10 @@ serve(async (req) => {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
     logStep("Stripe key verified");
+
+    // Get Meta CAPI details
+    const metaPixelId = Deno.env.get("META_PIXEL_ID");
+    const metaAccessToken = Deno.env.get("META_CAPI_ACCESS_TOKEN");
 
     // Create Supabase client using the anon key
     const supabaseClient = createClient(
@@ -69,6 +74,22 @@ serve(async (req) => {
       subscriptionId: canceledSubscription.id,
       cancelAtPeriodEnd: canceledSubscription.cancel_at_period_end
     });
+
+    // Track subscription cancellation with Meta CAPI if credentials are available
+    if (metaPixelId && metaAccessToken) {
+      try {
+        await trackSubscriptionCancelledServerSide(
+          metaPixelId,
+          metaAccessToken,
+          user.email,
+          canceledSubscription.id
+        );
+        logStep("Sent subscription cancellation event to Meta CAPI");
+      } catch (capiError) {
+        logStep("Failed to send CAPI event", { error: capiError.message });
+        // Non-blocking, we continue even if CAPI fails
+      }
+    }
     
     // Step 2: Get customer data
     const customerId = canceledSubscription.customer as string;
@@ -102,12 +123,36 @@ serve(async (req) => {
       },
       default_payment_method: defaultPaymentMethodId,
       expand: ['latest_invoice.payment_intent'],
+      metadata: {
+        user_email: user.email,
+        user_id: user.id,
+        previous_subscription_id: monthlySubscriptionId
+      },
     });
     
     logStep("Created yearly subscription", { 
       newSubscriptionId: yearlySubscription.id,
       status: yearlySubscription.status
     });
+
+    // Track yearly subscription start with Meta CAPI if credentials are available
+    if (metaPixelId && metaAccessToken) {
+      try {
+        await trackSubscriptionStartServerSide(
+          metaPixelId,
+          metaAccessToken,
+          user.email,
+          99.00, // $99 yearly subscription
+          'USD',
+          yearlySubscription.id,
+          'yearly'
+        );
+        logStep("Sent yearly subscription event to Meta CAPI");
+      } catch (capiError) {
+        logStep("Failed to send CAPI event", { error: capiError.message });
+        // Non-blocking, we continue even if CAPI fails
+      }
+    }
 
     return new Response(JSON.stringify({ 
       success: true, 

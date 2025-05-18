@@ -61,6 +61,16 @@ serve(async (req) => {
     
     logStep("Using price ID", { priceId });
 
+    // Get Meta Conversions API details from environment variables
+    const metaPixelId = Deno.env.get("META_PIXEL_ID");
+    const metaAccessToken = Deno.env.get("META_CAPI_ACCESS_TOKEN");
+    
+    // Store user email in metadata for later CAPI tracking in webhook
+    const metadata = {
+      user_email: user.email,
+      user_id: user.id
+    };
+
     // Always redirect to the /oto page without requiring authentication
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -74,6 +84,7 @@ serve(async (req) => {
       mode: "subscription",
       success_url: `https://getleen.ai/oto?subscription_success=true`,
       cancel_url: `${req.headers.get("origin")}/dashboard?subscription_cancelled=true`,
+      metadata: metadata,
     });
     
     logStep("Checkout session created", { sessionId: session.id, url: session.url });

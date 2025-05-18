@@ -76,6 +76,13 @@ serve(async (req) => {
       logStep("Received subscription ID to cancel", { monthlySubscriptionId });
     }
 
+    // Store user email and ID in metadata for later CAPI tracking in webhook
+    const metadata = {
+      user_email: user.email,
+      user_id: user.id,
+      monthly_subscription_id: monthlySubscriptionId || null
+    };
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -98,9 +105,7 @@ serve(async (req) => {
       mode: "subscription",
       success_url: `${req.headers.get("origin")}/dashboard?yearly_success=true${monthlySubscriptionId ? `&cancel_monthly=${monthlySubscriptionId}` : ''}`,
       cancel_url: `${req.headers.get("origin")}/dashboard`,
-      metadata: {
-        monthly_subscription_id: monthlySubscriptionId
-      }
+      metadata: metadata
     });
     
     logStep("Yearly checkout session created", { sessionId: session.id, url: session.url });

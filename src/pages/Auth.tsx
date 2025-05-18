@@ -44,7 +44,7 @@ const Auth = () => {
       data: {
         subscription
       }
-    } = supabase.auth.onAuthStateChange((event, session: Session | null) => {
+    } = supabase.auth.onAuthStateChange((event: any, session: Session | null) => {
       console.log("Auth state changed:", event);
       
       if (event === "SIGNED_IN") {
