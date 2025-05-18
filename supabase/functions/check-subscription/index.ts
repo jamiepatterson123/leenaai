@@ -100,6 +100,9 @@ serve(async (req) => {
       firstUsageTime = subscriberData.first_usage_time;
       lastUsageTime = subscriberData.last_usage_time;
 
+      const FREE_INITIAL_USES = 3; // Initial 3 free uses for new users
+      const FREE_DAILY_USES = 2;   // 2 free uses per day after initial period
+
       // Check if this is within first 24 hours of usage
       const now = new Date();
       const firstTime = firstUsageTime ? new Date(firstUsageTime) : null;
@@ -110,13 +113,42 @@ serve(async (req) => {
       
       if (!hasSubscription) {
         if (isWithinFirst24Hours) {
-          // Within first 24 hours: limit is 5 uses
-          dailyLimitReached = usageCount >= 5;
+          // Within first 24 hours: limit is 3 uses
+          dailyLimitReached = usageCount >= FREE_INITIAL_USES;
+          logStep("Within first 24 hours", { 
+            usageCount,
+            dailyLimitReached,
+            firstUseLimit: FREE_INITIAL_USES
+          });
         } else {
-          // After first 24 hours: check if it's been 24 hours since last usage
+          // After first 24 hours: check today's usage or time since last usage
           if (lastTime) {
             const hoursSinceLastUsage = (now.getTime() - lastTime.getTime()) / (60 * 60 * 1000);
-            dailyLimitReached = hoursSinceLastUsage < 24;
+            
+            if (hoursSinceLastUsage < 24) {
+              // Check today's usage count
+              const todaysDate = new Date().toISOString().split('T')[0];
+              const { data: todaysEntries, error: countError } = await supabaseClient
+                .from("food_diary")
+                .select("id")
+                .eq("user_id", user.id)
+                .gte("created_at", `${todaysDate}T00:00:00Z`)
+                .lt("created_at", `${todaysDate}T23:59:59Z`);
+                
+              if (!countError) {
+                dailyLimitReached = todaysEntries && todaysEntries.length >= FREE_DAILY_USES;
+              }
+              
+              logStep("Checking today's usage", { 
+                todaysUsage: todaysEntries?.length || 0,
+                dailyLimitReached,
+                dailyLimit: FREE_DAILY_USES
+              });
+            } else {
+              // New day, reset daily limit
+              dailyLimitReached = false;
+              logStep("New day detected, resetting daily limit", { dailyLimitReached });
+            }
           }
         }
       }

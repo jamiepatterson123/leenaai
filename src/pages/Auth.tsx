@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -70,6 +71,7 @@ const Auth = () => {
   const toggleAuthView = () => {
     setAuthView(authView === "sign_in" ? "sign_up" : "sign_in");
   };
+  
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
@@ -94,6 +96,7 @@ const Auth = () => {
       setResetLoading(false);
     }
   };
+  
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">
         <AuthLoading />
@@ -145,6 +148,7 @@ const Auth = () => {
         </div>
       </div>;
   }
+  
   return <div className="min-h-screen flex flex-col bg-gray-50 font-poppins">
       {/* Logo Header with Sign Up button */}
       <div className="w-full p-4 bg-white shadow-sm">

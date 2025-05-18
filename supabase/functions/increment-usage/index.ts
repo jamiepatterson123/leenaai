@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -95,21 +94,44 @@ serve(async (req) => {
     let dailyLimitReached = false;
     let canUseService = false;
 
+    const FREE_INITIAL_USES = 3; // Initial 3 free uses for new users
+    const FREE_DAILY_USES = 2;   // 2 free uses per day after initial period
+
     if (isWithinFirst24Hours) {
-      // Within first 24 hours: limit is 5 uses
-      if (subscriber.usage_count < 5) {
+      // Within first 24 hours: limit is 3 uses
+      if (subscriber.usage_count < FREE_INITIAL_USES) {
         canUseService = true;
       } else {
         dailyLimitReached = true;
       }
     } else {
       // After first 24 hours: check if it's been 24 hours since last usage
+      // Or if they haven't used their daily quota yet
       if (lastUsageTime) {
         const hoursSinceLastUsage = (now.getTime() - lastUsageTime.getTime()) / (60 * 60 * 1000);
+        const daysSinceLastUsage = hoursSinceLastUsage / 24;
+        
+        // If it's a new day (24+ hours), reset the counter
         if (hoursSinceLastUsage >= 24) {
           canUseService = true;
-        } else {
-          dailyLimitReached = true;
+          // We'll reset the count to 1 when we update
+        } 
+        // Otherwise, check if they've used fewer than FREE_DAILY_USES today
+        else {
+          // Get today's usage
+          const todaysDate = new Date().toISOString().split('T')[0];
+          const { data: todaysEntries, error: countError } = await supabaseClient
+            .from("food_diary")
+            .select("id")
+            .eq("user_id", user.id)
+            .gte("created_at", `${todaysDate}T00:00:00Z`)
+            .lt("created_at", `${todaysDate}T23:59:59Z`);
+            
+          if (!countError && todaysEntries && todaysEntries.length < FREE_DAILY_USES) {
+            canUseService = true;
+          } else {
+            dailyLimitReached = true;
+          }
         }
       } else {
         // No last usage time recorded, allow usage
@@ -120,6 +142,10 @@ serve(async (req) => {
     if (canUseService) {
       // Update subscriber record with incremented usage count and last usage time
       const newCount = subscriber.usage_count + 1;
+      
+      // If it's a new day, reset the daily count
+      const shouldResetDailyCount = lastUsageTime && 
+        (now.getTime() - lastUsageTime.getTime() >= 24 * 60 * 60 * 1000);
       
       await supabaseClient
         .from("subscribers")

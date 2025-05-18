@@ -25,7 +25,8 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   const { 
     isLoading, 
     usageCount, 
-    hasFreeUsesRemaining
+    hasFreeUsesRemaining,
+    isWithinFirst24Hours
   } = useSubscription();
 
   // Track modal open
@@ -51,6 +52,18 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
     onOpenChange(false);
   };
 
+  // Get the appropriate message based on user's free tier status
+  const getFreeUsageMessage = () => {
+    const initialLimit = 3;
+    const dailyLimit = 2;
+    
+    if (isWithinFirst24Hours) {
+      return `You've used ${usageCount} out of your ${initialLimit} free nutrition logs.`;
+    } else {
+      return `You've used your free nutrition logs for today. You get ${dailyLimit} free logs per day.`;
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -60,7 +73,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
             Upgrade to Leena.ai Premium
           </DialogTitle>
           <DialogDescription>
-            You've used {usageCount} out of your 10 free nutrition logs.
+            {getFreeUsageMessage()}
             {!hasFreeUsesRemaining 
               ? " Subscribe to continue tracking your nutrition!" 
               : ` You have free uses remaining.`}

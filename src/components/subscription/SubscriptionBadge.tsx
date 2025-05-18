@@ -64,12 +64,12 @@ export const SubscriptionBadge: React.FC = () => {
   // Free tier badge
   let statusText = '';
   if (isWithinFirst24Hours) {
-    statusText = `${5 - usageCount} of 5 free uploads left`;
+    statusText = `${3 - usageCount} of 3 free uploads left`;
   } else if (dailyLimitReached) {
     const hours = Math.ceil(hoursUntilNextUse);
     statusText = `Next upload in ${hours}h`;
   } else {
-    statusText = "1 free upload available";
+    statusText = "Free uploads available";
   }
 
   return (
