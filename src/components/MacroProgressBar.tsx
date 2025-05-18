@@ -6,6 +6,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "./ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 interface MacroProgressBarProps {
   label: string;
@@ -52,7 +58,38 @@ export const MacroProgressBar: React.FC<MacroProgressBarProps> = ({
     }
   };
 
+  const getValueInfo = () => {
+    switch (label) {
+      case "Calories":
+        return {
+          title: "Calorie Tracking",
+          description: "The first number is your current calorie intake for the day. The second number is your daily calorie target based on your goals. The percentage shows your progress toward your daily target."
+        };
+      case "Protein":
+        return {
+          title: "Protein Tracking",
+          description: "The first number shows how many grams of protein you've consumed today. The second number is your daily protein target. Adequate protein is essential for muscle recovery and maintenance."
+        };
+      case "Carbs":
+        return {
+          title: "Carbohydrate Tracking",
+          description: "The first number shows your current carbohydrate intake in grams. The second number is your daily carbohydrate target. Carbs are your body's preferred energy source, especially for high-intensity activities."
+        };
+      case "Fat":
+        return {
+          title: "Fat Tracking",
+          description: "The first number shows how many grams of fat you've consumed today. The second number is your daily fat target. Healthy fats are essential for hormone production and nutrient absorption."
+        };
+      default:
+        return {
+          title: "Nutrient Tracking",
+          description: "The first number shows your current intake. The second number is your daily target. The percentage shows your progress toward your goal."
+        };
+    }
+  };
+
   const nutrientInfo = getNutrientInfo();
+  const valueInfo = getValueInfo();
 
   return (
     <div className="space-y-2">
@@ -70,10 +107,22 @@ export const MacroProgressBar: React.FC<MacroProgressBarProps> = ({
             </div>
           </PopoverContent>
         </Popover>
-        <div className="text-sm text-muted-foreground">
-          {current.toFixed(1)} / {target.toFixed(1)}
-          <span className="ml-2">{percentage}%</span>
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="text-sm text-muted-foreground cursor-pointer">
+                {current.toFixed(1)} / {target.toFixed(1)}
+                <span className="ml-2">{percentage}%</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="w-80 p-4">
+              <div className="space-y-2">
+                <h4 className="font-semibold">{valueInfo.title}</h4>
+                <p className="text-sm">{valueInfo.description}</p>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
       <div className="h-3 w-full bg-muted rounded-full overflow-hidden">
         {color === "bg-primary" || color === "bg-green-500" ? (
