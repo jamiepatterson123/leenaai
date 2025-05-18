@@ -37,7 +37,7 @@ export const defaultVisibleCharts: VisibleCharts = {
   carbsDaily: true,
   fatDaily: true,
   waterConsumption: true,
-  nutritionTable: false
+  nutritionTable: true
 };
 
 interface ChartSettingsProps {
@@ -165,7 +165,12 @@ export const ChartSettings = ({
         {viewMode === "table" && (
           <div>
             <h3 className="text-lg font-semibold mb-4">Table Options</h3>
-            
+            <div className="grid grid-cols-1 gap-4">
+              <div className="flex items-center space-x-2">
+                <Switch id="nutrition-table" checked={visibleCharts.nutritionTable} onCheckedChange={() => onToggleChart("nutritionTable")} className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-200" />
+                <Label htmlFor="nutrition-table">Nutrition Summary Table</Label>
+              </div>
+            </div>
           </div>
         )}
         

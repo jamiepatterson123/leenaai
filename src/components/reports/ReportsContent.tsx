@@ -170,16 +170,14 @@ export const ReportsContent = ({
         </div>
       ) : (
         <div className="grid gap-4 md:gap-6">
-          {/* Nutrition Table */}
-          {visibleCharts.nutritionTable && (
-            <NutritionTable 
-              data={macroData}
-              targetCalories={targetCalories}
-              targetProtein={targetProtein}
-              targetCarbs={targetCarbs}
-              targetFat={targetFat}
-            />
-          )}
+          {/* Nutrition Table - Always show when in table mode */}
+          <NutritionTable 
+            data={macroData}
+            targetCalories={targetCalories}
+            targetProtein={targetProtein}
+            targetCarbs={targetCarbs}
+            targetFat={targetFat}
+          />
         </div>
       )}
     </div>
