@@ -44,18 +44,21 @@ const Auth = () => {
       data: {
         subscription
       }
-    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+    } = supabase.auth.onAuthStateChange((event, session: Session | null) => {
       console.log("Auth state changed:", event);
       
       if (event === "SIGNED_IN") {
         setSession(session);
         navigate("/dashboard");
-      } else if (event === "USER_CREATED") {
-        // Trigger the more elaborate confetti for new sign-ups
-        triggerSignUpConfetti();
       } else if (event === "SIGNED_OUT") {
         setSession(null);
       } 
+      
+      // Handle USER_CREATED event (which is not in the TypeScript definition)
+      // but is actually emitted by Supabase
+      if (event === "USER_CREATED") {
+        triggerSignUpConfetti();
+      }
     });
     
     return () => subscription.unsubscribe();
