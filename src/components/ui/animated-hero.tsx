@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { MoveRight } from "lucide-react";
@@ -33,7 +34,7 @@ function Hero() {
         <div className="flex gap-8 items-center justify-center flex-col">
           <div>
             <Button variant="secondary" size="sm" className="gap-4">
-              AI-Powered Food Tracking <MoveRight className="w-4 h-4" />
+              AI-Powered Food Tracking...that actually works <MoveRight className="w-4 h-4" />
             </Button>
           </div>
           <div className="flex gap-4 flex-col">
