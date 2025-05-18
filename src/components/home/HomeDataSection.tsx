@@ -8,12 +8,15 @@ import { HabitTracker } from "@/components/habits/HabitTracker";
 import { MacroCircles } from "@/components/home/MacroCircles";
 import { WeightTrendChart } from "@/components/reports/WeightTrendChart";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { StripeBuyButton } from "@/components/subscription/StripeBuyButton";
+import { useSubscription } from "@/hooks/useSubscription";
 
 export const HomeDataSection = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
   const [nutritionData, setNutritionData] = React.useState<any>(null);
   const imageAnalysisSectionRef = React.useRef<any>(null);
   const isMobile = useIsMobile();
+  const { isSubscribed } = useSubscription();
 
   const { isLoading, weightData } = useHomeData();
 
@@ -31,6 +34,13 @@ export const HomeDataSection = () => {
           <MacroCircles />
         </div>
       </div>
+
+      {/* Mobile Only: Buy Button for non-subscribed users */}
+      {isMobile && !isSubscribed && (
+        <div className="md:hidden w-full">
+          <StripeBuyButton />
+        </div>
+      )}
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
