@@ -59,7 +59,7 @@ function Hero() {
               </span>
             </h1>
 
-            <p className="text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-2xl text-center font-poppins">With just photos of your food and new AI vision technology</p>
+            <p className="text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-2xl text-center font-poppins">With just photos of your food</p>
           </div>
           <div className="flex items-center">
             <Button variant="gradient" size="lg" className="gap-4 w-[200px] md:w-[200px] h-[64px] font-poppins" onClick={handleSubmit}>
