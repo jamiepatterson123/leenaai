@@ -29,23 +29,23 @@ export const NutritionTable = ({
   const isMobile = useIsMobile();
   
   const getCaloriesStatus = (calories: number) => {
-    if (calories === 0) return { emoji: "➖", label: "No data", className: "text-gray-400" };
+    if (calories === 0) return { emoji: "—", label: "No data", className: "text-gray-400" };
     const percentage = (calories / targetCalories) * 100;
-    if (percentage < 80) return { emoji: "🔴", label: "Low", className: "text-red-500" };
-    if (percentage > 120) return { emoji: "🔴", label: "High", className: "text-red-500" };
-    if (percentage >= 80 && percentage < 90) return { emoji: "⚠️", label: "Ok", className: "text-amber-500" };
-    if (percentage > 110 && percentage <= 120) return { emoji: "⚠️", label: "Ok", className: "text-amber-500" };
-    return { emoji: "✅", label: "Good", className: "text-emerald-500" };
+    if (percentage < 80) return { emoji: "⚠️", label: "Low", className: "text-red-500" };
+    if (percentage > 120) return { emoji: "⚠️", label: "High", className: "text-red-500" };
+    if (percentage >= 80 && percentage < 90) return { emoji: "•", label: "Ok", className: "text-amber-500" };
+    if (percentage > 110 && percentage <= 120) return { emoji: "•", label: "Ok", className: "text-amber-500" };
+    return { emoji: "•", label: "Good", className: "text-emerald-500" };
   };
 
   const getMacroStatus = (value: number, target: number) => {
-    if (value === 0) return { emoji: "➖", label: "No data", className: "text-gray-400" };
+    if (value === 0) return { emoji: "—", label: "No data", className: "text-gray-400" };
     const percentage = (value / target) * 100;
-    if (percentage < 80) return { emoji: "🔴", label: "Low", className: "text-red-500" };
-    if (percentage > 120) return { emoji: "🔴", label: "High", className: "text-red-500" };
-    if (percentage >= 80 && percentage < 90) return { emoji: "⚠️", label: "Ok", className: "text-amber-500" };
-    if (percentage > 110 && percentage <= 120) return { emoji: "⚠️", label: "Ok", className: "text-amber-500" };
-    return { emoji: "✅", label: "Good", className: "text-emerald-500" };
+    if (percentage < 80) return { emoji: "⚠️", label: "Low", className: "text-red-500" };
+    if (percentage > 120) return { emoji: "⚠️", label: "High", className: "text-red-500" };
+    if (percentage >= 80 && percentage < 90) return { emoji: "•", label: "Ok", className: "text-amber-500" };
+    if (percentage > 110 && percentage <= 120) return { emoji: "•", label: "Ok", className: "text-amber-500" };
+    return { emoji: "•", label: "Good", className: "text-emerald-500" };
   };
 
   const sortedData = [...data].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
