@@ -32,28 +32,28 @@ export const MacroProgressBar: React.FC<MacroProgressBarProps> = ({
     switch (label) {
       case "Calories":
         return {
-          title: "Calories",
-          description: "Calories are units of energy. Your body needs calories to function properly. Tracking calories helps you maintain, gain, or lose weight depending on your fitness goals. For weight loss, consume fewer calories than you burn. For maintenance, balance intake with output. For muscle gain, consume slightly more than you need."
+          title: "Calories: The Science",
+          description: "Calories are energy units that fuel all bodily functions. Research shows that energy balance (calories in vs. calories out) is the fundamental principle governing weight management. Your Basal Metabolic Rate (BMR) accounts for 60-70% of daily calorie expenditure, with physical activity and food digestion making up the rest. For athletes, proper caloric intake supports muscle recovery, training adaptation, and performance optimization."
         };
       case "Protein":
         return {
-          title: "Protein",
-          description: "Proteins are essential nutrients made of amino acids. They are the building blocks of muscle tissue and vital for recovery after exercise. Aim for 1.6-2.2g per kg of body weight if you're active. Good sources include lean meats, eggs, dairy, legumes, and plant-based protein sources."
+          title: "Protein: The Science",
+          description: "Proteins are chains of amino acids essential for muscle repair and growth. Scientific studies show that active individuals need 1.6-2.2g per kg of bodyweight for optimal recovery and adaptation. Protein has the highest thermic effect of food (TEF), meaning your body burns more calories digesting protein (20-30% of calories consumed) compared to carbs (5-10%) or fats (0-3%). Research indicates protein consumption helps preserve lean muscle mass during weight loss and improves satiety, reducing overall calorie intake."
         };
       case "Carbs":
         return {
-          title: "Carbohydrates",
-          description: "Carbs are your body's primary energy source, especially for high-intensity exercise. They fuel your brain, muscles, and other organs. Focus on complex carbs like whole grains, fruits, and vegetables for sustained energy. Time carb intake around workouts for optimal performance."
+          title: "Carbohydrates: The Science",
+          description: "Carbohydrates are your body's preferred energy source, particularly for high-intensity exercise. Glucose derived from carbs is the primary fuel for your brain and central nervous system. Studies show that strategic carb intake around workouts improves performance by up to 2-3% and enhances recovery by replenishing muscle glycogen stores. For athletes, periodizing carbohydrate intake based on training demands (carb cycling) can optimize both performance and body composition goals simultaneously."
         };
       case "Fat":
         return {
-          title: "Fat",
-          description: "Dietary fats are essential for hormone production, nutrient absorption, and cell health. They provide more than twice the energy per gram compared to carbs and protein. Prioritize unsaturated fats from sources like avocados, nuts, seeds, and olive oil. Limit saturated and trans fats for better heart health."
+          title: "Fat: The Science",
+          description: "Dietary fats are crucial for hormone synthesis (including testosterone and estrogen), cell membrane integrity, and fat-soluble vitamin absorption (A, D, E, K). Research shows omega-3 fatty acids reduce inflammation and improve recovery, while monounsaturated fats support heart health. Fat provides 9 calories per gram (vs. 4 for protein/carbs), making it energy-dense but satiating. Studies indicate that athletes consuming adequate healthy fats maintain better hormonal profiles and performance compared to those on very low-fat diets."
         };
       default:
         return {
-          title: label,
-          description: "This nutrient is important to track for optimal health and performance. Consult a nutrition professional for personalized advice."
+          title: label + ": The Science",
+          description: "This nutrient plays a critical role in optimal physiological function. Scientific research demonstrates its importance for athletic performance, recovery, and overall health. Tracking this nutrient helps ensure you're meeting your body's specific requirements for optimal results."
         };
     }
   };
