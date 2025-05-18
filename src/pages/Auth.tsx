@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -11,6 +10,7 @@ import { toast } from "sonner";
 import { AuthLoading } from "@/components/auth/AuthLoading";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { triggerSuccessConfetti, triggerSignUpConfetti } from "@/utils/confetti";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -20,6 +20,7 @@ const Auth = () => {
   const [authView, setAuthView] = useState<"sign_in" | "sign_up" | "forgotten_password">("sign_in");
   const [email, setEmail] = useState<string>("");
   const [resetLoading, setResetLoading] = useState(false);
+  
   useEffect(() => {
     // Check if we have an initialView in the location state
     const initialView = location.state?.initialView;
@@ -43,11 +44,21 @@ const Auth = () => {
         subscription
       }
     } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
-      setSession(session);
+      console.log("Auth state changed:", event);
+      
       if (event === "SIGNED_IN") {
+        setSession(session);
+        // Trigger confetti animation for sign-ins
+        triggerSuccessConfetti();
         navigate("/dashboard");
-      }
+      } else if (event === "SIGNED_UP") {
+        // Trigger the more elaborate confetti for new sign-ups
+        triggerSignUpConfetti();
+      } else if (event === "SIGNED_OUT") {
+        setSession(null);
+      } 
     });
+    
     return () => subscription.unsubscribe();
   }, [navigate, location.state]);
 
@@ -57,6 +68,7 @@ const Auth = () => {
       navigate("/dashboard");
     }
   }, [session, navigate]);
+  
   const toggleAuthView = () => {
     setAuthView(authView === "sign_in" ? "sign_up" : "sign_in");
   };
@@ -168,42 +180,48 @@ const Auth = () => {
             </p>
           </div>
 
-          <SupabaseAuth supabaseClient={supabase} appearance={{
-          theme: ThemeSupa,
-          style: {
-            button: {
-              background: 'linear-gradient(to right, #D946EF, #8B5CF6)',
-              border: 'none',
-              color: 'white',
-              fontWeight: 600  // Changed from 500 to 600 to make it semi-bold
-            },
-            anchor: {
-              color: '#D946EF',
-              fontWeight: 600
-            },
-            message: {
-              fontWeight: 500
-            }
-          },
-          // Fix the type issue by using the correct object structure for ThemeSupa
-          variables: {
-            default: {
-              colors: {
-                brand: '#8B5CF6',
-                brandAccent: '#D946EF'
+          <SupabaseAuth 
+            supabaseClient={supabase} 
+            appearance={{
+              theme: ThemeSupa,
+              style: {
+                button: {
+                  background: 'linear-gradient(to right, #D946EF, #8B5CF6)',
+                  border: 'none',
+                  color: 'white',
+                  fontWeight: 600  // Changed from 500 to 600 to make it semi-bold
+                },
+                anchor: {
+                  color: '#D946EF',
+                  fontWeight: 600
+                },
+                message: {
+                  fontWeight: 500
+                }
+              },
+              // Fix the type issue by using the correct object structure for ThemeSupa
+              variables: {
+                default: {
+                  colors: {
+                    brand: '#8B5CF6',
+                    brandAccent: '#D946EF'
+                  }
+                }
               }
-            }
-          }
-        }} providers={[]} redirectTo={`${window.location.origin}/auth/callback`} view={authView} showLinks={false} // Hide the default links
-        magicLink={false} 
-        localization={{
-          variables: {
-            sign_up: {
-              button_label: 'Create Free Account'
-            }
-          }
-        }}
-        />
+            }} 
+            providers={[]} 
+            redirectTo={`${window.location.origin}/auth/callback`} 
+            view={authView} 
+            showLinks={false}
+            magicLink={false} 
+            localization={{
+              variables: {
+                sign_up: {
+                  button_label: 'Create Free Account'
+                }
+              }
+            }}
+          />
 
           {/* Custom link handler that properly toggles between sign-in and sign-up views */}
           <div className="mt-4 text-center">
