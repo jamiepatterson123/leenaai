@@ -192,3 +192,49 @@ export const trackSubscriptionCancelledServerSide = async (
     { subscription_id: subscriptionId }
   );
 };
+
+// Track one-time offer view server-side
+export const trackOneTimeOfferViewServerSide = async (
+  pixelId: string,
+  accessToken: string,
+  email: string
+) => {
+  logCAPIEvent('OneTimeOfferView', { email });
+  
+  return sendEvent(
+    pixelId,
+    accessToken,
+    'ViewContent',
+    { email },
+    { 
+      content_name: 'yearly_offer',
+      content_type: 'product'
+    }
+  );
+};
+
+// Track one-time offer purchase server-side
+export const trackOneTimeOfferPurchaseServerSide = async (
+  pixelId: string,
+  accessToken: string,
+  email: string,
+  value: number,
+  currency: string = 'USD',
+  subscriptionId?: string
+) => {
+  logCAPIEvent('OneTimeOfferPurchase', { email, value, currency, subscriptionId });
+  
+  return sendEvent(
+    pixelId,
+    accessToken,
+    'Purchase',
+    { email },
+    { 
+      value,
+      currency,
+      content_name: 'yearly_offer',
+      content_type: 'product',
+      ...(subscriptionId && { subscription_id: subscriptionId })
+    }
+  );
+};
