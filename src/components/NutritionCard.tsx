@@ -4,16 +4,10 @@ import { Card } from "@/components/ui/card";
 import { TotalNutrition } from "./nutrition/TotalNutrition";
 import { FoodList } from "./nutrition/FoodList";
 import { useNutritionTargets } from "./nutrition/useNutritionTargets";
-import { ChevronLeft, ChevronRight, Info } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format, addDays, subDays } from "date-fns";
 import { MacroProgressBar } from "./MacroProgressBar";
 import { useNavigate } from "react-router-dom";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface NutritionInfo {
   calories: number;
@@ -85,89 +79,24 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
       <div className="space-y-4 md:space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <ChevronLeft 
-                    className="w-6 h-6 text-[#D946EF] cursor-pointer hover:text-[#8B5CF6]" 
-                    onClick={() => handleDateChange('prev')}
-                  />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-sm">Previous day</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <h2 className="text-xl md:text-2xl font-bold cursor-pointer">
-                    {format(selectedDate, "MMMM d, yyyy")}
-                  </h2>
-                </TooltipTrigger>
-                <TooltipContent className="w-60 p-2">
-                  <p className="text-sm">This is your food diary for the selected date. Navigate between days using the arrows.</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <ChevronRight 
-                    className="w-6 h-6 text-[#D946EF] cursor-pointer hover:text-[#8B5CF6]" 
-                    onClick={() => handleDateChange('next')}
-                  />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-sm">Next day</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <ChevronLeft 
+              className="w-6 h-6 text-[#D946EF] cursor-pointer hover:text-[#8B5CF6]" 
+              onClick={() => handleDateChange('prev')}
+            />
+            <h2 className="text-xl md:text-2xl font-bold">
+              {format(selectedDate, "MMMM d, yyyy")}
+            </h2>
+            <ChevronRight 
+              className="w-6 h-6 text-[#D946EF] cursor-pointer hover:text-[#8B5CF6]" 
+              onClick={() => handleDateChange('next')}
+            />
           </div>
-          
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="text-sm text-muted-foreground cursor-pointer">
-                  {format(selectedDate, "EEEE - 'Default Macronutrient Targets'")}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent className="w-80 p-2">
-                <div className="space-y-2">
-                  <p className="text-sm">
-                    These are your default nutritional targets based on your profile settings.
-                    You can adjust your targets in the Profile section to match your specific goals.
-                  </p>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <span className="text-sm text-muted-foreground">
+            {format(selectedDate, "EEEE - 'Default Macronutrient Targets'")}
+          </span>
         </div>
 
         <div className="space-y-4 md:space-y-6">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center gap-1 cursor-pointer">
-                  <h3 className="text-md font-semibold">Daily Progress</h3>
-                  <Info className="w-4 h-4 text-muted-foreground" />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent className="w-80 p-4">
-                <div className="space-y-2">
-                  <h4 className="font-semibold">About Your Daily Progress</h4>
-                  <p className="text-sm">
-                    These progress bars show how close you are to reaching your daily nutrition targets. 
-                    Tap on each nutrient name or value for more detailed information about its importance 
-                    and how it's calculated.
-                  </p>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          
           {macros.map((macro) => (
             <MacroProgressBar
               key={macro.name}
