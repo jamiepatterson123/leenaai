@@ -2,7 +2,8 @@
 import React from "react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowRight, CreditCard, Star } from "lucide-react";
+import { Loader2, ArrowRight, CreditCard, Star, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 
 export const SubscriptionBadge: React.FC = () => {
   const { 
@@ -12,8 +13,15 @@ export const SubscriptionBadge: React.FC = () => {
     dailyLimitReached,
     isWithinFirst24Hours,
     hoursUntilNextUse,
-    redirectToCustomerPortal
+    redirectToCustomerPortal,
+    checkSubscription
   } = useSubscription();
+
+  const handleRefresh = async () => {
+    toast.info("Checking subscription status...");
+    await checkSubscription();
+    toast.success("Subscription status refreshed");
+  };
 
   if (isLoading) {
     return (
@@ -39,6 +47,15 @@ export const SubscriptionBadge: React.FC = () => {
         >
           <CreditCard className="h-3 w-3 mr-2" />
           Manage Subscription
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-xs h-8"
+          onClick={handleRefresh}
+        >
+          <RefreshCw className="h-3 w-3 mr-1" />
+          Refresh Status
         </Button>
       </div>
     );
@@ -68,6 +85,15 @@ export const SubscriptionBadge: React.FC = () => {
       >
         <ArrowRight className="h-3 w-3 mr-1" />
         Upgrade for unlimited photo logging
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="text-xs h-8"
+        onClick={handleRefresh}
+      >
+        <RefreshCw className="h-3 w-3 mr-1" />
+        Refresh Status
       </Button>
     </div>
   );
