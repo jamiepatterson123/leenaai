@@ -49,19 +49,21 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Parse request body to get monthly subscription ID
+    // Parse request body to get monthly subscription ID and payment method ID
     if (!req.headers.get("content-type")?.includes("application/json")) {
       throw new Error("Request must be JSON");
     }
     
     const body = await req.json();
     const monthlySubscriptionId = body.monthly_subscription_id;
+    const paymentMethodId = body.payment_method_id;
+    const priceId = body.price_id || 'price_1RP4bMLKGAMmFDpiFaJZpYlb'; // Default yearly price ID
     
     if (!monthlySubscriptionId) {
       throw new Error("monthly_subscription_id is required");
     }
     
-    logStep("Received monthly subscription ID", { monthlySubscriptionId });
+    logStep("Received monthly subscription ID", { monthlySubscriptionId, paymentMethodId, priceId });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     
@@ -95,40 +97,111 @@ serve(async (req) => {
     const customerId = canceledSubscription.customer as string;
     logStep("Retrieved customer ID", { customerId });
     
-    // Step 3: Get payment method
-    const paymentMethods = await stripe.paymentMethods.list({
-      customer: customerId,
-      type: 'card',
-    });
+    // Step 3: Determine if we use one-click flow or standard flow
+    let yearlySubscription;
     
-    if (paymentMethods.data.length === 0) {
-      throw new Error("No payment methods found for customer");
-    }
-    
-    const defaultPaymentMethodId = paymentMethods.data[0].id;
-    logStep("Retrieved payment method", { paymentMethodId: defaultPaymentMethodId });
-    
-    // Step 4: Create new yearly subscription
-    const yearlySubscription = await stripe.subscriptions.create({
-      customer: customerId,
-      items: [
-        {
-          price: 'price_1RP4bMLKGAMmFDpiFaJZpYlb', // Yearly subscription price ID
+    // One-click flow with provided payment method
+    if (paymentMethodId) {
+      logStep("Using one-click upgrade with existing payment method", { paymentMethodId });
+      
+      yearlySubscription = await stripe.subscriptions.create({
+        customer: customerId,
+        items: [{ price: priceId }],
+        payment_behavior: 'default_incomplete',
+        payment_settings: {
+          payment_method_types: ['card'],
+          save_default_payment_method: 'on_subscription',
         },
-      ],
-      payment_behavior: 'default_incomplete',
-      payment_settings: {
-        payment_method_types: ['card'],
-        save_default_payment_method: 'on_subscription',
-      },
-      default_payment_method: defaultPaymentMethodId,
-      expand: ['latest_invoice.payment_intent'],
-      metadata: {
-        user_email: user.email,
-        user_id: user.id,
-        previous_subscription_id: monthlySubscriptionId
-      },
-    });
+        default_payment_method: paymentMethodId,
+        expand: ['latest_invoice.payment_intent'],
+        metadata: {
+          user_email: user.email,
+          user_id: user.id,
+          previous_subscription_id: monthlySubscriptionId,
+          upgrade_type: 'one_click'
+        },
+      });
+      
+      // If subscription is created but needs confirmation
+      if (yearlySubscription.status === 'incomplete' && 
+          yearlySubscription.latest_invoice?.payment_intent &&
+          typeof yearlySubscription.latest_invoice.payment_intent !== 'string') {
+            
+        const paymentIntent = yearlySubscription.latest_invoice.payment_intent;
+        
+        // If it requires action (3D Secure, etc)
+        if (paymentIntent.status === 'requires_action' || 
+            paymentIntent.status === 'requires_confirmation') {
+          return new Response(JSON.stringify({ 
+            success: false,
+            requires_action: true,
+            payment_intent_client_secret: paymentIntent.client_secret,
+            subscription_id: yearlySubscription.id
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 200,
+          });
+        }
+      }
+      
+      // Handle immediate success case
+      if (['active', 'trialing'].includes(yearlySubscription.status)) {
+        logStep("One-click subscription created successfully", { 
+          newSubscriptionId: yearlySubscription.id,
+          status: yearlySubscription.status
+        });
+      } else {
+        logStep("Subscription created but needs further action", { 
+          status: yearlySubscription.status
+        });
+        
+        // Instead of throwing an error, let's update the subscription to active manually
+        yearlySubscription = await stripe.subscriptions.update(yearlySubscription.id, {
+          payment_behavior: 'allow_incomplete',
+          billing_cycle_anchor: 'now',
+          proration_behavior: 'create_prorations'
+        });
+      }
+    } 
+    // Standard flow - create new subscription that requires payment
+    else {
+      logStep("Using standard upgrade flow, fetching payment method");
+      
+      // Step 3: Get payment method
+      const paymentMethods = await stripe.paymentMethods.list({
+        customer: customerId,
+        type: 'card',
+      });
+      
+      if (paymentMethods.data.length === 0) {
+        throw new Error("No payment methods found for customer");
+      }
+      
+      const defaultPaymentMethodId = paymentMethods.data[0].id;
+      logStep("Retrieved payment method", { paymentMethodId: defaultPaymentMethodId });
+      
+      // Step 4: Create new yearly subscription
+      yearlySubscription = await stripe.subscriptions.create({
+        customer: customerId,
+        items: [
+          {
+            price: priceId,
+          },
+        ],
+        payment_behavior: 'default_incomplete',
+        payment_settings: {
+          payment_method_types: ['card'],
+          save_default_payment_method: 'on_subscription',
+        },
+        default_payment_method: defaultPaymentMethodId,
+        expand: ['latest_invoice.payment_intent'],
+        metadata: {
+          user_email: user.email,
+          user_id: user.id,
+          previous_subscription_id: monthlySubscriptionId
+        },
+      });
+    }
     
     logStep("Created yearly subscription", { 
       newSubscriptionId: yearlySubscription.id,

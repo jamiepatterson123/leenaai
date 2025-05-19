@@ -20,6 +20,8 @@ const OneTimeOffer = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [monthlySubscriptionId, setMonthlySubscriptionId] = useState<string | null>(null);
+  const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
+
   useEffect(() => {
     // Check authentication status
     supabase.auth.getSession().then(({
@@ -36,6 +38,8 @@ const OneTimeOffer = () => {
         const subscriptionId = urlParams.get('subscription_id');
         if (subscriptionId) {
           setMonthlySubscriptionId(subscriptionId);
+          // Try to fetch the payment method for one-click upsell
+          getCustomerPaymentMethod();
         }
       }
     });
@@ -54,6 +58,7 @@ const OneTimeOffer = () => {
       console.log("Preview mode is disabled or not from successful checkout");
     }
   }, []);
+
   useEffect(() => {
     // Set up the countdown timer
     const timer = setInterval(() => {
@@ -70,6 +75,33 @@ const OneTimeOffer = () => {
     return () => clearInterval(timer);
   }, []);
 
+  // Get customer's payment method for one-click checkout
+  const getCustomerPaymentMethod = async () => {
+    if (!isLoggedIn || !monthlySubscriptionId) return;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("get-payment-method", {
+        body: {
+          subscription_id: monthlySubscriptionId,
+          price_id: "price_1RQ96fLKGAMmFDpioHD4GoVM",  // Monthly price ID
+          product_id: "prod_SJh1rOEwP0uxpa"            // Product ID
+        }
+      });
+      
+      if (error) {
+        console.error("Error fetching payment method:", error);
+        return;
+      }
+      
+      if (data?.payment_method_id) {
+        setPaymentMethodId(data.payment_method_id);
+        console.log("Retrieved payment method for one-click upsell:", data.payment_method_id);
+      }
+    } catch (err) {
+      console.error("Exception getting payment method:", err);
+    }
+  };
+
   // Format the time remaining as MM:SS
   const formatTime = seconds => {
     const minutes = Math.floor(seconds / 60);
@@ -84,29 +116,57 @@ const OneTimeOffer = () => {
       navigate("/auth");
       return;
     }
-    if (!monthlySubscriptionId) {
-      // If we don't have a monthly subscription ID, fall back to the regular checkout
-      redirectToYearlyCheckout();
-      return;
-    }
+    
     setIsProcessing(true);
+    
     try {
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke("upgrade-to-yearly", {
-        body: {
-          monthly_subscription_id: monthlySubscriptionId
+      // If we have payment method and subscription ID, use one-click upgrade
+      if (monthlySubscriptionId && paymentMethodId) {
+        console.log("Using one-click upgrade flow with existing payment method");
+        const { data, error } = await supabase.functions.invoke("upgrade-to-yearly", {
+          body: {
+            monthly_subscription_id: monthlySubscriptionId,
+            payment_method_id: paymentMethodId,
+            price_id: "price_1RP4bMLKGAMmFDpiFaJZpYlb" // Yearly subscription price ID
+          }
+        });
+        
+        if (error) {
+          throw new Error(error.message);
         }
-      });
-      if (error) {
-        throw new Error(error.message);
+        
+        if (data.success) {
+          toast.success("Successfully upgraded to yearly plan!");
+          navigate("/dashboard?yearly_upgraded=true");
+        } else {
+          throw new Error("Failed to upgrade subscription");
+        }
+      } 
+      // Fallback to regular checkout if we don't have payment info
+      else if (!monthlySubscriptionId) {
+        // If we don't have a monthly subscription ID, fall back to the regular checkout
+        redirectToYearlyCheckout();
+        return;
       }
-      if (data.success) {
-        toast.success("Successfully upgraded to yearly plan!");
-        navigate("/dashboard?yearly_upgraded=true");
-      } else {
-        throw new Error("Failed to upgrade subscription");
+      // Use regular upgrade flow
+      else {
+        console.log("Using standard upgrade flow");
+        const { data, error } = await supabase.functions.invoke("upgrade-to-yearly", {
+          body: {
+            monthly_subscription_id: monthlySubscriptionId
+          }
+        });
+        
+        if (error) {
+          throw new Error(error.message);
+        }
+        
+        if (data.success) {
+          toast.success("Successfully upgraded to yearly plan!");
+          navigate("/dashboard?yearly_upgraded=true");
+        } else {
+          throw new Error("Failed to upgrade subscription");
+        }
       }
     } catch (error) {
       console.error("Error upgrading subscription:", error);
@@ -127,6 +187,7 @@ const OneTimeOffer = () => {
       navigate("/");
     }
   };
+  
   return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
@@ -242,7 +303,7 @@ const OneTimeOffer = () => {
             >
               {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <div className="flex flex-col items-center">
                   <span className="text-xl font-bold">
-                    {isProcessing ? "Processing..." : "Get 2 months free today"}
+                    {paymentMethodId ? "1-Click Upgrade" : "Get 2 months free today"}
                   </span>
                   <span className="text-xs font-medium">
                     {isProcessing ? "Please wait" : "Only $8.25/month billed annually"}
