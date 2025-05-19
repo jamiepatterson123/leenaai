@@ -8,7 +8,6 @@ import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { GlowEffect } from "@/components/ui/glow-effect";
-
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -191,7 +190,7 @@ const OneTimeOffer = () => {
                 <div className="border-2 border-[#D946EF] border-r-[#8B5CF6] border-b-[#8B5CF6] rounded-lg p-6 bg-white">
                   <h3 className="font-semibold text-lg mb-4">Annual Plan (Best Value)</h3>
                   <div className="text-3xl font-bold mb-2">$99<span className="text-base font-normal text-muted-foreground">/year</span></div>
-                  <p className="text-muted-foreground mb-6">Or just $8.25 per month equivalent</p>
+                  <p className="text-muted-foreground mb-6">Or just $0.27 per day equivalent</p>
                   <ul className="space-y-2">
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 mt-0.5" /> 
