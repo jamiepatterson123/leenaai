@@ -8,7 +8,6 @@ import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { GlowEffect } from "@/components/ui/glow-effect";
-
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,7 +20,6 @@ const OneTimeOffer = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [monthlySubscriptionId, setMonthlySubscriptionId] = useState<string | null>(null);
   const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
-
   useEffect(() => {
     // Check authentication status
     supabase.auth.getSession().then(({
@@ -58,7 +56,6 @@ const OneTimeOffer = () => {
       console.log("Preview mode is disabled or not from successful checkout");
     }
   }, []);
-
   useEffect(() => {
     // Set up the countdown timer
     const timer = setInterval(() => {
@@ -78,21 +75,22 @@ const OneTimeOffer = () => {
   // Get customer's payment method for one-click checkout
   const getCustomerPaymentMethod = async () => {
     if (!isLoggedIn || !monthlySubscriptionId) return;
-    
     try {
-      const { data, error } = await supabase.functions.invoke("get-payment-method", {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke("get-payment-method", {
         body: {
           subscription_id: monthlySubscriptionId,
-          price_id: "price_1RQ96fLKGAMmFDpioHD4GoVM",  // Monthly price ID
-          product_id: "prod_SJh1rOEwP0uxpa"            // Product ID
+          price_id: "price_1RQ96fLKGAMmFDpioHD4GoVM",
+          // Monthly price ID
+          product_id: "prod_SJh1rOEwP0uxpa" // Product ID
         }
       });
-      
       if (error) {
         console.error("Error fetching payment method:", error);
         return;
       }
-      
       if (data?.payment_method_id) {
         setPaymentMethodId(data.payment_method_id);
         console.log("Retrieved payment method for one-click upsell:", data.payment_method_id);
@@ -116,32 +114,31 @@ const OneTimeOffer = () => {
       navigate("/auth");
       return;
     }
-    
     setIsProcessing(true);
-    
     try {
       // If we have payment method and subscription ID, use one-click upgrade
       if (monthlySubscriptionId && paymentMethodId) {
         console.log("Using one-click upgrade flow with existing payment method");
-        const { data, error } = await supabase.functions.invoke("upgrade-to-yearly", {
+        const {
+          data,
+          error
+        } = await supabase.functions.invoke("upgrade-to-yearly", {
           body: {
             monthly_subscription_id: monthlySubscriptionId,
             payment_method_id: paymentMethodId,
             price_id: "price_1RP4bMLKGAMmFDpiFaJZpYlb" // Yearly subscription price ID
           }
         });
-        
         if (error) {
           throw new Error(error.message);
         }
-        
         if (data.success) {
           toast.success("Successfully upgraded to yearly plan!");
           navigate("/dashboard?yearly_upgraded=true");
         } else {
           throw new Error("Failed to upgrade subscription");
         }
-      } 
+      }
       // Fallback to regular checkout if we don't have payment info
       else if (!monthlySubscriptionId) {
         // If we don't have a monthly subscription ID, fall back to the regular checkout
@@ -151,16 +148,17 @@ const OneTimeOffer = () => {
       // Use regular upgrade flow
       else {
         console.log("Using standard upgrade flow");
-        const { data, error } = await supabase.functions.invoke("upgrade-to-yearly", {
+        const {
+          data,
+          error
+        } = await supabase.functions.invoke("upgrade-to-yearly", {
           body: {
             monthly_subscription_id: monthlySubscriptionId
           }
         });
-        
         if (error) {
           throw new Error(error.message);
         }
-        
         if (data.success) {
           toast.success("Successfully upgraded to yearly plan!");
           navigate("/dashboard?yearly_upgraded=true");
@@ -187,7 +185,6 @@ const OneTimeOffer = () => {
       navigate("/");
     }
   };
-  
   return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
@@ -213,7 +210,7 @@ const OneTimeOffer = () => {
               </div>
             </div>
             <CardTitle className="text-2xl sm:text-3xl">Get Two Months Free with Annual Billing - Today Only</CardTitle>
-            <CardDescription className="text-base">This Is A One-Time Offer – Only Available On This Page. Get two months free when you upgrade to an annual membership today.</CardDescription>
+            <CardDescription className="text-base">This is a one-time offer only available on this page. Get two months free when you upgrade to an annual membership today.</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-6 md:gap-12 justify-center">
@@ -295,12 +292,7 @@ const OneTimeOffer = () => {
               <X className="mr-2 h-4 w-4" />
               No thanks, continue
             </Button>
-            <Button 
-              size="lg" 
-              className="w-full sm:w-auto order-1 sm:order-2 h-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] hover:opacity-90 sm:h-[64px] h-[128px]" 
-              onClick={handleUpgradeToYearly} 
-              disabled={isProcessing}
-            >
+            <Button size="lg" className="w-full sm:w-auto order-1 sm:order-2 h-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] hover:opacity-90 sm:h-[64px] h-[128px]" onClick={handleUpgradeToYearly} disabled={isProcessing}>
               {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <div className="flex flex-col items-center">
                   <span className="text-xl font-bold">
                     {paymentMethodId ? "1-Click Upgrade" : "Get 2 months free today"}
@@ -319,5 +311,4 @@ const OneTimeOffer = () => {
       </div>
     </div>;
 };
-
 export default OneTimeOffer;
