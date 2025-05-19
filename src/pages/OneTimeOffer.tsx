@@ -8,6 +8,7 @@ import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { GlowEffect } from "@/components/ui/glow-effect";
+
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -233,7 +234,12 @@ const OneTimeOffer = () => {
               <X className="mr-2 h-4 w-4" />
               No thanks, continue
             </Button>
-            <Button size="lg" className="w-full sm:w-auto order-1 sm:order-2 h-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] hover:opacity-90" onClick={handleUpgradeToYearly} disabled={isProcessing}>
+            <Button 
+              size="lg" 
+              className="w-full sm:w-auto order-1 sm:order-2 h-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] hover:opacity-90 sm:h-[64px] h-[128px]" 
+              onClick={handleUpgradeToYearly} 
+              disabled={isProcessing}
+            >
               {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <div className="flex flex-col items-center">
                   <span className="text-xl font-bold">
                     {isProcessing ? "Processing..." : "Get 2 months free today"}
@@ -252,4 +258,5 @@ const OneTimeOffer = () => {
       </div>
     </div>;
 };
+
 export default OneTimeOffer;
