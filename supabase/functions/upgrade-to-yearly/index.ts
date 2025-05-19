@@ -2,7 +2,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import { trackSubscriptionStartServerSide, trackSubscriptionCancelledServerSide } from "../../src/utils/metaCAPI.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,6 +13,119 @@ const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[UPGRADE-TO-YEARLY] ${step}${detailsStr}`);
 };
+
+// Meta CAPI utility functions
+async function trackSubscriptionStartServerSide(
+  pixelId: string,
+  accessToken: string,
+  email: string,
+  value: number,
+  currency: string = 'USD',
+  subscriptionId?: string,
+  plan: string = 'monthly'
+) {
+  try {
+    // Hash the email using SHA-256
+    const encoder = new TextEncoder();
+    const data = encoder.encode(email.trim().toLowerCase());
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashedEmail = Array.from(new Uint8Array(hashBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    
+    // Build the event payload
+    const eventData = {
+      data: [{
+        event_name: "Subscribe",
+        event_time: Math.floor(Date.now() / 1000),
+        action_source: 'website',
+        user_data: {
+          em: [hashedEmail],
+          client_user_agent: '',
+        },
+        custom_data: { 
+          value,
+          currency,
+          subscription_id: subscriptionId,
+          subscription_plan: plan
+        }
+      }]
+    };
+    
+    // Send the event to Meta CAPI
+    const response = await fetch(
+      `https://graph.facebook.com/v18.0/${pixelId}/events?access_token=${accessToken}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventData)
+      }
+    );
+    
+    const result = await response.json();
+    console.log('[META-CAPI] Subscribe:', { result });
+    
+    return response.ok;
+  } catch (error) {
+    console.error('Failed to send event to Meta CAPI:', error);
+    return false;
+  }
+}
+
+async function trackSubscriptionCancelledServerSide(
+  pixelId: string,
+  accessToken: string,
+  email: string,
+  subscriptionId?: string
+) {
+  try {
+    // Hash the email using SHA-256
+    const encoder = new TextEncoder();
+    const data = encoder.encode(email.trim().toLowerCase());
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashedEmail = Array.from(new Uint8Array(hashBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    
+    // Build the event payload
+    const eventData = {
+      data: [{
+        event_name: "SubscriptionCancelled",
+        event_time: Math.floor(Date.now() / 1000),
+        action_source: 'website',
+        user_data: {
+          em: [hashedEmail],
+          client_user_agent: '',
+        },
+        custom_data: {
+          subscription_id: subscriptionId
+        }
+      }]
+    };
+    
+    // Send the event to Meta CAPI
+    const response = await fetch(
+      `https://graph.facebook.com/v18.0/${pixelId}/events?access_token=${accessToken}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventData)
+      }
+    );
+    
+    const result = await response.json();
+    console.log('[META-CAPI] SubscriptionCancelled:', { result });
+    
+    return response.ok;
+  } catch (error) {
+    console.error('Failed to send event to Meta CAPI:', error);
+    return false;
+  }
+}
 
 serve(async (req) => {
   // Handle CORS preflight requests
