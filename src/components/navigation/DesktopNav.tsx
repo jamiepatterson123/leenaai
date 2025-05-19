@@ -85,7 +85,7 @@ export const DesktopNav = ({
                 onClick={() => window.location.href = "https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02"}
               >
                 <ArrowUp className="h-4 w-4" />
-                Upgrade to Premium
+                Upgrade to Unlimited
               </Button>
             )}
             <Button

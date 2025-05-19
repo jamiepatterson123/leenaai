@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
@@ -108,7 +107,7 @@ export const Navigation = () => {
                     onClick={() => window.location.href = "https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02"}
                   >
                     <ArrowUp className="h-4 w-4" />
-                    Upgrade to Premium
+                    Upgrade to Unlimited
                   </Button>
                 )}
                 <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={handleShare}>

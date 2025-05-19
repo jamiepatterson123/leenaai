@@ -30,7 +30,7 @@ export const SubscriptionBadge: React.FC = () => {
     return <div className="flex flex-col sm:flex-row items-center gap-2">
         <div className="flex items-center space-x-2 bg-gradient-to-r from-amber-200 to-yellow-400 text-amber-900 px-3 py-1 rounded-full text-xs font-medium">
           <Star className="h-3 w-3" />
-          <span>Premium</span>
+          <span>Unlimited</span>
         </div>
         <Button variant="outline" size="sm" className="text-xs h-8" onClick={redirectToCustomerPortal}>
           <CreditCard className="h-3 w-3 mr-2" />

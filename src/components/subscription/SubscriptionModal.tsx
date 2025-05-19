@@ -70,7 +70,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Lock className="h-5 w-5 text-primary" />
-            Upgrade to Leena.ai Premium
+            Upgrade to Leena.ai Unlimited
           </DialogTitle>
           <DialogDescription>
             {getFreeUsageMessage()}
@@ -82,7 +82,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
 
         <div className="py-4 space-y-6">
           <div className="bg-secondary/20 p-4 rounded-lg">
-            <h3 className="font-medium text-lg mb-4">Premium Benefits</h3>
+            <h3 className="font-medium text-lg mb-4">Unlimited Benefits</h3>
             <ul className="space-y-2">
               <li className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-green-500" /> 
