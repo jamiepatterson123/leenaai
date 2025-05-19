@@ -77,6 +77,16 @@ export const Navigation = () => {
     }, 100);
   };
   
+  // Function to directly go to Stripe checkout for the $10/month plan
+  const handleUpgradeToPremium = () => {
+    if (redirectToCheckout) {
+      redirectToCheckout();
+    } else {
+      // Direct link to Stripe as fallback
+      window.location.href = "https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02";
+    }
+  };
+  
   return (
     <div className="border-b">
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
@@ -95,7 +105,7 @@ export const Navigation = () => {
                   <Button 
                     variant="gradient" 
                     className="flex items-center justify-start gap-3" 
-                    onClick={redirectToCheckout}
+                    onClick={handleUpgradeToPremium}
                   >
                     <ArrowUp className="h-4 w-4" />
                     Upgrade to Premium
