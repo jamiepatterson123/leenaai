@@ -20,6 +20,7 @@ const Auth = () => {
   const [authView, setAuthView] = useState<"sign_in" | "sign_up" | "forgotten_password">("sign_in");
   const [email, setEmail] = useState<string>("");
   const [resetLoading, setResetLoading] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
   
   useEffect(() => {
     // Check if we have an initialView in the location state
@@ -48,18 +49,18 @@ const Auth = () => {
       
       if (event === "SIGNED_IN") {
         setSession(session);
-        // For new users, redirect to profile for completion
-        checkProfileCompletion(session?.user.id);
+        
+        // For new users, detect using app_metadata and last_sign_in_at
+        if (session?.user?.app_metadata?.provider === 'email' && !session.user.last_sign_in_at) {
+          setIsNewUser(true);
+          triggerSignUpConfetti();
+          navigate("/profile");
+        } else {
+          // For returning users, redirect to dashboard or profile
+          checkProfileCompletion(session?.user.id);
+        }
       } else if (event === "SIGNED_OUT") {
         setSession(null);
-      } 
-      
-      // Handle new user creation with special treatment
-      // Note: "USER_CREATED" is not in TypeScript definition but is emitted by Supabase
-      // We handle it as a special case
-      if (event === "USER_CREATED") {
-        triggerSignUpConfetti();
-        navigate("/profile");
       }
     });
     

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -48,8 +47,14 @@ export const useSession = () => {
               setSession(newSession);
             } else if (event === 'USER_UPDATED') {
               setSession(newSession);
-            } else if (event === 'USER_CREATED') {
-              // Handle sign up specifically - changed from SIGNED_UP to USER_CREATED
+            }
+            
+            // Handle the custom signup behavior here by checking the user metadata
+            // instead of relying on the non-standard event type
+            if (newSession?.user?.app_metadata?.provider === 'email' && 
+                event === 'SIGNED_IN' && 
+                !newSession.user.last_sign_in_at) {
+              // This appears to be a new user signing in for the first time
               setSession(newSession);
               queryClient.clear();
             }
