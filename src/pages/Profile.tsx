@@ -176,7 +176,7 @@ const Profile = () => {
                 duration={3}
               />
               <AlertDescription className="relative z-10 text-white font-bold text-center">
-                Important: Fill out your profile now to start generating your monthly custom targets, daily reminders and weekly nutrition reports (takes 1 min)
+                IMPORTANT: complete your profile to get your custom nutrition targets
               </AlertDescription>
             </Alert>
           )}
