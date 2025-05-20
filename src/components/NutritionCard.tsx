@@ -52,25 +52,25 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
       name: "Calories",
       current: totalNutrition.calories,
       target: targets.calories,
-      color: "bg-primary"
+      color: "bg-primary"  // This won't affect the appearance anymore
     },
     {
       name: "Protein",
       current: totalNutrition.protein,
       target: targets.protein,
-      color: "bg-red-500"
+      color: "bg-primary"  // Using same color for consistency
     },
     {
       name: "Carbs",
       current: totalNutrition.carbs,
       target: targets.carbs,
-      color: "bg-yellow-500"
+      color: "bg-primary"  // Using same color for consistency
     },
     {
       name: "Fat",
       current: totalNutrition.fat,
       target: targets.fat,
-      color: "bg-blue-500"
+      color: "bg-primary"  // Using same color for consistency
     },
   ];
 
