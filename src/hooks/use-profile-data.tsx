@@ -42,11 +42,14 @@ export const useProfileData = () => {
       // Calculate new targets based on profile data
       const targets = calculateTargets(data);
 
-      // Remove chart_settings from data as it doesn't exist in the database schema
+      // Create a clean copy of profile data, removing any non-database fields
       const { 
-        // Omit chart_settings or any other non-existent fields 
+        chart_settings, // Remove chart_settings as it doesn't exist in the database schema
         ...profileData 
       } = data;
+
+      // Log what we're about to save
+      console.log("Saving profile data:", profileData);
 
       // Update profile with new data and calculated targets
       const { error } = await supabase
@@ -60,7 +63,10 @@ export const useProfileData = () => {
           target_fat: targets.fat,
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
       
       // Invalidate and refetch queries to ensure data is fresh
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
