@@ -1,0 +1,98 @@
+
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { calculateTargets } from "@/utils/profileCalculations";
+import type { ProfileFormData } from "@/utils/profileCalculations";
+import { useQueryClient } from "@tanstack/react-query";
+
+export const useProfileData = () => {
+  const queryClient = useQueryClient();
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<ProfileFormData | null>(null);
+  const [profileSaved, setProfileSaved] = useState(false);
+
+  const fetchProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error) throw error;
+      setProfile(data);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      toast.error("Failed to load profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (data: ProfileFormData) => {
+    try {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      // Calculate new targets based on profile data
+      const targets = calculateTargets(data);
+
+      // Remove chart_settings from data as it doesn't exist in the database schema
+      const { 
+        // Omit chart_settings or any other non-existent fields 
+        ...profileData 
+      } = data;
+
+      // Update profile with new data and calculated targets
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({
+          user_id: user.id,
+          ...profileData,
+          target_calories: targets.calories,
+          target_protein: targets.protein,
+          target_carbs: targets.carbs,
+          target_fat: targets.fat,
+        });
+
+      if (error) throw error;
+      
+      // Invalidate and refetch queries to ensure data is fresh
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      
+      toast.success("Profile updated successfully");
+      
+      // Set the profile as saved to hide the reminder on mobile
+      setProfileSaved(true);
+      
+      // Fetch the updated profile
+      await fetchProfile();
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (data: Partial<ProfileFormData>) => {
+    if (profile) {
+      setProfile({ ...profile, ...data });
+    }
+  };
+
+  return {
+    loading,
+    profile,
+    profileSaved,
+    setProfileSaved,
+    fetchProfile,
+    handleSubmit,
+    handleChange
+  };
+};
