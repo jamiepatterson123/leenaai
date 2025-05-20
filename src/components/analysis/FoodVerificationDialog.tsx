@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -51,7 +51,7 @@ export const FoodVerificationDialog = ({
   mealName = "",
 }: FoodVerificationDialogProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("uncategorized");
-  const [customMealName, setCustomMealName] = useState<string>(mealName || "");
+  const [customMealName, setCustomMealName] = useState<string>("");
   
   const {
     editedFoods,
@@ -62,6 +62,15 @@ export const FoodVerificationDialog = ({
     handleWeightChange,
     handleDeleteFood
   } = useFoodItems(foods);
+
+  // Set the meal name from props when the dialog opens or foods change
+  useEffect(() => {
+    if (mealName) {
+      setCustomMealName(mealName);
+    } else if (foods.length > 0 && foods[0].meal_name) {
+      setCustomMealName(foods[0].meal_name);
+    }
+  }, [mealName, foods, isOpen]);
 
   const handleConfirm = () => {
     // Generate a unique meal ID to group these foods together
