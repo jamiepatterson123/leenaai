@@ -1,4 +1,3 @@
-
 import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "@/components/ui/use-toast";
@@ -181,11 +180,15 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
 
   return (
     <div className={`space-y-4 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
-      <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
+      <ImageUpload 
+        onImageSelect={handleImageSelect} 
+        resetPreview={resetUpload}
+        isAnalyzing={analyzing && !showVerification} 
+      />
       {getUsageMessage()}
 
       <LoadingOverlay 
-        isVisible={analyzing && !showVerification}
+        isVisible={analyzing && !showVerification && isMobile}
         type="image"
         title="Analyzing Your Food"
         messages={imageAnalysisMessages}
