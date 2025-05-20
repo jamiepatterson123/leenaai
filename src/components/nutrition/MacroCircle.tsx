@@ -32,6 +32,9 @@ export const MacroCircle: React.FC<MacroCircleProps> = ({
   const [open, setOpen] = React.useState(false);
   const isMobile = useIsMobile();
   const percentage = Math.min((current / target) * 100, 100);
+  const displayPercentage = Math.round((current / target) * 100);
+  const isOverTarget = current > target;
+  
   const radius = 35; // SVG circle radius
   const circumference = 2 * Math.PI * radius;
   const strokeDasharray = `${(percentage * circumference) / 100} ${circumference}`;
@@ -154,6 +157,9 @@ export const MacroCircle: React.FC<MacroCircleProps> = ({
         <span className="text-xs text-muted-foreground mt-1 whitespace-nowrap">
           {label}
         </span>
+        <span className={`text-xs ${isOverTarget ? 'text-red-500 font-medium' : 'text-muted-foreground'} mt-0.5`}>
+          {displayPercentage}%
+        </span>
 
         {/* Dialog for mobile */}
         <Dialog open={open} onOpenChange={setOpen}>
@@ -216,6 +222,9 @@ export const MacroCircle: React.FC<MacroCircleProps> = ({
       </Popover>
       <span className="text-xs text-muted-foreground mt-1 whitespace-nowrap">
         {label}
+      </span>
+      <span className={`text-xs ${isOverTarget ? 'text-red-500 font-medium' : 'text-muted-foreground'} mt-0.5`}>
+        {displayPercentage}%
       </span>
     </div>
   );
