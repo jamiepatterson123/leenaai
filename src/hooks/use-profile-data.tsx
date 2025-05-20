@@ -74,11 +74,11 @@ export const useProfileData = () => {
       }
       
       // Log weight to weight_history if it exists and is valid
-      if (cleanedData.weight_kg) {
+      if (cleanedData.weight_kg && typeof cleanedData.weight_kg === 'number') {
         // Convert weight to kg if using imperial units
         const weightInKg = cleanedData.preferred_units === 'imperial' 
-          ? cleanedData.weight_kg / 2.20462 
-          : cleanedData.weight_kg;
+          ? Number(cleanedData.weight_kg) / 2.20462 
+          : Number(cleanedData.weight_kg);
           
         const { error: weightError } = await supabase
           .from("weight_history")
