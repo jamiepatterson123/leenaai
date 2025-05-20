@@ -48,12 +48,11 @@ export const CalendarGrid = ({ days, loggedDays }: CalendarGridProps) => {
                 hover:bg-accent/50 transition-colors duration-200
               `}
             >
-              <span className="text-xs">
-                {format(date, "d")}
-              </span>
-              {isLogged && (
-                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-success text-xs">
-                  ✓
+              {isLogged ? (
+                <span className="text-success">✅</span>
+              ) : (
+                <span className="text-xs">
+                  {format(date, "d")}
                 </span>
               )}
             </button>
