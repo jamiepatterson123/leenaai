@@ -6,8 +6,8 @@ import { TooltipProps } from 'recharts';
 import { format } from 'date-fns';
 
 interface WeightTooltipContentProps extends Omit<TooltipProps<number, string>, 'content'> {
-  onDelete: (date: string, weight: number) => void;
-  onEdit: (date: string, weight: number) => void;
+  onDelete: (date: string, weight: number, id?: string) => void;
+  onEdit: (date: string, weight: number, id?: string) => void;
   preferredUnits: string;
   isMobile: boolean;
 }
@@ -29,13 +29,14 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   const time = format(new Date(data.date), 'h:mm a');
   const weight = data.weight;
   const unit = preferredUnits === 'metric' ? 'kg' : 'lbs';
+  const id = data.id; // Get ID from payload if available
 
   const handleDelete = () => {
-    onDelete(data.date, weight);
+    onDelete(data.date, weight, id);
   };
 
   const handleEdit = () => {
-    onEdit(data.date, weight);
+    onEdit(data.date, weight, id);
   };
 
   return (
@@ -47,6 +48,7 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
           <p className="font-medium text-base">{`${weight} ${unit}`}</p>
           <p className="text-sm text-muted-foreground">{date}</p>
           <p className="text-sm text-muted-foreground">{time}</p>
+          {id && <p className="text-xs text-muted-foreground opacity-50">ID: {id.substring(0, 8)}...</p>}
         </div>
         
         <div className="flex items-center justify-between gap-2 mt-2">

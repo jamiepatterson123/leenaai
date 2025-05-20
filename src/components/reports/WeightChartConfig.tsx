@@ -16,11 +16,12 @@ interface WeightChartConfigProps {
   data: Array<{
     weight: number;
     date: string;
+    id?: string;  // Add optional ID field
   }>;
   preferredUnits: string;
   isMobile: boolean;
-  onDelete: (date: string, weight: number) => void;
-  onEdit: (date: string, weight: number) => void;
+  onDelete: (date: string, weight: number, id?: string) => void;
+  onEdit: (date: string, weight: number, id?: string) => void;
 }
 
 export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({

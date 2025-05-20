@@ -7,6 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 interface WeightEntry {
   date: string;
   weight: number;
+  id?: string; // Add id field to help with direct deletion
 }
 
 export const useWeightActions = () => {
@@ -16,13 +17,13 @@ export const useWeightActions = () => {
   const [selectedEntry, setSelectedEntry] = useState<WeightEntry | null>(null);
   const [editWeight, setEditWeight] = useState<number | string>("");
 
-  const openDeleteDialog = (date: string, weight: number) => {
-    setSelectedEntry({ date, weight });
+  const openDeleteDialog = (date: string, weight: number, id?: string) => {
+    setSelectedEntry({ date, weight, id });
     setIsDeleteDialogOpen(true);
   };
 
-  const openEditDialog = (date: string, weight: number) => {
-    setSelectedEntry({ date, weight });
+  const openEditDialog = (date: string, weight: number, id?: string) => {
+    setSelectedEntry({ date, weight, id });
     setEditWeight(weight);
     setIsEditDialogOpen(true);
   };
@@ -37,13 +38,24 @@ export const useWeightActions = () => {
         return;
       }
 
-      const { error } = await supabase
-        .from("weight_history")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("recorded_at", selectedEntry.date);
-
-      if (error) throw error;
+      // If we have an ID, use it for precise deletion
+      if (selectedEntry.id) {
+        const { error } = await supabase
+          .from("weight_history")
+          .delete()
+          .eq("id", selectedEntry.id);
+          
+        if (error) throw error;
+      } else {
+        // Fallback to date-based deletion if no ID
+        const { error } = await supabase
+          .from("weight_history")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("recorded_at", selectedEntry.date);
+  
+        if (error) throw error;
+      }
 
       // Invalidate and refetch both weightHistory and profile queries
       await queryClient.invalidateQueries({ queryKey: ["weightHistory"] });
@@ -89,13 +101,18 @@ export const useWeightActions = () => {
         ? numericWeight / 2.20462 
         : numericWeight;
 
-      const { error } = await supabase
+      const updateQuery = supabase
         .from("weight_history")
-        .update({ weight_kg: weightToStore })
-        .eq("user_id", user.id)
-        .eq("recorded_at", selectedEntry.date);
-
-      if (error) throw error;
+        .update({ weight_kg: weightToStore });
+        
+      // Use ID if available for more precise updates
+      if (selectedEntry.id) {
+        await updateQuery.eq("id", selectedEntry.id);
+      } else {
+        await updateQuery
+          .eq("user_id", user.id)
+          .eq("recorded_at", selectedEntry.date);
+      }
 
       // Invalidate and refetch relevant queries
       await queryClient.invalidateQueries({ queryKey: ["weightHistory"] });

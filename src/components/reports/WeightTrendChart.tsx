@@ -19,6 +19,7 @@ interface WeightTrendChartProps {
   data: {
     weight: number | null;
     date: string;
+    id?: string;  // Add optional ID field
   }[];
 }
 
@@ -58,6 +59,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
 
   const preferredUnits = profile?.preferred_units || 'metric';
   
+  // Convert data and include ID for more reliable operations
   const convertedData = data.map(entry => ({
     ...entry,
     weight: entry.weight !== null 
@@ -65,7 +67,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
         ? Math.round(entry.weight * 2.20462 * 10) / 10
         : entry.weight
       : null
-  })).filter((entry): entry is { weight: number; date: string } => 
+  })).filter((entry): entry is { weight: number; date: string; id?: string } => 
     entry.weight !== null
   );
 
