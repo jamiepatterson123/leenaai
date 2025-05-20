@@ -66,7 +66,6 @@ serve(async (req) => {
     let firstUsageTime = null;
     let lastUsageTime = null;
     let dailyLimitReached = false;
-    let credits = 0;
 
     // Check if user is in Stripe
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
@@ -100,16 +99,58 @@ serve(async (req) => {
       usageCount = subscriberData.usage_count;
       firstUsageTime = subscriberData.first_usage_time;
       lastUsageTime = subscriberData.last_usage_time;
-      credits = subscriberData.credits || 0;
 
-      // Premium users don't have usage limits
+      const FREE_INITIAL_USES = 3; // Initial 3 free uses for new users
+      const FREE_DAILY_USES = 2;   // 2 free uses per day after initial period
+
+      // Check if this is within first 24 hours of usage
+      const now = new Date();
+      const firstTime = firstUsageTime ? new Date(firstUsageTime) : null;
+      const lastTime = lastUsageTime ? new Date(lastUsageTime) : null;
+      
+      const isWithinFirst24Hours = firstTime && 
+        (now.getTime() - firstTime.getTime() < 24 * 60 * 60 * 1000);
+      
       if (!hasSubscription) {
-        // Check if there are credits available
-        dailyLimitReached = credits <= 0;
-        logStep("Checking credits availability", { 
-          credits, 
-          dailyLimitReached 
-        });
+        if (isWithinFirst24Hours) {
+          // Within first 24 hours: limit is 3 uses
+          dailyLimitReached = usageCount >= FREE_INITIAL_USES;
+          logStep("Within first 24 hours", { 
+            usageCount,
+            dailyLimitReached,
+            firstUseLimit: FREE_INITIAL_USES
+          });
+        } else {
+          // After first 24 hours: check today's usage or time since last usage
+          if (lastTime) {
+            const hoursSinceLastUsage = (now.getTime() - lastTime.getTime()) / (60 * 60 * 1000);
+            
+            if (hoursSinceLastUsage < 24) {
+              // Check today's usage count
+              const todaysDate = new Date().toISOString().split('T')[0];
+              const { data: todaysEntries, error: countError } = await supabaseClient
+                .from("food_diary")
+                .select("id")
+                .eq("user_id", user.id)
+                .gte("created_at", `${todaysDate}T00:00:00Z`)
+                .lt("created_at", `${todaysDate}T23:59:59Z`);
+                
+              if (!countError) {
+                dailyLimitReached = todaysEntries && todaysEntries.length >= FREE_DAILY_USES;
+              }
+              
+              logStep("Checking today's usage", { 
+                todaysUsage: todaysEntries?.length || 0,
+                dailyLimitReached,
+                dailyLimit: FREE_DAILY_USES
+              });
+            } else {
+              // New day, reset daily limit
+              dailyLimitReached = false;
+              logStep("New day detected, resetting daily limit", { dailyLimitReached });
+            }
+          }
+        }
       }
     }
 
@@ -129,23 +170,21 @@ serve(async (req) => {
         usage_count: usageCount,
         first_usage_time: firstUsageTime || now,
         last_usage_time: lastUsageTime || now,
-        credits: credits,
         updated_at: now,
       }, { onConflict: "user_id" });
 
     logStep("Database updated", { 
       subscribed: hasSubscription,
-      usage_count: usageCount,
-      credits
+      usage_count: usageCount 
     });
 
-    const hasRemaining = hasSubscription || credits > 0;
+    const hasRemaining = hasSubscription || !dailyLimitReached;
 
-    // Calculate hours until next free credit
-    let hoursUntilNextCredit = 0;
+    // Calculate hours until next available use
+    let hoursUntilNextUse = 0;
     if (!hasSubscription && lastUsageTime) {
       const lastTime = new Date(lastUsageTime);
-      hoursUntilNextCredit = Math.max(0, 24 - (new Date().getTime() - lastTime.getTime()) / (60 * 60 * 1000));
+      hoursUntilNextUse = Math.max(0, 24 - (new Date().getTime() - lastTime.getTime()) / (60 * 60 * 1000));
     }
 
     return new Response(
@@ -157,8 +196,7 @@ serve(async (req) => {
         has_free_uses_remaining: hasRemaining,
         first_usage_time: firstUsageTime,
         last_usage_time: lastUsageTime,
-        hours_until_next_credit: hoursUntilNextCredit,
-        credits: credits
+        hours_until_next_use: hoursUntilNextUse
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

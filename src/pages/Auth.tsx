@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -20,7 +21,6 @@ const Auth = () => {
   const [authView, setAuthView] = useState<"sign_in" | "sign_up" | "forgotten_password">("sign_in");
   const [email, setEmail] = useState<string>("");
   const [resetLoading, setResetLoading] = useState(false);
-  const [isNewUser, setIsNewUser] = useState(false);
   
   useEffect(() => {
     // Check if we have an initialView in the location state
@@ -44,61 +44,32 @@ const Auth = () => {
       data: {
         subscription
       }
-    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+    } = supabase.auth.onAuthStateChange((event: any, session: Session | null) => {
       console.log("Auth state changed:", event);
       
       if (event === "SIGNED_IN") {
         setSession(session);
-        
-        // For new users, detect using app_metadata and last_sign_in_at
-        if (session?.user?.app_metadata?.provider === 'email' && !session.user.last_sign_in_at) {
-          setIsNewUser(true);
-          triggerSignUpConfetti();
-          navigate("/profile");
-        } else {
-          // For returning users, redirect to dashboard or profile
-          checkProfileCompletion(session?.user.id);
-        }
+        navigate("/dashboard");
       } else if (event === "SIGNED_OUT") {
         setSession(null);
+      } 
+      
+      // Handle USER_CREATED event (which is not in the TypeScript definition)
+      // but is actually emitted by Supabase
+      if (event === "USER_CREATED") {
+        triggerSignUpConfetti();
       }
     });
     
     return () => subscription.unsubscribe();
   }, [navigate, location.state]);
 
-  const checkProfileCompletion = async (userId: string | undefined) => {
-    if (!userId) return;
-    
-    try {
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("onboarding_completed")
-        .eq("user_id", userId)
-        .single();
-      
-      if (error) throw error;
-      
-      if (profile?.onboarding_completed) {
-        navigate("/dashboard");
-      } else {
-        navigate("/profile");
-        toast.info("Please complete your profile to continue", {
-          description: "We need your biometric data to calculate your nutrition targets"
-        });
-      }
-    } catch (error) {
-      console.error("Error checking profile completion:", error);
-      navigate("/profile");
-    }
-  };
-
-  // If already authenticated, redirect appropriately
+  // If already authenticated, redirect to dashboard
   useEffect(() => {
     if (session) {
-      checkProfileCompletion(session.user.id);
+      navigate("/dashboard");
     }
-  }, [session]);
+  }, [session, navigate]);
   
   const toggleAuthView = () => {
     setAuthView(authView === "sign_in" ? "sign_up" : "sign_in");

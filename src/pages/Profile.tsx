@@ -12,15 +12,14 @@ import { Info } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { GlowEffect } from "@/components/ui/glow-effect";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { StyleWrapper } from "@/components/profile/StyleWrapper";
-import { Button } from "@/components/ui/button";
 
 const Profile = () => {
   const [loading, setLoading] = useState(true);
@@ -28,8 +27,6 @@ const Profile = () => {
   const [profileSaved, setProfileSaved] = useState(false);
   const isMobile = useIsMobile();
   const location = useLocation();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   // Query to check WhatsApp preferences
   const { data: whatsappPrefs } = useQuery({
@@ -128,14 +125,6 @@ const Profile = () => {
       // Calculate new targets based on profile data
       const targets = calculateTargets(data);
 
-      // Check if all required fields are filled
-      const isCompleted = !!(data.height_cm && 
-                          data.weight_kg && 
-                          data.age && 
-                          data.gender && 
-                          data.activity_level && 
-                          data.fitness_goals);
-
       // Update profile with new data and calculated targets
       const { error } = await supabase
         .from("profiles")
@@ -146,7 +135,6 @@ const Profile = () => {
           target_protein: targets.protein,
           target_carbs: targets.carbs,
           target_fat: targets.fat,
-          onboarding_completed: isCompleted, // Now explicitly using a boolean
         });
 
       if (error) throw error;
@@ -155,21 +143,7 @@ const Profile = () => {
       // Set the profile as saved to hide the reminder on mobile
       setProfileSaved(true);
       
-      // Invalidate profile queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-      
       await fetchProfile();
-      
-      // If onboarding is complete, offer to redirect to dashboard
-      if (isCompleted) {
-        toast.success("Profile setup complete!", {
-          description: "Your nutritional targets have been calculated based on your information.",
-          action: {
-            label: "Go to Dashboard",
-            onClick: () => navigate("/dashboard")
-          }
-        });
-      }
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Failed to update profile");
@@ -179,16 +153,6 @@ const Profile = () => {
   const handleChange = (data: Partial<ProfileFormData>) => {
     if (profile) {
       setProfile({ ...profile, ...data });
-    }
-  };
-
-  const handleContinueToDashboard = () => {
-    if (!isProfileIncomplete()) {
-      navigate("/dashboard");
-    } else {
-      toast.error("Please complete your profile before continuing", {
-        description: "We need your information to calculate accurate nutrition targets."
-      });
     }
   };
 
@@ -234,36 +198,12 @@ const Profile = () => {
           <StyleWrapper>
             <PasswordChange />
           </StyleWrapper>
-          
-          <div className="pt-4">
-            <Button 
-              variant="gradient" 
-              className="w-full" 
-              onClick={handleContinueToDashboard}
-              disabled={isProfileIncomplete()}
-            >
-              Continue to Dashboard
-            </Button>
-          </div>
         </div>
       );
     }
 
     return (
       <div className="space-y-6">
-        {showReminder && (
-          <Alert className="mb-6 relative overflow-hidden">
-            <GlowEffect
-              colors={['#0894FF', '#C959DD', '#FF2E54', '#FF9004']}
-              mode="flowHorizontal"
-              blur="soft"
-              duration={3}
-            />
-            <AlertDescription className="relative z-10 text-white font-bold text-center">
-              Important: Complete your profile to gain access to the dashboard and all features
-            </AlertDescription>
-          </Alert>
-        )}
         <ProfileForm 
           onSubmit={handleSubmit} 
           onChange={handleChange}
@@ -282,17 +222,6 @@ const Profile = () => {
         <StyleWrapper>
           <PasswordChange />
         </StyleWrapper>
-        
-        <div className="pt-4">
-          <Button 
-            variant="gradient" 
-            className="w-full" 
-            onClick={handleContinueToDashboard}
-            disabled={isProfileIncomplete()}
-          >
-            Continue to Dashboard
-          </Button>
-        </div>
       </div>
     );
   };
