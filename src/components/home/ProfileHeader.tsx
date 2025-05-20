@@ -17,11 +17,13 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile }) => {
         <h1 className="text-2xl font-bold tracking-tight">
           {profile?.first_name ? `Hello, ${profile.first_name}` : "Welcome!"}
         </h1>
+        {/* Date display - currently hidden
         {!isSubscribed && (
           <p className="text-muted-foreground">
             {format(new Date(), "EEEE, MMMM d, yyyy")}
           </p>
         )}
+        */}
       </div>
       
       <SubscriptionBadge />
