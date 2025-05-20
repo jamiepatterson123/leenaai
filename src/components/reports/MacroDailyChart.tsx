@@ -94,6 +94,12 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
             data={chartData}
             margin={{ top: 20, right: 5, left: 5, bottom: 20 }}
           >
+            <defs>
+              <linearGradient id="macroGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#D946EF" />
+                <stop offset="100%" stopColor="#8B5CF6" />
+              </linearGradient>
+            </defs>
             <CartesianGrid 
               strokeDasharray="3 3" 
               vertical={false}
@@ -133,18 +139,18 @@ export const MacroDailyChart = ({ data, type }: MacroDailyChartProps) => {
             />
             <ReferenceLine
               y={average}
-              stroke={getColor()}
+              stroke="#D946EF"
               strokeDasharray="3 3"
               label={{
                 value: `Avg: ${Math.round(average)}g`,
-                fill: getColor(),
+                fill: "#D946EF",
                 fontSize: 12,
                 position: 'right',
               }}
             />
             <Bar
               dataKey="value"
-              fill={getColor()}
+              fill="url(#macroGradient)"
               radius={[4, 4, 0, 0]}
               barSize={40}
             />
