@@ -31,16 +31,22 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   const unit = preferredUnits === 'metric' ? 'kg' : 'lbs';
   const id = data.id; // Get ID from payload if available
 
-  const handleDelete = () => {
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent event from bubbling up
     onDelete(data.date, weight, id);
   };
 
-  const handleEdit = () => {
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent event from bubbling up
     onEdit(data.date, weight, id);
   };
 
   return (
-    <div className="bg-white p-4 border rounded-lg shadow-lg">
+    <div 
+      className="bg-white p-4 border rounded-lg shadow-lg" 
+      style={{ pointerEvents: 'auto', position: 'relative', zIndex: 1100 }}
+      onClick={(e) => e.stopPropagation()}
+    >
       <div className="flex flex-col gap-2">
         <h3 className="font-semibold text-base text-center">Weight Log</h3>
         
@@ -57,6 +63,7 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
             size="sm"
             onClick={handleEdit}
             className="flex-1"
+            type="button"
           >
             <Edit className="h-4 w-4 mr-1" />
             Edit
@@ -66,6 +73,7 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
             size="sm"
             onClick={handleDelete}
             className="flex-1 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+            type="button"
           >
             <Trash2 className="h-4 w-4 mr-1" />
             Delete

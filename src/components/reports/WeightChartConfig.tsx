@@ -43,17 +43,12 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
     setActivePoint(activePoint === index ? null : index);
   };
 
-  const handleMouseLeave = () => {
-    // Don't reset on mouse leave, let users explicitly close by clicking elsewhere
-  };
-
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart
         data={data}
         margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
         onClick={handleClick}
-        onMouseLeave={handleMouseLeave}
       >
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
         <XAxis
@@ -87,7 +82,13 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
             />
           )}
           trigger="click"
-          wrapperStyle={{ outline: 'none', zIndex: 1000 }}
+          wrapperStyle={{ 
+            outline: 'none', 
+            zIndex: 1000,
+            pointerEvents: 'auto' 
+          }}
+          allowEscapeViewBox={{ x: true, y: true }}
+          position={{ x: 'auto', y: 'auto' }}
         />
         <Line
           type="monotone"
