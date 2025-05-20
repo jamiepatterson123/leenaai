@@ -1,10 +1,11 @@
+
 import React, { useState } from "react";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -89,7 +90,9 @@ export const Navigation = () => {
   return (
     <div className="border-b">
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
-        <h1 className="text-slate-950 font-semibold text-xl">Leena.ai</h1>
+        <Link to="/dashboard" className="text-slate-950 font-semibold text-xl">
+          Leena.ai
+        </Link>
         
         <div className="absolute top-0 right-0 mt-4 mr-4 z-10">
           <Sheet>

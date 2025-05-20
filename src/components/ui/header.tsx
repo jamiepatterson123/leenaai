@@ -7,7 +7,7 @@ function Header1() {
     return (
         <header className="w-full z-40 fixed top-0 left-0 bg-background">
             <div className="container relative mx-auto min-h-20 flex justify-between items-center">
-                <Link to="/" className="font-semibold">
+                <Link to="/dashboard" className="font-semibold">
                     Leena.ai
                 </Link>
                 <Link to="/auth">
