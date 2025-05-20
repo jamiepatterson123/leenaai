@@ -1,5 +1,7 @@
+
 import React from "react";
 import { FoodItem } from "./FoodItem";
+import { MealSection } from "./MealSection";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 
@@ -11,6 +13,8 @@ interface CategorySectionProps {
     weight_g: number;
     category?: string;
     created_at?: string;
+    meal_name?: string;
+    meal_id?: string;
     nutrition?: {
       calories: number;
       protein: number;
@@ -37,6 +41,21 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
     return null;
   }
 
+  // Group foods by meal_id
+  const mealGroups: Record<string, typeof foods> = {};
+  const ungroupedFoods: typeof foods = [];
+
+  foods.forEach((food) => {
+    if (food.meal_id) {
+      if (!mealGroups[food.meal_id]) {
+        mealGroups[food.meal_id] = [];
+      }
+      mealGroups[food.meal_id].push(food);
+    } else {
+      ungroupedFoods.push(food);
+    }
+  });
+
   const totalCalories = foods?.reduce(
     (total, food) => total + (food.nutrition?.calories || 0),
     0
@@ -48,15 +67,36 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
         <div className="flex justify-between items-center w-full">
           <span className="font-medium">{category}</span>
           <div className="flex items-center gap-2">
-            <span className="text-sm">{totalCalories} kcal</span>
+            <span className="text-sm">{totalCalories.toFixed(0)} kcal</span>
             <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
           </div>
         </div>
       </CollapsibleTrigger>
-      <CollapsibleContent className="w-full">
-        {foods.length > 0 && (
+      <CollapsibleContent className="w-full pl-2 pr-0">
+        {/* Render meal sections */}
+        {Object.entries(mealGroups).map(([mealId, mealFoods]) => (
+          <MealSection
+            key={mealId}
+            mealId={mealId}
+            mealName={mealFoods[0]?.meal_name || "Unlabeled Meal"}
+            foods={mealFoods.map(food => ({
+              id: food.id,
+              name: food.name,
+              weight_g: food.weight_g,
+              nutrition: food.nutrition,
+              category: food.category,
+              created_at: food.created_at
+            }))}
+            onDelete={onDelete}
+            onUpdateCategory={onUpdateCategory}
+            mealCategories={mealCategories}
+          />
+        ))}
+
+        {/* Render individual food items (for backward compatibility) */}
+        {ungroupedFoods.length > 0 && (
           <div className="space-y-2 mt-2 w-full">
-            {foods?.map((food) => (
+            {ungroupedFoods.map((food) => (
               <FoodItem
                 key={food.id}
                 food={food}

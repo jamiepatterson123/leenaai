@@ -37,6 +37,7 @@ serve(async (req) => {
       try {
         if (text) {
           console.log('Processing text input:', text);
+          // First get food items
           const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -73,6 +74,32 @@ serve(async (req) => {
           console.log('Cleaned content:', cleanContent);
           const foodItems = JSON.parse(cleanContent);
 
+          // Get the meal name
+          const mealNameResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${apiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: "gpt-4o",
+              temperature: 0.3,
+              messages: [
+                {
+                  role: "system",
+                  content: "You are a culinary expert that creates descriptive and standard names for meals. Use restaurant menu naming conventions. Focus on the main dish components when naming."
+                },
+                {
+                  role: "user",
+                  content: `Based on these food items ${JSON.stringify(foodItems.map((f: any) => f.name))}, provide a proper meal name that would appear on a restaurant menu. Return ONLY the name as plain text without quotes or additional text.`
+                }
+              ],
+            }),
+          });
+
+          const mealNameCompletion = await mealNameResponse.json();
+          const mealName = mealNameCompletion.choices[0]?.message?.content.trim();
+          
           const foods = await Promise.all(foodItems.map(async (item: any) => {
             const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
               method: 'POST',
@@ -111,7 +138,10 @@ serve(async (req) => {
           }));
 
           return new Response(
-            JSON.stringify({ foods }),
+            JSON.stringify({ 
+              foods,
+              meal_name: mealName
+            }),
             { headers: corsHeaders }
           );
         }
@@ -123,6 +153,7 @@ serve(async (req) => {
             throw new Error('Invalid base64 image data');
           }
 
+          // First analyze the image for foods
           const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -189,8 +220,48 @@ serve(async (req) => {
               }
             });
 
+            // Now get the meal name
+            const mealNameResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: "gpt-4o",
+                temperature: 0.3,
+                messages: [
+                  {
+                    role: "system",
+                    content: "You are a culinary expert that creates descriptive and standard names for meals. Use restaurant menu naming conventions. Focus on the main dish components when naming."
+                  },
+                  {
+                    role: "user",
+                    content: [
+                      {
+                        type: "text",
+                        text: "Look at this meal and provide a proper name that would appear on a restaurant menu. Return ONLY the name as plain text without quotes or additional text."
+                      },
+                      {
+                        type: "image_url",
+                        image_url: {
+                          url: `data:image/jpeg;base64,${image}`
+                        }
+                      }
+                    ]
+                  }
+                ],
+              }),
+            });
+
+            const mealNameCompletion = await mealNameResponse.json();
+            const mealName = mealNameCompletion.choices[0]?.message?.content.trim();
+
             return new Response(
-              JSON.stringify({ foods: parsedContent }),
+              JSON.stringify({ 
+                foods: parsedContent,
+                meal_name: mealName
+              }),
               { headers: corsHeaders }
             );
           } catch (parseError) {

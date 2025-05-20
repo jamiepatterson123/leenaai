@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -25,6 +26,8 @@ export const saveFoodEntries = async (foods: any[], selectedDate: Date) => {
         date: formattedDate,
         state: food.state,
         category: food.category || 'uncategorized',
+        meal_name: food.meal_name || null,
+        meal_id: food.meal_id || null,
       }))
     );
 
