@@ -98,7 +98,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
             </DialogTrigger>
             <DialogContent className="max-w-xs">
               <p>Track your weight changes over time to monitor progress toward your goals.</p>
-              <p className="mt-2 text-sm text-muted-foreground">Tap on any data point to see details and delete options.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Tap on any data point to see details and manage your weight logs.</p>
             </DialogContent>
           </Dialog>
         </div>
