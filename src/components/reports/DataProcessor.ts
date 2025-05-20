@@ -3,13 +3,21 @@ import { startOfDay, eachDayOfInterval, format, parseISO } from "date-fns";
 export const processWeightData = (data: any[], startDate: Date, endDate: Date) => {
   const dateRange = eachDayOfInterval({ start: startDate, end: endDate });
   
+  // Create a map of dates to their corresponding entry
+  const dateEntryMap = new Map();
+  data.forEach(entry => {
+    const dateKey = entry.date.split('T')[0];
+    dateEntryMap.set(dateKey, entry);
+  });
+  
   return dateRange.map(date => {
     const formattedDate = format(date, 'yyyy-MM-dd');
-    const entry = data.find(d => d.date === formattedDate);
+    const entry = dateEntryMap.get(formattedDate);
     
     return {
       date: formattedDate,
-      weight: entry?.weight || null
+      weight: entry?.weight || null,
+      id: entry?.id || undefined // Include ID if available
     };
   });
 };

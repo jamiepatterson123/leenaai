@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { format } from "date-fns";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface WeightFormProps {
   onSuccess?: () => void;
@@ -19,6 +22,7 @@ export const WeightForm = ({ onSuccess }: WeightFormProps) => {
   const [weight, setWeight] = useState<string>("");
   const [unit, setUnit] = useState<"kg" | "lbs">("kg");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
 
   const convertToKg = (value: number, fromUnit: "kg" | "lbs"): number => {
     if (fromUnit === "kg") return value;
@@ -36,23 +40,51 @@ export const WeightForm = ({ onSuccess }: WeightFormProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
+      // Get the current date in YYYY-MM-DD format
+      const today = format(new Date(), 'yyyy-MM-dd');
+      
+      // Check if there's already an entry for today
+      const { data: existingEntries } = await supabase
+        .from("weight_history")
+        .select("id")
+        .eq("user_id", user.id)
+        .gte("recorded_at", `${today}T00:00:00`)
+        .lte("recorded_at", `${today}T23:59:59`);
+      
+      if (existingEntries && existingEntries.length > 0) {
+        // Update the existing entry for today
+        const { error: updateError } = await supabase
+          .from("weight_history")
+          .update({ weight_kg: weightInKg })
+          .eq("id", existingEntries[0].id);
+          
+        if (updateError) throw updateError;
+        toast.success("Weight updated for today");
+      } else {
+        // Create a new entry
+        const { error: historyError } = await supabase
+          .from("weight_history")
+          .insert({
+            user_id: user.id,
+            weight_kg: weightInKg,
+          });
+  
+        if (historyError) throw historyError;
+        toast.success("Weight added successfully");
+      }
+
+      // Update the profile record with the latest weight
       const { error: profileError } = await supabase
         .from("profiles")
         .update({ weight_kg: weightInKg })
         .eq("user_id", user.id);
 
       if (profileError) throw profileError;
-
-      const { error: historyError } = await supabase
-        .from("weight_history")
-        .insert({
-          user_id: user.id,
-          weight_kg: weightInKg,
-        });
-
-      if (historyError) throw historyError;
-
-      toast.success("Weight updated successfully");
+      
+      // Invalidate queries to refetch data
+      await queryClient.invalidateQueries({ queryKey: ["weightHistory"] });
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      
       setWeight("");
       onSuccess?.();
     } catch (error) {

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { calculateTargets } from "@/utils/profileCalculations";
 import type { ProfileFormData } from "@/utils/profileCalculations";
 import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 
 export const useProfileData = () => {
   const queryClient = useQueryClient();
@@ -79,17 +80,40 @@ export const useProfileData = () => {
         const weightInKg = cleanedData.preferred_units === 'imperial' 
           ? Number(cleanedData.weight_kg) / 2.20462 
           : Number(cleanedData.weight_kg);
-          
-        const { error: weightError } = await supabase
+        
+        // Get the current date in YYYY-MM-DD format
+        const today = format(new Date(), 'yyyy-MM-dd');
+        
+        // Check if there's already a weight entry for today
+        const { data: existingEntries } = await supabase
           .from("weight_history")
-          .insert({
-            user_id: user.id,
-            weight_kg: weightInKg,
-          });
+          .select("id")
+          .eq("user_id", user.id)
+          .gte("recorded_at", `${today}T00:00:00`)
+          .lte("recorded_at", `${today}T23:59:59`);
           
-        if (weightError) {
-          console.error("Error logging weight history:", weightError);
-          // Don't throw, just log - we don't want to fail profile update because of weight logging
+        if (existingEntries && existingEntries.length > 0) {
+          // Update existing entry
+          const { error: weightError } = await supabase
+            .from("weight_history")
+            .update({ weight_kg: weightInKg })
+            .eq("id", existingEntries[0].id);
+            
+          if (weightError) {
+            console.error("Error updating weight history:", weightError);
+          }
+        } else {
+          // Insert new entry
+          const { error: weightError } = await supabase
+            .from("weight_history")
+            .insert({
+              user_id: user.id,
+              weight_kg: weightInKg,
+            });
+            
+          if (weightError) {
+            console.error("Error logging weight history:", weightError);
+          }
         }
       }
       

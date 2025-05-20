@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TimeRange } from "./TimeRangeSelector";
-import { startOfDay, endOfDay, subDays, subWeeks, subMonths } from "date-fns";
+import { startOfDay, endOfDay, subDays, subWeeks, subMonths, parseISO, format } from "date-fns";
 
 export const useReportsData = (timeRange: TimeRange) => {
   const getDateRange = () => {
@@ -55,6 +55,7 @@ export const useReportsData = (timeRange: TimeRange) => {
   const { data: weightData, isLoading: isLoadingWeight } = useQuery({
     queryKey: ["weightHistory", timeRange],
     queryFn: async () => {
+      // Fetch all weight entries within the date range
       const { data, error } = await supabase
         .from("weight_history")
         .select("*")
@@ -63,10 +64,26 @@ export const useReportsData = (timeRange: TimeRange) => {
         .order("recorded_at", { ascending: true });
 
       if (error) throw error;
-      return data?.map(entry => ({
-        date: entry.recorded_at.split('T')[0],
-        weight: entry.weight_kg
-      })) || [];
+      
+      // Process the data to only keep the latest entry per day
+      const latestEntriesByDay = new Map();
+      
+      data?.forEach(entry => {
+        const dateKey = entry.recorded_at.split('T')[0];
+        
+        // If we don't have an entry for this day yet, or if this entry is more recent, update the map
+        if (!latestEntriesByDay.has(dateKey) || 
+            new Date(entry.recorded_at) > new Date(latestEntriesByDay.get(dateKey).recorded_at)) {
+          latestEntriesByDay.set(dateKey, entry);
+        }
+      });
+      
+      // Convert the map back to an array
+      return Array.from(latestEntriesByDay.values()).map(entry => ({
+        date: entry.recorded_at,
+        weight: entry.weight_kg,
+        id: entry.id  // Keep the ID for editing/deleting
+      }));
     },
   });
 
