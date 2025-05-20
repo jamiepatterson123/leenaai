@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Mic, Send, Loader2 } from 'lucide-react';
@@ -81,19 +80,19 @@ export const NaturalLanguageInput = ({ onSuccess, selectedDate = new Date() }: N
     }
   };
 
-  // Voice-specific loading messages
+  // Voice-specific loading messages with corrected type values
   const voiceMessages = [
-    { text: "Converting your speech to text...", type: "processing" },
-    { text: "Listening to your food description...", type: "processing" },
-    { text: "Processing audio input...", type: "processing" },
-    { text: "Identifying food items from your description...", type: "nutrition" }
+    { text: "Converting your speech to text...", type: "processing" as const },
+    { text: "Listening to your food description...", type: "processing" as const },
+    { text: "Processing audio input...", type: "processing" as const },
+    { text: "Identifying food items from your description...", type: "nutrition" as const }
   ];
 
   const textAnalysisMessages = [
-    { text: "Analyzing your food description...", type: "processing" },
-    { text: "Identifying food items...", type: "processing" },
-    { text: "Calculating nutritional information...", type: "nutrition" },
-    { text: "Preparing your food log entry...", type: "processing" }
+    { text: "Analyzing your food description...", type: "processing" as const },
+    { text: "Identifying food items...", type: "processing" as const },
+    { text: "Calculating nutritional information...", type: "nutrition" as const },
+    { text: "Preparing your food log entry...", type: "processing" as const }
   ];
 
   const processNaturalLanguageInput = async () => {

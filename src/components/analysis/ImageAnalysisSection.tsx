@@ -164,13 +164,13 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     return;
   };
 
-  // Image analysis-specific loading messages
+  // Image analysis-specific loading messages with corrected type values
   const imageAnalysisMessages = [
-    { text: "Identifying food items in your photo...", type: "processing" },
-    { text: "Calculating nutrition information...", type: "nutrition" },
-    { text: "Measuring portion sizes...", type: "processing" },
-    { text: "Counting calories in your meal...", type: "nutrition" },
-    { text: "Estimating macros: protein, carbs, and fats...", type: "nutrition" }
+    { text: "Identifying food items in your photo...", type: "processing" as const },
+    { text: "Calculating nutrition information...", type: "nutrition" as const },
+    { text: "Measuring portion sizes...", type: "processing" as const },
+    { text: "Counting calories in your meal...", type: "nutrition" as const },
+    { text: "Estimating macros: protein, carbs, and fats...", type: "nutrition" as const }
   ];
 
   return (
