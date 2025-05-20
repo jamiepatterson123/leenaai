@@ -19,7 +19,8 @@ interface WeightChartConfigProps {
   }>;
   preferredUnits: string;
   isMobile: boolean;
-  onDelete: (date: string) => Promise<void>;
+  onDelete: (date: string, weight: number) => void;
+  onEdit: (date: string, weight: number) => void;
 }
 
 export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
@@ -27,6 +28,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
   preferredUnits,
   isMobile,
   onDelete,
+  onEdit,
 }) => {
   const [activePoint, setActivePoint] = React.useState<number | null>(null);
 
@@ -78,6 +80,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
             <WeightTooltipContent
               {...props}
               onDelete={onDelete}
+              onEdit={onEdit}
               preferredUnits={preferredUnits}
               isMobile={isMobile}
             />

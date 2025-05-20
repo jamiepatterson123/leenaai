@@ -6,7 +6,8 @@ import { TooltipProps } from 'recharts';
 import { format } from 'date-fns';
 
 interface WeightTooltipContentProps extends Omit<TooltipProps<number, string>, 'content'> {
-  onDelete: (date: string) => Promise<void>;
+  onDelete: (date: string, weight: number) => void;
+  onEdit: (date: string, weight: number) => void;
   preferredUnits: string;
   isMobile: boolean;
 }
@@ -15,6 +16,7 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   active,
   payload,
   onDelete,
+  onEdit,
   preferredUnits,
   isMobile
 }) => {
@@ -28,22 +30,16 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   const weight = data.weight;
   const unit = preferredUnits === 'metric' ? 'kg' : 'lbs';
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    try {
-      await onDelete(data.date);
-    } catch (error) {
-      console.error('Error in handleDelete:', error);
-    }
+    onDelete(data.date, weight);
   };
 
   const handleEdit = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // For now, we're just implementing the UI - edit functionality will be added later
-    console.log('Edit weight entry:', data.date, weight);
+    onEdit(data.date, weight);
   };
 
   return (
