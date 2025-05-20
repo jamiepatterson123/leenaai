@@ -7,7 +7,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { WeightChartConfig } from "./WeightChartConfig";
@@ -23,7 +23,6 @@ interface WeightTrendChartProps {
 }
 
 export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
-  const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   
   const {
