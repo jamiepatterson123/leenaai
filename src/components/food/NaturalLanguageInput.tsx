@@ -9,6 +9,8 @@ import { saveFoodEntries } from '../analysis/FoodEntrySaver';
 import { triggerSuccessConfetti } from '@/utils/confetti';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAnalyzing } from '@/context/AnalyzingContext';
+
 interface NaturalLanguageInputProps {
   onSuccess?: () => void;
   selectedDate?: Date;
@@ -23,6 +25,8 @@ export const NaturalLanguageInput = ({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const isMobile = useIsMobile();
+  const { setAnalyzing } = useAnalyzing();
+  
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -107,12 +111,15 @@ export const NaturalLanguageInput = ({
     text: "Preparing your food log entry...",
     type: "processing" as const
   }];
+  
   const processNaturalLanguageInput = async () => {
     if (!inputText.trim()) {
       toast.error('Please enter what you ate');
       return;
     }
     setIsProcessing(true);
+    setAnalyzing(true); // Set global analyzing state
+    
     try {
       const {
         data: {
@@ -153,17 +160,38 @@ export const NaturalLanguageInput = ({
       toast.error('Failed to process food input');
     } finally {
       setIsProcessing(false);
+      setAnalyzing(false); // Reset global analyzing state
     }
   };
-  return <div className="w-full max-w-[95%] mx-auto md:max-w-full relative">
+
+  return (
+    <div className="w-full max-w-[95%] mx-auto md:max-w-full relative">
       <div className="flex gap-2 items-center">
-        
-        
-        
+        <Input
+          type="text"
+          placeholder="Type what you ate..."
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          className="flex-1"
+        />
+        <Button
+          onClick={processNaturalLanguageInput}
+          disabled={isProcessing || !inputText.trim()}
+        >
+          {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+        </Button>
+        <Button
+          variant="outline"
+          onClick={isRecording ? stopRecording : startRecording}
+          disabled={isProcessing}
+        >
+          <Mic className={`h-4 w-4 ${isRecording ? 'text-red-500 animate-pulse' : ''}`} />
+        </Button>
       </div>
       
       <LoadingOverlay isVisible={isRecording} title="Listening..." messages={voiceMessages} type="voice" fullScreen={isMobile} />
       
       <LoadingOverlay isVisible={isProcessing && !isRecording} title="Processing Food" messages={textAnalysisMessages} fullScreen={isMobile} />
-    </div>;
+    </div>
+  );
 };

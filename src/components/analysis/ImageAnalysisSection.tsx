@@ -1,3 +1,4 @@
+
 import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "@/components/ui/use-toast";
@@ -12,6 +13,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { SubscriptionModal } from "@/components/subscription/SubscriptionModal";
 import { triggerSuccessConfetti } from "@/utils/confetti";
 import { LoadingOverlay } from "@/components/ui/loading-overlay";
+import { useAnalyzing } from "@/context/AnalyzingContext";
 
 interface ImageAnalysisSectionProps {
   analyzing: boolean;
@@ -23,8 +25,8 @@ interface ImageAnalysisSectionProps {
 }
 
 export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>(({
-  analyzing,
-  setAnalyzing,
+  analyzing: localAnalyzing,
+  setAnalyzing: setLocalAnalyzing,
   nutritionData,
   setNutritionData,
   selectedDate,
@@ -38,6 +40,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const componentRef = React.useRef<HTMLDivElement>(null);
+  const { setAnalyzing: setGlobalAnalyzing } = useAnalyzing();
   const {
     incrementUsage,
     dailyLimitReached,
@@ -47,13 +50,18 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     hoursUntilNextUse
   } = useSubscription();
 
+  // Update global analyzing state whenever local state changes
+  useEffect(() => {
+    setGlobalAnalyzing(localAnalyzing);
+  }, [localAnalyzing, setGlobalAnalyzing]);
+
   const handleImageSelect = async (image: File) => {
     if (!image) {
       toast.error("No image selected");
       return;
     }
     console.log("handleImageSelect called with image:", image);
-    if (analyzing) {
+    if (localAnalyzing) {
       toast.error("Please wait for the current analysis to complete");
       return;
     }
@@ -80,7 +88,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
     
     // Always set analyzing to true before starting the process
-    setAnalyzing(true);
+    setLocalAnalyzing(true);
     setResetUpload(false);
     
     try {
@@ -101,7 +109,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
             variant: "destructive"
           });
           setShowSubscriptionModal(true);
-          setAnalyzing(false);
+          setLocalAnalyzing(false);
           return;
         }
         setAnalyzedFoods(result.foods);
@@ -116,7 +124,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     } finally {
       // Only set analyzing to false if verification dialog isn't showing
       if (!showVerification) {
-        setAnalyzing(false);
+        setLocalAnalyzing(false);
       }
     }
   };
@@ -179,16 +187,16 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   ];
 
   return (
-    <div className={`space-y-4 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
+    <div className={`space-y-4 ${localAnalyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
       <ImageUpload 
         onImageSelect={handleImageSelect} 
         resetPreview={resetUpload}
-        isAnalyzing={analyzing && !showVerification} 
+        isAnalyzing={localAnalyzing && !showVerification} 
       />
       {getUsageMessage()}
 
       <LoadingOverlay 
-        isVisible={analyzing && !showVerification && isMobile}
+        isVisible={localAnalyzing && !showVerification && isMobile}
         type="image"
         title="Analyzing Your Food"
         messages={imageAnalysisMessages}
