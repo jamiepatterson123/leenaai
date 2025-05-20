@@ -1,3 +1,4 @@
+
 import React from "react";
 
 interface MacroCircleProps {
@@ -14,7 +15,7 @@ export const MacroCircle: React.FC<MacroCircleProps> = ({
   current,
   target,
   unit = "g",
-  color = "bg-primary",
+  color = "stroke-primary",
   isCalories = false
 }) => {
   const percentage = Math.min((current / target) * 100, 100);
@@ -34,12 +35,19 @@ export const MacroCircle: React.FC<MacroCircleProps> = ({
             className="fill-none stroke-muted"
             strokeWidth="5"
           />
-          {/* Progress circle */}
+          {/* Progress circle with gradient */}
+          <defs>
+            <linearGradient id={`gradient-${label}`} x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#D946EF" /> {/* Vibrant Pink */}
+              <stop offset="100%" stopColor="#8B5CF6" /> {/* Vibrant Purple */}
+            </linearGradient>
+          </defs>
           <circle
             cx="40"
             cy="40"
             r={radius}
-            className={`fill-none ${color}`}
+            className="fill-none"
+            stroke={`url(#gradient-${label})`}
             strokeWidth="5"
             style={{
               strokeDasharray,

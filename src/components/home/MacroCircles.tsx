@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,7 +34,6 @@ export const MacroCircles = () => {
       label: "Calories",
       current: todaysMacros?.calories || 0,
       target: targets.calories,
-      color: "stroke-primary",
       unit: "kcal",
       isCalories: true
     },
@@ -41,21 +41,18 @@ export const MacroCircles = () => {
       label: "Protein",
       current: todaysMacros?.protein || 0,
       target: targets.protein,
-      color: "stroke-red-500",
       unit: "g"
     },
     {
       label: "Carbs",
       current: todaysMacros?.carbs || 0,
       target: targets.carbs,
-      color: "stroke-yellow-500",
       unit: "g"
     },
     {
       label: "Fat",
       current: todaysMacros?.fat || 0,
       target: targets.fat,
-      color: "stroke-blue-500",
       unit: "g"
     }
   ];
@@ -69,7 +66,6 @@ export const MacroCircles = () => {
           current={macro.current}
           target={macro.target}
           unit={macro.unit}
-          color={macro.color}
           isCalories={macro.isCalories}
         />
       ))}
