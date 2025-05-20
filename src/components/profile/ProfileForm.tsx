@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -114,6 +113,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
           register={register} 
           preferredUnits={preferredUnits}
           onUnitsChange={handleUnitsChange}
+          watch={watch}
         />
         <SelectFields
           gender={formData.gender || ""}
