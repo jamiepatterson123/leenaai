@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Dialog,
@@ -57,84 +58,18 @@ export const FoodVerificationDialog = ({
     handleDeleteFood
   } = useFoodItems(foods);
 
-  // Generate a restaurant-style meal name based on the food items
+  // Generate a suggested meal name based on the food items
   React.useEffect(() => {
     if (foods.length > 0 && !mealName) {
-      const mainItems = foods.map(food => food.name.trim()).filter(name => name.length > 0);
+      const mainItem = foods[0].name;
       
-      if (mainItems.length === 0) return;
-      
-      // Helper function to capitalize first letter of each word
-      const capitalize = (str: string) => {
-        return str.split(' ').map(word => 
-          word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-        ).join(' ');
-      };
-      
-      // Sort items to prioritize proteins and mains first
-      const proteinKeywords = ['steak', 'chicken', 'fish', 'beef', 'pork', 'tofu', 'salmon', 'tuna', 'eggs', 'egg'];
-      const mainItems1 = mainItems.filter(item => 
-        proteinKeywords.some(keyword => item.toLowerCase().includes(keyword))
-      );
-      const mainItems2 = mainItems.filter(item => 
-        !proteinKeywords.some(keyword => item.toLowerCase().includes(keyword))
-      );
-      
-      const sortedItems = [...mainItems1, ...mainItems2];
-      const primaryItem = capitalize(sortedItems[0]);
-      
-      // Generate different styles of names based on the food combination
-      if (sortedItems.length === 1) {
-        // For single items, add a descriptive prefix or cooking method if not present
-        if (primaryItem.toLowerCase().includes('steak')) {
-          setMealName(`Sizzling ${primaryItem}`);
-        } else if (primaryItem.toLowerCase().includes('bowl')) {
-          setMealName(`Gourmet ${primaryItem}`);
-        } else if (primaryItem.toLowerCase().includes('salad')) {
-          setMealName(`Fresh ${primaryItem}`);
-        } else {
-          // Check if it's likely to be a protein
-          if (proteinKeywords.some(keyword => primaryItem.toLowerCase().includes(keyword))) {
-            setMealName(`Signature ${primaryItem}`);
-          } else {
-            // For other items
-            setMealName(`Gourmet ${primaryItem}`);
-          }
-        }
-      } else if (sortedItems.length === 2) {
-        // For two items, combine them with a complementary description
-        const secondaryItem = capitalize(sortedItems[1]);
-        setMealName(`${primaryItem} with ${secondaryItem}`);
+      if (foods.length === 1) {
+        setMealName(mainItem);
+      } else if (foods.length <= 3) {
+        const foodNames = foods.map(food => food.name);
+        setMealName(`${mainItem} with ${foodNames.slice(1).join(' & ')}`);
       } else {
-        // For multiple items, focus on the main item and add a description
-        const secondaryMentions = sortedItems.slice(1, 3).map(item => capitalize(item));
-        
-        // Check for bowl-type meals
-        if (sortedItems.some(item => item.toLowerCase().includes('bowl'))) {
-          const bowlIndex = sortedItems.findIndex(item => item.toLowerCase().includes('bowl'));
-          const bowlItem = capitalize(sortedItems[bowlIndex]);
-          
-          if (bowlIndex === 0) {
-            // If bowl is the primary item, name it after the main protein
-            const protein = sortedItems.find(item => 
-              proteinKeywords.some(keyword => item.toLowerCase().includes(keyword))
-            );
-            
-            if (protein) {
-              setMealName(`${capitalize(protein)} ${bowlItem}`);
-            } else {
-              setMealName(`Signature ${bowlItem}`);
-            }
-          } else {
-            // If bowl is secondary
-            setMealName(`${primaryItem} ${bowlItem}`);
-          }
-        } else if (proteinKeywords.some(keyword => primaryItem.toLowerCase().includes(keyword))) {
-          // If primary item is a protein
-          setMealName(`${primaryItem} with ${secondaryMentions.join(' & ')}`);
-        } else {
-          setMealName(`${primaryItem} ${secondaryMentions.length > 0 ? 'Medley' : 'Plate'}`);
-        }
+        setMealName(`${mainItem} meal`);
       }
     }
   }, [foods, mealName]);

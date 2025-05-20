@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -135,14 +136,14 @@ serve(async (req) => {
               messages: [
                 {
                   role: "system",
-                  content: "You are a culinary expert and food analyst. When analyzing food images, use culinary terms and descriptions like a restaurant menu. Be specific about how the food is prepared (e.g., 'grilled steak' not just 'steak', 'roasted broccoli' not just 'broccoli'). Include descriptive cooking methods and preparations."
+                  content: "You are a JSON generator for food analysis. Output only valid JSON arrays with food items and their nutrition data. No markdown, no text, no explanations."
                 },
                 {
                   role: "user",
                   content: [
                     {
                       type: "text",
-                      text: "Return a JSON array like this example (NO OTHER TEXT OR FORMATTING): [{\"name\":\"grilled ribeye steak\",\"weight_g\":100,\"state\":\"grilled medium-rare\",\"nutrition\":{\"calories\":50,\"protein\":0.5,\"carbs\":12,\"fat\":0.2}}]. Use descriptive culinary terms for both the name and state fields."
+                      text: "Return a JSON array like this example (NO OTHER TEXT OR FORMATTING): [{\"name\":\"food name\",\"weight_g\":100,\"nutrition\":{\"calories\":50,\"protein\":0.5,\"carbs\":12,\"fat\":0.2}}]"
                     },
                     {
                       type: "image_url",
