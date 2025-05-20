@@ -28,14 +28,9 @@ export default function Index() {
     getProfile();
   }, [session]);
 
-  // Removed handlePreviewOTO function as it's no longer needed
-
   return (
     <div className="container mx-auto px-4 py-8">
       <ProfileHeader profile={profile} />
-      
-      {/* Removed the Preview OTO Page button */}
-      
       <HomeDataSection />
       {showOnboarding && <OnboardingDialog />}
     </div>

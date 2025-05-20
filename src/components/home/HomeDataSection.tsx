@@ -2,14 +2,13 @@
 import React from "react";
 import { WeightInput } from "@/components/WeightInput";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
-import { StreakCounter } from "@/components/StreakCounter";
-import { useHomeData } from "@/components/home/useHomeData";
 import { HabitTracker } from "@/components/habits/HabitTracker";
 import { MacroCircles } from "@/components/home/MacroCircles";
 import { WeightTrendChart } from "@/components/reports/WeightTrendChart";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useHomeData } from "@/components/home/useHomeData";
 
 export const HomeDataSection = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
@@ -23,10 +22,7 @@ export const HomeDataSection = () => {
 
   return (
     <div className="space-y-6">
-      {/* Streak Counter - Full Width */}
-      <div className="w-full">
-        <StreakCounter />
-      </div>
+      {/* Streak Counter removed from here */}
 
       {/* Today's Macros - Mobile Only */}
       <div className="md:hidden w-full">
