@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,9 +16,16 @@ import {
 } from "@/components/ui/tooltip";
 
 const InfoMessage = () => (
-  <p className="text-sm text-center">
-    Any day you log your food will be shaded in green. Try to make the entire calendar green by the end of the month!
-  </p>
+  <div className="text-sm space-y-3">
+    <p className="text-center font-medium">For the best results with Leena.ai, you only need to do two simple things:</p>
+    <ul className="list-disc pl-5 space-y-2">
+      <li><span className="font-medium">Weight yourself daily</span> - Every morning before eating or drinking, update your weight in the profile section</li>
+      <li><span className="font-medium">Take photos of everything you eat</span> - Including calorie-containing drinks like smoothies, protein shakes, and coffee with milk</li>
+    </ul>
+    <p className="text-center italic text-xs text-muted-foreground mt-2">
+      The calendar shows your daily logging activity — aim to make it completely green!
+    </p>
+  </div>
 );
 
 export const HabitTrackerHeader = () => {
@@ -48,7 +56,7 @@ export const HabitTrackerHeader = () => {
             <TooltipContent 
               side="bottom"
               align="center"
-              className="max-w-[250px] text-center"
+              className="max-w-[350px] p-4"
             >
               <InfoMessage />
             </TooltipContent>
