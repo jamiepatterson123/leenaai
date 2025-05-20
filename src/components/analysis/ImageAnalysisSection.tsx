@@ -1,4 +1,3 @@
-
 import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "@/components/ui/use-toast";
@@ -40,7 +39,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const componentRef = React.useRef<HTMLDivElement>(null);
-  const { setAnalyzing: setGlobalAnalyzing } = useAnalyzing();
+  const { analyzing: globalAnalyzing, setAnalyzing: setGlobalAnalyzing } = useAnalyzing();
   const {
     incrementUsage,
     dailyLimitReached,
@@ -137,7 +136,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       });
       setResetUpload(true);
       setShowVerification(false);
-      setAnalyzing(false);
+      setLocalAnalyzing(false);
       setNutritionData(null);
       
       // Trigger confetti animation when food is successfully logged
