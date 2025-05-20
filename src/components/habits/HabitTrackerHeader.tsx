@@ -23,7 +23,7 @@ const InfoMessage = () => (
       <p className="text-center">For the best results with Leena.ai, you only need to do two simple things:</p>
       <ul className="list-disc pl-5 space-y-2">
         <li>
-          <span className="font-medium">Weight yourself daily</span> - Every morning before eating or drinking, update your weight in the profile section
+          <span className="font-medium">Weigh yourself daily</span> - Every morning before eating or drinking, update your weight in the profile section
         </li>
         <li>
           <span className="font-medium">Take photos of everything you eat</span> - Including calorie-containing drinks like smoothies, protein shakes, and coffee with milk
