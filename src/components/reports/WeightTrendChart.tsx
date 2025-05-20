@@ -57,7 +57,10 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
 
       if (error) throw error;
 
+      // Invalidate and refetch both weightHistory and profile queries
       await queryClient.invalidateQueries({ queryKey: ["weightHistory"] });
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      
       toast.success("Weight entry deleted successfully");
     } catch (error) {
       console.error("Error deleting weight entry:", error);
@@ -95,6 +98,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
             </DialogTrigger>
             <DialogContent className="max-w-xs">
               <p>Track your weight changes over time to monitor progress toward your goals.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Tap on any data point to see details and delete options.</p>
             </DialogContent>
           </Dialog>
         </div>

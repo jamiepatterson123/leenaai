@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
@@ -37,17 +38,18 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-2 border rounded shadow-lg">
+    <div className="bg-white dark:bg-gray-800 p-3 border rounded-lg shadow-lg">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="font-semibold">{date}</p>
-          <p>{`${weight} ${unit}`}</p>
+          <p className="font-semibold text-base">{date}</p>
+          <p className="text-base">{`${weight} ${unit}`}</p>
         </div>
         <Button
           variant="ghost"
           size="icon"
           onClick={handleDelete}
           className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+          aria-label="Delete weight entry"
         >
           <Trash2 className="h-4 w-4" />
         </Button>

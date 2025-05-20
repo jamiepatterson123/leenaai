@@ -31,7 +31,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
   const [activePoint, setActivePoint] = React.useState<number | null>(null);
 
   const handleClick = (event: any) => {
-    if (!isMobile || !event.activePayload?.[0]?.payload) return;
+    if (!event.activePayload?.[0]?.payload) return;
     
     const index = data.findIndex(
       (item) => item.date === event.activePayload[0].payload.date
@@ -41,9 +41,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
   };
 
   const handleMouseLeave = () => {
-    if (!isMobile) {
-      setActivePoint(null);
-    }
+    // Don't reset on mouse leave, let users explicitly close by clicking elsewhere
   };
 
   return (
@@ -51,7 +49,7 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
       <LineChart
         data={data}
         margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
-        onClick={isMobile ? handleClick : undefined}
+        onClick={handleClick}
         onMouseLeave={handleMouseLeave}
       >
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
@@ -84,7 +82,8 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
               isMobile={isMobile}
             />
           )}
-          trigger={isMobile ? 'click' : 'hover'}
+          trigger="click"
+          wrapperStyle={{ outline: 'none', zIndex: 1000 }}
         />
         <Line
           type="monotone"
@@ -93,8 +92,9 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
           strokeWidth={1.5}
           dot={{ r: 3, strokeWidth: 1, fill: "#fff" }}
           activeDot={{
-            r: 4,
-            onClick: handleClick,
+            r: 5,
+            stroke: "#D946EF",
+            strokeWidth: 2,
           }}
         />
       </LineChart>
