@@ -10,6 +10,7 @@ export interface ProfileFormData {
   target_carbs?: number;
   target_fat?: number;
   preferred_units?: string;
+  chart_settings?: any; // Add this property to match what we're using in the code
 }
 
 export interface TargetCalculations {
