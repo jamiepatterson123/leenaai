@@ -18,10 +18,11 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { StyleWrapper } from "@/components/profile/StyleWrapper";
 
 const Profile = () => {
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileFormData | null>(null);
   const [profileSaved, setProfileSaved] = useState(false);
@@ -119,6 +120,7 @@ const Profile = () => {
 
   const handleSubmit = async (data: ProfileFormData) => {
     try {
+      setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
@@ -138,15 +140,22 @@ const Profile = () => {
         });
 
       if (error) throw error;
+      
+      // Invalidate and refetch queries to ensure data is fresh
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      
       toast.success("Profile updated successfully");
       
       // Set the profile as saved to hide the reminder on mobile
       setProfileSaved(true);
       
+      // Fetch the updated profile
       await fetchProfile();
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Failed to update profile");
+    } finally {
+      setLoading(false);
     }
   };
 
