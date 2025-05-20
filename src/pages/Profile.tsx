@@ -129,12 +129,12 @@ const Profile = () => {
       const targets = calculateTargets(data);
 
       // Check if all required fields are filled
-      const isCompleted = data.height_cm && 
+      const isCompleted = !!(data.height_cm && 
                           data.weight_kg && 
                           data.age && 
                           data.gender && 
                           data.activity_level && 
-                          data.fitness_goals;
+                          data.fitness_goals);
 
       // Update profile with new data and calculated targets
       const { error } = await supabase
@@ -146,7 +146,7 @@ const Profile = () => {
           target_protein: targets.protein,
           target_carbs: targets.carbs,
           target_fat: targets.fat,
-          onboarding_completed: isCompleted, // Mark onboarding as completed if all fields are filled
+          onboarding_completed: isCompleted, // Now explicitly using a boolean
         });
 
       if (error) throw error;

@@ -48,6 +48,10 @@ export const useSession = () => {
               setSession(newSession);
             } else if (event === 'USER_UPDATED') {
               setSession(newSession);
+            } else if (event === 'SIGNED_UP') {
+              // Handle sign up specifically
+              setSession(newSession);
+              queryClient.clear();
             }
           }
         );

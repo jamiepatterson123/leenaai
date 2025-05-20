@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -50,19 +49,15 @@ const Auth = () => {
       if (event === "SIGNED_IN") {
         setSession(session);
         // For new users, redirect to profile for completion
-        if (event === "USER_CREATED" || event === "SIGNED_UP") {
-          navigate("/profile");
-        } else {
-          // For existing users, check if profile is completed before redirecting
-          checkProfileCompletion(session?.user.id);
-        }
+        checkProfileCompletion(session?.user.id);
       } else if (event === "SIGNED_OUT") {
         setSession(null);
       } 
       
-      // Handle USER_CREATED event (which is not in the TypeScript definition)
-      // but is actually emitted by Supabase
-      if (event === "USER_CREATED") {
+      // Handle new user creation with special treatment
+      // Note: "USER_CREATED" is not in TypeScript definition but is emitted by Supabase
+      // We handle it as a special case
+      if (event === "SIGNED_UP") {
         triggerSignUpConfetti();
         navigate("/profile");
       }
