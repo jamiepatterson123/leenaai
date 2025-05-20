@@ -79,8 +79,11 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       setShowSubscriptionModal(true);
       return;
     }
+    
+    // Always set analyzing to true before starting the process
     setAnalyzing(true);
     setResetUpload(false);
+    
     try {
       console.log("Starting image analysis...");
       const result = await analyzeImage(image, {
@@ -112,7 +115,10 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
     } finally {
-      setAnalyzing(false);
+      // Only set analyzing to false if verification dialog isn't showing
+      if (!showVerification) {
+        setAnalyzing(false);
+      }
     }
   };
   

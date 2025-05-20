@@ -1,16 +1,18 @@
+
 import { Button } from "@/components/ui/button";
 import { Camera } from "lucide-react";
 import { useRef } from "react";
 
 interface CameraButtonProps {
   onFileSelect: (file: File) => void;
+  disabled?: boolean;
 }
 
-export const CameraButton = ({ onFileSelect }: CameraButtonProps) => {
+export const CameraButton = ({ onFileSelect, disabled = false }: CameraButtonProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCameraClick = () => {
-    if (fileInputRef.current) {
+    if (fileInputRef.current && !disabled) {
       fileInputRef.current.click();
     }
   };
@@ -19,7 +21,7 @@ export const CameraButton = ({ onFileSelect }: CameraButtonProps) => {
     const file = e.target.files?.[0];
     if (file) {
       onFileSelect(file);
-      e.target.value = '';
+      e.target.value = '';  // Reset the input to allow selecting the same file again
     }
   };
 
@@ -29,6 +31,7 @@ export const CameraButton = ({ onFileSelect }: CameraButtonProps) => {
         onClick={handleCameraClick}
         size="lg"
         className="w-full flex items-center justify-center gap-2"
+        disabled={disabled}
       >
         <Camera className="w-5 h-5" />
         Take Food Photo
@@ -40,6 +43,7 @@ export const CameraButton = ({ onFileSelect }: CameraButtonProps) => {
         accept="image/*"
         capture="environment"
         onChange={handleFileChange}
+        disabled={disabled}
       />
     </div>
   );
