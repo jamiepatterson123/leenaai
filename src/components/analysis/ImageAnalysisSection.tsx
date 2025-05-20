@@ -1,3 +1,4 @@
+
 import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "@/components/ui/use-toast";
@@ -7,11 +8,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { FoodVerificationDialog } from "./FoodVerificationDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSubscription } from "@/hooks/useSubscription";
 import { SubscriptionModal } from "@/components/subscription/SubscriptionModal";
 import { triggerSuccessConfetti } from "@/utils/confetti";
+import { LoadingOverlay } from "@/components/ui/loading-overlay";
 
 interface ImageAnalysisSectionProps {
   analyzing: boolean;
@@ -21,7 +22,7 @@ interface ImageAnalysisSectionProps {
   selectedDate: Date;
   onSuccess?: () => void;
 }
-const loadingMessages = ["Counting calories...", "Calculating carbs...", "Calculating protein...", "Calculating fats..."];
+
 export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>(({
   analyzing,
   setAnalyzing,
@@ -33,7 +34,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const [resetUpload, setResetUpload] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [analyzedFoods, setAnalyzedFoods] = useState([]);
-  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
@@ -47,17 +47,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     isWithinFirst24Hours,
     hoursUntilNextUse
   } = useSubscription();
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (analyzing && !showVerification) {
-      interval = setInterval(() => {
-        setCurrentMessageIndex(prev => (prev + 1) % loadingMessages.length);
-      }, 2000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [analyzing, showVerification]);
+
   const handleImageSelect = async (image: File) => {
     if (!image) {
       toast.error("No image selected");
@@ -91,7 +81,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
     setAnalyzing(true);
     setResetUpload(false);
-    setCurrentMessageIndex(0);
     try {
       console.log("Starting image analysis...");
       const result = await analyzeImage(image, {
@@ -126,6 +115,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       setAnalyzing(false);
     }
   };
+  
   const handleConfirmFoods = async (foods: any[]) => {
     try {
       await saveFoodEntries(foods, selectedDate);
@@ -151,9 +141,11 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       toast.error("Failed to save food entries");
     }
   };
+  
   useImperativeHandle(ref, () => ({
     handleImageSelect
   }));
+  
   React.useEffect(() => {
     if (componentRef.current) {
       (componentRef.current as any).handleImageSelect = handleImageSelect;
@@ -171,24 +163,33 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
     return;
   };
-  if (analyzing && !showVerification && isMobile) {
-    return <div className="fixed inset-0 bg-white flex items-center justify-center z-[100]">
-        <div className="text-center space-y-6 px-4">
-          <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
-          <p className="text-2xl font-light text-gray-500 animate-fade-in">
-            {loadingMessages[currentMessageIndex]}
-          </p>
-        </div>
-      </div>;
-  }
-  return <div className={`space-y-4 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
+
+  // Image analysis-specific loading messages
+  const imageAnalysisMessages = [
+    { text: "Identifying food items in your photo...", type: "processing" },
+    { text: "Calculating nutrition information...", type: "nutrition" },
+    { text: "Measuring portion sizes...", type: "processing" },
+    { text: "Counting calories in your meal...", type: "nutrition" },
+    { text: "Estimating macros: protein, carbs, and fats...", type: "nutrition" }
+  ];
+
+  return (
+    <div className={`space-y-4 ${analyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
       <ImageUpload onImageSelect={handleImageSelect} resetPreview={resetUpload} />
       {getUsageMessage()}
-      {analyzing && !showVerification && !isMobile && <p className="text-center text-gray-500 animate-fade-in font-light">
-          {loadingMessages[currentMessageIndex]}
-        </p>}
+
+      <LoadingOverlay 
+        isVisible={analyzing && !showVerification}
+        type="image"
+        title="Analyzing Your Food"
+        messages={imageAnalysisMessages}
+        fullScreen={isMobile}
+      />
+
       <FoodVerificationDialog isOpen={showVerification} onClose={() => setShowVerification(false)} foods={analyzedFoods} onConfirm={handleConfirmFoods} />
       <SubscriptionModal open={showSubscriptionModal} onOpenChange={setShowSubscriptionModal} />
-    </div>;
+    </div>
+  );
 });
+
 ImageAnalysisSection.displayName = "ImageAnalysisSection";

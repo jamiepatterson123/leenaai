@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Mic, Send, Loader2 } from 'lucide-react';
@@ -7,6 +8,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { saveFoodEntries } from '../analysis/FoodEntrySaver';
 import { triggerSuccessConfetti } from '@/utils/confetti';
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface NaturalLanguageInputProps {
   onSuccess?: () => void;
@@ -19,6 +22,7 @@ export const NaturalLanguageInput = ({ onSuccess, selectedDate = new Date() }: N
   const [inputText, setInputText] = useState('');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const isMobile = useIsMobile();
 
   const startRecording = async () => {
     try {
@@ -77,6 +81,21 @@ export const NaturalLanguageInput = ({ onSuccess, selectedDate = new Date() }: N
     }
   };
 
+  // Voice-specific loading messages
+  const voiceMessages = [
+    { text: "Converting your speech to text...", type: "processing" },
+    { text: "Listening to your food description...", type: "processing" },
+    { text: "Processing audio input...", type: "processing" },
+    { text: "Identifying food items from your description...", type: "nutrition" }
+  ];
+
+  const textAnalysisMessages = [
+    { text: "Analyzing your food description...", type: "processing" },
+    { text: "Identifying food items...", type: "processing" },
+    { text: "Calculating nutritional information...", type: "nutrition" },
+    { text: "Preparing your food log entry...", type: "processing" }
+  ];
+
   const processNaturalLanguageInput = async () => {
     if (!inputText.trim()) {
       toast.error('Please enter what you ate');
@@ -126,7 +145,7 @@ export const NaturalLanguageInput = ({ onSuccess, selectedDate = new Date() }: N
   };
 
   return (
-    <div className="w-full max-w-[95%] mx-auto md:max-w-full">
+    <div className="w-full max-w-[95%] mx-auto md:max-w-full relative">
       <div className="flex gap-2 items-center">
         <Input
           value={inputText}
@@ -156,6 +175,21 @@ export const NaturalLanguageInput = ({ onSuccess, selectedDate = new Date() }: N
           )}
         </Button>
       </div>
+      
+      <LoadingOverlay 
+        isVisible={isRecording}
+        title="Listening..."
+        messages={voiceMessages}
+        type="voice"
+        fullScreen={isMobile}
+      />
+      
+      <LoadingOverlay 
+        isVisible={isProcessing && !isRecording}
+        title="Processing Food"
+        messages={textAnalysisMessages}
+        fullScreen={isMobile}
+      />
     </div>
   );
 };

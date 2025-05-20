@@ -1,5 +1,4 @@
 
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
@@ -46,6 +45,29 @@
   .border-gradient-to-r {
     border-image: linear-gradient(to right, #D946EF, #8B5CF6) 1;
   }
+
+  /* Animation for loading screen text transitions */
+  @keyframes fadeText {
+    0% { opacity: 0; transform: translateY(10px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-10px); }
+  }
+
+  .animate-fade-text {
+    animation: fadeText 2s ease-in-out;
+  }
+
+  /* Pulse animation for loading elements */
+  @keyframes softPulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.8; }
+  }
+
+  .animate-soft-pulse {
+    animation: softPulse 2s infinite ease-in-out;
+  }
 }
 
 /* Override dropdown and popup backgrounds to ensure solid white */
@@ -56,4 +78,3 @@
 [data-radix-popper-content-wrapper] > * {
   @apply bg-white !important;
 }
-
