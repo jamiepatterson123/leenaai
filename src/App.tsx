@@ -33,15 +33,10 @@ const GlobalLoadingBar = () => {
   
   return analyzing ? (
     <div className="fixed top-0 left-0 w-full z-50">
-      <div className="relative">
-        <Progress 
-          value={100} 
-          className="h-2 animate-pulse"
-        />
-        <div className="absolute top-3 left-0 w-full text-center">
-          <span className="text-xs font-medium text-primary animate-pulse">Calculating...</span>
-        </div>
-      </div>
+      <Progress 
+        value={100} 
+        className="h-2 animate-pulse"
+      />
     </div>
   ) : null;
 };
