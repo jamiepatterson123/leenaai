@@ -24,80 +24,73 @@ const queryClient = new QueryClient({
   }
 });
 
-// Separate AppRoutes into a proper React function component
-function AppRoutes() {
-  return (
-    <div className="min-h-screen pb-10">
-      <Navigation />
-      <Routes>
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/auth/callback" element={<Auth />} />
-        
-        {/* Make the OTO page accessible without authentication */}
-        <Route path="/oto" element={<OneTimeOffer />} />
-        
-        {/* Protected Routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Index />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/food-diary"
-          element={
-            <ProtectedRoute>
-              <FoodDiary />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/reports"
-          element={
-            <ProtectedRoute>
-              <Reports />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/whatsapp"
-          element={
-            <ProtectedRoute>
-              <WhatsApp />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Landing page or redirect to dashboard if authenticated */}
-        <Route
-          path="/"
-          element={<Landing />}
-        />
-        
-        {/* Catch-all route - redirect to home for any page not found */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-      <Toaster position="top-right" />
-    </div>
-  );
-}
-
 // Main App component
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <AppRoutes />
+        <div className="min-h-screen pb-10">
+          <Navigation />
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/callback" element={<Auth />} />
+            
+            {/* Make the OTO page accessible without authentication */}
+            <Route path="/oto" element={<OneTimeOffer />} />
+            
+            {/* Protected Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/food-diary"
+              element={
+                <ProtectedRoute>
+                  <FoodDiary />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  <Reports />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/whatsapp"
+              element={
+                <ProtectedRoute>
+                  <WhatsApp />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Landing page or redirect to dashboard if authenticated */}
+            <Route
+              path="/"
+              element={<Landing />}
+            />
+            
+            {/* Catch-all route - redirect to home for any page not found */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+          <Toaster position="top-right" />
+        </div>
       </Router>
     </QueryClientProvider>
   );
