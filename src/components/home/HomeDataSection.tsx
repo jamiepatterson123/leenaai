@@ -30,7 +30,7 @@ export const HomeDataSection = () => {
       <div className="md:hidden w-full">
         <h2 className="text-lg font-semibold mb-2 text-center">Today</h2>
         <p className="text-sm text-gray-500 mb-4 text-center">
-          {format(today, "EEEE, MMMM d")}
+          {format(today, "EEEE, MMMM d, yyyy")}
         </p>
         <div className="bg-white rounded-lg p-4">
           <MacroCircles />
@@ -52,7 +52,7 @@ export const HomeDataSection = () => {
           <div className="hidden md:block bg-white rounded-lg p-6">
             <h2 className="text-lg font-semibold mb-2">Today's Nutrition</h2>
             <p className="text-sm text-gray-500 mb-4">
-              {format(today, "EEEE, MMMM d")}
+              {format(today, "EEEE, MMMM d, yyyy")}
             </p>
             <MacroCircles />
           </div>
