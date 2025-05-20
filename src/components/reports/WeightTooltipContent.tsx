@@ -30,15 +30,11 @@ export const WeightTooltipContent: React.FC<WeightTooltipContentProps> = ({
   const weight = data.weight;
   const unit = preferredUnits === 'metric' ? 'kg' : 'lbs';
 
-  const handleDelete = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleDelete = () => {
     onDelete(data.date, weight);
   };
 
-  const handleEdit = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleEdit = () => {
     onEdit(data.date, weight);
   };
 

@@ -99,7 +99,6 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
             stroke: "#D946EF",
             strokeWidth: 2,
           }}
-          label={false} // Remove the label
         />
       </LineChart>
     </ResponsiveContainer>

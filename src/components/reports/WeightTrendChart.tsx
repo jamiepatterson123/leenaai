@@ -57,7 +57,9 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
     },
   });
 
-  const handleDelete = async (date: string) => {
+  const handleDelete = async () => {
+    if (!selectedEntry) return;
+    
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -69,7 +71,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
         .from("weight_history")
         .delete()
         .eq("user_id", user.id)
-        .eq("recorded_at", date);
+        .eq("recorded_at", selectedEntry.date);
 
       if (error) throw error;
 
@@ -79,6 +81,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
       
       toast.success("Weight entry deleted successfully");
       setIsDeleteDialogOpen(false);
+      setSelectedEntry(null);
     } catch (error) {
       console.error("Error deleting weight entry:", error);
       toast.error("Failed to delete weight entry");
@@ -104,9 +107,14 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
         return;
       }
 
+      // If units are imperial, convert to kg for storage
+      const weightToStore = profile?.preferred_units === 'imperial' 
+        ? numericWeight / 2.20462 
+        : numericWeight;
+
       const { error } = await supabase
         .from("weight_history")
-        .update({ weight_kg: numericWeight })
+        .update({ weight_kg: weightToStore })
         .eq("user_id", user.id)
         .eq("recorded_at", selectedEntry.date);
 
@@ -118,6 +126,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
       toast.success("Weight entry updated successfully");
       setIsEditDialogOpen(false);
       setEditWeight("");
+      setSelectedEntry(null);
     } catch (error) {
       console.error("Error updating weight entry:", error);
       toast.error("Failed to update weight entry");
@@ -229,7 +238,7 @@ export const WeightTrendChart = ({ data }: WeightTrendChartProps) => {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction 
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => selectedEntry && handleDelete(selectedEntry.date)}
+              onClick={handleDelete}
             >
               Delete
             </AlertDialogAction>
