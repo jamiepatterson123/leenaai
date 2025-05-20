@@ -73,8 +73,29 @@ export const useProfileData = () => {
         throw error;
       }
       
+      // Log weight to weight_history if it exists and is valid
+      if (cleanedData.weight_kg) {
+        // Convert weight to kg if using imperial units
+        const weightInKg = cleanedData.preferred_units === 'imperial' 
+          ? cleanedData.weight_kg / 2.20462 
+          : cleanedData.weight_kg;
+          
+        const { error: weightError } = await supabase
+          .from("weight_history")
+          .insert({
+            user_id: user.id,
+            weight_kg: weightInKg,
+          });
+          
+        if (weightError) {
+          console.error("Error logging weight history:", weightError);
+          // Don't throw, just log - we don't want to fail profile update because of weight logging
+        }
+      }
+      
       // Invalidate and refetch queries to ensure data is fresh
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      await queryClient.invalidateQueries({ queryKey: ["weightHistory"] });
       
       toast.success("Profile updated successfully");
       

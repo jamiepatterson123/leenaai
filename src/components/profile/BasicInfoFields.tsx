@@ -4,8 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UseFormRegister, UseFormWatch } from "react-hook-form";
 import { ProfileFormData } from "@/utils/profileCalculations";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -32,41 +30,6 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
   
   const [prevWeight, setPrevWeight] = useState<number | null>(null);
   const currentWeight = watch('weight_kg');
-  
-  // Log weight changes to weight history
-  useEffect(() => {
-    // Only update if the weight has been set, is different from previous weight, and is not null/0
-    if (currentWeight && currentWeight !== prevWeight && prevWeight !== null) {
-      const logWeightHistory = async () => {
-        try {
-          const weightInKg = preferredUnits === 'imperial' 
-            ? currentWeight / 2.20462  // Convert lbs to kg
-            : currentWeight;
-            
-          const { data: { user } } = await supabase.auth.getUser();
-          if (!user) return;
-          
-          const { error } = await supabase
-            .from("weight_history")
-            .insert({
-              user_id: user.id,
-              weight_kg: weightInKg,
-            });
-            
-          if (error) throw error;
-        } catch (error) {
-          console.error("Error logging weight history:", error);
-        }
-      };
-      
-      logWeightHistory();
-    }
-    
-    // Update previous weight after handling the change
-    if (currentWeight) {
-      setPrevWeight(currentWeight);
-    }
-  }, [currentWeight, preferredUnits, prevWeight]);
   
   // Set initial weight value from the form
   useEffect(() => {
