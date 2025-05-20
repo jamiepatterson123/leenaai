@@ -13,7 +13,6 @@ import { useHomeData } from "@/components/home/useHomeData";
 export const HomeDataSection = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
   const [nutritionData, setNutritionData] = React.useState<any>(null);
-  const imageAnalysisSectionRef = React.useRef<any>(null);
   const isMobile = useIsMobile();
   const today = new Date();
   const { isSubscribed } = useSubscription();
@@ -64,7 +63,6 @@ export const HomeDataSection = () => {
           {/* Food Input Section */}
           <div className="bg-white rounded-lg border border-gray-200">
             <ImageAnalysisSection
-              ref={imageAnalysisSectionRef}
               analyzing={analyzing}
               setAnalyzing={setAnalyzing}
               nutritionData={nutritionData}
