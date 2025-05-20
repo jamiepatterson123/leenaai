@@ -7,6 +7,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { parse, format } from "date-fns";
 import { HabitTracker } from "@/components/habits/HabitTracker";
 import { NaturalLanguageInput } from "@/components/food/NaturalLanguageInput";
+import { Progress } from "@/components/ui/progress";
 
 const FoodDiaryPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -31,6 +32,16 @@ const FoodDiaryPage = () => {
   
   return (
     <div className="max-w-7xl mx-auto md:px-4 py-6 mb-5">
+      {/* Analysis loading bar */}
+      {analyzing && (
+        <div className="fixed top-0 left-0 w-full z-50">
+          <Progress 
+            value={100} 
+            className="h-2 animate-pulse"
+          />
+        </div>
+      )}
+      
       <div className="grid grid-cols-1 md:grid-cols-[1fr,300px] gap-6">
         {/* Main content area - nutrition info */}
         <div className="order-1 md:order-1 px-4 md:px-0">
