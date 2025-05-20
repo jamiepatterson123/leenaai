@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Dialog,
@@ -151,7 +152,7 @@ export const MacroCircle: React.FC<MacroCircleProps> = ({
             {isCalories && (
               <span className="text-xs text-muted-foreground">kcal</span>
             )}
-            <span className={`text-xs ${isOverTarget ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
+            <span className={`text-[10px] ${isOverTarget ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
               {displayPercentage}%
             </span>
           </div>
@@ -214,7 +215,7 @@ export const MacroCircle: React.FC<MacroCircleProps> = ({
               {isCalories && (
                 <span className="text-xs text-muted-foreground">kcal</span>
               )}
-              <span className={`text-xs ${isOverTarget ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
+              <span className={`text-[10px] ${isOverTarget ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
                 {displayPercentage}%
               </span>
             </div>
