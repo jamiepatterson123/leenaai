@@ -44,12 +44,18 @@ const Auth = () => {
       data: {
         subscription
       }
-    } = supabase.auth.onAuthStateChange((event: any, session: Session | null) => {
+    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       console.log("Auth state changed:", event);
       
       if (event === "SIGNED_IN") {
         setSession(session);
-        navigate("/dashboard");
+        // For new users, redirect to profile for completion
+        if (event === "USER_CREATED" || event === "SIGNED_UP") {
+          navigate("/profile");
+        } else {
+          // For existing users, check if profile is completed before redirecting
+          checkProfileCompletion(session?.user.id);
+        }
       } else if (event === "SIGNED_OUT") {
         setSession(null);
       } 
@@ -58,18 +64,45 @@ const Auth = () => {
       // but is actually emitted by Supabase
       if (event === "USER_CREATED") {
         triggerSignUpConfetti();
+        navigate("/profile");
       }
     });
     
     return () => subscription.unsubscribe();
   }, [navigate, location.state]);
 
-  // If already authenticated, redirect to dashboard
+  const checkProfileCompletion = async (userId: string | undefined) => {
+    if (!userId) return;
+    
+    try {
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("onboarding_completed")
+        .eq("user_id", userId)
+        .single();
+      
+      if (error) throw error;
+      
+      if (profile?.onboarding_completed) {
+        navigate("/dashboard");
+      } else {
+        navigate("/profile");
+        toast.info("Please complete your profile to continue", {
+          description: "We need your biometric data to calculate your nutrition targets"
+        });
+      }
+    } catch (error) {
+      console.error("Error checking profile completion:", error);
+      navigate("/profile");
+    }
+  };
+
+  // If already authenticated, redirect appropriately
   useEffect(() => {
     if (session) {
-      navigate("/dashboard");
+      checkProfileCompletion(session.user.id);
     }
-  }, [session, navigate]);
+  }, [session]);
   
   const toggleAuthView = () => {
     setAuthView(authView === "sign_in" ? "sign_up" : "sign_in");

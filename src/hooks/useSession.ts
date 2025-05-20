@@ -34,6 +34,13 @@ export const useSession = () => {
               queryClient.clear(); // Clear query cache on sign in
               
               // We no longer set confetti here - only for sign-up events in Auth.tsx
+              
+              // Check for daily free credit eligibility
+              if (newSession?.user) {
+                setTimeout(() => {
+                  checkAndApplyDailyCredit(newSession.user.id);
+                }, 0);
+              }
             } else if (event === 'SIGNED_OUT') {
               setSession(null);
               queryClient.clear(); // Clear query cache on sign out
@@ -44,6 +51,11 @@ export const useSession = () => {
             }
           }
         );
+
+        // If user is signed in on initial load, check for daily free credit
+        if (currentSession?.user) {
+          checkAndApplyDailyCredit(currentSession.user.id);
+        }
 
         return () => {
           mounted = false;
@@ -61,6 +73,46 @@ export const useSession = () => {
 
     initializeAuth();
   }, [queryClient]);
+
+  const checkAndApplyDailyCredit = async (userId: string) => {
+    try {
+      // Get the user's last usage time
+      const { data: subscriber, error: subscriberError } = await supabase
+        .from("subscribers")
+        .select("last_usage_time, credits")
+        .eq("user_id", userId)
+        .single();
+      
+      if (subscriberError) {
+        console.error("Error fetching subscriber data:", subscriberError);
+        return;
+      }
+      
+      if (!subscriber) return;
+      
+      const lastUsageTime = subscriber.last_usage_time ? new Date(subscriber.last_usage_time) : null;
+      const now = new Date();
+      
+      // If it's been more than 24 hours since last usage time, add a free credit
+      if (!lastUsageTime || (now.getTime() - lastUsageTime.getTime() > 24 * 60 * 60 * 1000)) {
+        const { error: updateError } = await supabase
+          .from("subscribers")
+          .update({ 
+            credits: subscriber.credits + 1,
+            last_usage_time: now.toISOString()
+          })
+          .eq("user_id", userId);
+        
+        if (updateError) {
+          console.error("Error updating credits:", updateError);
+        } else {
+          console.log("Daily free credit added successfully");
+        }
+      }
+    } catch (error) {
+      console.error("Error checking/applying daily credit:", error);
+    }
+  };
 
   const handleSessionError = async () => {
     try {

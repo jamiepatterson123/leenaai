@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -11,7 +12,6 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Create a Supabase client using the service role key to bypass RLS
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
@@ -20,168 +20,42 @@ serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
+    if (!authHeader) throw new Error("Missing auth header");
 
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError) throw new Error(`Authentication error: ${userError.message}`);
+    if (userError) throw new Error(`Auth error: ${userError.message}`);
+
     const user = userData.user;
-    if (!user?.id) throw new Error("User not authenticated");
+    if (!user) throw new Error("User not found");
 
-    console.log(`Checking usage limits for user ${user.id}`);
-
-    // Get current subscriber data
-    const { data: subscriber, error: selectError } = await supabaseClient
+    // Get user subscription status
+    const { data: subscriber, error: subError } = await supabaseClient
       .from("subscribers")
-      .select("*")
+      .select("subscribed, credits, usage_count, first_usage_time")
       .eq("user_id", user.id)
       .single();
 
-    if (selectError && selectError.code !== "PGRST116") {
-      throw new Error(`Error fetching subscriber: ${selectError.message}`);
+    if (subError && subError.code !== "PGRST116") {
+      throw new Error(`Error fetching subscriber: ${subError.message}`);
     }
 
-    // If no subscriber record exists yet, create one with usage_count = 1 and first_usage_time = now
-    if (!subscriber) {
-      const now = new Date();
-      await supabaseClient.from("subscribers").insert({
-        user_id: user.id,
-        email: user.email,
-        usage_count: 1,
-        first_usage_time: now.toISOString(),
-        last_usage_time: now.toISOString()
-      });
-
-      return new Response(
-        JSON.stringify({
-          usage_count: 1,
-          daily_limit_reached: false,
-          has_free_uses_remaining: true,
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
-    }
-
-    // If user is subscribed, they have unlimited usage
-    if (subscriber.subscribed) {
-      console.log(`User ${user.id} is subscribed, no limits apply`);
-      
-      return new Response(
-        JSON.stringify({
-          usage_count: subscriber.usage_count,
-          daily_limit_reached: false,
-          has_free_uses_remaining: true,
-          subscribed: true,
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
-    }
-
-    // Check if this is within first 24 hours of usage
-    const now = new Date();
-    const firstUsageTime = subscriber.first_usage_time ? new Date(subscriber.first_usage_time) : null;
-    const lastUsageTime = subscriber.last_usage_time ? new Date(subscriber.last_usage_time) : null;
-    
-    const isWithinFirst24Hours = firstUsageTime && 
-      (now.getTime() - firstUsageTime.getTime() < 24 * 60 * 60 * 1000);
-    
-    let dailyLimitReached = false;
-    let canUseService = false;
-
-    const FREE_INITIAL_USES = 3; // Initial 3 free uses for new users
-    const FREE_DAILY_USES = 2;   // 2 free uses per day after initial period
-
-    if (isWithinFirst24Hours) {
-      // Within first 24 hours: limit is 3 uses
-      if (subscriber.usage_count < FREE_INITIAL_USES) {
-        canUseService = true;
-      } else {
-        dailyLimitReached = true;
-      }
-    } else {
-      // After first 24 hours: check if it's been 24 hours since last usage
-      // Or if they haven't used their daily quota yet
-      if (lastUsageTime) {
-        const hoursSinceLastUsage = (now.getTime() - lastUsageTime.getTime()) / (60 * 60 * 1000);
-        const daysSinceLastUsage = hoursSinceLastUsage / 24;
-        
-        // If it's a new day (24+ hours), reset the counter
-        if (hoursSinceLastUsage >= 24) {
-          canUseService = true;
-          // We'll reset the count to 1 when we update
-        } 
-        // Otherwise, check if they've used fewer than FREE_DAILY_USES today
-        else {
-          // Get today's usage
-          const todaysDate = new Date().toISOString().split('T')[0];
-          const { data: todaysEntries, error: countError } = await supabaseClient
-            .from("food_diary")
-            .select("id")
-            .eq("user_id", user.id)
-            .gte("created_at", `${todaysDate}T00:00:00Z`)
-            .lt("created_at", `${todaysDate}T23:59:59Z`);
-            
-          if (!countError && todaysEntries && todaysEntries.length < FREE_DAILY_USES) {
-            canUseService = true;
-          } else {
-            dailyLimitReached = true;
-          }
-        }
-      } else {
-        // No last usage time recorded, allow usage
-        canUseService = true;
-      }
-    }
-
-    if (canUseService) {
-      // Update subscriber record with incremented usage count and last usage time
-      const newCount = subscriber.usage_count + 1;
-      
-      // If it's a new day, reset the daily count
-      const shouldResetDailyCount = lastUsageTime && 
-        (now.getTime() - lastUsageTime.getTime() >= 24 * 60 * 60 * 1000);
-      
+    // Premium users don't consume credits
+    if (subscriber?.subscribed) {
+      // Just increment usage count for tracking
       await supabaseClient
         .from("subscribers")
         .update({ 
-          usage_count: newCount, 
-          last_usage_time: now.toISOString(),
-          first_usage_time: firstUsageTime ? firstUsageTime.toISOString() : now.toISOString(),
-          updated_at: new Date().toISOString() 
+          usage_count: (subscriber.usage_count || 0) + 1,
+          last_usage_time: new Date().toISOString()
         })
         .eq("user_id", user.id);
 
-      console.log(`Usage count incremented to ${newCount} for user ${user.id}`);
-
       return new Response(
-        JSON.stringify({
-          usage_count: newCount,
-          daily_limit_reached: false,
-          has_free_uses_remaining: true,
-          within_first_24_hours: isWithinFirst24Hours,
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
-    } else {
-      console.log(`Usage limit reached for user ${user.id}`);
-      
-      return new Response(
-        JSON.stringify({
-          usage_count: subscriber.usage_count,
-          daily_limit_reached: true,
-          has_free_uses_remaining: false,
-          hours_until_next_use: lastUsageTime ? 
-            24 - (now.getTime() - lastUsageTime.getTime()) / (60 * 60 * 1000) : 0,
-          within_first_24_hours: isWithinFirst24Hours,
+        JSON.stringify({ 
+          success: true, 
+          credits_remaining: "unlimited",
+          is_premium: true
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -189,11 +63,59 @@ serve(async (req) => {
         }
       );
     }
+
+    // Free users consume credits
+    const currentCredits = subscriber?.credits || 0;
+    
+    // Check if user has any credits left
+    if (currentCredits <= 0) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          credits_remaining: 0,
+          error: "No credits remaining"
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 403,
+        }
+      );
+    }
+
+    // Consume one credit
+    const { error: updateError } = await supabaseClient
+      .from("subscribers")
+      .update({ 
+        credits: currentCredits - 1,
+        usage_count: (subscriber?.usage_count || 0) + 1,
+        first_usage_time: subscriber?.first_usage_time || new Date().toISOString(),
+        last_usage_time: new Date().toISOString()
+      })
+      .eq("user_id", user.id);
+
+    if (updateError) throw new Error(`Error updating subscriber: ${updateError.message}`);
+
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        credits_remaining: currentCredits - 1,
+        is_premium: false
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      }
+    );
+
   } catch (error) {
-    console.error("Error in increment-usage function:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    return new Response(
+      JSON.stringify({ success: false, error: errorMessage }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      }
+    );
   }
 });
