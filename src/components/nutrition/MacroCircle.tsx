@@ -152,13 +152,13 @@ export const MacroCircle: React.FC<MacroCircleProps> = ({
             {isCalories && (
               <span className="text-xs text-muted-foreground">kcal</span>
             )}
-            <span className={`text-[10px] ${isOverTarget ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
-              {displayPercentage}%
-            </span>
           </div>
         </div>
         <span className="text-xs text-muted-foreground mt-1 whitespace-nowrap">
           {label}
+        </span>
+        <span className={`text-[10px] ${isOverTarget ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
+          {displayPercentage}%
         </span>
 
         {/* Dialog for mobile */}
@@ -215,9 +215,6 @@ export const MacroCircle: React.FC<MacroCircleProps> = ({
               {isCalories && (
                 <span className="text-xs text-muted-foreground">kcal</span>
               )}
-              <span className={`text-[10px] ${isOverTarget ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
-                {displayPercentage}%
-              </span>
             </div>
           </div>
         </PopoverTrigger>
@@ -225,6 +222,9 @@ export const MacroCircle: React.FC<MacroCircleProps> = ({
       </Popover>
       <span className="text-xs text-muted-foreground mt-1 whitespace-nowrap">
         {label}
+      </span>
+      <span className={`text-[10px] ${isOverTarget ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
+        {displayPercentage}%
       </span>
     </div>
   );
