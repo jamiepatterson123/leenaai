@@ -45,19 +45,23 @@ export const useProfileData = () => {
       // Create a clean copy of profile data, removing any non-database fields
       const { 
         chart_settings, // Remove chart_settings as it doesn't exist in the database schema
-        onboarding_completed, // Remove onboarding_completed as it's causing issues
         ...profileData 
       } = data;
 
+      // Remove onboarding_completed property if it exists (using a type-safe approach)
+      const cleanedData = Object.fromEntries(
+        Object.entries(profileData).filter(([key]) => key !== 'onboarding_completed')
+      );
+
       // Log what we're about to save
-      console.log("Saving profile data:", profileData);
+      console.log("Saving profile data:", cleanedData);
 
       // Update profile with new data and calculated targets
       const { error } = await supabase
         .from("profiles")
         .upsert({
           user_id: user.id,
-          ...profileData,
+          ...cleanedData,
           target_calories: targets.calories,
           target_protein: targets.protein,
           target_carbs: targets.carbs,
