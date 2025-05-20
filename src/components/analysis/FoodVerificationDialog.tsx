@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 
 interface FoodItem {
   name: string;
@@ -31,8 +30,6 @@ interface FoodItem {
   };
   state: string;
   category?: string;
-  meal_name?: string;
-  meal_id?: string;
 }
 
 interface FoodVerificationDialogProps {
@@ -40,7 +37,6 @@ interface FoodVerificationDialogProps {
   onClose: () => void;
   foods: FoodItem[];
   onConfirm: (foods: FoodItem[]) => void;
-  mealName?: string;
 }
 
 export const FoodVerificationDialog = ({
@@ -48,11 +44,8 @@ export const FoodVerificationDialog = ({
   onClose,
   foods,
   onConfirm,
-  mealName = "",
 }: FoodVerificationDialogProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("uncategorized");
-  const [customMealName, setCustomMealName] = useState<string>("");
-  
   const {
     editedFoods,
     updating,
@@ -63,27 +56,12 @@ export const FoodVerificationDialog = ({
     handleDeleteFood
   } = useFoodItems(foods);
 
-  // Set the meal name from props when the dialog opens or foods change
-  useEffect(() => {
-    if (mealName) {
-      setCustomMealName(mealName);
-    } else if (foods.length > 0 && foods[0].meal_name) {
-      setCustomMealName(foods[0].meal_name);
-    }
-  }, [mealName, foods, isOpen]);
-
   const handleConfirm = () => {
-    // Generate a unique meal ID to group these foods together
-    const mealId = crypto.randomUUID();
-    
-    // Apply the selected category, meal name, and meal ID to all food items
+    // Apply the selected category to all food items
     const foodsWithCategory = editedFoods.map(food => ({
       ...food,
-      category: selectedCategory,
-      meal_name: customMealName || "Unlabeled Meal",
-      meal_id: mealId
+      category: selectedCategory
     }));
-    
     onConfirm(foodsWithCategory);
   };
 
@@ -96,16 +74,6 @@ export const FoodVerificationDialog = ({
           <DialogTitle>Verify Food Items</DialogTitle>
         </DialogHeader>
         <div className="space-y-6 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="meal-name">Meal Name</Label>
-            <Input
-              id="meal-name"
-              placeholder="Enter meal name"
-              value={customMealName}
-              onChange={(e) => setCustomMealName(e.target.value)}
-              className="w-full"
-            />
-          </div>
           <div className="space-y-2">
             <Label htmlFor="category">Meal Category</Label>
             <Select

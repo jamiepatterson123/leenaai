@@ -111,8 +111,6 @@ export type Database = {
           fat: number
           food_name: string
           id: string
-          meal_id: string | null
-          meal_name: string | null
           protein: number
           state: string | null
           user_id: string | null
@@ -127,8 +125,6 @@ export type Database = {
           fat: number
           food_name: string
           id?: string
-          meal_id?: string | null
-          meal_name?: string | null
           protein: number
           state?: string | null
           user_id?: string | null
@@ -143,8 +139,6 @@ export type Database = {
           fat?: number
           food_name?: string
           id?: string
-          meal_id?: string | null
-          meal_name?: string | null
           protein?: number
           state?: string | null
           user_id?: string | null

@@ -23,7 +23,6 @@ export const NaturalLanguageInput = ({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const isMobile = useIsMobile();
-  
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -135,20 +134,12 @@ export const NaturalLanguageInput = ({
       });
       if (error) throw error;
       if (data?.foods) {
-        // Generate a unique meal ID for this group of foods
-        const mealId = crypto.randomUUID();
-        const timestamp = new Date().toISOString();
-
         // Process and save the analyzed foods to the food diary
         const foodEntries = data.foods.map((food: any) => ({
           ...food,
           state: 'logged',
-          category: 'uncategorized',
-          meal_id: mealId,
-          meal_name: data.meal_name || 'Unlabeled Meal',
-          created_at: timestamp
+          category: 'uncategorized'
         }));
-        
         await saveFoodEntries(foodEntries, selectedDate);
 
         // Trigger confetti animation when food is successfully logged
@@ -164,31 +155,11 @@ export const NaturalLanguageInput = ({
       setIsProcessing(false);
     }
   };
-
   return <div className="w-full max-w-[95%] mx-auto md:max-w-full relative">
       <div className="flex gap-2 items-center">
-        <Input
-          placeholder="Describe what you ate..."
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          className="flex-grow"
-        />
-        <Button 
-          variant="default"
-          size="icon"
-          disabled={isProcessing || !inputText.trim()}
-          onClick={processNaturalLanguageInput}
-        >
-          {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          disabled={isProcessing}
-          onClick={isRecording ? stopRecording : startRecording}
-        >
-          {isRecording ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mic className="h-4 w-4" />}
-        </Button>
+        
+        
+        
       </div>
       
       <LoadingOverlay isVisible={isRecording} title="Listening..." messages={voiceMessages} type="voice" fullScreen={isMobile} />

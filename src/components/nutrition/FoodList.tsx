@@ -1,4 +1,3 @@
-
 import React from "react";
 import { CategorySection } from "./CategorySection";
 
@@ -8,8 +7,6 @@ interface FoodListProps {
     name: string;
     weight_g: number;
     category?: string;
-    meal_name?: string;
-    meal_id?: string;
     created_at?: string;
     nutrition?: {
       calories: number;

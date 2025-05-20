@@ -1,4 +1,3 @@
-
 export type FoodDiaryRow = {
   calories: number;
   carbs: number;
@@ -12,8 +11,6 @@ export type FoodDiaryRow = {
   state: string | null;
   user_id: string | null;
   weight_g: number;
-  meal_name: string | null;
-  meal_id: string | null;
 };
 
 export type FoodDiaryInsert = {
@@ -29,8 +26,6 @@ export type FoodDiaryInsert = {
   state?: string | null;
   user_id?: string | null;
   weight_g: number;
-  meal_name?: string | null;
-  meal_id?: string | null;
 };
 
 export type FoodDiaryUpdate = {
@@ -46,6 +41,4 @@ export type FoodDiaryUpdate = {
   state?: string | null;
   user_id?: string | null;
   weight_g?: number;
-  meal_name?: string | null;
-  meal_id?: string | null;
 };
