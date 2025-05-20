@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,12 +9,6 @@ import { triggerSuccessConfetti } from "@/utils/confetti";
 
 interface FoodDiaryProps {
   selectedDate: Date;
-}
-
-interface FoodGroup {
-  mealName: string;
-  mealId: string | null;
-  foods: any[];
 }
 
 export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
@@ -121,23 +114,6 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
     }
   };
 
-  const handleUpdateMealName = async (mealId: string, mealName: string) => {
-    try {
-      const { error } = await supabase
-        .from("food_diary")
-        .update({ meal_name: mealName })
-        .eq("meal_id", mealId);
-
-      if (error) throw error;
-      
-      toast.success(`Meal name updated`);
-      queryClient.invalidateQueries({ queryKey: ["foodDiary", formattedDate] });
-    } catch (error) {
-      toast.error("Failed to update meal name");
-      console.error("Error updating meal name:", error);
-    }
-  };
-
   // Log any query errors
   if (error) {
     console.error("Query error:", error);
@@ -153,76 +129,29 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
     );
   }
 
-  // Group foods by meal_id and meal_name
-  const groupedFoods: FoodGroup[] = [];
-  
-  if (foodEntries && foodEntries.length > 0) {
-    // First create a map of meal_id to foods
-    const mealMap = new Map<string, any[]>();
-    
-    foodEntries.forEach(entry => {
-      // Generate a pseudo ID for entries without meal_id
-      const mealId = entry.meal_id || `single-${entry.id}`;
-      
-      if (!mealMap.has(mealId)) {
-        mealMap.set(mealId, []);
-      }
-      
-      mealMap.get(mealId)!.push({
-        id: entry.id,
-        name: entry.food_name,
-        weight_g: entry.weight_g,
-        category: entry.category,
-        nutrition: {
-          calories: entry.calories,
-          protein: entry.protein,
-          carbs: entry.carbs,
-          fat: entry.fat,
-        },
-      });
-    });
-    
-    // Convert the map to an array of FoodGroup objects
-    mealMap.forEach((foods, mealId) => {
-      // Get the meal name from the first food in the group
-      const firstEntry = foodEntries.find(entry => 
-        entry.meal_id === mealId || (!entry.meal_id && `single-${entry.id}` === mealId)
-      );
-      
-      const mealName = firstEntry?.meal_name || 
-                      (foods.length === 1 ? foods[0].name : "Unnamed meal");
-      
-      groupedFoods.push({
-        mealId: mealId.startsWith('single-') ? null : mealId,
-        mealName,
-        foods
-      });
-    });
-  }
+  const foods = foodEntries?.map((entry) => ({
+    id: entry.id,
+    name: entry.food_name,
+    weight_g: entry.weight_g,
+    category: entry.category,
+    nutrition: {
+      calories: entry.calories,
+      protein: entry.protein,
+      carbs: entry.carbs,
+      fat: entry.fat,
+    },
+  })) || [];
 
-  console.log("Grouped foods:", groupedFoods);
+  console.log("Transformed foods data:", foods);
 
   return (
     <div className="w-full">
-      {groupedFoods.map((group, index) => (
-        <div key={group.mealId || `group-${index}`} className="mb-6">
-          <NutritionCard 
-            foods={group.foods} 
-            onDelete={handleDelete} 
-            onUpdateCategory={handleUpdateCategory}
-            selectedDate={selectedDate}
-            mealName={group.mealName}
-            mealId={group.mealId}
-            onUpdateMealName={handleUpdateMealName}
-          />
-        </div>
-      ))}
-      
-      {groupedFoods.length === 0 && (
-        <div className="text-center p-8 bg-card rounded-lg border">
-          <p className="text-muted-foreground">No food entries for this date</p>
-        </div>
-      )}
+      <NutritionCard 
+        foods={foods} 
+        onDelete={handleDelete} 
+        onUpdateCategory={handleUpdateCategory}
+        selectedDate={selectedDate}
+      />
     </div>
   );
 };

@@ -122,12 +122,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
   };
   
-  const handleConfirmFoods = async (foods: any[], mealName: string) => {
+  const handleConfirmFoods = async (foods: any[]) => {
     try {
-      // Generate a unique meal ID to group food items
-      const mealId = crypto.randomUUID();
-      
-      await saveFoodEntries(foods, selectedDate, mealName, mealId);
+      await saveFoodEntries(foods, selectedDate);
       await queryClient.invalidateQueries({
         queryKey: ["foodDiary", format(selectedDate, "yyyy-MM-dd")]
       });
