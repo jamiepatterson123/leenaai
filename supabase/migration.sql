@@ -1,14 +1,19 @@
 
--- Add chart_settings column to profiles table
-ALTER TABLE profiles 
-ADD COLUMN IF NOT EXISTS chart_settings JSONB DEFAULT NULL;
-
--- Add first_usage_time and last_usage_time columns to subscribers table
+-- Restore the subscribers table to its previous state by removing the credits column
 ALTER TABLE subscribers 
-ADD COLUMN IF NOT EXISTS first_usage_time TIMESTAMPTZ,
-ADD COLUMN IF NOT EXISTS last_usage_time TIMESTAMPTZ;
+DROP COLUMN IF EXISTS credits;
 
--- Update existing records to set first_usage_time and last_usage_time
+-- Remove the onboarding_completed column from profiles table
+ALTER TABLE profiles 
+DROP COLUMN IF EXISTS onboarding_completed;
+
+-- Drop the trigger we added
+DROP TRIGGER IF EXISTS assign_credits_on_signup ON auth.users;
+
+-- Drop the function we added
+DROP FUNCTION IF EXISTS public.assign_initial_credits();
+
+-- Update existing records in subscribers table that might have been affected
 UPDATE subscribers
 SET first_usage_time = created_at,
     last_usage_time = updated_at

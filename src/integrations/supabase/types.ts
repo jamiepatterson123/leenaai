@@ -193,6 +193,7 @@ export type Database = {
           has_seen_tutorial: boolean | null
           height_cm: number | null
           id: string
+          onboarding_completed: boolean | null
           preferred_units: string | null
           target_calories: number | null
           target_carbs: number | null
@@ -215,6 +216,7 @@ export type Database = {
           has_seen_tutorial?: boolean | null
           height_cm?: number | null
           id?: string
+          onboarding_completed?: boolean | null
           preferred_units?: string | null
           target_calories?: number | null
           target_carbs?: number | null
@@ -237,6 +239,7 @@ export type Database = {
           has_seen_tutorial?: boolean | null
           height_cm?: number | null
           id?: string
+          onboarding_completed?: boolean | null
           preferred_units?: string | null
           target_calories?: number | null
           target_carbs?: number | null
@@ -272,6 +275,7 @@ export type Database = {
       subscribers: {
         Row: {
           created_at: string
+          credits: number | null
           email: string
           first_usage_time: string | null
           id: string
@@ -286,6 +290,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          credits?: number | null
           email: string
           first_usage_time?: string | null
           id?: string
@@ -300,6 +305,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          credits?: number | null
           email?: string
           first_usage_time?: string | null
           id?: string
