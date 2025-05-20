@@ -1,8 +1,9 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
-export const saveFoodEntries = async (foods: any[], selectedDate: Date) => {
+export const saveFoodEntries = async (foods: any[], selectedDate: Date, mealName: string = "", mealId: string = "") => {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -11,6 +12,9 @@ export const saveFoodEntries = async (foods: any[], selectedDate: Date) => {
   }
 
   const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+  
+  // Create a unique meal ID if one wasn't provided
+  const groupMealId = mealId || crypto.randomUUID();
 
   try {
     const { error } = await supabase.from("food_diary").insert(
@@ -25,6 +29,8 @@ export const saveFoodEntries = async (foods: any[], selectedDate: Date) => {
         date: formattedDate,
         state: food.state,
         category: food.category || 'uncategorized',
+        meal_name: mealName, // Add the meal name
+        meal_id: groupMealId, // Add the meal ID to group items
       }))
     );
 

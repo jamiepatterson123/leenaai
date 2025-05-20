@@ -1,3 +1,4 @@
+
 export interface FoodDiaryEntry {
   id: string;
   user_id: string;
@@ -11,4 +12,6 @@ export interface FoodDiaryEntry {
   category?: string;
   state?: string;
   created_at: string;
+  meal_name?: string | null;
+  meal_id?: string | null;
 }
