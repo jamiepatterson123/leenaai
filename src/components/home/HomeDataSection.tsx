@@ -9,6 +9,7 @@ import { MacroCircles } from "@/components/home/MacroCircles";
 import { WeightTrendChart } from "@/components/reports/WeightTrendChart";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
+import { useSubscription } from "@/hooks/useSubscription";
 
 export const HomeDataSection = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
@@ -16,6 +17,7 @@ export const HomeDataSection = () => {
   const imageAnalysisSectionRef = React.useRef<any>(null);
   const isMobile = useIsMobile();
   const today = new Date();
+  const { isSubscribed } = useSubscription();
 
   const { isLoading, weightData } = useHomeData();
 
@@ -29,9 +31,11 @@ export const HomeDataSection = () => {
       {/* Today's Macros - Mobile Only */}
       <div className="md:hidden w-full">
         <h2 className="text-lg font-semibold mb-2 text-center">Today</h2>
-        <p className="text-sm text-gray-500 mb-4 text-center">
-          {format(today, "EEEE, MMMM d, yyyy")}
-        </p>
+        {isSubscribed && (
+          <p className="text-sm text-gray-500 mb-4 text-center">
+            {format(today, "EEEE, MMMM d, yyyy")}
+          </p>
+        )}
         <div className="bg-white rounded-lg p-4">
           <MacroCircles />
         </div>
