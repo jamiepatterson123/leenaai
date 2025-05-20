@@ -32,6 +32,7 @@ interface FoodItem {
   state: string;
   category?: string;
   meal_name?: string;
+  meal_id?: string;
 }
 
 interface FoodVerificationDialogProps {
@@ -63,12 +64,17 @@ export const FoodVerificationDialog = ({
   } = useFoodItems(foods);
 
   const handleConfirm = () => {
-    // Apply the selected category and meal name to all food items
+    // Generate a unique meal ID to group these foods together
+    const mealId = crypto.randomUUID();
+    
+    // Apply the selected category, meal name, and meal ID to all food items
     const foodsWithCategory = editedFoods.map(food => ({
       ...food,
       category: selectedCategory,
-      meal_name: customMealName || "Unlabeled Meal"
+      meal_name: customMealName || "Unlabeled Meal",
+      meal_id: mealId
     }));
+    
     onConfirm(foodsWithCategory);
   };
 
