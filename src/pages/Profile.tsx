@@ -127,12 +127,18 @@ const Profile = () => {
       // Calculate new targets based on profile data
       const targets = calculateTargets(data);
 
+      // Remove chart_settings from data as it doesn't exist in the database schema
+      const { 
+        // Omit chart_settings or any other non-existent fields 
+        ...profileData 
+      } = data;
+
       // Update profile with new data and calculated targets
       const { error } = await supabase
         .from("profiles")
         .upsert({
           user_id: user.id,
-          ...data,
+          ...profileData,
           target_calories: targets.calories,
           target_protein: targets.protein,
           target_carbs: targets.carbs,
