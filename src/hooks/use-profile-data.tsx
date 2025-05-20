@@ -45,6 +45,7 @@ export const useProfileData = () => {
       // Create a clean copy of profile data, removing any non-database fields
       const { 
         chart_settings, // Remove chart_settings as it doesn't exist in the database schema
+        onboarding_completed, // Remove onboarding_completed as it's causing issues
         ...profileData 
       } = data;
 
