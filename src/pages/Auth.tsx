@@ -57,7 +57,7 @@ const Auth = () => {
       // Handle new user creation with special treatment
       // Note: "USER_CREATED" is not in TypeScript definition but is emitted by Supabase
       // We handle it as a special case
-      if (event === "SIGNED_UP") {
+      if (event === "USER_CREATED") {
         triggerSignUpConfetti();
         navigate("/profile");
       }

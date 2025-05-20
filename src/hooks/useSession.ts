@@ -48,8 +48,8 @@ export const useSession = () => {
               setSession(newSession);
             } else if (event === 'USER_UPDATED') {
               setSession(newSession);
-            } else if (event === 'SIGNED_UP') {
-              // Handle sign up specifically
+            } else if (event === 'USER_CREATED') {
+              // Handle sign up specifically - changed from SIGNED_UP to USER_CREATED
               setSession(newSession);
               queryClient.clear();
             }
