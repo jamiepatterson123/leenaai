@@ -58,21 +58,50 @@ export const FoodVerificationDialog = ({
     handleDeleteFood
   } = useFoodItems(foods);
 
-  // Generate a suggested meal name based on the food items
+  // Generate a restaurant-style meal name based on the food items
   React.useEffect(() => {
     if (foods.length > 0 && !mealName) {
-      const mainItem = foods[0].name;
+      const proteinItems = ['beef', 'steak', 'chicken', 'pork', 'fish', 'salmon', 'tuna', 'shrimp', 'lamb'];
+      const mainItems = editedFoods.map(food => food.name.toLowerCase());
       
-      if (foods.length === 1) {
-        setMealName(mainItem);
+      // Find protein or main dish item
+      let mainDish = foods[0].name;
+      
+      // Look for protein items first
+      for (const food of foods) {
+        const foodName = food.name.toLowerCase();
+        const isProtein = proteinItems.some(protein => foodName.includes(protein));
+        if (isProtein) {
+          mainDish = food.name;
+          break;
+        }
+      }
+      
+      // Check if any name contains "bowl" or "plate"
+      const hasBowl = mainItems.some(item => item.includes('bowl'));
+      const hasPlate = mainItems.some(item => item.includes('plate'));
+      
+      if (hasBowl) {
+        // Use the main protein with "Bowl" format
+        setMealName(`${mainDish} Bowl`);
+      } else if (hasPlate) {
+        // Use the main protein with "Plate" format
+        setMealName(`${mainDish} Plate`);
+      } else if (foods.length === 1) {
+        // Just use the single item name
+        setMealName(mainDish);
       } else if (foods.length <= 3) {
-        const foodNames = foods.map(food => food.name);
-        setMealName(`${mainItem} with ${foodNames.slice(1).join(' & ')}`);
+        // For 2-3 items, use "with" format
+        const sideItems = foods
+          .filter(food => food.name !== mainDish)
+          .map(food => food.name);
+        setMealName(`${mainDish} with ${sideItems.join(' & ')}`);
       } else {
-        setMealName(`${mainItem} meal`);
+        // For more than 3 items, use "with sides" or a more generic name
+        setMealName(`${mainDish} with Sides`);
       }
     }
-  }, [foods, mealName]);
+  }, [foods, mealName, editedFoods]);
 
   const handleConfirm = () => {
     // Apply the selected category to all food items

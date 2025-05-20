@@ -53,7 +53,7 @@ serve(async (req) => {
                 },
                 {
                   role: "user",
-                  content: `Extract food items from this text and return a JSON array like this example (NO OTHER TEXT OR FORMATTING): [{"name":"apple","weight_g":100}]. Text: ${text}`
+                  content: `Extract food items from this text and return a JSON array like this example (NO OTHER TEXT OR FORMATTING): [{"name":"Grilled Sirloin Steak","weight_g":100}]. Use appetizing, restaurant-style names for food items. Text: ${text}`
                 }
               ],
             }),
@@ -136,14 +136,14 @@ serve(async (req) => {
               messages: [
                 {
                   role: "system",
-                  content: "You are a JSON generator for food analysis. Output only valid JSON arrays with food items and their nutrition data. No markdown, no text, no explanations."
+                  content: "You are a culinary expert who analyzes food images. Use restaurant-style menu naming for dishes, like 'Pan-Seared Atlantic Salmon', 'Grilled Ribeye Steak', or 'Harvest Vegetable Bowl'. For dishes with multiple components, focus on the main protein or feature item first. Output only valid JSON arrays with food items and their nutrition data."
                 },
                 {
                   role: "user",
                   content: [
                     {
                       type: "text",
-                      text: "Return a JSON array like this example (NO OTHER TEXT OR FORMATTING): [{\"name\":\"food name\",\"weight_g\":100,\"nutrition\":{\"calories\":50,\"protein\":0.5,\"carbs\":12,\"fat\":0.2}}]"
+                      text: "Return a JSON array like this example (NO OTHER TEXT OR FORMATTING): [{\"name\":\"Grilled Ribeye Steak\",\"weight_g\":100,\"nutrition\":{\"calories\":50,\"protein\":0.5,\"carbs\":12,\"fat\":0.2}}]. Use appetizing, accurate restaurant-style menu names with proper culinary terminology."
                     },
                     {
                       type: "image_url",
