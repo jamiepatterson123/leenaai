@@ -158,12 +158,8 @@ export const NaturalLanguageInput = ({
   return <div className="w-full max-w-[95%] mx-auto md:max-w-full relative">
       <div className="flex gap-2 items-center">
         
-        <Button size="icon" variant={isRecording ? "destructive" : "default"} onClick={isRecording ? stopRecording : startRecording} disabled={isProcessing} className="shrink-0">
-          <Mic className="h-4 w-4" />
-        </Button>
-        <Button size="icon" onClick={processNaturalLanguageInput} disabled={isProcessing || !inputText.trim()} className="shrink-0">
-          {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-        </Button>
+        
+        
       </div>
       
       <LoadingOverlay isVisible={isRecording} title="Listening..." messages={voiceMessages} type="voice" fullScreen={isMobile} />
