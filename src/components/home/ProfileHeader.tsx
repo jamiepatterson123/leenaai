@@ -17,7 +17,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile }) => {
         <h1 className="text-2xl font-bold tracking-tight">
           {isSubscribed 
             ? (profile?.first_name ? `Hello, ${profile.first_name}` : "Welcome!") 
-            : "Welcome! You're currently on Leena's Free Plan"}
+            : "Welcome! You're on Leena's Free Plan"}
         </h1>
         {/* Date display - currently hidden
         {!isSubscribed && (
