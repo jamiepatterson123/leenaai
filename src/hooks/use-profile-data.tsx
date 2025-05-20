@@ -34,8 +34,8 @@ export const useProfileData = () => {
   };
 
   const handleSubmit = async (data: ProfileFormData) => {
+    setLoading(true);
     try {
-      setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
@@ -78,9 +78,12 @@ export const useProfileData = () => {
       
       // Fetch the updated profile
       await fetchProfile();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating profile:", error);
-      toast.error("Failed to update profile");
+      // Add more details to the error message if available
+      const errorMessage = error.message ? `Failed to update profile: ${error.message}` : "Failed to update profile";
+      toast.error(errorMessage);
+      throw error; // Rethrow to let the form know submission failed
     } finally {
       setLoading(false);
     }

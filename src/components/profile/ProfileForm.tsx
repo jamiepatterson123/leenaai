@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { BasicInfoFields } from "./BasicInfoFields";
 import { SelectFields } from "./SelectFields";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 interface ProfileFormProps {
   initialData?: Partial<ProfileFormData>;
@@ -19,7 +21,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   onChange,
 }) => {
   const queryClient = useQueryClient();
-  const { register, handleSubmit, setValue, watch } = useForm<ProfileFormData>({
+  const { register, handleSubmit, setValue, watch, formState: { isSubmitting } } = useForm<ProfileFormData>({
     defaultValues: initialData,
   });
 
@@ -80,30 +82,49 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
       }
     }
 
-    // Update preferred units in the database
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ preferred_units: value })
-        .eq("user_id", user.id);
+    try {
+      // Update preferred units in the database
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase
+          .from("profiles")
+          .update({ preferred_units: value })
+          .eq("user_id", user.id);
 
-      if (error) {
-        console.error('Error updating preferred units:', error);
-      } else {
-        // Invalidate and refetch profile data
-        queryClient.invalidateQueries({ queryKey: ['profile'] });
+        if (error) {
+          console.error('Error updating preferred units:', error);
+          toast.error("Failed to update preferred units");
+        } else {
+          // Invalidate and refetch profile data
+          queryClient.invalidateQueries({ queryKey: ['profile'] });
+        }
       }
+    } catch (error) {
+      console.error('Error updating preferred units:', error);
+      toast.error("Failed to update preferred units");
     }
   };
 
-  const handleFormSubmit = (data: ProfileFormData) => {
-    // Convert measurements back to metric if using imperial
-    if (preferredUnits === 'imperial') {
-      data.height_cm = data.height_cm * 2.54; // inches to cm
-      data.weight_kg = data.weight_kg / 2.20462; // lbs to kg
+  const handleFormSubmit = async (data: ProfileFormData) => {
+    try {
+      // Convert measurements back to metric if using imperial
+      if (preferredUnits === 'imperial') {
+        data.height_cm = data.height_cm * 2.54; // inches to cm
+        data.weight_kg = data.weight_kg / 2.20462; // lbs to kg
+      }
+      
+      // Call the onSubmit function passed as prop
+      await onSubmit(data);
+      
+      // Show success message
+      toast.success("Profile saved successfully");
+    } catch (error) {
+      // Log the error for debugging
+      console.error("Error saving profile:", error);
+      
+      // Show error message to the user
+      toast.error("Failed to save profile");
     }
-    onSubmit(data);
   };
 
   return (
@@ -125,8 +146,13 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
         />
       </div>
 
-      <Button type="submit" variant="gradient" className="w-full">
-        Save Profile
+      <Button 
+        type="submit" 
+        variant="gradient" 
+        className="w-full"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Saving..." : "Save Profile"}
       </Button>
     </form>
   );
