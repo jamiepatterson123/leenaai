@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Dialog,
@@ -111,6 +112,7 @@ export const FoodVerificationDialog = ({
             onClick={handleConfirm}
             disabled={updating !== null || editedFoods.length === 0}
             className="w-full sm:w-auto order-2 sm:order-1"
+            variant="gradient"
           >
             Add to Diary
           </Button>
