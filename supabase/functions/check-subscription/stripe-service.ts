@@ -19,6 +19,9 @@ export async function getStripeSubscriptionInfo(
   // If no customer found by email, check the subscribers table to see if we have a mapping
   if (customers.data.length === 0) {
     logStep("No Stripe customer found by direct email match", { email: userEmail });
+    
+    // Try to find by other emails in our database - this will be handled by the main function
+    // that calls getStripeSubscriptionInfo then checks our database for mappings
     return {
       hasSubscription: false,
       subscriptionEnd: null,
@@ -67,7 +70,10 @@ export async function getStripeSubscriptionInfo(
   // Check if it's yearly or monthly based on price ID
   if (priceId === "price_1RP4bMLKGAMmFDpiFaJZpYlb") {
     subscriptionTier = "yearly";
+  } else if (priceId === "price_1RP3dMLKGAMmFDpiq07LsXmG") {
+    subscriptionTier = "monthly";
   } else {
+    // Default to monthly for any other subscription
     subscriptionTier = "monthly";
   }
   
@@ -83,4 +89,25 @@ export async function getStripeSubscriptionInfo(
     subscriptionTier,
     customerId
   };
+}
+
+// Add a helper function to check for any customer that matches a subscription
+export async function findCustomerBySubscriptionId(
+  stripeKey: string,
+  subscriptionId: string
+): Promise<string | null> {
+  if (!subscriptionId) return null;
+  
+  const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+  
+  try {
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    if (subscription && subscription.customer) {
+      return subscription.customer.toString();
+    }
+  } catch (error) {
+    logStep("Error retrieving subscription", { error: error.message });
+  }
+  
+  return null;
 }

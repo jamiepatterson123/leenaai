@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Session } from "@supabase/supabase-js";
 import { toast } from "@/hooks/use-toast";
@@ -21,6 +20,7 @@ export const useSubscriptionEffects = (
     const yearlySuccessParam = url.searchParams.get("yearly_success");
     const cancelMonthlyParam = url.searchParams.get("cancel_monthly");
     const yearlyUpgraded = url.searchParams.get("yearly_upgraded");
+    const subscriptionId = url.searchParams.get("subscription_id");
     
     if (successParam === "true") {
       toast({
@@ -36,9 +36,19 @@ export const useSubscriptionEffects = (
       
       // Remove params from URL
       url.searchParams.delete("subscription_success");
-      window.history.replaceState({}, document.title, url.toString());
-      // Refresh subscription status
+      
+      // Keep subscription_id param as it's needed for the check-subscription function
+      if (!subscriptionId) {
+        window.history.replaceState({}, document.title, url.toString());
+      }
+      
+      // Refresh subscription status immediately
       actions.checkSubscription();
+      
+      // Check again after a short delay to ensure webhook has processed
+      setTimeout(() => {
+        actions.checkSubscription();
+      }, 3000);
     } else if (cancelledParam === "true") {
       toast({
         title: "Subscription cancelled",
@@ -67,8 +77,14 @@ export const useSubscriptionEffects = (
       url.searchParams.delete("yearly_success");
       url.searchParams.delete("cancel_monthly");
       window.history.replaceState({}, document.title, url.toString());
+      
       // Refresh subscription status
       actions.checkSubscription();
+      
+      // Check again after a short delay
+      setTimeout(() => {
+        actions.checkSubscription();
+      }, 3000);
     } else if (yearlyUpgraded === "true") {
       toast({
         title: "Successfully upgraded to yearly plan!",
@@ -78,7 +94,30 @@ export const useSubscriptionEffects = (
       
       url.searchParams.delete("yearly_upgraded");
       window.history.replaceState({}, document.title, url.toString());
+      
       actions.checkSubscription();
+      
+      // Check again after a short delay
+      setTimeout(() => {
+        actions.checkSubscription();
+      }, 3000);
+    } else if (subscriptionId) {
+      // If we have a subscription ID but no success param, it might be coming from a redirect
+      // Check subscription status to make sure it's updated
+      console.log("Found subscription ID in URL, checking subscription status", { subscriptionId });
+      actions.checkSubscription();
+      
+      // Check again after a delay to ensure webhook has processed
+      setTimeout(() => {
+        actions.checkSubscription();
+      }, 3000);
     }
   }, []);
+  
+  // Add a second effect to check subscription status on mount
+  useEffect(() => {
+    if (session) {
+      actions.checkSubscription();
+    }
+  }, [session]);
 };

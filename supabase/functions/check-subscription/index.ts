@@ -2,7 +2,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { corsHeaders, logStep } from "./utils.ts";
-import { getStripeSubscriptionInfo } from "./stripe-service.ts";
+import { getStripeSubscriptionInfo, findCustomerBySubscriptionId } from "./stripe-service.ts";
 import { checkUsageLimits, updateSubscriberRecord } from "./usage-service.ts";
 
 serve(async (req) => {
@@ -35,11 +35,20 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Check if user exists in subscribers table
+    // Step 1: Check if there's a URL parameter for subscription_id (from redirect after payment)
+    let subscriptionId = null;
+    const url = new URL(req.url);
+    const subscriptionIdParam = url.searchParams.get("subscription_id");
+    if (subscriptionIdParam) {
+      subscriptionId = subscriptionIdParam;
+      logStep("Found subscription ID in URL params", { subscriptionId });
+    }
+
+    // Step 2: Check if user exists in subscribers table by user_id or email
     const { data: subscriberData, error: subscriberError } = await supabaseClient
       .from("subscribers")
       .select("*")
-      .eq("user_id", user.id)
+      .or(`user_id.eq.${user.id},email.eq.${user.email}`)
       .single();
 
     if (subscriberError && subscriberError.code !== "PGRST116") {
@@ -47,11 +56,34 @@ serve(async (req) => {
       throw new Error(`Error checking subscriber status: ${subscriberError.message}`);
     }
 
-    // Check subscription status with Stripe
-    const { hasSubscription, subscriptionEnd, subscriptionTier, customerId } = 
-      await getStripeSubscriptionInfo(stripeKey, user.email);
+    // Step 3: If we have a subscription ID from URL, try to find the customer and link them
+    let stripeCustomerId = null;
+    if (subscriptionId) {
+      stripeCustomerId = await findCustomerBySubscriptionId(stripeKey, subscriptionId);
+      if (stripeCustomerId) {
+        logStep("Found Stripe customer from subscription ID", { 
+          subscriptionId,
+          customerId: stripeCustomerId 
+        });
+      }
+    }
 
-    // Check usage limits
+    // Step 4: Check subscription status with Stripe
+    const { 
+      hasSubscription, 
+      subscriptionEnd, 
+      subscriptionTier, 
+      customerId 
+    } = await getStripeSubscriptionInfo(stripeKey, user.email);
+    
+    // If no subscription found with user's email but we found a customer ID from the subscription
+    // parameter, use that customer ID to look for subscriptions
+    const finalCustomerId = customerId || stripeCustomerId;
+    let finalHasSubscription = hasSubscription;
+    let finalSubscriptionEnd = subscriptionEnd;
+    let finalSubscriptionTier = subscriptionTier;
+
+    // Step 5: Check usage limits
     const { 
       usageCount, 
       firstUsageTime, 
@@ -63,19 +95,19 @@ serve(async (req) => {
     } = await checkUsageLimits(
       supabaseClient, 
       user.id, 
-      hasSubscription,
+      finalHasSubscription,
       subscriberData
     );
 
-    // Update subscriber record in database
+    // Step 6: Update subscriber record in database
     await updateSubscriberRecord(
       supabaseClient,
       user.id,
       user.email,
-      customerId,
-      hasSubscription,
-      subscriptionTier,
-      subscriptionEnd,
+      finalCustomerId,
+      finalHasSubscription,
+      finalSubscriptionTier,
+      finalSubscriptionEnd,
       usageCount,
       firstUsageTime,
       lastUsageTime
@@ -83,10 +115,10 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        subscribed: hasSubscription,
+        subscribed: finalHasSubscription,
         usage_count: usageCount,
-        subscription_end: subscriptionEnd,
-        subscription_tier: subscriptionTier,
+        subscription_end: finalSubscriptionEnd,
+        subscription_tier: finalSubscriptionTier,
         daily_limit_reached: dailyLimitReached,
         has_free_uses_remaining: hasRemaining,
         first_usage_time: firstUsageTime,
