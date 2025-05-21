@@ -1,45 +1,56 @@
 
-import React from 'react';
+import React, { useState } from "react";
 import {
-  ResponsiveContainer,
   LineChart,
   Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  TooltipProps,
-} from 'recharts';
-import { WeightTooltipContent } from './WeightTooltipContent';
+  ResponsiveContainer,
+  TooltipProps
+} from "recharts";
+import { format, isValid } from "date-fns";
+import { WeightTooltipContent } from "./WeightTooltipContent";
+
+export interface WeightChartData {
+  date: string;
+  weight: number;
+  id?: string;
+}
 
 interface WeightChartConfigProps {
-  data: Array<{
-    weight: number;
-    date: string;
-    id?: string;  // Add optional ID field
-  }>;
-  preferredUnits: string;
-  isMobile: boolean;
+  data: WeightChartData[];
   onDelete: (date: string, weight: number, id?: string) => void;
   onEdit: (date: string, weight: number, id?: string) => void;
+  preferredUnits: string;
+  isMobile: boolean;
 }
 
 export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
   data,
-  preferredUnits,
-  isMobile,
   onDelete,
   onEdit,
+  preferredUnits,
+  isMobile
 }) => {
-  const [activePoint, setActivePoint] = React.useState<number | null>(null);
+  const [activePoint, setActivePoint] = useState<number | null>(null);
 
-  const handleClick = (event: any) => {
-    if (!event.activePayload?.[0]?.payload) return;
-    
-    const index = data.findIndex(
-      (item) => item.date === event.activePayload[0].payload.date
-    );
-    
+  // Format date for display
+  const formatXAxis = (tickItem: string) => {
+    const date = new Date(tickItem);
+    if (!isValid(date)) return "";
+    return format(date, "MMM d");
+  };
+
+  const tooltipFormatter = (value: number) => {
+    return [
+      `${value} ${preferredUnits === 'metric' ? 'kg' : 'lbs'}`,
+      "Weight"
+    ];
+  };
+
+  const handleClick = (data: any, index: number) => {
     setActivePoint(activePoint === index ? null : index);
   };
 
@@ -53,34 +64,36 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
         <XAxis
           dataKey="date"
-          tickFormatter={(date) => {
-            const d = new Date(date);
-            return `${d.getDate()}. ${d.toLocaleString('default', { month: 'short' })}`;
-          }}
-          stroke="#888888"
-          fontSize={12}
-          tickLine={false}
-          axisLine={false}
+          tickFormatter={formatXAxis}
+          tick={{ fontSize: 12 }}
+          tickMargin={10}
         />
         <YAxis
-          stroke="#888888"
-          fontSize={12}
-          tickLine={false}
-          axisLine={false}
-          unit={preferredUnits === 'metric' ? 'kg' : ' lbs'}
-          domain={['dataMin - 10', 'dataMax + 10']}
-          ticks={[0, 25, 50, 75, 100]}
+          tickFormatter={(value) =>
+            `${value} ${preferredUnits === 'metric' ? 'kg' : 'lbs'}`
+          }
+          tick={{ fontSize: 12 }}
+          domain={["dataMin - 2", "dataMax + 2"]}
         />
         <Tooltip
-          content={(props: TooltipProps<number, string>) => (
-            <WeightTooltipContent
-              {...props}
-              onDelete={onDelete}
-              onEdit={onEdit}
-              preferredUnits={preferredUnits}
-              isMobile={isMobile}
-            />
-          )}
+          formatter={tooltipFormatter}
+          labelFormatter={(value) => {
+            const date = new Date(value);
+            if (!isValid(date)) return "";
+            return format(date, "MMM d, yyyy");
+          }}
+          content={
+            ({active, payload}) => (
+              <WeightTooltipContent
+                active={active}
+                payload={payload}
+                onDelete={onDelete}
+                onEdit={onEdit}
+                preferredUnits={preferredUnits}
+                isMobile={isMobile}
+              />
+            )
+          }
           trigger="click"
           wrapperStyle={{ 
             outline: 'none', 
@@ -88,18 +101,23 @@ export const WeightChartConfig: React.FC<WeightChartConfigProps> = ({
             pointerEvents: 'auto' 
           }}
           allowEscapeViewBox={{ x: true, y: true }}
-          position={{ x: 'auto', y: 'auto' }}
         />
         <Line
           type="monotone"
           dataKey="weight"
-          stroke="#D946EF" 
-          strokeWidth={1.5}
-          dot={{ r: 3, strokeWidth: 1, fill: "#fff" }}
+          stroke="#8884d8"
+          strokeWidth={2}
+          dot={{
+            r: 4,
+            strokeWidth: 1,
+            fill: "white",
+            stroke: "#8884d8"
+          }}
           activeDot={{
-            r: 5,
-            stroke: "#D946EF",
-            strokeWidth: 2,
+            r: 6,
+            stroke: "#8884d8",
+            strokeWidth: 1,
+            fill: "#8884d8"
           }}
         />
       </LineChart>

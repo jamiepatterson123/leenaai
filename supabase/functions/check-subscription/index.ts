@@ -66,8 +66,9 @@ serve(async (req) => {
     let firstUsageTime = null;
     let lastUsageTime = null;
     let dailyLimitReached = false;
+    let subscriptionTier = null;
 
-    // Check if user is in Stripe
+    // Check if user is in Stripe and has an active subscription
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     if (customers.data.length > 0) {
       stripeCustomerId = customers.data[0].id;
@@ -81,11 +82,18 @@ serve(async (req) => {
       });
       
       if (subscriptions.data.length > 0) {
+        const subscription = subscriptions.data[0];
         hasSubscription = true;
-        subscriptionEnd = new Date(subscriptions.data[0].current_period_end * 1000).toISOString();
+        subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+        
+        // Determine subscription tier from the subscription's plan interval
+        const interval = subscription.items.data[0]?.plan?.interval;
+        subscriptionTier = interval === 'year' ? 'yearly' : 'monthly';
+        
         logStep("Active subscription found", { 
-          subscriptionId: subscriptions.data[0].id, 
-          endDate: subscriptionEnd 
+          subscriptionId: subscription.id, 
+          endDate: subscriptionEnd,
+          tier: subscriptionTier
         });
       } else {
         logStep("No active subscription found");
@@ -96,9 +104,15 @@ serve(async (req) => {
 
     // Use existing data if available
     if (subscriberData) {
+      // If we have subscription data from Stripe, use that, otherwise use what's in the database
+      hasSubscription = hasSubscription || subscriberData.subscribed;
+      subscriptionEnd = subscriptionEnd || subscriberData.subscription_end;
+      subscriptionTier = subscriptionTier || subscriberData.subscription_tier;
+      
       usageCount = subscriberData.usage_count;
       firstUsageTime = subscriberData.first_usage_time;
       lastUsageTime = subscriberData.last_usage_time;
+      stripeCustomerId = stripeCustomerId || subscriberData.stripe_customer_id;
 
       const FREE_INITIAL_USES = 3; // Initial 3 free uses for new users
       const FREE_DAILY_USES = 2;   // 2 free uses per day after initial period
@@ -111,6 +125,7 @@ serve(async (req) => {
       const isWithinFirst24Hours = firstTime && 
         (now.getTime() - firstTime.getTime() < 24 * 60 * 60 * 1000);
       
+      // Skip usage limits for subscribed users
       if (!hasSubscription) {
         if (isWithinFirst24Hours) {
           // Within first 24 hours: limit is 3 uses
@@ -151,13 +166,15 @@ serve(async (req) => {
             }
           }
         }
+      } else {
+        dailyLimitReached = false; // Subscribed users never reach limits
       }
     }
 
     // Current timestamp
     const now = new Date().toISOString();
 
-    // Upsert subscriber record
+    // Upsert subscriber record with latest information
     await supabaseClient
       .from("subscribers")
       .upsert({
@@ -165,7 +182,7 @@ serve(async (req) => {
         email: user.email,
         stripe_customer_id: stripeCustomerId,
         subscribed: hasSubscription,
-        subscription_tier: hasSubscription ? "premium" : "free",
+        subscription_tier: subscriptionTier,
         subscription_end: subscriptionEnd,
         usage_count: usageCount,
         first_usage_time: firstUsageTime || now,
@@ -175,6 +192,7 @@ serve(async (req) => {
 
     logStep("Database updated", { 
       subscribed: hasSubscription,
+      subscription_tier: subscriptionTier,
       usage_count: usageCount 
     });
 
@@ -192,6 +210,7 @@ serve(async (req) => {
         subscribed: hasSubscription,
         usage_count: usageCount,
         subscription_end: subscriptionEnd,
+        subscription_tier: subscriptionTier,
         daily_limit_reached: dailyLimitReached,
         has_free_uses_remaining: hasRemaining,
         first_usage_time: firstUsageTime,

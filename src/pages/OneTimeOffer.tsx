@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,11 +9,13 @@ import { trackOneTimeOfferView } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { GlowEffect } from "@/components/ui/glow-effect";
+
 const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const {
-    redirectToYearlyCheckout
+    redirectToYearlyCheckout,
+    checkSubscription
   } = useSubscription();
   const [isPreview, setIsPreview] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(5 * 60); // 5 minutes in seconds
@@ -20,6 +23,7 @@ const OneTimeOffer = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [monthlySubscriptionId, setMonthlySubscriptionId] = useState<string | null>(null);
   const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
+  
   useEffect(() => {
     // Check authentication status
     supabase.auth.getSession().then(({
@@ -31,6 +35,8 @@ const OneTimeOffer = () => {
 
       // If logged in, check for any active subscriptions
       if (session) {
+        checkSubscription(); // Update subscription status
+        
         // Get subscription data from localStorage or query from API
         const urlParams = new URLSearchParams(location.search);
         const subscriptionId = urlParams.get('subscription_id');
@@ -54,8 +60,11 @@ const OneTimeOffer = () => {
     const successParam = url.searchParams.get("subscription_success");
     if (successParam !== "true" && !previewMode) {
       console.log("Preview mode is disabled or not from successful checkout");
+      navigate("/profile");
     }
   }, []);
+  
+  // Effect for countdown timer
   useEffect(() => {
     // Set up the countdown timer
     const timer = setInterval(() => {
@@ -135,6 +144,8 @@ const OneTimeOffer = () => {
         if (data.success) {
           toast.success("Successfully upgraded to yearly plan!");
           navigate("/dashboard?yearly_upgraded=true");
+          // Refresh subscription status
+          checkSubscription();
         } else {
           throw new Error("Failed to upgrade subscription");
         }
@@ -162,6 +173,8 @@ const OneTimeOffer = () => {
         if (data.success) {
           toast.success("Successfully upgraded to yearly plan!");
           navigate("/dashboard?yearly_upgraded=true");
+          // Refresh subscription status
+          checkSubscription();
         } else {
           throw new Error("Failed to upgrade subscription");
         }
@@ -176,7 +189,7 @@ const OneTimeOffer = () => {
     }
   };
 
-  // Direct link to Stripe payment
+  // Direct link to profile page
   const handleSkip = () => {
     // If logged in, redirect to profile page, otherwise to homepage
     if (isLoggedIn) {
@@ -185,6 +198,7 @@ const OneTimeOffer = () => {
       navigate("/");
     }
   };
+  
   return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
@@ -194,11 +208,6 @@ const OneTimeOffer = () => {
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome to Leena.ai</h1>
           <p className="text-xl text-gray-600">Your monthly membership is now active</p>
           {isPreview}
-        </div>
-        
-        {/* FOMO Timer */}
-        <div className="mb-6 text-center">
-          
         </div>
         
         <Card className="border-2 border-gradient-to-r from-[#D946EF] to-[#8B5CF6] shadow-lg">
@@ -311,4 +320,5 @@ const OneTimeOffer = () => {
       </div>
     </div>;
 };
+
 export default OneTimeOffer;

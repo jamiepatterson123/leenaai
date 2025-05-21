@@ -68,7 +68,8 @@ serve(async (req) => {
     // Store user email in metadata for later CAPI tracking in webhook
     const metadata = {
       user_email: user.email,
-      user_id: user.id
+      user_id: user.id,
+      subscription_source: "regular_checkout" // Identify the source of subscription
     };
 
     // Always redirect to the /oto page without requiring authentication

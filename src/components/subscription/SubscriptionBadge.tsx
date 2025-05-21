@@ -4,6 +4,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowRight, CreditCard, Star, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+
 export const SubscriptionBadge: React.FC = () => {
   const {
     isLoading,
@@ -13,24 +14,28 @@ export const SubscriptionBadge: React.FC = () => {
     isWithinFirst24Hours,
     hoursUntilNextUse,
     redirectToCustomerPortal,
-    checkSubscription
+    checkSubscription,
+    subscriptionTier
   } = useSubscription();
+  
   const handleRefresh = async () => {
     toast.info("Checking subscription status...");
     await checkSubscription();
     toast.success("Subscription status refreshed");
   };
+  
   if (isLoading) {
     return <div className="flex items-center space-x-2 text-muted-foreground">
         <Loader2 className="h-4 w-4 animate-spin" />
         <span className="text-xs">Checking subscription...</span>
       </div>;
   }
+  
   if (isSubscribed) {
     return <div className="flex flex-col sm:flex-row items-center gap-2">
         <div className="flex items-center space-x-2 bg-gradient-to-r from-amber-200 to-yellow-400 text-amber-900 px-3 py-1 rounded-full text-xs font-medium">
           <Star className="h-3 w-3" />
-          <span>Unlimited</span>
+          <span>{subscriptionTier === 'yearly' ? 'Annual Plan' : 'Monthly Plan'}</span>
         </div>
         <Button variant="outline" size="sm" className="text-xs h-8" onClick={redirectToCustomerPortal}>
           <CreditCard className="h-3 w-3 mr-2" />
@@ -53,6 +58,7 @@ export const SubscriptionBadge: React.FC = () => {
   } else {
     statusText = "1 free image analysis available";
   }
+  
   return <div className="flex flex-col sm:flex-row items-center gap-2">
       <div className="text-xs text-muted-foreground text-left w-full">
         {statusText}
@@ -61,6 +67,5 @@ export const SubscriptionBadge: React.FC = () => {
         <ArrowRight className="h-3 w-3 mr-1" />
         Upgrade for unlimited photo logging
       </Button>
-      
     </div>;
 };

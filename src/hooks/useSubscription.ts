@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
@@ -25,6 +24,7 @@ export interface SubscriptionState {
   lastUsageTime: Date | null;
   hoursUntilNextUse: number;
   isWithinFirst24Hours: boolean;
+  subscriptionTier: string | null;
 }
 
 export const useSubscription = () => {
@@ -39,7 +39,8 @@ export const useSubscription = () => {
     firstUsageTime: null,
     lastUsageTime: null,
     hoursUntilNextUse: 0,
-    isWithinFirst24Hours: false
+    isWithinFirst24Hours: false,
+    subscriptionTier: null
   });
 
   // Check subscription status on mount and when session changes
@@ -57,7 +58,8 @@ export const useSubscription = () => {
         firstUsageTime: null,
         lastUsageTime: null,
         hoursUntilNextUse: 0,
-        isWithinFirst24Hours: false
+        isWithinFirst24Hours: false,
+        subscriptionTier: null
       });
     }
   }, [session]);
@@ -69,6 +71,7 @@ export const useSubscription = () => {
     const cancelledParam = url.searchParams.get("subscription_cancelled");
     const yearlySuccessParam = url.searchParams.get("yearly_success");
     const cancelMonthlyParam = url.searchParams.get("cancel_monthly");
+    const yearlyUpgraded = url.searchParams.get("yearly_upgraded");
     
     if (successParam === "true") {
       toast({
@@ -117,6 +120,16 @@ export const useSubscription = () => {
       window.history.replaceState({}, document.title, url.toString());
       // Refresh subscription status
       checkSubscription();
+    } else if (yearlyUpgraded === "true") {
+      toast({
+        title: "Successfully upgraded to yearly plan!",
+        description: "You now have unlimited access for a full year.",
+        variant: "default",
+      });
+      
+      url.searchParams.delete("yearly_upgraded");
+      window.history.replaceState({}, document.title, url.toString());
+      checkSubscription();
     }
   }, []);
 
@@ -155,7 +168,8 @@ export const useSubscription = () => {
         firstUsageTime: data.first_usage_time ? new Date(data.first_usage_time) : null,
         lastUsageTime: data.last_usage_time ? new Date(data.last_usage_time) : null,
         hoursUntilNextUse: data.hours_until_next_use || 0,
-        isWithinFirst24Hours
+        isWithinFirst24Hours,
+        subscriptionTier: data.subscription_tier || null
       });
     } catch (error) {
       console.error("Exception checking subscription:", error);
@@ -171,6 +185,11 @@ export const useSubscription = () => {
 
   const incrementUsage = async () => {
     if (!session) return false;
+    
+    // If user is subscribed, don't count usage
+    if (state.isSubscribed) {
+      return true; // Allow unlimited usage for subscribed users
+    }
     
     try {
       const { data, error } = await supabase.functions.invoke("increment-usage", {});
