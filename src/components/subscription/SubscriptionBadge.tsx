@@ -1,9 +1,11 @@
 
 import React from "react";
 import { useSubscription } from "@/hooks/useSubscription";
-import { Button } from "@/components/ui/button";
-import { Loader2, ArrowRight, CreditCard, Star, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { StatusBadge } from "./StatusBadge";
+import { UsageStatus } from "./UsageStatus";
+import { SubscriptionActions } from "./SubscriptionActions";
+import { LoadingState } from "./LoadingState";
 
 export const SubscriptionBadge: React.FC = () => {
   const {
@@ -25,47 +27,36 @@ export const SubscriptionBadge: React.FC = () => {
   };
   
   if (isLoading) {
-    return <div className="flex items-center space-x-2 text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        <span className="text-xs">Checking subscription...</span>
-      </div>;
+    return <LoadingState />;
   }
   
   if (isSubscribed) {
-    return <div className="flex flex-col sm:flex-row items-center gap-2">
-        <div className="flex items-center space-x-2 bg-gradient-to-r from-amber-200 to-yellow-400 text-amber-900 px-3 py-1 rounded-full text-xs font-medium">
-          <Star className="h-3 w-3" />
-          <span>{subscriptionTier === 'yearly' ? 'Annual Plan' : 'Monthly Plan'}</span>
-        </div>
-        <Button variant="outline" size="sm" className="text-xs h-8" onClick={redirectToCustomerPortal}>
-          <CreditCard className="h-3 w-3 mr-2" />
-          Manage Subscription
-        </Button>
-        <Button variant="ghost" size="sm" className="text-xs h-8" onClick={handleRefresh}>
-          <RefreshCw className="h-3 w-3 mr-1" />
-          Refresh Status
-        </Button>
-      </div>;
+    return (
+      <div className="flex flex-col sm:flex-row items-center gap-2">
+        <StatusBadge tier={subscriptionTier} />
+        <SubscriptionActions 
+          isSubscribed={true}
+          redirectToCustomerPortal={redirectToCustomerPortal}
+          handleRefresh={handleRefresh}
+        />
+      </div>
+    );
   }
 
-  // Free tier badge
-  let statusText = '';
-  if (isWithinFirst24Hours) {
-    statusText = `${5 - usageCount} of 5 free image analyses left`;
-  } else if (dailyLimitReached) {
-    const hours = Math.ceil(hoursUntilNextUse);
-    statusText = `Next image analysis in ${hours}h`;
-  } else {
-    statusText = "1 free image analysis available";
-  }
-  
-  return <div className="flex flex-col sm:flex-row items-center gap-2">
-      <div className="text-xs text-muted-foreground text-left w-full">
-        {statusText}
-      </div>
-      <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => window.location.href = "https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02"}>
-        <ArrowRight className="h-3 w-3 mr-1" />
-        Upgrade for unlimited photo logging
-      </Button>
-    </div>;
+  // Free tier display
+  return (
+    <div className="flex flex-col sm:flex-row items-center gap-2">
+      <UsageStatus 
+        isWithinFirst24Hours={isWithinFirst24Hours}
+        usageCount={usageCount}
+        dailyLimitReached={dailyLimitReached}
+        hoursUntilNextUse={hoursUntilNextUse}
+      />
+      <SubscriptionActions 
+        isSubscribed={false}
+        redirectToCustomerPortal={redirectToCustomerPortal}
+        handleRefresh={handleRefresh}
+      />
+    </div>
+  );
 };
