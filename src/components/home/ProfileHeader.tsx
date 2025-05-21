@@ -11,17 +11,25 @@ interface ProfileHeaderProps {
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile }) => {
   const { isSubscribed, checkSubscription } = useSubscription();
   
-  // Check subscription status on mount and periodically to ensure it's up to date
+  // More aggressive subscription status checking
   useEffect(() => {
     // Initial check
     checkSubscription();
     
-    // Set up periodic check every minute
+    // Check again after a short delay to ensure any URL params are processed
+    const initialCheckTimeout = setTimeout(() => {
+      checkSubscription();
+    }, 1000);
+    
+    // Set up periodic check every 30 seconds
     const intervalId = setInterval(() => {
       checkSubscription();
-    }, 60000); // Check every minute
+    }, 30000); // Check every 30 seconds
     
-    return () => clearInterval(intervalId);
+    return () => {
+      clearTimeout(initialCheckTimeout);
+      clearInterval(intervalId);
+    };
   }, []);
   
   return (

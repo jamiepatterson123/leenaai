@@ -22,6 +22,25 @@ export const useSubscriptionEffects = (
     const yearlyUpgraded = url.searchParams.get("yearly_upgraded");
     const subscriptionId = url.searchParams.get("subscription_id");
     
+    // Immediately check subscription at mount, regardless of URL params
+    if (session) {
+      actions.checkSubscription();
+    }
+    
+    // Handle subscription_id parameter even without success param
+    // This ensures we detect subscription changes from redirects
+    if (subscriptionId) {
+      console.log("Found subscription ID in URL, checking subscription status", { subscriptionId });
+      
+      // Perform an immediate check
+      actions.checkSubscription();
+      
+      // Check several times to ensure webhook has processed
+      setTimeout(() => actions.checkSubscription(), 2000);
+      setTimeout(() => actions.checkSubscription(), 5000);
+      setTimeout(() => actions.checkSubscription(), 15000);
+    }
+    
     if (successParam === "true") {
       toast({
         title: "Subscription successful!",
@@ -45,10 +64,9 @@ export const useSubscriptionEffects = (
       // Refresh subscription status immediately
       actions.checkSubscription();
       
-      // Check again after a short delay to ensure webhook has processed
-      setTimeout(() => {
-        actions.checkSubscription();
-      }, 3000);
+      // Check several times after a delay to ensure webhook has processed
+      setTimeout(() => actions.checkSubscription(), 2000);
+      setTimeout(() => actions.checkSubscription(), 5000);
     } else if (cancelledParam === "true") {
       toast({
         title: "Subscription cancelled",
@@ -81,10 +99,9 @@ export const useSubscriptionEffects = (
       // Refresh subscription status
       actions.checkSubscription();
       
-      // Check again after a short delay
-      setTimeout(() => {
-        actions.checkSubscription();
-      }, 3000);
+      // Check several times after a delay
+      setTimeout(() => actions.checkSubscription(), 2000);
+      setTimeout(() => actions.checkSubscription(), 5000);
     } else if (yearlyUpgraded === "true") {
       toast({
         title: "Successfully upgraded to yearly plan!",
@@ -97,20 +114,9 @@ export const useSubscriptionEffects = (
       
       actions.checkSubscription();
       
-      // Check again after a short delay
-      setTimeout(() => {
-        actions.checkSubscription();
-      }, 3000);
-    } else if (subscriptionId) {
-      // If we have a subscription ID but no success param, it might be coming from a redirect
-      // Check subscription status to make sure it's updated
-      console.log("Found subscription ID in URL, checking subscription status", { subscriptionId });
-      actions.checkSubscription();
-      
-      // Check again after a delay to ensure webhook has processed
-      setTimeout(() => {
-        actions.checkSubscription();
-      }, 3000);
+      // Check several times after a delay
+      setTimeout(() => actions.checkSubscription(), 2000);
+      setTimeout(() => actions.checkSubscription(), 5000);
     }
   }, []);
   

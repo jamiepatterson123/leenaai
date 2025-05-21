@@ -24,7 +24,21 @@ export const useSubscription = () => {
   // Check subscription status on mount and when session changes
   useEffect(() => {
     if (session) {
+      // Reset state first to avoid showing incorrect data during loading
+      state.setState(prevState => ({
+        ...prevState,
+        isLoading: true
+      }));
+      
+      // Perform subscription check
       actions.checkSubscription();
+      
+      // Check again after a short delay to ensure data is current
+      const timeout = setTimeout(() => {
+        actions.checkSubscription();
+      }, 2000);
+      
+      return () => clearTimeout(timeout);
     } else {
       state.resetState();
     }
