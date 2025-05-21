@@ -37,13 +37,13 @@ const OneTimeOffer = () => {
       if (session) {
         checkSubscription(); // Update subscription status
         
-        // Get subscription data from localStorage or query from API
+        // Get subscription data from URL parameters
         const urlParams = new URLSearchParams(location.search);
         const subscriptionId = urlParams.get('subscription_id');
         if (subscriptionId) {
           setMonthlySubscriptionId(subscriptionId);
           // Try to fetch the payment method for one-click upsell
-          getCustomerPaymentMethod();
+          getCustomerPaymentMethod(subscriptionId);
         }
       }
     });
@@ -52,15 +52,15 @@ const OneTimeOffer = () => {
     trackOneTimeOfferView();
 
     // Check for preview mode first
-    const url = new URL(window.location.href);
-    const previewMode = url.searchParams.get("preview") === "true";
+    const url = new URLSearchParams(location.search);
+    const previewMode = url.get("preview") === "true";
     setIsPreview(previewMode);
 
-    // Only redirect if not in preview mode and not from successful checkout
-    const successParam = url.searchParams.get("subscription_success");
+    // Only redirect if not in preview mode AND not from successful checkout
+    const successParam = url.get("subscription_success");
     if (successParam !== "true" && !previewMode) {
-      console.log("Preview mode is disabled or not from successful checkout");
-      navigate("/profile");
+      console.log("Not from successful checkout or preview mode, this is likely a direct navigation");
+      // Don't redirect automatically - let the user see the OTO page
     }
   }, []);
   
@@ -82,15 +82,15 @@ const OneTimeOffer = () => {
   }, []);
 
   // Get customer's payment method for one-click checkout
-  const getCustomerPaymentMethod = async () => {
-    if (!isLoggedIn || !monthlySubscriptionId) return;
+  const getCustomerPaymentMethod = async (subscriptionId: string) => {
+    if (!isLoggedIn) return;
     try {
       const {
         data,
         error
       } = await supabase.functions.invoke("get-payment-method", {
         body: {
-          subscription_id: monthlySubscriptionId,
+          subscription_id: subscriptionId,
           price_id: "price_1RQ96fLKGAMmFDpioHD4GoVM",
           // Monthly price ID
           product_id: "prod_SJh1rOEwP0uxpa" // Product ID
@@ -199,7 +199,8 @@ const OneTimeOffer = () => {
     }
   };
   
-  return <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto py-8">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center p-2 bg-green-100 text-green-800 rounded-full mb-4">
@@ -207,7 +208,6 @@ const OneTimeOffer = () => {
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome to Leena.ai</h1>
           <p className="text-xl text-gray-600">Your monthly membership is now active</p>
-          {isPreview}
         </div>
         
         <Card className="border-2 border-gradient-to-r from-[#D946EF] to-[#8B5CF6] shadow-lg">
@@ -318,7 +318,8 @@ const OneTimeOffer = () => {
           <p>Your subscription can be canceled anytime through your account settings.</p>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default OneTimeOffer;

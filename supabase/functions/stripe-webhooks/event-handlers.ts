@@ -1,3 +1,4 @@
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { trackPurchaseServerSide, trackSubscriptionCancelledServerSide, trackSubscriptionStartServerSide } from "./meta-capi.ts";
@@ -20,6 +21,80 @@ export async function getCustomerEmail(stripe: Stripe, customerId: string): Prom
     console.error("Error retrieving customer:", error);
     return null;
   }
+}
+
+// Helper function to handle linking accounts with different emails
+async function linkAccountByStripeCustomer(
+  supabaseClient: any, 
+  stripeCustomerId: string, 
+  email: string,
+  userId?: string
+) {
+  if (!stripeCustomerId) return;
+  
+  logStep("Checking for subscriber accounts to link by Stripe customer ID", { 
+    stripeCustomerId, email, userId 
+  });
+  
+  // First, find any subscribers with this Stripe customer ID
+  const { data: subscriberData, error: subscriberError } = await supabaseClient
+    .from("subscribers")
+    .select("*")
+    .eq("stripe_customer_id", stripeCustomerId);
+    
+  if (subscriberError || !subscriberData || subscriberData.length === 0) {
+    // No existing subscribers with this Stripe customer ID
+    logStep("No existing subscribers found with this Stripe customer ID");
+    return;
+  }
+  
+  // Look for exact matches by email
+  const exactMatch = subscriberData.find(sub => sub.email === email);
+  if (exactMatch) {
+    logStep("Found exact subscriber match by email", { id: exactMatch.id });
+    
+    // If userId is provided and doesn't match, update the record
+    if (userId && exactMatch.user_id !== userId) {
+      await supabaseClient
+        .from("subscribers")
+        .update({ user_id: userId })
+        .eq("id", exactMatch.id);
+      
+      logStep("Updated user_id for subscriber", { 
+        id: exactMatch.id, 
+        oldUserId: exactMatch.user_id,
+        newUserId: userId 
+      });
+    }
+    
+    return;
+  }
+  
+  // If no exact match by email, we'll update the first record we found
+  // to link it with this email/userId
+  const firstRecord = subscriberData[0];
+  
+  const updateData: any = {
+    email: email,
+    updated_at: new Date().toISOString()
+  };
+  
+  if (userId) {
+    updateData.user_id = userId;
+  }
+  
+  await supabaseClient
+    .from("subscribers")
+    .update(updateData)
+    .eq("id", firstRecord.id);
+    
+  logStep("Linked subscriber record to new email/user", { 
+    id: firstRecord.id, 
+    oldEmail: firstRecord.email,
+    newEmail: email,
+    oldUserId: firstRecord.user_id,
+    newUserId: userId || 'unchanged'
+  });
 }
 
 /**
@@ -73,6 +148,14 @@ export async function handleCheckoutSessionCompleted(
       subscriptionEnd
     });
     
+    // First, check if there's an existing subscriber with this customer ID
+    await linkAccountByStripeCustomer(
+      supabaseClient,
+      subscription.customer.toString(),
+      customerEmail,
+      userId
+    );
+    
     // Update the subscriber record in the database
     if (userId) {
       // If we have a user ID, update by user ID
@@ -81,7 +164,7 @@ export async function handleCheckoutSessionCompleted(
         .upsert({
           user_id: userId,
           email: customerEmail,
-          stripe_customer_id: subscription.customer,
+          stripe_customer_id: subscription.customer.toString(),
           subscribed: true,
           subscription_tier: subscriptionTier,
           subscription_end: subscriptionEnd,
@@ -99,7 +182,7 @@ export async function handleCheckoutSessionCompleted(
         .from("subscribers")
         .upsert({
           email: customerEmail,
-          stripe_customer_id: subscription.customer,
+          stripe_customer_id: subscription.customer.toString(),
           subscribed: true,
           subscription_tier: subscriptionTier,
           subscription_end: subscriptionEnd,
@@ -166,6 +249,15 @@ export async function handleInvoicePaid(
     const customerEmail = invoice.customer_email || 
       (invoice.customer ? await getCustomerEmail(stripe, invoice.customer) : null);
     
+    // If we have the customer email, check if we need to link accounts
+    if (customerEmail && invoice.customer) {
+      await linkAccountByStripeCustomer(
+        supabaseClient,
+        invoice.customer.toString(),
+        customerEmail
+      );
+    }
+    
     // Extend subscription end date in our database
     if (customerEmail) {
       const isYearly = subscription.items.data[0]?.plan?.interval === 'year';
@@ -177,18 +269,36 @@ export async function handleInvoicePaid(
         isRenewal: true
       });
       
-      // Update the subscription end date
-      const { error: updateError } = await supabaseClient
+      // First try to find by customer ID
+      const { data: customerData } = await supabaseClient
         .from("subscribers")
-        .update({
-          subscribed: true,
-          subscription_end: subscriptionEnd,
-          updated_at: new Date().toISOString()
-        })
-        .eq("email", customerEmail);
+        .select("id")
+        .eq("stripe_customer_id", invoice.customer.toString())
+        .limit(1);
         
-      if (updateError) {
-        logStep("ERROR updating subscription end date", { error: updateError });
+      if (customerData && customerData.length > 0) {
+        await supabaseClient
+          .from("subscribers")
+          .update({
+            subscribed: true,
+            subscription_end: subscriptionEnd,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", customerData[0].id);
+      } else {
+        // Update by email as fallback
+        const { error: updateError } = await supabaseClient
+          .from("subscribers")
+          .update({
+            subscribed: true,
+            subscription_end: subscriptionEnd,
+            updated_at: new Date().toISOString()
+          })
+          .eq("email", customerEmail);
+          
+        if (updateError) {
+          logStep("ERROR updating subscription end date", { error: updateError });
+        }
       }
       
       if (metaPixelId && metaAccessToken) {
@@ -240,18 +350,36 @@ export async function handleSubscriptionDeleted(
   if (customerEmail) {
     logStep("Subscription cancelled, updating database", { email: customerEmail });
     
-    // Update the subscriber record in the database
-    const { error: updateError } = await supabaseClient
+    // First try to find by customer ID
+    const { data: customerData } = await supabaseClient
       .from("subscribers")
-      .update({
-        subscribed: false,
-        subscription_end: new Date().toISOString(), // End subscription immediately
-        updated_at: new Date().toISOString()
-      })
-      .eq("email", customerEmail);
+      .select("id")
+      .eq("stripe_customer_id", customerId.toString())
+      .limit(1);
       
-    if (updateError) {
-      logStep("ERROR updating cancelled subscription", { error: updateError });
+    if (customerData && customerData.length > 0) {
+      await supabaseClient
+        .from("subscribers")
+        .update({
+          subscribed: false,
+          subscription_end: new Date().toISOString(), // End subscription immediately
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", customerData[0].id);
+    } else {
+      // Update by email as fallback
+      const { error: updateError } = await supabaseClient
+        .from("subscribers")
+        .update({
+          subscribed: false,
+          subscription_end: new Date().toISOString(), // End subscription immediately
+          updated_at: new Date().toISOString()
+        })
+        .eq("email", customerEmail);
+        
+      if (updateError) {
+        logStep("ERROR updating cancelled subscription", { error: updateError });
+      }
     }
     
     // Track subscription cancelled event

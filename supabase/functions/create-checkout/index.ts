@@ -83,7 +83,7 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `https://getleen.ai/oto?subscription_success=true`,
+      success_url: `https://getleen.ai/oto?subscription_success=true&subscription_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/dashboard?subscription_cancelled=true`,
       metadata: metadata,
     });
