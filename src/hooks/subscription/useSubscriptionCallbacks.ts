@@ -5,9 +5,14 @@ import { toast } from "@/hooks/use-toast";
 import { trackInitiateCheckout, trackSubscriptionCancelled } from "@/utils/metaPixel";
 import { SubscriptionState } from "./types";
 
+type SubscriptionStateHook = {
+  state: SubscriptionState;
+  setState: React.Dispatch<React.SetStateAction<SubscriptionState>>;
+};
+
 export const useSubscriptionCallbacks = (
   session: Session | null,
-  { state, setState }: { state: SubscriptionState; setState: (state: SubscriptionState) => void }
+  { state, setState }: SubscriptionStateHook
 ) => {
   const redirectToCheckout = async () => {
     if (!session) {
@@ -19,7 +24,7 @@ export const useSubscriptionCallbacks = (
       return;
     }
     
-    setState((prev) => ({ ...prev, isLoading: true }));
+    setState((prev: SubscriptionState) => ({ ...prev, isLoading: true }));
     
     try {
       // Track InitiateCheckout event with Meta Pixel
@@ -47,7 +52,7 @@ export const useSubscriptionCallbacks = (
         variant: "destructive",
       });
     } finally {
-      setState((prev) => ({ ...prev, isLoading: false }));
+      setState((prev: SubscriptionState) => ({ ...prev, isLoading: false }));
     }
   };
 
@@ -61,7 +66,7 @@ export const useSubscriptionCallbacks = (
       return;
     }
     
-    setState((prev) => ({ ...prev, isLoading: true }));
+    setState((prev: SubscriptionState) => ({ ...prev, isLoading: true }));
     
     try {
       const { data, error } = await supabase.functions.invoke("create-yearly-checkout", {
@@ -94,7 +99,7 @@ export const useSubscriptionCallbacks = (
         variant: "destructive",
       });
     } finally {
-      setState((prev) => ({ ...prev, isLoading: false }));
+      setState((prev: SubscriptionState) => ({ ...prev, isLoading: false }));
     }
   };
 
@@ -130,7 +135,7 @@ export const useSubscriptionCallbacks = (
       return;
     }
     
-    setState((prev) => ({ ...prev, isLoading: true }));
+    setState((prev: SubscriptionState) => ({ ...prev, isLoading: true }));
     
     try {
       const { data, error } = await supabase.functions.invoke("customer-portal", {});
@@ -155,7 +160,7 @@ export const useSubscriptionCallbacks = (
         variant: "destructive",
       });
     } finally {
-      setState((prev) => ({ ...prev, isLoading: false }));
+      setState((prev: SubscriptionState) => ({ ...prev, isLoading: false }));
     }
   };
 

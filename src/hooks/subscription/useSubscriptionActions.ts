@@ -5,14 +5,19 @@ import { toast } from "@/hooks/use-toast";
 import { trackFreeTrialUsage, trackFreeTrialExhausted } from "@/utils/metaPixel";
 import { SubscriptionState } from "./types";
 
+type SubscriptionStateHook = {
+  state: SubscriptionState;
+  setState: React.Dispatch<React.SetStateAction<SubscriptionState>>;
+};
+
 export const useSubscriptionActions = (
   session: Session | null,
-  { state, setState }: { state: SubscriptionState; setState: (state: SubscriptionState) => void }
+  { state, setState }: SubscriptionStateHook
 ) => {
   const checkSubscription = async () => {
     if (!session) return;
     
-    setState((prev) => ({ ...prev, isLoading: true }));
+    setState((prev: SubscriptionState) => ({ ...prev, isLoading: true }));
     
     try {
       const { data, error } = await supabase.functions.invoke("check-subscription", {});
@@ -55,7 +60,7 @@ export const useSubscriptionActions = (
         variant: "destructive",
       });
     } finally {
-      setState((prev) => ({ ...prev, isLoading: false }));
+      setState((prev: SubscriptionState) => ({ ...prev, isLoading: false }));
     }
   };
 
@@ -92,7 +97,7 @@ export const useSubscriptionActions = (
         }
       }
       
-      setState((prev) => ({
+      setState((prev: SubscriptionState) => ({
         ...prev,
         usageCount: data.usage_count || prev.usageCount,
         dailyLimitReached: data.daily_limit_reached || false,
@@ -114,8 +119,28 @@ export const useSubscriptionActions = (
     }
   };
 
+  const cancelSubscription = async (subscriptionId: string) => {
+    if (!session) return;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("cancel-subscription", {
+        body: { subscription_id: subscriptionId }
+      });
+      
+      if (error) {
+        console.error("Error canceling subscription:", error);
+        return;
+      }
+      
+      console.log("Monthly subscription canceled successfully:", data);
+    } catch (error) {
+      console.error("Exception canceling subscription:", error);
+    }
+  };
+
   return {
     checkSubscription,
-    incrementUsage
+    incrementUsage,
+    cancelSubscription
   };
 };

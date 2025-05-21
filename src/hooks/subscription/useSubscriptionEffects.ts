@@ -4,9 +4,9 @@ import { Session } from "@supabase/supabase-js";
 import { toast } from "@/hooks/use-toast";
 import { trackPurchase, trackSubscriptionStart, trackOneTimeOfferPurchase } from "@/utils/metaPixel";
 
-type SubscriptionActions = {
+export type SubscriptionActions = {
   checkSubscription: () => Promise<void>;
-  cancelSubscription: (subscriptionId: string) => Promise<void>;
+  cancelSubscription?: (subscriptionId: string) => Promise<void>;
 };
 
 export const useSubscriptionEffects = (
@@ -59,7 +59,7 @@ export const useSubscriptionEffects = (
       trackOneTimeOfferPurchase(99, 'USD');
       
       // If there's a monthly subscription to cancel
-      if (cancelMonthlyParam) {
+      if (cancelMonthlyParam && actions.cancelSubscription) {
         actions.cancelSubscription(cancelMonthlyParam);
       }
       
