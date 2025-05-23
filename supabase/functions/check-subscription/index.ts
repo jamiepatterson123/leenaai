@@ -72,16 +72,19 @@ serve(async (req) => {
     // Step 3: If we have a subscription ID, try to find the customer and link them
     let stripeCustomerId = null;
     if (subscriptionId) {
+      logStep("Attempting to find Stripe customer from subscription ID", { subscriptionId });
       stripeCustomerId = await findCustomerBySubscriptionId(stripeKey, subscriptionId);
       if (stripeCustomerId) {
         logStep("Found Stripe customer from subscription ID", { 
           subscriptionId,
           customerId: stripeCustomerId 
         });
+      } else {
+        logStep("Could not find Stripe customer from subscription ID", { subscriptionId });
       }
     }
 
-    // Step 4: Check subscription status with Stripe
+    // Step 4: Check subscription status with Stripe using the email
     const { 
       hasSubscription, 
       subscriptionEnd, 
@@ -101,35 +104,43 @@ serve(async (req) => {
       // This is a special case where the Stripe email doesn't match the app email
       logStep("No subscription found by email, checking by customer ID", { stripeCustomerId });
       
-      // Get all subscriptions for this customer
+      // Initialize Stripe
       const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-      const subscriptions = await stripe.subscriptions.list({
-        customer: stripeCustomerId,
-        status: "active",
-        limit: 1
-      });
       
-      if (subscriptions.data.length > 0) {
-        const subscription = subscriptions.data[0];
-        finalHasSubscription = true;
-        finalSubscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-        
-        // Determine subscription tier
-        const priceId = subscription.items.data[0]?.price?.id;
-        if (priceId === "price_1RP4bMLKGAMmFDpiFaJZpYlb") {
-          finalSubscriptionTier = "yearly";
-        } else if (priceId === "price_1RP3dMLKGAMmFDpiq07LsXmG") {
-          finalSubscriptionTier = "monthly";
-        } else {
-          // Default to monthly for any other subscription
-          finalSubscriptionTier = "monthly";
-        }
-        
-        logStep("Found active subscription by customer ID", {
-          subscriptionId: subscription.id,
-          tier: finalSubscriptionTier,
-          endDate: finalSubscriptionEnd
+      try {
+        // Get all subscriptions for this customer
+        const subscriptions = await stripe.subscriptions.list({
+          customer: stripeCustomerId,
+          status: "active",
+          limit: 1
         });
+        
+        if (subscriptions.data.length > 0) {
+          const subscription = subscriptions.data[0];
+          finalHasSubscription = true;
+          finalSubscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+          
+          // Determine subscription tier
+          const priceId = subscription.items.data[0]?.price?.id;
+          if (priceId === "price_1RP4bMLKGAMmFDpiFaJZpYlb") {
+            finalSubscriptionTier = "yearly";
+          } else if (priceId === "price_1RP3dMLKGAMmFDpiq07LsXmG") {
+            finalSubscriptionTier = "monthly";
+          } else {
+            // Default to monthly for any other subscription
+            finalSubscriptionTier = "monthly";
+          }
+          
+          logStep("Found active subscription by customer ID", {
+            subscriptionId: subscription.id,
+            tier: finalSubscriptionTier,
+            endDate: finalSubscriptionEnd
+          });
+        } else {
+          logStep("No active subscriptions found for this customer ID", { stripeCustomerId });
+        }
+      } catch (error) {
+        logStep("Error checking subscriptions by customer ID", { error: error.message });
       }
     }
 
@@ -149,7 +160,7 @@ serve(async (req) => {
       subscriberData
     );
 
-    // Step 6: Update subscriber record in database
+    // Step 6: Update subscriber record in database - Critical for subscription status
     await updateSubscriberRecord(
       supabaseClient,
       user.id,
@@ -165,7 +176,8 @@ serve(async (req) => {
 
     logStep("Returning subscription status", { 
       subscribed: finalHasSubscription,
-      tier: finalSubscriptionTier
+      tier: finalSubscriptionTier,
+      customer_id: finalCustomerId
     });
 
     return new Response(

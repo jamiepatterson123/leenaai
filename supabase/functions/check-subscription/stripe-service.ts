@@ -41,7 +41,7 @@ export async function getStripeSubscriptionInfo(
   });
   
   if (subscriptions.data.length === 0) {
-    logStep("No active subscriptions found");
+    logStep("No active subscriptions found for email customer");
     return {
       hasSubscription: false,
       subscriptionEnd: null,
@@ -101,9 +101,17 @@ export async function findCustomerBySubscriptionId(
   const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
   
   try {
+    logStep("Attempting to retrieve subscription by ID", { subscriptionId });
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     if (subscription && subscription.customer) {
-      return subscription.customer.toString();
+      const customerId = typeof subscription.customer === 'string' 
+        ? subscription.customer 
+        : subscription.customer.id;
+        
+      logStep("Successfully retrieved customer ID from subscription", { customerId });
+      return customerId;
+    } else {
+      logStep("No customer found for this subscription ID", { subscriptionId });
     }
   } catch (error) {
     logStep("Error retrieving subscription", { error: error.message });

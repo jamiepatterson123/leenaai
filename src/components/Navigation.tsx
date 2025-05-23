@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
 import { useQueryClient } from "@tanstack/react-query";
@@ -21,9 +20,40 @@ export const Navigation = () => {
   const {
     session
   } = useSession();
-  const { redirectToCheckout, isSubscribed } = useSubscription();
+  const { redirectToCheckout, isSubscribed, checkSubscription } = useSubscription();
   const selectedDate = new Date();
 
+  // Aggressively check subscription status
+  useEffect(() => {
+    if (session) {
+      // Check immediately on mount
+      checkSubscription();
+      
+      // And check after delays to catch webhook updates
+      const timeouts = [
+        setTimeout(() => checkSubscription(), 1000),
+        setTimeout(() => checkSubscription(), 3000),
+        setTimeout(() => checkSubscription(), 7000)
+      ];
+      
+      // Check for URL parameters indicating subscription changes
+      const url = new URL(window.location.href);
+      if (url.searchParams.has("subscription_success") || 
+          url.searchParams.has("subscription_id") ||
+          url.searchParams.has("yearly_success") ||
+          url.searchParams.has("yearly_upgraded")) {
+        console.log("Navigation: Detected subscription parameters in URL, checking status more frequently");
+        timeouts.push(
+          setTimeout(() => checkSubscription(), 500),
+          setTimeout(() => checkSubscription(), 2000),
+          setTimeout(() => checkSubscription(), 5000)
+        );
+      }
+      
+      return () => timeouts.forEach(timeout => clearTimeout(timeout));
+    }
+  }, [session]);
+  
   // If there's no session or we're on the auth page, don't render the navigation
   if (!session || window.location.pathname === '/auth') return null;
   
@@ -107,7 +137,7 @@ export const Navigation = () => {
                   <Button 
                     variant="gradient" 
                     className="flex items-center justify-start gap-3" 
-                    onClick={() => window.location.href = "https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02"}
+                    onClick={handleUpgradeToPremium}
                   >
                     <ArrowUp className="h-4 w-4" />
                     Upgrade to Unlimited
