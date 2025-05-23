@@ -1,3 +1,4 @@
+
 import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "@/components/ui/use-toast";
@@ -42,8 +43,8 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const { analyzing: globalAnalyzing, setAnalyzing: setGlobalAnalyzing } = useAnalyzing();
   const {
     incrementUsage,
-    dailyLimitReached,
     isSubscribed,
+    dailyLimitReached,
     usageCount,
     isWithinFirst24Hours,
     hoursUntilNextUse

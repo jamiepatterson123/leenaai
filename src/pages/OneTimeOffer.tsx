@@ -14,7 +14,6 @@ const OneTimeOffer = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const {
-    redirectToYearlyCheckout,
     checkSubscription
   } = useSubscription();
   const [isPreview, setIsPreview] = useState(false);
@@ -42,8 +41,6 @@ const OneTimeOffer = () => {
         const subscriptionId = urlParams.get('subscription_id');
         if (subscriptionId) {
           setMonthlySubscriptionId(subscriptionId);
-          // Try to fetch the payment method for one-click upsell
-          getCustomerPaymentMethod(subscriptionId);
         }
       }
     });
@@ -84,29 +81,8 @@ const OneTimeOffer = () => {
   // Get customer's payment method for one-click checkout
   const getCustomerPaymentMethod = async (subscriptionId: string) => {
     if (!isLoggedIn) return;
-    try {
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke("get-payment-method", {
-        body: {
-          subscription_id: subscriptionId,
-          price_id: "price_1RQ96fLKGAMmFDpioHD4GoVM",
-          // Monthly price ID
-          product_id: "prod_SJh1rOEwP0uxpa" // Product ID
-        }
-      });
-      if (error) {
-        console.error("Error fetching payment method:", error);
-        return;
-      }
-      if (data?.payment_method_id) {
-        setPaymentMethodId(data.payment_method_id);
-        console.log("Retrieved payment method for one-click upsell:", data.payment_method_id);
-      }
-    } catch (err) {
-      console.error("Exception getting payment method:", err);
-    }
+    // Since we've removed the payment system, this is just a mock function
+    console.log("Mock getCustomerPaymentMethod called");
   };
 
   // Format the time remaining as MM:SS
@@ -125,65 +101,15 @@ const OneTimeOffer = () => {
     }
     setIsProcessing(true);
     try {
-      // If we have payment method and subscription ID, use one-click upgrade
-      if (monthlySubscriptionId && paymentMethodId) {
-        console.log("Using one-click upgrade flow with existing payment method");
-        const {
-          data,
-          error
-        } = await supabase.functions.invoke("upgrade-to-yearly", {
-          body: {
-            monthly_subscription_id: monthlySubscriptionId,
-            payment_method_id: paymentMethodId,
-            price_id: "price_1RP4bMLKGAMmFDpiFaJZpYlb" // Yearly subscription price ID
-          }
-        });
-        if (error) {
-          throw new Error(error.message);
-        }
-        if (data.success) {
-          toast.success("Successfully upgraded to yearly plan!");
-          navigate("/dashboard?yearly_upgraded=true");
-          // Refresh subscription status
-          checkSubscription();
-        } else {
-          throw new Error("Failed to upgrade subscription");
-        }
-      }
-      // Fallback to regular checkout if we don't have payment info
-      else if (!monthlySubscriptionId) {
-        // If we don't have a monthly subscription ID, fall back to the regular checkout
-        redirectToYearlyCheckout();
-        return;
-      }
-      // Use regular upgrade flow
-      else {
-        console.log("Using standard upgrade flow");
-        const {
-          data,
-          error
-        } = await supabase.functions.invoke("upgrade-to-yearly", {
-          body: {
-            monthly_subscription_id: monthlySubscriptionId
-          }
-        });
-        if (error) {
-          throw new Error(error.message);
-        }
-        if (data.success) {
-          toast.success("Successfully upgraded to yearly plan!");
-          navigate("/dashboard?yearly_upgraded=true");
-          // Refresh subscription status
-          checkSubscription();
-        } else {
-          throw new Error("Failed to upgrade subscription");
-        }
-      }
+      // Mock subscription upgrade
+      console.log("Mock subscription upgrade called");
+      toast.success("This is a demo implementation. Real subscription features have been removed.");
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 2000);
     } catch (error) {
-      console.error("Error upgrading subscription:", error);
-      toast.error("Failed to upgrade: " + (error.message || "Unknown error"));
-      // Fall back to the regular checkout process
-      redirectToYearlyCheckout();
+      console.error("Error in mock upgrade:", error);
+      toast.error("This is a demo implementation. Real subscription features have been removed.");
     } finally {
       setIsProcessing(false);
     }

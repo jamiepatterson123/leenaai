@@ -12,10 +12,16 @@ export const useSubscription = () => {
     isLoading: false,
     isSubscribed: false,
     checkSubscription: async () => {},
-    incrementUsage: async () => true,
+    incrementUsage: async () => true, // Always return true to allow usage
     redirectToCheckout: async () => {},
     redirectToCustomerPortal: async () => {},
+    redirectToYearlyCheckout: async () => {},
+    dailyLimitReached: false,
+    usageCount: 0,
+    isWithinFirst24Hours: false,
+    hoursUntilNextUse: 0,
   };
 };
 
+// Export the type, not a duplicate declaration
 export type { SubscriptionState };
