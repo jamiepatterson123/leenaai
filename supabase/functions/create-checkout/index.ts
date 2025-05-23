@@ -55,9 +55,9 @@ serve(async (req) => {
       logStep("Existing customer found", { customerId });
     }
 
-    // Get request body if it exists
-    const requestBody = req.body ? await req.json() : {};
-    const priceId = requestBody.price_id || "price_1RP3dMLKGAMmFDpiq07LsXmG"; // Use specified price or default
+    // Parse request body if it exists
+    const requestData = req.body ? await req.json() : {};
+    const priceId = requestData.price_id || "price_1RP3dMLKGAMmFDpiq07LsXmG"; // Use specified price or default
     
     logStep("Using price ID", { priceId });
 
@@ -72,7 +72,7 @@ serve(async (req) => {
       subscription_source: "regular_checkout" // Identify the source of subscription
     };
 
-    // Always redirect to the /oto page without requiring authentication
+    // Create the checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,

@@ -3,6 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { CreditCard, RefreshCw, ArrowRight } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
+import { toast } from "sonner";
 
 interface SubscriptionActionsProps {
   isSubscribed: boolean;
@@ -16,6 +17,16 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({
   handleRefresh 
 }) => {
   const { redirectToCheckout } = useSubscription();
+  
+  const handleUpgradeClick = async () => {
+    try {
+      console.log("Initiating checkout process");
+      await redirectToCheckout();
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error("Unable to start checkout process. Please try again later.");
+    }
+  };
   
   if (isSubscribed) {
     return (
@@ -37,7 +48,7 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({
       variant="outline" 
       size="sm" 
       className="text-xs h-8" 
-      onClick={redirectToCheckout}
+      onClick={handleUpgradeClick}
     >
       <ArrowRight className="h-3 w-3 mr-1" />
       Upgrade for unlimited photo logging
