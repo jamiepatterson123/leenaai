@@ -23,5 +23,4 @@ export const useSubscription = () => {
   };
 };
 
-// Export the type, not a duplicate declaration
-export type { SubscriptionState };
+// Remove the duplicate export type declaration
