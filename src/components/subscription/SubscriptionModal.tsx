@@ -26,7 +26,8 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
     isLoading, 
     usageCount, 
     hasFreeUsesRemaining,
-    isWithinFirst24Hours
+    isWithinFirst24Hours,
+    redirectToCheckout
   } = useSubscription();
 
   // Track modal open
@@ -40,8 +41,8 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   }, [open, usageCount, hasFreeUsesRemaining]);
 
   const handleUpgrade = () => {
-    // Direct link to the Stripe checkout URL
-    window.location.href = "https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02";
+    redirectToCheckout();
+    onOpenChange(false);
   };
 
   const handleContinueFreeTrial = () => {

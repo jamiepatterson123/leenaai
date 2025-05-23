@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
@@ -107,14 +108,9 @@ export const Navigation = () => {
     }, 100);
   };
   
-  // Function to directly go to Stripe checkout for the $10/month plan
+  // Function to upgrade to Premium, now using redirectToCheckout
   const handleUpgradeToPremium = () => {
-    if (redirectToCheckout) {
-      redirectToCheckout();
-    } else {
-      // Direct link to Stripe as fallback
-      window.location.href = "https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02";
-    }
+    redirectToCheckout();
   };
   
   return (

@@ -2,7 +2,11 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { corsHeaders, logStep } from "./utils.ts";
-import { getStripeSubscriptionInfo, findCustomerBySubscriptionId } from "./stripe-service.ts";
+import { 
+  getStripeSubscriptionInfo, 
+  findCustomerBySubscriptionId, 
+  checkSubscriptionByCustomerId 
+} from "./stripe-service.ts";
 import { checkUsageLimits, updateSubscriberRecord } from "./usage-service.ts";
 
 serve(async (req) => {
@@ -104,43 +108,23 @@ serve(async (req) => {
       // This is a special case where the Stripe email doesn't match the app email
       logStep("No subscription found by email, checking by customer ID", { stripeCustomerId });
       
-      // Initialize Stripe
-      const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+      // Check subscription by customer ID
+      const { hasSubscription: hasSubByCustomer, subscriptionEnd: endByCustomer, subscriptionTier: tierByCustomer } = 
+        await checkSubscriptionByCustomerId(stripeKey, stripeCustomerId);
       
-      try {
-        // Get all subscriptions for this customer
-        const subscriptions = await stripe.subscriptions.list({
-          customer: stripeCustomerId,
-          status: "active",
-          limit: 1
-        });
+      if (hasSubByCustomer) {
+        finalHasSubscription = true;
+        finalSubscriptionEnd = endByCustomer;
+        finalSubscriptionTier = tierByCustomer;
+        finalCustomerId = stripeCustomerId;
         
-        if (subscriptions.data.length > 0) {
-          const subscription = subscriptions.data[0];
-          finalHasSubscription = true;
-          finalSubscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-          
-          // Determine subscription tier
-          const priceId = subscription.items.data[0]?.price?.id;
-          if (priceId === "price_1RP4bMLKGAMmFDpiFaJZpYlb") {
-            finalSubscriptionTier = "yearly";
-          } else if (priceId === "price_1RP3dMLKGAMmFDpiq07LsXmG") {
-            finalSubscriptionTier = "monthly";
-          } else {
-            // Default to monthly for any other subscription
-            finalSubscriptionTier = "monthly";
-          }
-          
-          logStep("Found active subscription by customer ID", {
-            subscriptionId: subscription.id,
-            tier: finalSubscriptionTier,
-            endDate: finalSubscriptionEnd
-          });
-        } else {
-          logStep("No active subscriptions found for this customer ID", { stripeCustomerId });
-        }
-      } catch (error) {
-        logStep("Error checking subscriptions by customer ID", { error: error.message });
+        logStep("Found active subscription by customer ID check", {
+          customerId: stripeCustomerId,
+          tier: finalSubscriptionTier,
+          endDate: finalSubscriptionEnd
+        });
+      } else {
+        logStep("No active subscriptions found for this customer ID", { stripeCustomerId });
       }
     }
 

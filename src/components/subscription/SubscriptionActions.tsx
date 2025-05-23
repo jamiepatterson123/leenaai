@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { CreditCard, RefreshCw, ArrowRight } from "lucide-react";
+import { useSubscription } from "@/hooks/useSubscription";
 
 interface SubscriptionActionsProps {
   isSubscribed: boolean;
@@ -14,6 +15,8 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({
   redirectToCustomerPortal, 
   handleRefresh 
 }) => {
+  const { redirectToCheckout } = useSubscription();
+  
   if (isSubscribed) {
     return (
       <>
@@ -34,7 +37,7 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({
       variant="outline" 
       size="sm" 
       className="text-xs h-8" 
-      onClick={() => window.location.href = "https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02"}
+      onClick={redirectToCheckout}
     >
       <ArrowRight className="h-3 w-3 mr-1" />
       Upgrade for unlimited photo logging
