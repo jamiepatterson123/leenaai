@@ -9,9 +9,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Send, LogOut, ArrowUp } from "lucide-react";
+import { Send, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useSubscription } from "@/hooks/useSubscription";
 
 export const Navigation = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
@@ -21,40 +20,8 @@ export const Navigation = () => {
   const {
     session
   } = useSession();
-  const { redirectToCheckout, isSubscribed, checkSubscription } = useSubscription();
   const selectedDate = new Date();
 
-  // Aggressively check subscription status
-  useEffect(() => {
-    if (session) {
-      // Check immediately on mount
-      checkSubscription();
-      
-      // And check after delays to catch webhook updates
-      const timeouts = [
-        setTimeout(() => checkSubscription(), 1000),
-        setTimeout(() => checkSubscription(), 3000),
-        setTimeout(() => checkSubscription(), 7000)
-      ];
-      
-      // Check for URL parameters indicating subscription changes
-      const url = new URL(window.location.href);
-      if (url.searchParams.has("subscription_success") || 
-          url.searchParams.has("subscription_id") ||
-          url.searchParams.has("yearly_success") ||
-          url.searchParams.has("yearly_upgraded")) {
-        console.log("Navigation: Detected subscription parameters in URL, checking status more frequently");
-        timeouts.push(
-          setTimeout(() => checkSubscription(), 500),
-          setTimeout(() => checkSubscription(), 2000),
-          setTimeout(() => checkSubscription(), 5000)
-        );
-      }
-      
-      return () => timeouts.forEach(timeout => clearTimeout(timeout));
-    }
-  }, [session]);
-  
   // If there's no session or we're on the auth page, don't render the navigation
   if (!session || window.location.pathname === '/auth') return null;
   
@@ -108,17 +75,6 @@ export const Navigation = () => {
     }, 100);
   };
   
-  // Function to upgrade to Premium with error handling
-  const handleUpgradeToPremium = async () => {
-    try {
-      console.log("Navigation: Initiating checkout process");
-      await redirectToCheckout();
-    } catch (error) {
-      console.error("Navigation: Checkout error:", error);
-      toast.error("Unable to start checkout process. Please try again later.");
-    }
-  };
-  
   return (
     <div className="border-b">
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
@@ -135,16 +91,6 @@ export const Navigation = () => {
             </SheetTrigger>
             <SheetContent side="right" className="w-[250px] sm:w-[300px]">
               <div className="flex flex-col gap-4 mt-6">
-                {!isSubscribed && (
-                  <Button 
-                    variant="gradient" 
-                    className="flex items-center justify-start gap-3" 
-                    onClick={handleUpgradeToPremium}
-                  >
-                    <ArrowUp className="h-4 w-4" />
-                    Upgrade to Unlimited
-                  </Button>
-                )}
                 <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={handleShare}>
                   <Send className="h-4 w-4" />
                   Share
