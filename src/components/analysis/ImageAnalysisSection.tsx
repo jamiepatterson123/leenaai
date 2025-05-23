@@ -163,7 +163,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     
     if (dailyLimitReached) {
       return (
-        <div className="text-center py-2 px-4 bg-amber-50 text-amber-800 rounded-md text-sm mt-2 border border-amber-100">
+        <div className="text-center py-2 px-4 bg-amber-50 text-amber-800 rounded-md text-sm mb-4 border border-amber-100">
           You've used all {FREE_USAGE_LIMIT} free uploads. 
           <button 
             className="ml-2 font-medium underline hover:text-amber-900" 
@@ -175,7 +175,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       );
     } else {
       return (
-        <div className="text-center py-2 px-4 bg-blue-50 text-blue-800 rounded-md text-sm mt-2 border border-blue-100">
+        <div className="text-center py-2 px-4 bg-blue-50 text-blue-800 rounded-md text-sm mb-4 border border-blue-100">
           {usageRemaining} of {FREE_USAGE_LIMIT} free uploads remaining
         </div>
       );
@@ -193,12 +193,12 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
 
   return (
     <div className={`space-y-4 ${localAnalyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
+      {getUsageMessage()}
       <ImageUpload 
         onImageSelect={handleImageSelect} 
         resetPreview={resetUpload}
         isAnalyzing={localAnalyzing && !showVerification} 
       />
-      {getUsageMessage()}
 
       <LoadingOverlay 
         isVisible={localAnalyzing && !showVerification && isMobile}
