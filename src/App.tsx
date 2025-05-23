@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
@@ -16,6 +15,7 @@ import { AuthLoading } from "./components/auth/AuthLoading";
 import { AnalyzingProvider, useAnalyzing } from "./context/AnalyzingContext";
 import { Progress } from "@/components/ui/progress";
 import Coach from "./pages/Coach";
+import { UpgradeButton } from './components/subscription/UpgradeButton';
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient({
@@ -125,6 +125,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AnalyzingProvider>
         <AppContent />
+        {/* Add the floating upgrade button */}
+        <UpgradeButton />
       </AnalyzingProvider>
     </QueryClientProvider>
   );

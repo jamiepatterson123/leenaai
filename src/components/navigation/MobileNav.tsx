@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AuthButtons } from "./AuthButtons";
 import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { toast } from "sonner";
+import { useSubscription } from "@/hooks/useSubscription";
 
 interface MobileNavProps {
   onAddClick: () => void;
@@ -19,6 +20,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [session, setSession] = React.useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const { dailyLimitReached, redirectToCheckout } = useSubscription();
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -41,7 +43,14 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
   };
 
   const handleCircleClick = () => {
-    fileInputRef.current?.click();
+    if (dailyLimitReached) {
+      // Redirect to Stripe checkout if free uses are exhausted
+      redirectToCheckout();
+      toast.info("Upgrade to Premium for unlimited food logging");
+    } else {
+      // Normal file selection flow
+      fileInputRef.current?.click();
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,19 +108,24 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
               <div className="flex flex-col items-center">
                 <button 
                   onClick={handleCircleClick}
-                  className="w-14 h-14 rounded-full border-2 border-[#9a9a9a] hover:bg-gray-50 transition-colors"
-                  aria-label="Upload photo"
+                  className={`w-14 h-14 rounded-full border-2 ${dailyLimitReached ? 'border-[#D946EF] bg-[#D946EF]/10 hover:bg-[#D946EF]/20' : 'border-[#9a9a9a] hover:bg-gray-50'} transition-colors`}
+                  aria-label={dailyLimitReached ? "Upgrade to Premium" : "Upload photo"}
                   disabled={isUploading}
                 />
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileChange}
-                  capture="environment"
-                  disabled={isUploading}
-                />
+                {!dailyLimitReached && (
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                    capture="environment"
+                    disabled={isUploading}
+                  />
+                )}
+                {dailyLimitReached && (
+                  <span className="text-xs mt-1 text-[#D946EF] font-medium">Upgrade</span>
+                )}
               </div>
               
               <Link to="/reports" className={`flex flex-col items-center ${isActive('/reports')}`}>

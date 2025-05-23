@@ -47,7 +47,10 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     dailyLimitReached,
     usageCount,
     isWithinFirst24Hours,
-    hoursUntilNextUse
+    hoursUntilNextUse,
+    redirectToCheckout,
+    usageRemaining,
+    FREE_USAGE_LIMIT
   } = useSubscription();
 
   // Update global analyzing state whenever local state changes
@@ -68,19 +71,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
 
     // Check if user has free uses remaining or is subscribed
     if (dailyLimitReached && !isSubscribed) {
-      const hours = Math.ceil(hoursUntilNextUse);
-      const minutes = Math.round(hoursUntilNextUse % 1 * 60);
-      let timeMessage = "";
-      if (hours > 0) {
-        timeMessage = `${hours} hour${hours !== 1 ? 's' : ''}`;
-      }
-      if (minutes > 0) {
-        timeMessage += `${timeMessage ? ' and ' : ''}${minutes} minute${minutes !== 1 ? 's' : ''}`;
-      }
-      const limitMessage = isWithinFirst24Hours ? "You've used all 5 free uploads for your first 24 hours." : "You've used your free upload for today.";
       toast({
         title: "Usage limit reached",
-        description: `${limitMessage} Next upload available in ${timeMessage}. Upgrade to premium for unlimited uploads.`,
+        description: `You've used all ${FREE_USAGE_LIMIT} free uploads. Upgrade to premium for unlimited uploads.`,
         variant: "destructive"
       });
       setShowSubscriptionModal(true);
@@ -101,11 +94,10 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       if (result?.foods) {
         // Check if user has free uses remaining or is subscribed after analysis
         const canProceed = await incrementUsage();
-        if (!canProceed) {
-          const messageText = isWithinFirst24Hours ? "You've used all 5 free uploads for your first 24 hours." : "You've used your free upload for today.";
+        if (!canProceed && !isSubscribed) {
           toast({
             title: "Usage limit reached",
-            description: `${messageText} Upgrade to premium for unlimited uploads.`,
+            description: `You've used all ${FREE_USAGE_LIMIT} free uploads. Upgrade to premium for unlimited uploads.`,
             variant: "destructive"
           });
           setShowSubscriptionModal(true);
@@ -168,13 +160,26 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   // Display usage information
   const getUsageMessage = () => {
     if (isSubscribed) return null;
-    let message = "";
-    if (isWithinFirst24Hours) {
-      message = `${5 - usageCount} of 5 free uploads remaining today`;
+    
+    if (dailyLimitReached) {
+      return (
+        <div className="text-center py-2 px-4 bg-amber-50 text-amber-800 rounded-md text-sm mt-2 border border-amber-100">
+          You've used all {FREE_USAGE_LIMIT} free uploads. 
+          <button 
+            className="ml-2 font-medium underline hover:text-amber-900" 
+            onClick={() => setShowSubscriptionModal(true)}
+          >
+            Upgrade to premium
+          </button>
+        </div>
+      );
     } else {
-      message = dailyLimitReached ? `Next free upload available in ${Math.ceil(hoursUntilNextUse)} hours` : "1 free upload available today";
+      return (
+        <div className="text-center py-2 px-4 bg-blue-50 text-blue-800 rounded-md text-sm mt-2 border border-blue-100">
+          {usageRemaining} of {FREE_USAGE_LIMIT} free uploads remaining
+        </div>
+      );
     }
-    return;
   };
 
   // Image analysis-specific loading messages with corrected type values
