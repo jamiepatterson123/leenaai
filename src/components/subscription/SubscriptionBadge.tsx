@@ -1,6 +1,9 @@
+
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { useSubscription } from '@/hooks/useSubscription';
+import { format } from 'date-fns';
+
 export const SubscriptionBadge = () => {
   const {
     isSubscribed,
@@ -8,6 +11,10 @@ export const SubscriptionBadge = () => {
     FREE_USAGE_LIMIT,
     usageRemaining
   } = useSubscription();
+
+  const today = new Date();
+  const formattedDate = format(today, 'MMMM d, yyyy');
+
   if (isSubscribed) {
     return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
         Premium Plan
@@ -16,7 +23,7 @@ export const SubscriptionBadge = () => {
   return <div className="flex flex-col items-end gap-1">
       
       <span className="text-xs text-slate-500">
-        {usageRemaining} of {FREE_USAGE_LIMIT} uses remaining
+        {formattedDate}
       </span>
     </div>;
 };
