@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -10,27 +10,86 @@ interface ProfileHeaderProps {
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile }) => {
   const { isSubscribed, checkSubscription } = useSubscription();
+  const [refreshCounter, setRefreshCounter] = useState(0);
   
-  // More aggressive subscription status checking
+  // Ultra-aggressive subscription status checking
   useEffect(() => {
-    // Initial check
+    // Immediate check on mount
+    console.log("ProfileHeader: Checking subscription on mount");
     checkSubscription();
     
-    // Check again after a short delay to ensure any URL params are processed
-    const initialCheckTimeout = setTimeout(() => {
-      checkSubscription();
-    }, 1000);
+    // Check in sequence with increasing delays to catch any webhooks or redirects
+    const timeouts = [
+      setTimeout(() => {
+        console.log("ProfileHeader: First delayed subscription check");
+        checkSubscription();
+      }, 1000),
+      
+      setTimeout(() => {
+        console.log("ProfileHeader: Second delayed subscription check");
+        checkSubscription();
+      }, 3000),
+      
+      setTimeout(() => {
+        console.log("ProfileHeader: Third delayed subscription check");
+        checkSubscription();
+      }, 7000),
+      
+      setTimeout(() => {
+        console.log("ProfileHeader: Fourth delayed subscription check");
+        checkSubscription();
+      }, 15000),
+      
+      // Force component re-render even if state hasn't changed
+      setTimeout(() => {
+        console.log("ProfileHeader: Forcing re-render");
+        setRefreshCounter(c => c + 1);
+      }, 10000)
+    ];
     
-    // Set up periodic check every 30 seconds
+    // Set up periodic check every 20 seconds
     const intervalId = setInterval(() => {
+      console.log("ProfileHeader: Periodic subscription check");
       checkSubscription();
-    }, 30000); // Check every 30 seconds
+    }, 20000);
     
     return () => {
-      clearTimeout(initialCheckTimeout);
+      timeouts.forEach(t => clearTimeout(t));
       clearInterval(intervalId);
     };
   }, []);
+  
+  // Check if URL has subscription parameters and perform additional checks
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const hasSubscriptionParams = 
+      url.searchParams.has("subscription_success") || 
+      url.searchParams.has("subscription_id") ||
+      url.searchParams.has("yearly_success") ||
+      url.searchParams.has("yearly_upgraded");
+      
+    if (hasSubscriptionParams) {
+      console.log("ProfileHeader: Detected subscription parameters in URL, checking status");
+      
+      // Multiple checks to ensure we catch the subscription update
+      const paramTimeouts = [
+        setTimeout(() => checkSubscription(), 500),
+        setTimeout(() => checkSubscription(), 2500),
+        setTimeout(() => checkSubscription(), 5000),
+        setTimeout(() => setRefreshCounter(c => c + 1), 6000)
+      ];
+      
+      return () => paramTimeouts.forEach(t => clearTimeout(t));
+    }
+  }, []);
+  
+  // This effect runs when refreshCounter changes to force a re-render
+  useEffect(() => {
+    if (refreshCounter > 0) {
+      console.log(`ProfileHeader: Refresh counter changed (${refreshCounter}), checking subscription`);
+      checkSubscription();
+    }
+  }, [refreshCounter]);
   
   return (
     <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 space-y-4 md:space-y-0 bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
@@ -40,13 +99,6 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile }) => {
             ? (profile?.first_name ? `Hello, ${profile.first_name}` : "Welcome!") 
             : "Welcome! You're on Leena's Free Plan"}
         </h1>
-        {/* Date display - currently hidden
-        {!isSubscribed && (
-          <p className="text-muted-foreground">
-            {format(new Date(), "EEEE, MMMM d, yyyy")}
-          </p>
-        )}
-        */}
       </div>
       
       <SubscriptionBadge />

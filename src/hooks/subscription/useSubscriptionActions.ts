@@ -17,10 +17,24 @@ export const useSubscriptionActions = (
   const checkSubscription = async () => {
     if (!session) return;
     
+    // Set loading state before checking
     setState((prev: SubscriptionState) => ({ ...prev, isLoading: true }));
     
     try {
-      const { data, error } = await supabase.functions.invoke("check-subscription", {});
+      // Get subscription_id from URL if available
+      const url = new URL(window.location.href);
+      const subscriptionId = url.searchParams.get('subscription_id');
+      
+      // Pass subscription_id as query parameter if available
+      const queryParams = subscriptionId ? `?subscription_id=${subscriptionId}` : '';
+      
+      console.log("Checking subscription status", { 
+        hasSubscriptionId: !!subscriptionId
+      });
+      
+      const { data, error } = await supabase.functions.invoke("check-subscription", {
+        body: subscriptionId ? { subscription_id: subscriptionId } : undefined
+      });
       
       if (error) {
         console.error("Error checking subscription:", error);
@@ -32,7 +46,7 @@ export const useSubscriptionActions = (
         return;
       }
       
-      console.log("Subscription data:", data);
+      console.log("Received subscription data:", data);
       
       const now = new Date();
       const firstTime = data.first_usage_time ? new Date(data.first_usage_time) : null;

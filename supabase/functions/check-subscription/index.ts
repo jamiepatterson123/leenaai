@@ -35,13 +35,26 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Step 1: Check if there's a URL parameter for subscription_id (from redirect after payment)
+    // Check for request body to see if subscription_id was passed
     let subscriptionId = null;
-    const url = new URL(req.url);
-    const subscriptionIdParam = url.searchParams.get("subscription_id");
-    if (subscriptionIdParam) {
-      subscriptionId = subscriptionIdParam;
-      logStep("Found subscription ID in URL params", { subscriptionId });
+    try {
+      const requestBody = await req.json();
+      if (requestBody?.subscription_id) {
+        subscriptionId = requestBody.subscription_id;
+        logStep("Found subscription ID in request body", { subscriptionId });
+      }
+    } catch (e) {
+      // No body or invalid JSON - this is fine
+    }
+
+    // Step 1: Check if subscription_id was passed in URL params
+    if (!subscriptionId) {
+      const url = new URL(req.url);
+      const subscriptionIdParam = url.searchParams.get("subscription_id");
+      if (subscriptionIdParam) {
+        subscriptionId = subscriptionIdParam;
+        logStep("Found subscription ID in URL params", { subscriptionId });
+      }
     }
 
     // Step 2: Check if user exists in subscribers table by user_id or email
@@ -56,7 +69,7 @@ serve(async (req) => {
       throw new Error(`Error checking subscriber status: ${subscriberError.message}`);
     }
 
-    // Step 3: If we have a subscription ID from URL, try to find the customer and link them
+    // Step 3: If we have a subscription ID, try to find the customer and link them
     let stripeCustomerId = null;
     if (subscriptionId) {
       stripeCustomerId = await findCustomerBySubscriptionId(stripeKey, subscriptionId);
@@ -78,10 +91,47 @@ serve(async (req) => {
     
     // If no subscription found with user's email but we found a customer ID from the subscription
     // parameter, use that customer ID to look for subscriptions
-    const finalCustomerId = customerId || stripeCustomerId;
+    let finalCustomerId = customerId || stripeCustomerId;
     let finalHasSubscription = hasSubscription;
     let finalSubscriptionEnd = subscriptionEnd;
     let finalSubscriptionTier = subscriptionTier;
+
+    // If we didn't find a subscription by email but have a customer ID from the subscription parameter
+    if (!hasSubscription && stripeCustomerId) {
+      // This is a special case where the Stripe email doesn't match the app email
+      logStep("No subscription found by email, checking by customer ID", { stripeCustomerId });
+      
+      // Get all subscriptions for this customer
+      const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+      const subscriptions = await stripe.subscriptions.list({
+        customer: stripeCustomerId,
+        status: "active",
+        limit: 1
+      });
+      
+      if (subscriptions.data.length > 0) {
+        const subscription = subscriptions.data[0];
+        finalHasSubscription = true;
+        finalSubscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+        
+        // Determine subscription tier
+        const priceId = subscription.items.data[0]?.price?.id;
+        if (priceId === "price_1RP4bMLKGAMmFDpiFaJZpYlb") {
+          finalSubscriptionTier = "yearly";
+        } else if (priceId === "price_1RP3dMLKGAMmFDpiq07LsXmG") {
+          finalSubscriptionTier = "monthly";
+        } else {
+          // Default to monthly for any other subscription
+          finalSubscriptionTier = "monthly";
+        }
+        
+        logStep("Found active subscription by customer ID", {
+          subscriptionId: subscription.id,
+          tier: finalSubscriptionTier,
+          endDate: finalSubscriptionEnd
+        });
+      }
+    }
 
     // Step 5: Check usage limits
     const { 
@@ -112,6 +162,11 @@ serve(async (req) => {
       firstUsageTime,
       lastUsageTime
     );
+
+    logStep("Returning subscription status", { 
+      subscribed: finalHasSubscription,
+      tier: finalSubscriptionTier
+    });
 
     return new Response(
       JSON.stringify({
