@@ -1,4 +1,3 @@
-
 import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "@/components/ui/use-toast";
@@ -157,31 +156,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
   }, []);
 
-  // Display usage information
-  const getUsageMessage = () => {
-    if (isSubscribed) return null;
-    
-    if (dailyLimitReached) {
-      return (
-        <div className="text-center py-2 px-4 bg-amber-50 text-amber-800 rounded-md text-sm mb-4 border border-amber-100">
-          You've used all {FREE_USAGE_LIMIT} free uploads. 
-          <button 
-            className="ml-2 font-medium underline hover:text-amber-900" 
-            onClick={() => setShowSubscriptionModal(true)}
-          >
-            Upgrade to premium
-          </button>
-        </div>
-      );
-    } else {
-      return (
-        <div className="text-center py-2 px-4 bg-blue-50 text-blue-800 rounded-md text-sm mb-4 border border-blue-100">
-          {usageRemaining} of {FREE_USAGE_LIMIT} free uploads remaining
-        </div>
-      );
-    }
-  };
-
   // Image analysis-specific loading messages with corrected type values
   const imageAnalysisMessages = [
     { text: "Identifying food items in your photo...", type: "processing" as const },
@@ -193,7 +167,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
 
   return (
     <div className={`space-y-4 ${localAnalyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
-      {getUsageMessage()}
       <ImageUpload 
         onImageSelect={handleImageSelect} 
         resetPreview={resetUpload}
