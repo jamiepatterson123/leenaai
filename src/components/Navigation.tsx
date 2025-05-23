@@ -108,9 +108,15 @@ export const Navigation = () => {
     }, 100);
   };
   
-  // Function to upgrade to Premium, now using redirectToCheckout
-  const handleUpgradeToPremium = () => {
-    redirectToCheckout();
+  // Function to upgrade to Premium with error handling
+  const handleUpgradeToPremium = async () => {
+    try {
+      console.log("Navigation: Initiating checkout process");
+      await redirectToCheckout();
+    } catch (error) {
+      console.error("Navigation: Checkout error:", error);
+      toast.error("Unable to start checkout process. Please try again later.");
+    }
   };
   
   return (

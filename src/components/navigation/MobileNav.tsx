@@ -1,11 +1,14 @@
 
 import React, { useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Book, User, LineChart } from "lucide-react";
+import { Home, Book, User, LineChart, ArrowUp } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthButtons } from "./AuthButtons";
 import { LoadingOverlay } from "@/components/ui/loading-overlay";
+import { useSubscription } from "@/hooks/useSubscription";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 interface MobileNavProps {
   onAddClick: () => void;
@@ -18,6 +21,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [session, setSession] = React.useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const { redirectToCheckout, isSubscribed } = useSubscription();
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -55,6 +59,17 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
       setTimeout(() => {
         setIsUploading(false);
       }, 30000); // 30 seconds maximum timeout
+    }
+  };
+
+  // Handle upgrade button click with error handling
+  const handleUpgradeClick = async () => {
+    try {
+      console.log("MobileNav: Initiating checkout process");
+      await redirectToCheckout();
+    } catch (error) {
+      console.error("MobileNav: Checkout error:", error);
+      toast.error("Unable to start checkout process. Please try again later.");
     }
   };
 
@@ -122,6 +137,20 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
               </Link>
             </div>
           </nav>
+
+          {/* Add a fixed upgrade button for mobile when not subscribed */}
+          {!isSubscribed && (
+            <div className="fixed bottom-20 right-4 z-50">
+              <Button 
+                onClick={handleUpgradeClick} 
+                size="sm" 
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
+              >
+                <ArrowUp className="h-4 w-4 mr-1" />
+                Upgrade
+              </Button>
+            </div>
+          )}
         </>
       )}
     </>

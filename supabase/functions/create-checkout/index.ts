@@ -56,8 +56,20 @@ serve(async (req) => {
     }
 
     // Parse request body if it exists
-    const requestData = req.body ? await req.json() : {};
-    const priceId = requestData.price_id || "price_1RP3dMLKGAMmFDpiq07LsXmG"; // Use specified price or default
+    let requestData = {};
+    try {
+      if (req.body) {
+        const text = await req.text();
+        if (text) {
+          requestData = JSON.parse(text);
+        }
+      }
+    } catch (e) {
+      logStep("Error parsing request body", { error: e.message });
+      // Continue with default values
+    }
+    
+    const priceId = (requestData as any).price_id || "price_1RP3dMLKGAMmFDpiq07LsXmG"; // Use specified price or default
     
     logStep("Using price ID", { priceId });
 
@@ -84,7 +96,7 @@ serve(async (req) => {
       ],
       mode: "subscription",
       success_url: `https://getleen.ai/oto?subscription_success=true&subscription_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/dashboard?subscription_cancelled=true`,
+      cancel_url: `${req.headers.get("origin") || "https://getleen.ai"}/dashboard?subscription_cancelled=true`,
       metadata: metadata,
     });
     
