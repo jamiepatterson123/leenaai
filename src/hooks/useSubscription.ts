@@ -45,6 +45,7 @@ export const useSubscription = () => {
                         data.subscription_status === 'active' &&
                         (!data.current_period_end || new Date(data.current_period_end) > new Date());
         setIsSubscribed(isActive);
+        console.log('Subscription status:', { subscribed: isActive, data });
       } else {
         setIsSubscribed(false);
       }
