@@ -26,7 +26,7 @@ export const HomeDataSection = () => {
 
       {/* Today's Macros - Mobile Only */}
       <div className="md:hidden w-full">
-        <h2 className="text-lg font-semibold mb-2 text-center">Today</h2>
+        <h2 className="text-lg font-semibold mb-2 text-center mt-5">Today</h2>
         {/* Date display for subscribers - currently hidden
         {isSubscribed && (
           <p className="text-sm text-gray-500 mb-4 text-center">
