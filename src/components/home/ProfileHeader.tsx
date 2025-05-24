@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
 import { useSubscription } from "@/hooks/useSubscription";
 
@@ -9,6 +9,34 @@ interface ProfileHeaderProps {
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile }) => {
   const { isSubscribed, usageRemaining, FREE_USAGE_LIMIT, dailyLimitReached } = useSubscription();
+  const [timeUntilReset, setTimeUntilReset] = useState<string>("");
+  
+  // Calculate time until next day (midnight)
+  useEffect(() => {
+    if (!dailyLimitReached || isSubscribed) return;
+    
+    const updateCountdown = () => {
+      const now = new Date();
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      
+      const timeLeft = tomorrow.getTime() - now.getTime();
+      const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      
+      if (hours > 0) {
+        setTimeUntilReset(`${hours}h ${minutes}m`);
+      } else {
+        setTimeUntilReset(`${minutes}m`);
+      }
+    };
+    
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 60000); // Update every minute
+    
+    return () => clearInterval(interval);
+  }, [dailyLimitReached, isSubscribed]);
   
   // Usage message component
   const getUsageMessage = () => {
@@ -17,7 +45,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile }) => {
     if (dailyLimitReached) {
       return (
         <div className="text-center py-2 px-4 bg-amber-50 text-amber-800 rounded-md text-sm mb-4 border border-amber-100">
-          You've used all {FREE_USAGE_LIMIT} free uploads. 
+          You've used all {FREE_USAGE_LIMIT} free uploads. Next free credit in {timeUntilReset}.
           <button 
             className="ml-2 font-medium underline hover:text-amber-900" 
             onClick={() => window.open('https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02', '_blank')}
