@@ -38,7 +38,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile }) => {
     return () => clearInterval(interval);
   }, [dailyLimitReached, isSubscribed]);
   
-  // Usage message component - only show for non-subscribers
+  // Usage message component
   const getUsageMessage = () => {
     if (isSubscribed) return null;
     

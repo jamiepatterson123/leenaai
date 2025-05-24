@@ -1,7 +1,8 @@
 
-import React, { useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useSession } from '@/hooks/useSession';
+// This is a mock implementation to replace the deleted subscription functionality
+// while maintaining compatibility with any components that haven't been fully cleaned up
+
+import React from 'react';
 
 export interface SubscriptionState {
   isLoading: boolean;
@@ -9,10 +10,9 @@ export interface SubscriptionState {
 }
 
 export const useSubscription = () => {
-  const { session } = useSession();
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isSubscribed, setIsSubscribed] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [usageCount, setUsageCount] = React.useState(() => {
+    // Get stored usage from localStorage if available
     const storedUsage = localStorage.getItem('usageCount');
     return storedUsage ? parseInt(storedUsage) : 0;
   });
@@ -20,54 +20,11 @@ export const useSubscription = () => {
   // Free usage limit
   const FREE_USAGE_LIMIT = 3;
   
-  // Check if user has reached their free limit (only applies to non-subscribers)
-  const dailyLimitReached = !isSubscribed && usageCount >= FREE_USAGE_LIMIT;
+  // Check if user has reached their free limit
+  const dailyLimitReached = usageCount >= FREE_USAGE_LIMIT;
   
-  // Check subscription status from Supabase
-  const checkSubscription = async () => {
-    if (!session?.user?.email) {
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('subscribers')
-        .select('subscribed, subscription_status, current_period_end')
-        .eq('email', session.user.email)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error checking subscription:', error);
-        setIsSubscribed(false);
-      } else if (data) {
-        const isActive = data.subscribed && 
-                        data.subscription_status === 'active' &&
-                        (!data.current_period_end || new Date(data.current_period_end) > new Date());
-        setIsSubscribed(isActive);
-        console.log('Subscription status:', { subscribed: isActive, data });
-      } else {
-        setIsSubscribed(false);
-      }
-    } catch (error) {
-      console.error('Error checking subscription:', error);
-      setIsSubscribed(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Check subscription on mount and when session changes
-  useEffect(() => {
-    checkSubscription();
-  }, [session?.user?.email]);
-
-  // Mock function to increment usage count (only for non-subscribers)
+  // Mock function to increment usage count
   const incrementUsage = async () => {
-    if (isSubscribed) {
-      return true; // Unlimited for subscribers
-    }
-    
     if (dailyLimitReached) {
       return false;
     }
@@ -83,34 +40,22 @@ export const useSubscription = () => {
     setUsageCount(0);
     localStorage.setItem('usageCount', '0');
   };
-
-  // Create checkout session
-  const redirectToCheckout = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        headers: {
-          Authorization: `Bearer ${session?.access_token}`,
-        },
-      });
-
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, '_blank');
-      }
-    } catch (error) {
-      console.error('Error creating checkout session:', error);
-    }
-  };
   
   return {
     isLoading,
-    isSubscribed,
-    checkSubscription,
+    isSubscribed: false,
+    checkSubscription: async () => {},
     incrementUsage,
     resetUsage,
-    redirectToCheckout,
+    redirectToCheckout: async () => {
+      // Replace with your actual Stripe payment link
+      window.open('https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02', '_blank');
+    },
     redirectToCustomerPortal: async () => {},
-    redirectToYearlyCheckout: redirectToCheckout,
+    redirectToYearlyCheckout: async () => {
+      // Replace with your actual Stripe yearly payment link
+      window.open('https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02', '_blank');
+    },
     dailyLimitReached,
     usageCount,
     usageRemaining: Math.max(0, FREE_USAGE_LIMIT - usageCount),
