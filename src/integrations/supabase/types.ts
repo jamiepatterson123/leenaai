@@ -282,13 +282,16 @@ export type Database = {
         Row: {
           created_at: string
           credits: number | null
+          current_period_end: string | null
           email: string
           first_usage_time: string | null
           id: string
           last_usage_time: string | null
           stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           subscribed: boolean
           subscription_end: string | null
+          subscription_status: string | null
           subscription_tier: string | null
           updated_at: string
           usage_count: number
@@ -297,13 +300,16 @@ export type Database = {
         Insert: {
           created_at?: string
           credits?: number | null
+          current_period_end?: string | null
           email: string
           first_usage_time?: string | null
           id?: string
           last_usage_time?: string | null
           stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           subscribed?: boolean
           subscription_end?: string | null
+          subscription_status?: string | null
           subscription_tier?: string | null
           updated_at?: string
           usage_count?: number
@@ -312,13 +318,16 @@ export type Database = {
         Update: {
           created_at?: string
           credits?: number | null
+          current_period_end?: string | null
           email?: string
           first_usage_time?: string | null
           id?: string
           last_usage_time?: string | null
           stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           subscribed?: boolean
           subscription_end?: string | null
+          subscription_status?: string | null
           subscription_tier?: string | null
           updated_at?: string
           usage_count?: number

@@ -51,6 +51,12 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                   <span>Priority support</span>
                 </li>
               </ul>
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900">$9.99</div>
+                  <div className="text-sm text-gray-500">per month</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
