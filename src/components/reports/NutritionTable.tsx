@@ -3,6 +3,7 @@ import { format, parseISO } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
+
 interface NutritionTableProps {
   data: {
     date: string;
@@ -16,6 +17,7 @@ interface NutritionTableProps {
   targetCarbs: number;
   targetFat: number;
 }
+
 export const NutritionTable = ({
   data,
   targetCalories,
@@ -24,6 +26,7 @@ export const NutritionTable = ({
   targetFat
 }: NutritionTableProps) => {
   const isMobile = useIsMobile();
+
   const getCaloriesStatus = (calories: number) => {
     if (calories === 0) return {
       emoji: "➖",
@@ -31,6 +34,14 @@ export const NutritionTable = ({
       className: "text-gray-400"
     };
     const percentage = calories / targetCalories * 100;
+    
+    // Only show tick if within 5% (95-105%)
+    if (percentage >= 95 && percentage <= 105) return {
+      emoji: "✅",
+      label: "Good",
+      className: "text-emerald-500"
+    };
+    
     if (percentage < 80) return {
       emoji: "🔴",
       label: "Low",
@@ -41,22 +52,15 @@ export const NutritionTable = ({
       label: "High",
       className: "text-red-500"
     };
-    if (percentage >= 80 && percentage < 90) return {
-      emoji: "⚠️",
-      label: "Ok",
-      className: "text-amber-500"
-    };
-    if (percentage > 110 && percentage <= 120) return {
-      emoji: "⚠️",
-      label: "Ok",
-      className: "text-amber-500"
-    };
+    
+    // Everything else gets warning (80-95% and 105-120%)
     return {
-      emoji: "✅",
-      label: "Good",
-      className: "text-emerald-500"
+      emoji: "⚠️",
+      label: "Ok",
+      className: "text-amber-500"
     };
   };
+
   const getMacroStatus = (value: number, target: number) => {
     if (value === 0) return {
       emoji: "➖",
@@ -90,7 +94,9 @@ export const NutritionTable = ({
       className: "text-emerald-500"
     };
   };
+
   const sortedData = [...data].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
   return <Card className="p-4 md:p-6">
       <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">Daily Summary</h2>
       <ScrollArea className="w-full" type="always">
