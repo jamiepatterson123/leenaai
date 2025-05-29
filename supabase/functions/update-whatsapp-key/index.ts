@@ -27,15 +27,24 @@ Deno.serve(async (req) => {
     // Update the WHATSAPP_API_KEY secret with your new key
     const newApiKey = 'EAAYKEghxr0YBOwMvoIEmKPhsAr7vZBn05ZCPcovwzBv6DRV6tigZBGNlqk3kJo1zdpkcTqawcONhsZBllThFtt4RdiVypU0yea0vG3u0B78ZCoBZA5dFdgc5f42z6ofztL5mRWAI8APZCZApswkplgw1Jcv7HhDf2w28wBeuBHiENYff2A2WQ1kY6fMrfp7UVf1aBGxTXrjeeRJ1WLNWYXUCjs6cbBjzNbgZD'
 
-    const { error } = await supabaseAdmin
+    // First try to update the existing key
+    const { error: updateError } = await supabaseAdmin
       .from('secrets')
-      .upsert({
-        name: 'WHATSAPP_API_KEY',
-        value: newApiKey
-      })
+      .update({ value: newApiKey })
+      .eq('name', 'WHATSAPP_API_KEY')
 
-    if (error) {
-      throw error
+    if (updateError) {
+      // If update fails, try to insert (in case the key doesn't exist)
+      const { error: insertError } = await supabaseAdmin
+        .from('secrets')
+        .insert({
+          name: 'WHATSAPP_API_KEY',
+          value: newApiKey
+        })
+
+      if (insertError) {
+        throw insertError
+      }
     }
 
     return new Response(
