@@ -523,6 +523,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      trigger_whatsapp_processing: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"

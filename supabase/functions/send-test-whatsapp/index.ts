@@ -13,79 +13,101 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Create Supabase client
-    const supabaseAdmin = createClient(
+    // Get the authorization header
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      throw new Error('No authorization header')
+    }
+
+    // Create Supabase client with the user's session
+    const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
+        global: {
+          headers: { Authorization: authHeader },
+        },
       }
     )
 
-    // Get the user from the request
-    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(
-      req.headers.get('Authorization')?.split('Bearer ')[1] ?? ''
-    )
-
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) {
-      throw new Error('Unauthorized')
+      throw new Error('Not authenticated')
     }
 
-    // Check if user is admin
-    const { data: roles, error: rolesError } = await supabaseAdmin
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'admin')
-      .single()
+    console.log(`Sending test message for user: ${user.id}`);
 
-    if (rolesError || !roles) {
-      throw new Error('Unauthorized - Admin access required')
+    // Check if user has admin role
+    const { data: hasAdminRole, error: roleError } = await supabase.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'admin'
+    });
+
+    if (roleError || !hasAdminRole) {
+      throw new Error('Admin access required')
     }
 
     // Get user's WhatsApp preferences
-    const { data: preferences, error: preferencesError } = await supabaseAdmin
+    const { data: preferences, error: prefsError } = await supabase
       .from('whatsapp_preferences')
       .select('phone_number')
       .eq('user_id', user.id)
       .single()
 
-    if (preferencesError || !preferences) {
-      throw new Error('WhatsApp preferences not found')
+    if (prefsError || !preferences?.phone_number) {
+      throw new Error('WhatsApp phone number not configured')
     }
 
-    console.log('Sending test message to:', preferences.phone_number)
+    console.log(`Sending test message to: ${preferences.phone_number}`);
 
-    // Send test message via WhatsApp API
+    // Send test message directly via WhatsApp API
     const whatsappApiUrl = 'https://graph.facebook.com/v17.0/15551753639/messages'
+    const whatsappPayload = {
+      messaging_product: 'whatsapp',
+      to: preferences.phone_number,
+      type: 'text',
+      text: { 
+        body: `🧪 Test message from Leena.ai!\n\nSent at: ${new Date().toLocaleString()}\n\nIf you received this, your WhatsApp integration is working correctly! 🎉` 
+      }
+    };
+
     const response = await fetch(whatsappApiUrl, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${Deno.env.get('WHATSAPP_API_KEY')}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        to: preferences.phone_number,
-        type: 'text',
-        text: { 
-          body: '🧪 Test message from Leena.ai admin panel\n\nIf you received this, the WhatsApp integration is working correctly!' 
-        }
-      })
+      body: JSON.stringify(whatsappPayload)
     })
 
-    const responseData = await response.json()
-    console.log('WhatsApp API response:', responseData)
+    const responseData = await response.json();
+    console.log('WhatsApp API response:', JSON.stringify(responseData));
 
     if (!response.ok) {
-      throw new Error(`WhatsApp API error: ${response.statusText}`)
+      throw new Error(`WhatsApp API error: ${response.statusText}, Response: ${JSON.stringify(responseData)}`)
+    }
+
+    // Log the test message in our database
+    const { error: logError } = await supabase
+      .from('whatsapp_messages')
+      .insert({
+        user_id: user.id,
+        content: whatsappPayload.text.body,
+        message_type: 'test',
+        status: 'sent'
+      })
+
+    if (logError) {
+      console.error('Error logging test message:', logError)
     }
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Test message sent successfully' }),
+      JSON.stringify({ 
+        success: true, 
+        message: 'Test message sent successfully',
+        whatsapp_response: responseData
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
@@ -94,7 +116,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Failed to send test message' 
+        error: error.message 
       }),
       { 
         status: 500,

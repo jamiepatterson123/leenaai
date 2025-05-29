@@ -62,6 +62,9 @@ Deno.serve(async (req) => {
       )
     }
 
+    let successCount = 0;
+    let failureCount = 0;
+
     // Process each message
     for (const message of messages) {
       try {
@@ -98,23 +101,27 @@ Deno.serve(async (req) => {
           .from('whatsapp_messages')
           .update({ 
             status: 'sent',
-            updated_at: new Date().toISOString()
+            sent_at: new Date().toISOString()
           })
           .eq('id', message.id)
 
         if (updateError) {
           console.error('Error updating message status:', updateError)
+        } else {
+          successCount++;
+          console.log(`Successfully sent message ${message.id}`);
         }
 
       } catch (error) {
         console.error(`Error processing message ${message.id}:`, error)
+        failureCount++;
         
         // Update message status to failed
         const { error: updateError } = await supabaseAdmin
           .from('whatsapp_messages')
           .update({ 
             status: 'failed',
-            updated_at: new Date().toISOString()
+            sent_at: new Date().toISOString()
           })
           .eq('id', message.id)
 
@@ -125,7 +132,12 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ message: 'Messages processed successfully' }),
+      JSON.stringify({ 
+        message: 'Messages processed',
+        processed: messages.length,
+        success: successCount,
+        failed: failureCount
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
