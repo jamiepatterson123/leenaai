@@ -5,6 +5,9 @@ verify_jwt = false
 [functions.send-test-whatsapp]
 verify_jwt = true
 
+[functions.update-whatsapp-key]
+verify_jwt = false
+
 [functions.create-checkout]
 verify_jwt = true
 
