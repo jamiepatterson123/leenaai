@@ -1,3 +1,4 @@
+
 import React from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationToggle } from "./NotificationToggle";
@@ -106,11 +107,23 @@ export const WhatsAppPreferences = () => {
   };
   const handleTestMessage = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Starting test message process...');
+      
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        toast.error("Authentication error. Please try logging out and back in.");
+        return;
+      }
+      
       if (!session) {
+        console.error('No session found');
         toast.error("You must be logged in to send test messages");
         return;
       }
+
+      console.log('Session found, invoking function...');
 
       const { data, error } = await supabase.functions.invoke('send-test-whatsapp', {
         headers: {
@@ -118,16 +131,31 @@ export const WhatsAppPreferences = () => {
         }
       });
 
-      if (error) throw error;
+      console.log('Function response:', { data, error });
 
-      if (data.success) {
+      if (error) {
+        console.error('Function invocation error:', error);
+        throw error;
+      }
+
+      if (data?.success) {
         toast.success("Test message sent successfully! Check your WhatsApp.");
       } else {
-        throw new Error(data.error || "Failed to send test message");
+        throw new Error(data?.error || "Failed to send test message");
       }
     } catch (error) {
       console.error("Error sending test message:", error);
-      toast.error(error.message || "Failed to send test message");
+      
+      // Provide more specific error messages
+      if (error.message?.includes('Not authenticated')) {
+        toast.error("Authentication failed. Please log out and log back in.");
+      } else if (error.message?.includes('Admin access required')) {
+        toast.error("Admin access required to send test messages.");
+      } else if (error.message?.includes('phone number not configured')) {
+        toast.error("Please configure your WhatsApp phone number first.");
+      } else {
+        toast.error(error.message || "Failed to send test message");
+      }
     }
   };
   if (isLoading) {

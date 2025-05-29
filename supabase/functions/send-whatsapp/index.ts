@@ -12,9 +12,11 @@ interface WhatsAppMessage {
   content: string
   message_type: string
   status: string
-  whatsapp_preferences: {
-    phone_number: string
-  }
+}
+
+interface WhatsAppPreferences {
+  phone_number: string
+  user_id: string
 }
 
 Deno.serve(async (req) => {
@@ -38,13 +40,10 @@ Deno.serve(async (req) => {
 
     console.log("Fetching pending messages...");
 
-    // Get pending messages with their associated preferences
+    // Get pending messages first
     const { data: messages, error: fetchError } = await supabaseAdmin
       .from('whatsapp_messages')
-      .select(`
-        *,
-        whatsapp_preferences!inner(phone_number)
-      `)
+      .select('*')
       .eq('status', 'pending')
       .limit(10)
 
@@ -68,12 +67,37 @@ Deno.serve(async (req) => {
     // Process each message
     for (const message of messages) {
       try {
-        console.log(`Processing message ${message.id} for phone ${message.whatsapp_preferences.phone_number}`);
+        console.log(`Processing message ${message.id} for user ${message.user_id}`);
+        
+        // Get user's WhatsApp preferences separately
+        const { data: preferences, error: prefsError } = await supabaseAdmin
+          .from('whatsapp_preferences')
+          .select('phone_number')
+          .eq('user_id', message.user_id)
+          .single()
+
+        if (prefsError || !preferences?.phone_number) {
+          console.error(`No WhatsApp preferences found for user ${message.user_id}:`, prefsError);
+          
+          // Update message status to failed
+          await supabaseAdmin
+            .from('whatsapp_messages')
+            .update({ 
+              status: 'failed',
+              sent_at: new Date().toISOString()
+            })
+            .eq('id', message.id)
+            
+          failureCount++;
+          continue;
+        }
+
+        console.log(`Sending message to phone ${preferences.phone_number}`);
         
         const whatsappApiUrl = 'https://graph.facebook.com/v17.0/15551753639/messages'
         const whatsappPayload = {
           messaging_product: 'whatsapp',
-          to: message.whatsapp_preferences.phone_number,
+          to: preferences.phone_number,
           type: 'text',
           text: { body: message.content }
         };
