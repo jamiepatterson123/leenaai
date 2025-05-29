@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationToggle } from "./NotificationToggle";
 import { PhoneNumberInput } from "./PhoneNumberInput";
@@ -7,10 +8,15 @@ import { ManualTrigger } from "./ManualTrigger";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Beaker, Key } from "lucide-react";
+import { Beaker, Key, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export const WhatsAppPreferences = () => {
+  const [newApiKey, setNewApiKey] = useState("");
+  const [isUpdatingKey, setIsUpdatingKey] = useState(false);
+
   const {
     data: preferences,
     isLoading
@@ -152,16 +158,26 @@ export const WhatsAppPreferences = () => {
         toast.error("Admin access required to send test messages.");
       } else if (error.message?.includes('phone number not configured')) {
         toast.error("Please configure your WhatsApp phone number first.");
+      } else if (error.message?.includes('session is invalid')) {
+        toast.error("Your WhatsApp access token has expired. Please update it with a fresh token.");
       } else {
         toast.error(error.message || "Failed to send test message");
       }
     }
   };
+
   const handleUpdateApiKey = async () => {
+    if (!newApiKey.trim() && !isUpdatingKey) {
+      // First click without API key - use default
+      setIsUpdatingKey(true);
+    }
+
     try {
       console.log('Updating WhatsApp API key...');
       
-      const { data, error } = await supabase.functions.invoke('update-whatsapp-key');
+      const { data, error } = await supabase.functions.invoke('update-whatsapp-key', {
+        body: newApiKey.trim() ? { apiKey: newApiKey.trim() } : {}
+      });
 
       console.log('Update API key response:', { data, error });
 
@@ -172,14 +188,18 @@ export const WhatsAppPreferences = () => {
 
       if (data?.success) {
         toast.success("WhatsApp API key updated successfully!");
+        setNewApiKey("");
+        setIsUpdatingKey(false);
       } else {
         throw new Error(data?.error || "Failed to update API key");
       }
     } catch (error) {
       console.error("Error updating API key:", error);
       toast.error(error.message || "Failed to update API key");
+      setIsUpdatingKey(false);
     }
   };
+
   if (isLoading) {
     return <div>Loading preferences...</div>;
   }
@@ -214,21 +234,42 @@ export const WhatsAppPreferences = () => {
             />
 
             {isAdmin && (
-              <div className="pt-4 border-t space-y-3">
-                <Button onClick={handleUpdateApiKey} variant="outline" className="w-full">
-                  <Key className="w-4 h-4 mr-2" />
-                  Update WhatsApp API Key
-                </Button>
-                <p className="text-sm text-muted-foreground">
-                  This will save the WhatsApp API key to the database for message sending.
-                </p>
+              <div className="pt-4 border-t space-y-4">
+                <div className="space-y-3">
+                  <Label htmlFor="api-key">WhatsApp Access Token</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="api-key"
+                      type="password"
+                      placeholder="Enter new WhatsApp access token..."
+                      value={newApiKey}
+                      onChange={(e) => setNewApiKey(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button 
+                      onClick={handleUpdateApiKey} 
+                      variant="outline"
+                      disabled={isUpdatingKey}
+                    >
+                      {isUpdatingKey ? (
+                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Key className="w-4 h-4 mr-2" />
+                      )}
+                      Update
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Get a fresh access token from your Facebook Developer Console → WhatsApp → API Setup
+                  </p>
+                </div>
                 
                 <Button onClick={handleTestMessage} variant="outline" className="w-full">
                   <Beaker className="w-4 h-4 mr-2" />
                   Send Test Message
                 </Button>
                 <p className="text-sm text-muted-foreground">
-                  This will send a test message to your configured WhatsApp number.
+                  Phone Number ID: <code>15551753639</code> (from your WhatsApp Business Manager)
                 </p>
               </div>
             )}

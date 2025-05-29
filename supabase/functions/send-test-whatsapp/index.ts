@@ -97,21 +97,29 @@ Deno.serve(async (req) => {
 
     console.log(`Sending test message to: ${preferences.phone_number}`);
 
-    // Check if WHATSAPP_API_KEY is configured
-    const whatsappApiKey = Deno.env.get('WHATSAPP_API_KEY');
-    if (!whatsappApiKey) {
-      console.error('WHATSAPP_API_KEY not configured');
+    // Get WhatsApp API key from secrets table
+    const { data: secretData, error: secretError } = await supabaseAdmin
+      .from('secrets')
+      .select('value')
+      .eq('name', 'WHATSAPP_API_KEY')
+      .single()
+
+    if (secretError || !secretData?.value) {
+      console.error('Failed to get WhatsApp API key:', secretError)
       throw new Error('WhatsApp API key not configured')
     }
 
-    // Send test message directly via WhatsApp API
+    const whatsappApiKey = secretData.value
+    console.log('Retrieved API key from database')
+
+    // Send test message directly via WhatsApp API using your phone number ID
     const whatsappApiUrl = 'https://graph.facebook.com/v17.0/15551753639/messages'
     const whatsappPayload = {
       messaging_product: 'whatsapp',
       to: preferences.phone_number,
       type: 'text',
       text: { 
-        body: `🧪 Test message from Leena.ai!\n\nSent at: ${new Date().toLocaleString()}\n\nIf you received this, your WhatsApp integration is working correctly! 🎉` 
+        body: `🧪 Test message from Leena.ai!\n\nSent at: ${new Date().toLocaleString()}\n\nIf you received this, your WhatsApp integration is working correctly! 🎉\n\nPhone Number ID: 15551753639` 
       }
     };
 
@@ -156,7 +164,8 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         message: 'Test message sent successfully',
-        whatsapp_response: responseData
+        whatsapp_response: responseData,
+        phone_number_id: '15551753639'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )

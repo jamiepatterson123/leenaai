@@ -61,6 +61,21 @@ Deno.serve(async (req) => {
       )
     }
 
+    // Get WhatsApp API key from secrets table
+    const { data: secretData, error: secretError } = await supabaseAdmin
+      .from('secrets')
+      .select('value')
+      .eq('name', 'WHATSAPP_API_KEY')
+      .single()
+
+    if (secretError || !secretData?.value) {
+      console.error('Failed to get WhatsApp API key:', secretError)
+      throw new Error('WhatsApp API key not configured')
+    }
+
+    const whatsappApiKey = secretData.value
+    console.log('Retrieved API key from database')
+
     let successCount = 0;
     let failureCount = 0;
 
@@ -94,6 +109,7 @@ Deno.serve(async (req) => {
 
         console.log(`Sending message to phone ${preferences.phone_number}`);
         
+        // Use the correct phone number ID from your WhatsApp Business Manager
         const whatsappApiUrl = 'https://graph.facebook.com/v17.0/15551753639/messages'
         const whatsappPayload = {
           messaging_product: 'whatsapp',
@@ -107,7 +123,7 @@ Deno.serve(async (req) => {
         const response = await fetch(whatsappApiUrl, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${Deno.env.get('WHATSAPP_API_KEY')}`,
+            'Authorization': `Bearer ${whatsappApiKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(whatsappPayload)
