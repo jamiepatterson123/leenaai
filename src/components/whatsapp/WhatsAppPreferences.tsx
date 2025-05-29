@@ -1,4 +1,3 @@
-
 import React from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationToggle } from "./NotificationToggle";
@@ -8,7 +7,7 @@ import { ManualTrigger } from "./ManualTrigger";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Beaker } from "lucide-react";
+import { Beaker, Key } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const WhatsAppPreferences = () => {
@@ -158,6 +157,29 @@ export const WhatsAppPreferences = () => {
       }
     }
   };
+  const handleUpdateApiKey = async () => {
+    try {
+      console.log('Updating WhatsApp API key...');
+      
+      const { data, error } = await supabase.functions.invoke('update-whatsapp-key');
+
+      console.log('Update API key response:', { data, error });
+
+      if (error) {
+        console.error('Function invocation error:', error);
+        throw error;
+      }
+
+      if (data?.success) {
+        toast.success("WhatsApp API key updated successfully!");
+      } else {
+        throw new Error(data?.error || "Failed to update API key");
+      }
+    } catch (error) {
+      console.error("Error updating API key:", error);
+      toast.error(error.message || "Failed to update API key");
+    }
+  };
   if (isLoading) {
     return <div>Loading preferences...</div>;
   }
@@ -192,12 +214,20 @@ export const WhatsAppPreferences = () => {
             />
 
             {isAdmin && (
-              <div className="pt-4 border-t">
+              <div className="pt-4 border-t space-y-3">
+                <Button onClick={handleUpdateApiKey} variant="outline" className="w-full">
+                  <Key className="w-4 h-4 mr-2" />
+                  Update WhatsApp API Key
+                </Button>
+                <p className="text-sm text-muted-foreground">
+                  This will save the WhatsApp API key to the database for message sending.
+                </p>
+                
                 <Button onClick={handleTestMessage} variant="outline" className="w-full">
                   <Beaker className="w-4 h-4 mr-2" />
                   Send Test Message
                 </Button>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   This will send a test message to your configured WhatsApp number.
                 </p>
               </div>
