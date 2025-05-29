@@ -15,53 +15,39 @@ Deno.serve(async (req) => {
   try {
     console.log('Starting send-test-whatsapp function...');
 
-    // Get the authorization header
+    // Get the JWT payload from the automatically verified request
     const authHeader = req.headers.get('Authorization')
-    console.log('Auth header present:', !!authHeader);
-    
     if (!authHeader) {
-      console.error('No authorization header found');
       throw new Error('No authorization header')
     }
 
-    // Create Supabase client with the user's session
-    const supabase = createClient(
+    // Extract JWT payload (the user is already authenticated by Supabase)
+    const jwt = authHeader.replace('Bearer ', '')
+    const payload = JSON.parse(atob(jwt.split('.')[1]))
+    const userId = payload.sub
+
+    if (!userId) {
+      throw new Error('No user ID found in JWT')
+    }
+
+    console.log(`Processing test message for user: ${userId}`);
+
+    // Create Supabase client with service role key for admin operations
+    const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       {
-        global: {
-          headers: { Authorization: authHeader },
-        },
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
       }
     )
 
-    console.log('Supabase client created, getting user...');
-
-    // Get the current user from the JWT token
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    
-    console.log('User fetch result:', { 
-      userId: user?.id, 
-      email: user?.email, 
-      error: userError?.message 
-    });
-
-    if (userError) {
-      console.error('User error:', userError);
-      throw new Error(`Authentication error: ${userError.message}`)
-    }
-    
-    if (!user) {
-      console.error('No user found in token');
-      throw new Error('Not authenticated - no user found')
-    }
-
-    console.log(`Processing test message for user: ${user.id}`);
-
     // Check if user has admin role
     console.log('Checking admin role...');
-    const { data: hasAdminRole, error: roleError } = await supabase.rpc('has_role', {
-      _user_id: user.id,
+    const { data: hasAdminRole, error: roleError } = await supabaseAdmin.rpc('has_role', {
+      _user_id: userId,
       _role: 'admin'
     });
 
@@ -79,10 +65,10 @@ Deno.serve(async (req) => {
 
     // Get user's WhatsApp preferences
     console.log('Fetching WhatsApp preferences...');
-    const { data: preferences, error: prefsError } = await supabase
+    const { data: preferences, error: prefsError } = await supabaseAdmin
       .from('whatsapp_preferences')
       .select('phone_number')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     console.log('Preferences fetch result:', { 
@@ -141,10 +127,10 @@ Deno.serve(async (req) => {
 
     // Log the test message in our database
     console.log('Logging message in database...');
-    const { error: logError } = await supabase
+    const { error: logError } = await supabaseAdmin
       .from('whatsapp_messages')
       .insert({
-        user_id: user.id,
+        user_id: userId,
         content: whatsappPayload.text.body,
         message_type: 'test',
         status: 'sent'
