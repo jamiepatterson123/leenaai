@@ -293,6 +293,9 @@ export type Database = {
           subscription_end: string | null
           subscription_status: string | null
           subscription_tier: string | null
+          trial_active: boolean | null
+          trial_end_date: string | null
+          trial_start_date: string | null
           updated_at: string
           usage_count: number
           user_id: string | null
@@ -311,6 +314,9 @@ export type Database = {
           subscription_end?: string | null
           subscription_status?: string | null
           subscription_tier?: string | null
+          trial_active?: boolean | null
+          trial_end_date?: string | null
+          trial_start_date?: string | null
           updated_at?: string
           usage_count?: number
           user_id?: string | null
@@ -329,6 +335,9 @@ export type Database = {
           subscription_end?: string | null
           subscription_status?: string | null
           subscription_tier?: string | null
+          trial_active?: boolean | null
+          trial_end_date?: string | null
+          trial_start_date?: string | null
           updated_at?: string
           usage_count?: number
           user_id?: string | null

@@ -8,64 +8,63 @@ interface ProfileHeaderProps {
 }
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile }) => {
-  const { isSubscribed, usageRemaining, FREE_USAGE_LIMIT, dailyLimitReached } = useSubscription();
-  const [timeUntilReset, setTimeUntilReset] = useState<string>("");
+  const { isSubscribed, trialActive, trialDaysRemaining, hasAccess } = useSubscription();
   
-  // Calculate time until next day (midnight)
-  useEffect(() => {
-    if (!dailyLimitReached || isSubscribed) return;
-    
-    const updateCountdown = () => {
-      const now = new Date();
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
-      
-      const timeLeft = tomorrow.getTime() - now.getTime();
-      const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-      
-      if (hours > 0) {
-        setTimeUntilReset(`${hours}h ${minutes}m`);
-      } else {
-        setTimeUntilReset(`${minutes}m`);
-      }
-    };
-    
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 60000); // Update every minute
-    
-    return () => clearInterval(interval);
-  }, [dailyLimitReached, isSubscribed]);
-  
-  // Usage message component
-  const getUsageMessage = () => {
+  // Trial notification component
+  const getTrialMessage = () => {
     if (isSubscribed) return null;
     
-    if (dailyLimitReached) {
+    if (!hasAccess) {
       return (
-        <div className="text-center py-2 px-4 bg-amber-50 text-amber-800 rounded-md text-sm mb-4 border border-amber-100">
-          You've used all {FREE_USAGE_LIMIT} free uploads. Next free credit in {timeUntilReset}.
-          <button 
-            className="ml-2 font-medium underline hover:text-amber-900" 
-            onClick={() => window.open('https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02', '_blank')}
-          >
-            Upgrade to premium
-          </button>
-        </div>
-      );
-    } else {
-      return (
-        <div className="text-center py-2 px-4 bg-blue-50 text-blue-800 rounded-md text-sm mb-4 border border-blue-100">
-          {usageRemaining} of {FREE_USAGE_LIMIT} free uploads remaining
+        <div className="text-center py-3 px-4 bg-red-50 text-red-800 rounded-md text-sm mb-4 border border-red-200">
+          <div className="font-medium">Your free trial has ended</div>
+          <div className="mt-1">
+            Upgrade to premium to continue using Leena.ai
+            <button 
+              className="ml-2 font-medium underline hover:text-red-900" 
+              onClick={() => window.open('https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02', '_blank')}
+            >
+              Upgrade now
+            </button>
+          </div>
         </div>
       );
     }
+    
+    if (trialActive) {
+      const isLastDays = trialDaysRemaining <= 3;
+      const bgColor = isLastDays ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200';
+      const textColor = isLastDays ? 'text-amber-800' : 'text-blue-800';
+      
+      return (
+        <div className={`text-center py-3 px-4 rounded-md text-sm mb-4 border ${bgColor} ${textColor}`}>
+          <div className="font-medium">
+            {trialDaysRemaining === 1 
+              ? "Last day of your free trial!" 
+              : `${trialDaysRemaining} days left in your free trial`
+            }
+          </div>
+          {isLastDays && (
+            <div className="mt-1">
+              Upgrade now to keep unlimited access
+              <button 
+                className="ml-2 font-medium underline hover:opacity-80" 
+                onClick={() => window.open('https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02', '_blank')}
+              >
+                Upgrade to premium
+              </button>
+            </div>
+          )}
+        </div>
+      );
+    }
+    
+    return null;
   };
   
   return (
     <div className="space-y-4">
-      {getUsageMessage()}
+      {getTrialMessage()}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight">

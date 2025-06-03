@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -28,7 +29,7 @@ serve(async (req) => {
     const user = userData.user;
     if (!user?.id) throw new Error("User not authenticated");
 
-    console.log(`Checking usage limits for user ${user.id}`);
+    console.log(`Checking trial access for user ${user.id}`);
 
     // Get current subscriber data
     const { data: subscriber, error: selectError } = await supabaseClient
@@ -41,12 +42,19 @@ serve(async (req) => {
       throw new Error(`Error fetching subscriber: ${selectError.message}`);
     }
 
-    // If no subscriber record exists yet, create one with usage_count = 1 and first_usage_time = now
+    // If no subscriber record exists yet, create one with 7-day trial
     if (!subscriber) {
       const now = new Date();
+      const trialEndDate = new Date();
+      trialEndDate.setDate(trialEndDate.getDate() + 7);
+      
       await supabaseClient.from("subscribers").insert({
         user_id: user.id,
         email: user.email,
+        trial_start_date: now.toISOString(),
+        trial_end_date: trialEndDate.toISOString(),
+        trial_active: true,
+        subscribed: false,
         usage_count: 1,
         first_usage_time: now.toISOString(),
         last_usage_time: now.toISOString()
@@ -54,9 +62,10 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({
-          usage_count: 1,
-          daily_limit_reached: false,
-          has_free_uses_remaining: true,
+          has_access: true,
+          trial_active: true,
+          subscribed: false,
+          trial_days_remaining: 7,
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -67,13 +76,12 @@ serve(async (req) => {
 
     // If user is subscribed, they have unlimited usage
     if (subscriber.subscribed) {
-      console.log(`User ${user.id} is subscribed, no limits apply`);
+      console.log(`User ${user.id} is subscribed, unlimited access`);
       
       return new Response(
         JSON.stringify({
-          usage_count: subscriber.usage_count,
-          daily_limit_reached: false,
-          has_free_uses_remaining: true,
+          has_access: true,
+          trial_active: false,
           subscribed: true,
         }),
         {
@@ -83,88 +91,32 @@ serve(async (req) => {
       );
     }
 
-    // Check if this is within first 24 hours of usage
+    // Check trial status
     const now = new Date();
-    const firstUsageTime = subscriber.first_usage_time ? new Date(subscriber.first_usage_time) : null;
-    const lastUsageTime = subscriber.last_usage_time ? new Date(subscriber.last_usage_time) : null;
+    const trialEndDate = subscriber.trial_end_date ? new Date(subscriber.trial_end_date) : null;
+    const isTrialActive = subscriber.trial_active && trialEndDate && now < trialEndDate;
     
-    const isWithinFirst24Hours = firstUsageTime && 
-      (now.getTime() - firstUsageTime.getTime() < 24 * 60 * 60 * 1000);
-    
-    let dailyLimitReached = false;
-    let canUseService = false;
-
-    const FREE_INITIAL_USES = 3; // Initial 3 free uses for new users
-    const FREE_DAILY_USES = 2;   // 2 free uses per day after initial period
-
-    if (isWithinFirst24Hours) {
-      // Within first 24 hours: limit is 3 uses
-      if (subscriber.usage_count < FREE_INITIAL_USES) {
-        canUseService = true;
-      } else {
-        dailyLimitReached = true;
-      }
-    } else {
-      // After first 24 hours: check if it's been 24 hours since last usage
-      // Or if they haven't used their daily quota yet
-      if (lastUsageTime) {
-        const hoursSinceLastUsage = (now.getTime() - lastUsageTime.getTime()) / (60 * 60 * 1000);
-        const daysSinceLastUsage = hoursSinceLastUsage / 24;
-        
-        // If it's a new day (24+ hours), reset the counter
-        if (hoursSinceLastUsage >= 24) {
-          canUseService = true;
-          // We'll reset the count to 1 when we update
-        } 
-        // Otherwise, check if they've used fewer than FREE_DAILY_USES today
-        else {
-          // Get today's usage
-          const todaysDate = new Date().toISOString().split('T')[0];
-          const { data: todaysEntries, error: countError } = await supabaseClient
-            .from("food_diary")
-            .select("id")
-            .eq("user_id", user.id)
-            .gte("created_at", `${todaysDate}T00:00:00Z`)
-            .lt("created_at", `${todaysDate}T23:59:59Z`);
-            
-          if (!countError && todaysEntries && todaysEntries.length < FREE_DAILY_USES) {
-            canUseService = true;
-          } else {
-            dailyLimitReached = true;
-          }
-        }
-      } else {
-        // No last usage time recorded, allow usage
-        canUseService = true;
-      }
-    }
-
-    if (canUseService) {
-      // Update subscriber record with incremented usage count and last usage time
+    if (isTrialActive) {
+      // Update usage count
       const newCount = subscriber.usage_count + 1;
-      
-      // If it's a new day, reset the daily count
-      const shouldResetDailyCount = lastUsageTime && 
-        (now.getTime() - lastUsageTime.getTime() >= 24 * 60 * 60 * 1000);
-      
       await supabaseClient
         .from("subscribers")
         .update({ 
           usage_count: newCount, 
           last_usage_time: now.toISOString(),
-          first_usage_time: firstUsageTime ? firstUsageTime.toISOString() : now.toISOString(),
-          updated_at: new Date().toISOString() 
         })
         .eq("user_id", user.id);
 
-      console.log(`Usage count incremented to ${newCount} for user ${user.id}`);
+      const daysRemaining = Math.ceil((trialEndDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+      console.log(`Trial active for user ${user.id}, ${daysRemaining} days remaining`);
 
       return new Response(
         JSON.stringify({
-          usage_count: newCount,
-          daily_limit_reached: false,
-          has_free_uses_remaining: true,
-          within_first_24_hours: isWithinFirst24Hours,
+          has_access: true,
+          trial_active: true,
+          subscribed: false,
+          trial_days_remaining: daysRemaining,
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -172,16 +124,22 @@ serve(async (req) => {
         }
       );
     } else {
-      console.log(`Usage limit reached for user ${user.id}`);
+      console.log(`Trial expired for user ${user.id}`);
+      
+      // Mark trial as inactive if it has expired
+      if (subscriber.trial_active) {
+        await supabaseClient
+          .from("subscribers")
+          .update({ trial_active: false })
+          .eq("user_id", user.id);
+      }
       
       return new Response(
         JSON.stringify({
-          usage_count: subscriber.usage_count,
-          daily_limit_reached: true,
-          has_free_uses_remaining: false,
-          hours_until_next_use: lastUsageTime ? 
-            24 - (now.getTime() - lastUsageTime.getTime()) / (60 * 60 * 1000) : 0,
-          within_first_24_hours: isWithinFirst24Hours,
+          has_access: false,
+          trial_active: false,
+          subscribed: false,
+          trial_expired: true,
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
