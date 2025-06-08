@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, MessageCircle, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -218,8 +219,8 @@ const Chat = () => {
                           <p className="whitespace-pre-wrap">{message.content}</p>
                         </div>
                       ) : (
-                        // AI message on the left with full formatting
-                        <div className="max-w-[85%] bg-background">
+                        // AI message on the left with full width and minimal right padding
+                        <div className="w-full pr-2">
                           <MessageContent content={message.content} />
                         </div>
                       )}
@@ -228,7 +229,7 @@ const Chat = () => {
                   
                   {isLoading && (
                     <div className="flex justify-start">
-                      <div className="max-w-[85%] bg-background">
+                      <div className="w-full pr-2">
                         <div className="flex space-x-1 py-2">
                           <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{
                             animationDelay: '0ms'
