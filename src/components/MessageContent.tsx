@@ -13,9 +13,26 @@ const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
     return text.includes('kcal') || text.includes('protein') || text.includes('carbs') || text.includes('fat');
   };
 
+  // Helper function to extract text from React children
+  const extractTextFromChildren = (children: any): string => {
+    if (typeof children === 'string') {
+      return children;
+    }
+    
+    if (Array.isArray(children)) {
+      return children.map(child => extractTextFromChildren(child)).join('');
+    }
+    
+    if (React.isValidElement(children) && children.props && children.props.children) {
+      return extractTextFromChildren(children.props.children);
+    }
+    
+    return String(children || '');
+  };
+
   // Helper function to parse nutrition info from list items
   const parseNutritionItem = (children: any) => {
-    const text = children?.toString() || '';
+    const text = extractTextFromChildren(children);
     
     // Check if this looks like a food item with nutrition info
     const nutritionMatch = text.match(/^([^:]+):\s*(.+)/);
@@ -127,13 +144,11 @@ const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
               {children}
             </strong>
           ),
-          // Emphasis/Italic text
           em: ({ children }) => (
             <em className="italic text-muted-foreground">
               {children}
             </em>
           ),
-          // Code blocks
           code: ({ children }) => (
             <code className="bg-muted px-2 py-1 rounded text-sm font-mono text-foreground">
               {children}
@@ -144,7 +159,6 @@ const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
               {children}
             </pre>
           ),
-          // Links
           a: ({ href, children }) => (
             <a 
               href={href} 
@@ -155,7 +169,6 @@ const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
               {children}
             </a>
           ),
-          // Blockquotes
           blockquote: ({ children }) => (
             <blockquote className="border-l-4 border-primary/20 pl-4 py-2 bg-muted/20 rounded-r-lg italic text-muted-foreground mb-4">
               {children}
