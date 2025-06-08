@@ -97,7 +97,7 @@ const Chat = () => {
   ];
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="h-screen flex flex-col bg-background overflow-hidden pb-20">
       {/* Main content area - takes remaining space */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {messages.length === 0 ? (
@@ -175,7 +175,7 @@ const Chat = () => {
         </div>
       </div>
 
-      {/* Input area - fixed at bottom */}
+      {/* Input area - fixed above mobile nav */}
       <div className="flex-shrink-0 border-t border-border/40 p-4 bg-background/95 backdrop-blur">
         <div className="max-w-3xl mx-auto">
           <div className="flex gap-2">
