@@ -132,18 +132,18 @@ serve(async (req) => {
             body: JSON.stringify({
               model: "gpt-4o",
               temperature: 0.3,
-              max_tokens: 1000,
+              max_tokens: 1500,
               messages: [
                 {
                   role: "system",
-                  content: "You are a JSON generator for food analysis. Output only valid JSON arrays with food items and their nutrition data. No markdown, no text, no explanations."
+                  content: "You're a world-class nutrition coach. Estimate the total calories, macros, and portion sizes in this meal photo. Be specific and detailed. First, describe what foods you see. Then, estimate each component's portion size (e.g., grams or cups), and provide an overall estimate of calories, carbs, protein, and fat. Assume standard preparation unless visible clues suggest otherwise. Use common reference sizes (e.g., plate, spoon) for portion estimation.\n\nIMPORTANT: Overestimate total calories by approximately 5% to ensure we do not under-report for users trying to lose weight. Keep protein, carbs, and fat realistic, and apply the slight calorie buffer to account for hidden oils, sauces, or cooking methods.\n\nAt the end, return the nutritional estimate in this exact JSON format:\n\n{\n  \"calories\": 0,\n  \"protein_g\": 0,\n  \"fat_g\": 0,\n  \"carbs_g\": 0\n}\n\nReplace the zeros with your best estimates. Do not include any extra text after the JSON."
                 },
                 {
                   role: "user",
                   content: [
                     {
                       type: "text",
-                      text: "Return a JSON array like this example (NO OTHER TEXT OR FORMATTING): [{\"name\":\"food name\",\"weight_g\":100,\"nutrition\":{\"calories\":50,\"protein\":0.5,\"carbs\":12,\"fat\":0.2}}]"
+                      text: "Analyze this meal photo and provide detailed nutrition estimates following the format specified."
                     },
                     {
                       type: "image_url",
@@ -171,26 +171,33 @@ serve(async (req) => {
           }
 
           try {
-            const cleanContent = completion.choices[0].message.content
-              .replace(/```json\n?/g, '')
-              .replace(/```/g, '')
-              .trim();
+            const content = completion.choices[0].message.content;
+            console.log('Full response content:', content);
             
-            console.log('Cleaned content:', cleanContent);
-            const parsedContent = JSON.parse(cleanContent);
-
-            if (!Array.isArray(parsedContent)) {
-              throw new Error('Response is not an array');
+            // Extract JSON from the response - look for the last JSON object
+            const jsonMatch = content.match(/\{[^}]*"calories"[^}]*\}/);
+            if (!jsonMatch) {
+              throw new Error('No nutrition JSON found in response');
             }
+            
+            const jsonStr = jsonMatch[0];
+            console.log('Extracted JSON string:', jsonStr);
+            const nutritionData = JSON.parse(jsonStr);
 
-            parsedContent.forEach((item, index) => {
-              if (!item.name || typeof item.weight_g !== 'number' || !item.nutrition) {
-                throw new Error(`Invalid food item structure at index ${index}`);
+            // Convert to the expected format for the app
+            const foods = [{
+              name: "Analyzed Meal",
+              weight_g: 100, // Default weight, will be adjusted based on actual analysis
+              nutrition: {
+                calories: nutritionData.calories,
+                protein: nutritionData.protein_g,
+                carbs: nutritionData.carbs_g,
+                fat: nutritionData.fat_g
               }
-            });
+            }];
 
             return new Response(
-              JSON.stringify({ foods: parsedContent }),
+              JSON.stringify({ foods }),
               { headers: corsHeaders }
             );
           } catch (parseError) {
