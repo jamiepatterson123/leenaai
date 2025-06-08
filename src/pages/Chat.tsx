@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, MessageCircle, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,7 @@ import {
 import { useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import MessageContent from "@/components/MessageContent";
 
 interface Message {
   id: string;
@@ -210,7 +210,11 @@ const Chat = () => {
                           {message.role === 'user' ? 'You' : 'Leena.ai'}
                         </div>
                         <div className="prose prose-sm max-w-none">
-                          <p className="whitespace-pre-wrap">{message.content}</p>
+                          {message.role === 'user' ? (
+                            <p className="whitespace-pre-wrap text-foreground">{message.content}</p>
+                          ) : (
+                            <MessageContent content={message.content} />
+                          )}
                         </div>
                       </div>
                     </div>
