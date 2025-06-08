@@ -1,7 +1,6 @@
-
 import React, { useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Book, MessageCircle, LineChart } from "lucide-react";
+import { Home, Book, MessageSquare, LineChart } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthButtons } from "./AuthButtons";
@@ -133,7 +132,7 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
               </Link>
               
               <Link to="/chat" className={`flex flex-col items-center ${isActive('/chat')}`}>
-                <MessageCircle className="h-6 w-6" />
+                <MessageSquare className="h-6 w-6" />
               </Link>
             </div>
           </nav>
