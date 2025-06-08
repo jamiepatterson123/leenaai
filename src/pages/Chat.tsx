@@ -1,23 +1,12 @@
 
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, MessageCircle, Plus, Trash2 } from "lucide-react";
+import { Send, Bot, User, MessageCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 interface Message {
   id: string;
@@ -41,11 +30,6 @@ const Chat = () => {
       inputRef.current.focus();
     }
   }, []);
-
-  const clearChat = () => {
-    setMessages([]);
-    toast.success("Chat cleared");
-  };
 
   const sendMessage = async (messageContent?: string) => {
     const content = messageContent || input.trim();
@@ -117,37 +101,6 @@ const Chat = () => {
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col bg-background overflow-hidden">
-      {/* Header bar with clear chat button */}
-      {messages.length > 0 && (
-        <div className="flex-shrink-0 border-b border-border/40 px-4 py-3 bg-background/95 backdrop-blur">
-          <div className="max-w-3xl mx-auto flex justify-between items-center">
-            <h1 className="text-lg font-semibold">Chat with Leena.ai</h1>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Clear Chat
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Clear Chat History</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will permanently delete all messages in this conversation. This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={clearChat} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                    Clear Chat
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        </div>
-      )}
-
       {/* Main content area - takes remaining space */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {messages.length === 0 ? (
