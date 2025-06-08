@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, MessageCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,14 +6,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
 interface Message {
   id: string;
   content: string;
   role: 'user' | 'assistant';
   timestamp: Date;
 }
-
 const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -41,7 +38,6 @@ const Chat = () => {
       }
     }
   }, [messages]);
-
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
     const userMessage: Message = {
@@ -87,69 +83,60 @@ const Chat = () => {
       setIsLoading(false);
     }
   };
-
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
-
   const handleQuickQuestion = (question: string) => {
     setInput(question);
   };
-
-  const quickQuestions = [
-    {
-      title: "Daily nutrition",
-      subtitle: "How did I do today?",
-      question: "How did I do today with my nutrition goals?"
-    },
-    {
-      title: "Meal suggestions", 
-      subtitle: "What should I eat next?",
-      question: "What should I eat for my next meal based on my goals?"
-    },
-    {
-      title: "Weekly progress",
-      subtitle: "Show my weekly progress", 
-      question: "Show me my nutrition progress for this week"
-    },
-    {
-      title: "Macro balance",
-      subtitle: "Optimize my macros",
-      question: "How can I better balance my macronutrients?"
-    }
-  ];
-
-  return (
-    <div className="flex flex-col h-screen bg-background">
+  const quickQuestions = [{
+    title: "Daily nutrition",
+    subtitle: "How did I do today?",
+    question: "How did I do today with my nutrition goals?"
+  }, {
+    title: "Meal suggestions",
+    subtitle: "What should I eat next?",
+    question: "What should I eat for my next meal based on my goals?"
+  }, {
+    title: "Weekly progress",
+    subtitle: "Show my weekly progress",
+    question: "Show me my nutrition progress for this week"
+  }, {
+    title: "Macro balance",
+    subtitle: "Optimize my macros",
+    question: "How can I better balance my macronutrients?"
+  }];
+  return <div className="flex flex-col h-screen bg-background">
       {/* Header */}
       <div className="border-b border-border/40 p-4 bg-background/95 backdrop-blur">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="text-xl font-semibold">Leena.ai</h1>
-        </div>
+        
       </div>
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col">
-        {messages.length === 0 ? (
-          /* Welcome screen */
-          <div className="flex-1 flex flex-col items-center justify-center px-4 pb-48 md:pb-32">
+        {messages.length === 0 ? (/* Welcome screen */
+      <div className="flex-1 flex flex-col items-center justify-center px-4 pb-24 md:pb-32">
             <div className="w-full max-w-2xl">
-              <div className="text-center">
+              <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold mb-2">What can I help with?</h1>
                 <p className="text-muted-foreground">Ask me about your nutrition, meals, or health goals</p>
               </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
+                {quickQuestions.map((item, index) => <button key={index} onClick={() => handleQuickQuestion(item.question)} className="p-4 text-left border border-border/40 rounded-xl hover:bg-accent/50 transition-colors">
+                    <div className="font-medium text-sm mb-1">{item.title}</div>
+                    <div className="text-muted-foreground text-sm">{item.subtitle}</div>
+                  </button>)}
+              </div>
             </div>
-          </div>
-        ) : (
-          /* Chat messages */
-          <ScrollArea className="flex-1 px-4" ref={scrollAreaRef}>
-            <div className="max-w-3xl mx-auto py-4 pb-48 md:pb-4">
+          </div>) : (/* Chat messages */
+      <ScrollArea className="flex-1 px-4" ref={scrollAreaRef}>
+            <div className="max-w-3xl mx-auto py-4 pb-24 md:pb-4">
               <div className="space-y-6">
-                {messages.map(message => (
-                  <div key={message.id} className="flex gap-4">
+                {messages.map(message => <div key={message.id} className="flex gap-4">
                     <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-accent">
                       {message.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                     </div>
@@ -161,11 +148,9 @@ const Chat = () => {
                         <p className="whitespace-pre-wrap">{message.content}</p>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  </div>)}
                 
-                {isLoading && (
-                  <div className="flex gap-4">
+                {isLoading && <div className="flex gap-4">
                     <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-accent">
                       <Bot className="w-4 h-4" />
                     </div>
@@ -173,62 +158,28 @@ const Chat = () => {
                       <div className="font-medium text-sm">Leena.ai</div>
                       <div className="flex space-x-1">
                         <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{
-                          animationDelay: '0ms'
-                        }}></div>
+                    animationDelay: '0ms'
+                  }}></div>
                         <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{
-                          animationDelay: '150ms'
-                        }}></div>
+                    animationDelay: '150ms'
+                  }}></div>
                         <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{
-                          animationDelay: '300ms'
-                        }}></div>
+                    animationDelay: '300ms'
+                  }}></div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  </div>}
               </div>
             </div>
-          </ScrollArea>
-        )}
-
-        {/* Quick questions - horizontal scrollable row */}
-        <div className="px-4 pb-2">
-          <div className="max-w-3xl mx-auto">
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-              {quickQuestions.map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleQuickQuestion(item.question)}
-                  className="flex-shrink-0 p-3 text-left border border-border/40 rounded-lg hover:bg-accent/50 transition-colors min-w-[200px]"
-                >
-                  <div className="font-medium text-sm mb-1">{item.title}</div>
-                  <div className="text-muted-foreground text-xs">{item.subtitle}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+          </ScrollArea>)}
 
         {/* Input area */}
         <div className="border-t border-border/40 p-4 bg-background/95 backdrop-blur pb-20 md:pb-4">
           <div className="max-w-3xl mx-auto">
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <Input
-                  ref={inputRef}
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Ask anything..."
-                  disabled={isLoading}
-                  className="pr-12 min-h-[48px] resize-none"
-                />
-                <Button
-                  onClick={sendMessage}
-                  disabled={isLoading || !input.trim()}
-                  variant="gradient"
-                  size="icon"
-                  className="absolute right-1 top-1 h-10 w-10"
-                >
+                <Input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask anything..." disabled={isLoading} className="pr-12 min-h-[48px] resize-none" />
+                <Button onClick={sendMessage} disabled={isLoading || !input.trim()} variant="gradient" size="icon" className="absolute right-1 top-1 h-10 w-10">
                   <Send className="w-4 h-4" />
                 </Button>
               </div>
@@ -236,8 +187,6 @@ const Chat = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Chat;
