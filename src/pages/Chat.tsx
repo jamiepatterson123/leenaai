@@ -1,4 +1,5 @@
 
+
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, MessageCircle, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -214,8 +215,8 @@ const Chat = () => {
                   {messages.map(message => (
                     <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                       {message.role === 'user' ? (
-                        // User message bubble on the right - now light grey
-                        <div className="max-w-[80%] bg-muted text-foreground px-4 py-3 rounded-2xl rounded-br-sm">
+                        // User message bubble on the right - compact padding
+                        <div className="max-w-[80%] bg-muted text-foreground px-4 py-2 rounded-2xl rounded-br-sm">
                           <p className="whitespace-pre-wrap">{message.content}</p>
                         </div>
                       ) : (
@@ -301,3 +302,4 @@ const Chat = () => {
 };
 
 export default Chat;
+
