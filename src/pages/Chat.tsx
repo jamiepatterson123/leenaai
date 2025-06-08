@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, MessageCircle, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -206,16 +205,16 @@ const Chat = () => {
             </div>
           </div>
         ) : (
-          /* Chat messages - scrollable area */
-          <div className="flex-1 px-4 overflow-hidden">
+          /* Chat messages - scrollable area with left padding */
+          <div className="flex-1 pl-8 pr-4 overflow-hidden">
             <div className="max-w-4xl mx-auto h-full flex flex-col py-4">
               <ScrollArea className="flex-1">
                 <div className="space-y-4 pr-4">
                   {messages.map(message => (
                     <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                       {message.role === 'user' ? (
-                        // User message bubble on the right
-                        <div className="max-w-[80%] bg-[#007AFF] text-white px-4 py-3 rounded-2xl rounded-br-sm">
+                        // User message bubble on the right - now light grey
+                        <div className="max-w-[80%] bg-muted text-foreground px-4 py-3 rounded-2xl rounded-br-sm">
                           <p className="whitespace-pre-wrap">{message.content}</p>
                         </div>
                       ) : (
