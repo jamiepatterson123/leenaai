@@ -1,3 +1,4 @@
+
 import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "@/components/ui/use-toast";
@@ -8,8 +9,6 @@ import { format } from "date-fns";
 import { FoodVerificationDialog } from "./FoodVerificationDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
-import { useSubscription } from "@/hooks/useSubscription";
-import { SubscriptionModal } from "@/components/subscription/SubscriptionModal";
 import { triggerSuccessConfetti } from "@/utils/confetti";
 import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { useAnalyzing } from "@/context/AnalyzingContext";
@@ -34,23 +33,11 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
   const [resetUpload, setResetUpload] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [analyzedFoods, setAnalyzedFoods] = useState([]);
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const componentRef = React.useRef<HTMLDivElement>(null);
   const { analyzing: globalAnalyzing, setAnalyzing: setGlobalAnalyzing } = useAnalyzing();
-  const {
-    incrementUsage,
-    isSubscribed,
-    dailyLimitReached,
-    usageCount,
-    isWithinFirst24Hours,
-    hoursUntilNextUse,
-    redirectToCheckout,
-    usageRemaining,
-    FREE_USAGE_LIMIT
-  } = useSubscription();
 
   // Update global analyzing state whenever local state changes
   useEffect(() => {
@@ -67,17 +54,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       toast.error("Please wait for the current analysis to complete");
       return;
     }
-
-    // Check if user has free uses remaining or is subscribed
-    if (dailyLimitReached && !isSubscribed) {
-      toast({
-        title: "Usage limit reached",
-        description: `You've used all ${FREE_USAGE_LIMIT} free uploads. Upgrade to premium for unlimited uploads.`,
-        variant: "destructive"
-      });
-      setShowSubscriptionModal(true);
-      return;
-    }
     
     // Always set analyzing to true before starting the process
     setLocalAnalyzing(true);
@@ -91,18 +67,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       });
       console.log("Analysis result:", result);
       if (result?.foods) {
-        // Check if user has free uses remaining or is subscribed after analysis
-        const canProceed = await incrementUsage();
-        if (!canProceed && !isSubscribed) {
-          toast({
-            title: "Usage limit reached",
-            description: `You've used all ${FREE_USAGE_LIMIT} free uploads. Upgrade to premium for unlimited uploads.`,
-            variant: "destructive"
-          });
-          setShowSubscriptionModal(true);
-          setLocalAnalyzing(false);
-          return;
-        }
         setAnalyzedFoods(result.foods);
         setShowVerification(true);
       } else {
@@ -182,7 +146,6 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       />
 
       <FoodVerificationDialog isOpen={showVerification} onClose={() => setShowVerification(false)} foods={analyzedFoods} onConfirm={handleConfirmFoods} />
-      <SubscriptionModal open={showSubscriptionModal} onOpenChange={setShowSubscriptionModal} />
     </div>
   );
 });
