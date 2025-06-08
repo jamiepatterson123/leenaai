@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, MessageCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -111,11 +112,11 @@ const Chat = () => {
             </div>
           </div>
         ) : (
-          /* Chat messages - constrained height, no scroll */
+          /* Chat messages - scrollable area */
           <div className="flex-1 px-4 overflow-hidden">
             <div className="max-w-3xl mx-auto h-full flex flex-col py-4">
-              <div className="flex-1 overflow-hidden">
-                <div className="space-y-6 h-full">
+              <ScrollArea className="flex-1">
+                <div className="space-y-6 pr-4">
                   {messages.map(message => (
                     <div key={message.id} className="flex gap-4">
                       <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-accent">
@@ -154,7 +155,7 @@ const Chat = () => {
                     </div>
                   )}
                 </div>
-              </div>
+              </ScrollArea>
             </div>
           </div>
         )}
