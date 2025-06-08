@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
@@ -13,12 +14,40 @@ serve(async (req) => {
   }
 
   try {
-    const { message, userId } = await req.json();
+    const { message, userId, conversationId } = await req.json();
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
+
+    // Create or get conversation
+    let finalConversationId = conversationId;
+    if (!conversationId) {
+      // Create new conversation with auto-generated title
+      const { data: newConversation, error: conversationError } = await supabaseClient
+        .from('chat_conversations')
+        .insert({
+          user_id: userId,
+          title: message.length > 50 ? message.substring(0, 50) + '...' : message
+        })
+        .select()
+        .single();
+
+      if (conversationError) throw conversationError;
+      finalConversationId = newConversation.id;
+    }
+
+    // Save user message
+    const { error: userMessageError } = await supabaseClient
+      .from('chat_messages')
+      .insert({
+        conversation_id: finalConversationId,
+        content: message,
+        role: 'user'
+      });
+
+    if (userMessageError) throw userMessageError;
 
     // Fetch user's profile data
     const { data: profile } = await supabaseClient
@@ -72,7 +101,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: "You are a knowledgeable nutrition and fitness coach. Analyze the user's health data and provide personalized advice. Be concise but friendly. Focus on actionable insights and encouragement."
+            content: "You are Leena.ai, a knowledgeable nutrition and fitness coach. Analyze the user's health data and provide personalized advice. Be concise but friendly. Focus on actionable insights and encouragement. Always maintain a supportive and motivating tone."
           },
           {
             role: 'user',
@@ -85,7 +114,21 @@ serve(async (req) => {
     const data = await response.json();
     const aiResponse = data.choices[0].message.content;
 
-    return new Response(JSON.stringify({ response: aiResponse }), {
+    // Save AI response
+    const { error: aiMessageError } = await supabaseClient
+      .from('chat_messages')
+      .insert({
+        conversation_id: finalConversationId,
+        content: aiResponse,
+        role: 'assistant'
+      });
+
+    if (aiMessageError) throw aiMessageError;
+
+    return new Response(JSON.stringify({ 
+      response: aiResponse, 
+      conversationId: finalConversationId 
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
