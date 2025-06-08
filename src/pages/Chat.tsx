@@ -3,7 +3,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, MessageCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -22,7 +21,6 @@ const Chat = () => {
   const {
     session
   } = useSession();
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-focus input on component mount
@@ -31,16 +29,6 @@ const Chat = () => {
       inputRef.current.focus();
     }
   }, []);
-
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollElement) {
-        scrollElement.scrollTop = scrollElement.scrollHeight;
-      }
-    }
-  }, [messages]);
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -109,11 +97,11 @@ const Chat = () => {
   ];
 
   return (
-    <div className="flex flex-col h-screen bg-background overflow-hidden">
+    <div className="flex flex-col h-screen bg-background">
       {/* Main content area - takes remaining space */}
-      <div className="flex-1 flex flex-col min-h-0 pb-20 md:pb-0">
+      <div className="flex-1 flex flex-col min-h-0">
         {messages.length === 0 ? (
-          /* Welcome screen */
+          /* Welcome screen - centered content */
           <div className="flex-1 flex flex-col items-center justify-center px-4">
             <div className="w-full max-w-2xl text-center">
               <h1 className="text-3xl font-bold mb-2">What can I help with?</h1>
@@ -121,10 +109,10 @@ const Chat = () => {
             </div>
           </div>
         ) : (
-          /* Chat messages */
-          <ScrollArea className="flex-1 px-4" ref={scrollAreaRef}>
-            <div className="max-w-3xl mx-auto py-4">
-              <div className="space-y-6">
+          /* Chat messages - fixed height, no scroll */
+          <div className="flex-1 px-4 overflow-hidden">
+            <div className="max-w-3xl mx-auto py-4 h-full">
+              <div className="space-y-6 h-full overflow-hidden">
                 {messages.map(message => (
                   <div key={message.id} className="flex gap-4">
                     <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-accent">
@@ -164,13 +152,13 @@ const Chat = () => {
                 )}
               </div>
             </div>
-          </ScrollArea>
+          </div>
         )}
 
-        {/* Suggested questions - horizontal scrollable */}
-        <div className="flex-shrink-0 px-4 pb-2">
+        {/* Suggested questions - fixed height */}
+        <div className="flex-shrink-0 px-4 py-2">
           <div className="max-w-3xl mx-auto">
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
               {quickQuestions.map((question, index) => (
                 <button
                   key={index}
