@@ -23,7 +23,7 @@ const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
       return children.map(child => extractTextFromChildren(child)).join('');
     }
     
-    if (React.isValidElement(children) && children.props && children.props.children) {
+    if (React.isValidElement(children) && children.props && typeof children.props === 'object' && 'children' in children.props) {
       return extractTextFromChildren(children.props.children);
     }
     
