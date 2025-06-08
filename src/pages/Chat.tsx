@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, MessageCircle, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -210,34 +209,28 @@ const Chat = () => {
           <div className="flex-1 px-4 overflow-hidden">
             <div className="max-w-3xl mx-auto h-full flex flex-col py-4">
               <ScrollArea className="flex-1">
-                <div className="space-y-6 pr-4">
+                <div className="space-y-4 pr-4">
                   {messages.map(message => (
-                    <div key={message.id} className="flex gap-4">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-accent">
-                        {message.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-                      </div>
-                      <div className="flex-1 space-y-2">
-                        <div className="font-medium text-sm">
-                          {message.role === 'user' ? 'You' : 'Leena.ai'}
+                    <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      {message.role === 'user' ? (
+                        /* User message - right aligned bubble */
+                        <div className="bg-muted rounded-2xl px-4 py-3 max-w-[80%]">
+                          <p className="text-foreground">{message.content}</p>
                         </div>
-                        <div className="prose prose-sm max-w-none">
-                          {message.role === 'user' ? (
-                            <p className="whitespace-pre-wrap text-foreground">{message.content}</p>
-                          ) : (
+                      ) : (
+                        /* AI message - left aligned */
+                        <div className="max-w-[85%]">
+                          <div className="prose prose-sm max-w-none">
                             <MessageContent content={message.content} />
-                          )}
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   ))}
                   
                   {isLoading && (
-                    <div className="flex gap-4">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-accent">
-                        <Bot className="w-4 h-4" />
-                      </div>
-                      <div className="flex-1 space-y-2">
-                        <div className="font-medium text-sm">Leena.ai</div>
+                    <div className="flex justify-start">
+                      <div className="max-w-[85%]">
                         <div className="flex space-x-1">
                           <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{
                             animationDelay: '0ms'
