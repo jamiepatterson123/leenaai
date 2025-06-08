@@ -5,10 +5,7 @@ import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection
 import { HabitTracker } from "@/components/habits/HabitTracker";
 import { MacroCircles } from "@/components/home/MacroCircles";
 import { WeightTrendChart } from "@/components/reports/WeightTrendChart";
-import { TrialGuard } from "@/components/auth/TrialGuard";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { format } from "date-fns";
-import { useSubscription } from "@/hooks/useSubscription";
 import { useHomeData } from "@/components/home/useHomeData";
 
 export const HomeDataSection = () => {
@@ -16,8 +13,6 @@ export const HomeDataSection = () => {
   const [nutritionData, setNutritionData] = React.useState<any>(null);
   const imageAnalysisSectionRef = React.useRef<any>(null);
   const isMobile = useIsMobile();
-  const today = new Date();
-  const { isSubscribed } = useSubscription();
 
   const { isLoading, weightData } = useHomeData();
 
@@ -48,19 +43,17 @@ export const HomeDataSection = () => {
             <MacroCircles />
           </div>
 
-          {/* Food Input Section - Protected by Trial Guard */}
-          <TrialGuard>
-            <div className="bg-white rounded-lg border border-gray-200">
-              <ImageAnalysisSection
-                ref={imageAnalysisSectionRef}
-                analyzing={analyzing}
-                setAnalyzing={setAnalyzing}
-                nutritionData={nutritionData}
-                setNutritionData={setNutritionData}
-                selectedDate={new Date()}
-              />
-            </div>
-          </TrialGuard>
+          {/* Food Input Section - No longer protected */}
+          <div className="bg-white rounded-lg border border-gray-200">
+            <ImageAnalysisSection
+              ref={imageAnalysisSectionRef}
+              analyzing={analyzing}
+              setAnalyzing={setAnalyzing}
+              nutritionData={nutritionData}
+              setNutritionData={setNutritionData}
+              selectedDate={new Date()}
+            />
+          </div>
 
           {/* Weight Trend Chart Section - Hidden on Mobile */}
           <div className="hidden md:block w-full bg-white rounded-lg border border-gray-200">
