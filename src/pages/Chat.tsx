@@ -1,9 +1,10 @@
 
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Bot, User } from "lucide-react";
+import { Send, Bot, User, Trash2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -100,85 +101,156 @@ const Chat = () => {
     }
   };
 
-  return (
-    <div className="max-w-4xl mx-auto px-4 h-[calc(100vh-120px)] flex flex-col">
-      <div className="mb-4">
-        <h1 className="text-3xl font-bold mb-2">AI Nutrition Coach</h1>
-        <p className="text-muted-foreground">
-          Get personalized advice about your nutrition and eating habits
-        </p>
-      </div>
+  const clearChat = () => {
+    setMessages([{
+      id: '1',
+      content: "Hi! I'm your AI nutrition coach. I can help you understand your eating patterns, suggest meal improvements, and answer questions about your nutrition data. What would you like to know?",
+      role: 'assistant',
+      timestamp: new Date()
+    }]);
+    toast.success("Chat cleared");
+  };
 
-      <div className="flex-1 flex flex-col min-h-0">
-        <ScrollArea className="flex-1 rounded-lg border bg-background p-4" ref={scrollAreaRef}>
-          <div className="space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex gap-3 ${
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
-                }`}
+  const quickQuestions = [
+    "How did I do today?",
+    "What should I eat next?",
+    "Show my weekly progress",
+    "Suggest meal improvements"
+  ];
+
+  const handleQuickQuestion = (question: string) => {
+    setInput(question);
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8 pb-24 md:pb-8">
+      {/* Header Section */}
+      <Card className="mb-6">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-3xl font-bold flex items-center gap-2">
+                <MessageCircle className="h-8 w-8 text-primary" />
+                AI Nutrition Coach
+              </CardTitle>
+              <CardDescription className="mt-2">
+                Get personalized advice about your nutrition and eating habits
+              </CardDescription>
+            </div>
+            <Button 
+              variant="gradient" 
+              size="sm" 
+              onClick={clearChat}
+              className="flex items-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Clear Chat
+            </Button>
+          </div>
+        </CardHeader>
+      </Card>
+
+      {/* Quick Questions */}
+      <Card className="mb-6">
+        <CardContent className="p-4">
+          <p className="text-sm text-muted-foreground mb-3">Quick questions to get started:</p>
+          <div className="flex flex-wrap gap-2">
+            {quickQuestions.map((question, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                size="sm"
+                onClick={() => handleQuickQuestion(question)}
+                className="text-xs"
               >
-                {message.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-4 h-4 text-primary" />
-                  </div>
-                )}
+                {question}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Chat Container */}
+      <Card className="flex flex-col h-[calc(100vh-380px)] md:h-[600px]">
+        <CardContent className="flex-1 flex flex-col p-0">
+          <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+            <div className="space-y-4">
+              {messages.map((message) => (
                 <div
-                  className={`max-w-[80%] rounded-lg px-3 py-2 ${
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground ml-auto'
-                      : 'bg-muted'
+                  key={message.id}
+                  className={`flex gap-3 ${
+                    message.role === 'user' ? 'justify-end' : 'justify-start'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                  <p className={`text-xs mt-1 opacity-70 ${
-                    message.role === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                  }`}>
-                    {message.timestamp.toLocaleTimeString([], { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })}
-                  </p>
-                </div>
-                {message.role === 'user' && (
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                    <User className="w-4 h-4 text-primary-foreground" />
+                  {message.role === 'assistant' && (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] flex items-center justify-center flex-shrink-0">
+                      <Bot className="w-4 h-4 text-white" />
+                    </div>
+                  )}
+                  <div
+                    className={`max-w-[80%] rounded-lg px-4 py-3 ${
+                      message.role === 'user'
+                        ? 'bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] text-white ml-auto'
+                        : 'bg-gray-50 border border-gray-200'
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    <p className={`text-xs mt-2 opacity-70 ${
+                      message.role === 'user' ? 'text-white/70' : 'text-muted-foreground'
+                    }`}>
+                      {message.timestamp.toLocaleTimeString([], { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </p>
                   </div>
-                )}
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex gap-3 justify-start">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-4 h-4 text-primary" />
+                  {message.role === 'user' && (
+                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                      <User className="w-4 h-4 text-primary-foreground" />
+                    </div>
+                  )}
                 </div>
-                <div className="bg-muted rounded-lg px-3 py-2">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              ))}
+              {isLoading && (
+                <div className="flex gap-3 justify-start">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] flex items-center justify-center flex-shrink-0">
+                    <Bot className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </ScrollArea>
+              )}
+            </div>
+          </ScrollArea>
 
-        <div className="flex gap-2 mt-4">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Ask me about your nutrition..."
-            disabled={isLoading}
-            className="flex-1"
-          />
-          <Button onClick={sendMessage} disabled={isLoading || !input.trim()}>
-            <Send className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
+          {/* Input Area */}
+          <div className="border-t border-gray-200 p-4">
+            <div className="flex gap-2">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask me about your nutrition..."
+                disabled={isLoading}
+                className="flex-1"
+              />
+              <Button 
+                onClick={sendMessage} 
+                disabled={isLoading || !input.trim()}
+                variant="gradient"
+                className="px-4"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
