@@ -212,17 +212,20 @@ const Chat = () => {
               <ScrollArea className="flex-1">
                 <div className="space-y-6 pr-4">
                   {messages.map(message => (
-                    <div key={message.id} className="flex gap-4">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-accent">
-                        {message.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-                      </div>
-                      <div className="flex-1 space-y-2">
-                        <div className="font-medium text-sm">
-                          {message.role === 'user' ? 'You' : 'Leena.ai'}
+                    <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      {message.role === 'assistant' && (
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-accent mr-3">
+                          <Bot className="w-4 h-4" />
                         </div>
+                      )}
+                      <div className={`max-w-[80%] ${
+                        message.role === 'user' 
+                          ? 'bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] text-white rounded-2xl px-4 py-3' 
+                          : 'bg-white rounded-2xl px-4 py-3 shadow-sm border border-border/20'
+                      }`}>
                         <div className="prose prose-sm max-w-none">
                           {message.role === 'user' ? (
-                            <p className="whitespace-pre-wrap text-foreground">{message.content}</p>
+                            <p className="whitespace-pre-wrap text-white m-0">{message.content}</p>
                           ) : (
                             <MessageContent content={message.content} />
                           )}
@@ -232,12 +235,11 @@ const Chat = () => {
                   ))}
                   
                   {isLoading && (
-                    <div className="flex gap-4">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-accent">
+                    <div className="flex justify-start">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-accent mr-3">
                         <Bot className="w-4 h-4" />
                       </div>
-                      <div className="flex-1 space-y-2">
-                        <div className="font-medium text-sm">Leena.ai</div>
+                      <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-border/20">
                         <div className="flex space-x-1">
                           <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{
                             animationDelay: '0ms'
