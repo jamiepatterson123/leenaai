@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, MessageCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,6 +22,14 @@ const Chat = () => {
     session
   } = useSession();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-focus input on component mount
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -201,6 +208,7 @@ const Chat = () => {
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Input
+                  ref={inputRef}
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
