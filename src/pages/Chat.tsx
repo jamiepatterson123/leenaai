@@ -40,6 +40,7 @@ const Chat = () => {
       }
     }
   }, [messages]);
+
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
     const userMessage: Message = {
@@ -85,15 +86,18 @@ const Chat = () => {
       setIsLoading(false);
     }
   };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
+
   const handleQuickQuestion = (question: string) => {
     setInput(question);
   };
+
   const quickQuestions = [
     "How did I do today?",
     "What should I eat next?", 
@@ -102,6 +106,7 @@ const Chat = () => {
     "Healthy snack ideas?",
     "Plan tomorrow's meals"
   ];
+
   return <div className="flex flex-col h-screen bg-background">
       {/* Header */}
       
@@ -109,14 +114,14 @@ const Chat = () => {
       {/* Main content area */}
       <div className="flex-1 flex flex-col">
         {messages.length === 0 ? (/* Welcome screen */
-      <div className="flex-1 flex flex-col items-center justify-center px-4 pb-36 md:pb-32">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 pb-44 md:pb-32">
             <div className="w-full max-w-2xl text-center">
               <h1 className="text-3xl font-bold mb-2">What can I help with?</h1>
               <p className="text-muted-foreground">Ask me about your nutrition, meals, or health goals</p>
             </div>
           </div>) : (/* Chat messages */
       <ScrollArea className="flex-1 px-4" ref={scrollAreaRef}>
-            <div className="max-w-3xl mx-auto py-4 pb-36 md:pb-4">
+            <div className="max-w-3xl mx-auto py-4 pb-44 md:pb-4">
               <div className="space-y-6">
                 {messages.map(message => <div key={message.id} className="flex gap-4">
                     <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-accent">
@@ -167,7 +172,7 @@ const Chat = () => {
         </div>
 
         {/* Input area */}
-        <div className="border-t border-border/40 p-4 bg-background/95 backdrop-blur pb-28 md:pb-4">
+        <div className="border-t border-border/40 p-4 bg-background/95 backdrop-blur pb-32 md:pb-4">
           <div className="max-w-3xl mx-auto">
             <div className="flex gap-2">
               <div className="relative flex-1">
