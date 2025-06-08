@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
-import { Menu } from "lucide-react";
+import { Menu, User } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Send, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -91,6 +91,10 @@ export const Navigation = () => {
             </SheetTrigger>
             <SheetContent side="right" className="w-[250px] sm:w-[300px]">
               <div className="flex flex-col gap-4 mt-6">
+                <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={() => navigate("/profile")}>
+                  <User className="h-4 w-4" />
+                  Profile
+                </Button>
                 <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={handleShare}>
                   <Send className="h-4 w-4" />
                   Share

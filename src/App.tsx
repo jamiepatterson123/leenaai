@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
@@ -14,7 +15,7 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { AuthLoading } from "./components/auth/AuthLoading";
 import { AnalyzingProvider, useAnalyzing } from "./context/AnalyzingContext";
 import { Progress } from "@/components/ui/progress";
-import Coach from "./pages/Coach";
+import Chat from "./pages/Chat";
 import { UpgradeButton } from './components/subscription/UpgradeButton';
 
 // Create a new QueryClient instance
@@ -97,10 +98,10 @@ function AppContent() {
             }
           />
           <Route
-            path="/coach"
+            path="/chat"
             element={
               <ProtectedRoute>
-                <Coach />
+                <Chat />
               </ProtectedRoute>
             }
           />
