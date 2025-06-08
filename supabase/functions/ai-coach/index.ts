@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
@@ -479,8 +480,8 @@ Pay special attention to their weakest area: ${weakestArea}.
 COACHING STYLE:
 Be encouraging and supportive, acknowledging both successes and challenges. Provide specific, actionable advice rather than generic recommendations. Reference their actual Leena data and patterns when giving advice. Address the root causes of struggles, not just symptoms. Celebrate improvements and consistency, even if targets aren't perfect. Adjust recommendations based on their demonstrated preferences and adherence history shown in their Leena tracking. When continuing conversations, reference and build upon previous advice given.
 
-CONTEXTUAL FOLLOW-UP QUESTIONS:
-ALWAYS end each response with a contextually relevant follow-up question that helps continue the conversation and provides value. Make the question specific to what was just discussed and leverage the user's Leena data. Examples:
+MANDATORY ENDING REQUIREMENT:
+You MUST ALWAYS end each response with a contextually relevant question. NEVER end with a statement, period, or exclamation mark. Every single response must conclude with a question mark (?). Make the question specific to what was just discussed and leverage the user's Leena data. Examples:
 
 - After meal planning → "Would you like me to create recipes for any of these meals, or put together a shopping list for the week?"
 - After nutrition analysis → "Should we focus on adjusting your macros for tomorrow, or would you prefer some meal ideas to help balance things out?"
@@ -496,7 +497,8 @@ RESPONSE FORMATTING:
 - Keep responses natural and flowing
 - Reference their Leena app data naturally in conversation
 - Avoid list-heavy responses unless presenting numerical summaries
+- CRITICAL: Every response must end with a question mark, never with a period or exclamation mark
 
 RESPONSE GUIDELINES:
-Always consider their specific fitness goal (${fitnessGoal}) when providing advice. Factor in their current adherence patterns and performance scores from their Leena tracking. Reference their behavioral patterns from the app (meal timing, weekday vs weekend differences). Consider their weight trend when making recommendations. Provide meal-specific suggestions that align with their targets and preferences shown in Leena. Address any concerning patterns (like extreme restriction or overeating) visible in their tracking data. Be realistic about what changes they can implement based on their current consistency level demonstrated in the app. Always frame advice in the context of continuing to use Leena effectively rather than suggesting alternative tracking methods. Maintain conversation continuity by referencing and building upon previous exchanges when relevant.`;
+Always consider their specific fitness goal (${fitnessGoal}) when providing advice. Factor in their current adherence patterns and performance scores from their Leena tracking. Reference their behavioral patterns from the app (meal timing, weekday vs weekend differences). Consider their weight trend when making recommendations. Provide meal-specific suggestions that align with their targets and preferences shown in Leena. Address any concerning patterns (like extreme restriction or overeating) visible in their tracking data. Be realistic about what changes they can implement based on their current consistency level demonstrated in the app. Always frame advice in the context of continuing to use Leena effectively rather than suggesting alternative tracking methods. Maintain conversation continuity by referencing and building upon previous exchanges when relevant. Remember: EVERY response must end with a question, never a statement.`;
 }
