@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, MessageCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -134,31 +135,18 @@ const Chat = () => {
       <div className="flex-1 flex flex-col">
         {messages.length === 0 ? (
           /* Welcome screen */
-          <div className="flex-1 flex flex-col items-center justify-center px-4 pb-24 md:pb-32">
+          <div className="flex-1 flex flex-col items-center justify-center px-4 pb-48 md:pb-32">
             <div className="w-full max-w-2xl">
-              <div className="text-center mb-8">
+              <div className="text-center">
                 <h1 className="text-3xl font-bold mb-2">What can I help with?</h1>
                 <p className="text-muted-foreground">Ask me about your nutrition, meals, or health goals</p>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
-                {quickQuestions.map((item, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleQuickQuestion(item.question)}
-                    className="p-4 text-left border border-border/40 rounded-xl hover:bg-accent/50 transition-colors"
-                  >
-                    <div className="font-medium text-sm mb-1">{item.title}</div>
-                    <div className="text-muted-foreground text-sm">{item.subtitle}</div>
-                  </button>
-                ))}
               </div>
             </div>
           </div>
         ) : (
           /* Chat messages */
           <ScrollArea className="flex-1 px-4" ref={scrollAreaRef}>
-            <div className="max-w-3xl mx-auto py-4 pb-24 md:pb-4">
+            <div className="max-w-3xl mx-auto py-4 pb-48 md:pb-4">
               <div className="space-y-6">
                 {messages.map(message => (
                   <div key={message.id} className="flex gap-4">
@@ -201,6 +189,24 @@ const Chat = () => {
             </div>
           </ScrollArea>
         )}
+
+        {/* Quick questions - horizontal scrollable row */}
+        <div className="px-4 pb-2">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              {quickQuestions.map((item, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleQuickQuestion(item.question)}
+                  className="flex-shrink-0 p-3 text-left border border-border/40 rounded-lg hover:bg-accent/50 transition-colors min-w-[200px]"
+                >
+                  <div className="font-medium text-sm mb-1">{item.title}</div>
+                  <div className="text-muted-foreground text-xs">{item.subtitle}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* Input area */}
         <div className="border-t border-border/40 p-4 bg-background/95 backdrop-blur pb-20 md:pb-4">
