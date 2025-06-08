@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message, userId } = await req.json();
+    const { message, userId, conversationHistory = [] } = await req.json();
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -62,7 +62,44 @@ serve(async (req) => {
     // Enhanced system prompt based on user's specific goals and patterns
     const systemPrompt = buildPersonalizedSystemPrompt(profile, performanceScore, goalAnalysis);
 
-    // Call OpenAI API with comprehensive nutrition-focused context
+    // Build messages array with conversation history
+    const messages = [
+      {
+        role: 'system',
+        content: systemPrompt
+      }
+    ];
+
+    // Add conversation history if available
+    if (conversationHistory && conversationHistory.length > 0) {
+      // Add a context message to help the AI understand the conversation flow
+      messages.push({
+        role: 'system',
+        content: `Previous conversation context (maintain continuity and reference when relevant):\n${nutritionContext}`
+      });
+      
+      // Add the conversation history
+      conversationHistory.forEach((msg: any) => {
+        messages.push({
+          role: msg.role,
+          content: msg.content
+        });
+      });
+
+      // Add current user message
+      messages.push({
+        role: 'user',
+        content: message
+      });
+    } else {
+      // First message or no history - include full nutrition context
+      messages.push({
+        role: 'user',
+        content: `Here's my comprehensive nutrition data:\n${nutritionContext}\n\nUser message: ${message}`
+      });
+    }
+
+    // Call OpenAI API with conversation-aware context
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -71,16 +108,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: systemPrompt
-          },
-          {
-            role: 'user',
-            content: `Here's my comprehensive nutrition data:\n${nutritionContext}\n\nUser message: ${message}`
-          }
-        ],
+        messages: messages,
       }),
     });
 
@@ -439,6 +467,8 @@ Maintaining current weight through balanced intake, building consistent flexible
 
 CRITICAL CONTEXT: This user is actively using Leena.ai for nutrition tracking. All their food intake, targets, and progress data comes from their use of the Leena app. Never suggest generic advice like "use a food journal or tracking app" since they are already using Leena for comprehensive nutrition tracking.
 
+CONVERSATION CONTINUITY: You maintain awareness of previous messages in this conversation. When users reference earlier recommendations (like "the meal plan you suggested" or "those recipes"), acknowledge and build upon that context. Reference specific items from previous responses when relevant.
+
 PERSONALIZATION APPROACH:
 ${goalSpecificGuidance}
 
@@ -447,7 +477,7 @@ ${performanceGuidance}
 Pay special attention to their weakest area: ${weakestArea}.
 
 COACHING STYLE:
-Be encouraging and supportive, acknowledging both successes and challenges. Provide specific, actionable advice rather than generic recommendations. Reference their actual Leena data and patterns when giving advice. Address the root causes of struggles, not just symptoms. Celebrate improvements and consistency, even if targets aren't perfect. Adjust recommendations based on their demonstrated preferences and adherence history shown in their Leena tracking.
+Be encouraging and supportive, acknowledging both successes and challenges. Provide specific, actionable advice rather than generic recommendations. Reference their actual Leena data and patterns when giving advice. Address the root causes of struggles, not just symptoms. Celebrate improvements and consistency, even if targets aren't perfect. Adjust recommendations based on their demonstrated preferences and adherence history shown in their Leena tracking. When continuing conversations, reference and build upon previous advice given.
 
 RESPONSE FORMATTING:
 - Write in conversational paragraphs, not bullet points
@@ -457,5 +487,5 @@ RESPONSE FORMATTING:
 - Avoid list-heavy responses unless presenting numerical summaries
 
 RESPONSE GUIDELINES:
-Always consider their specific fitness goal (${fitnessGoal}) when providing advice. Factor in their current adherence patterns and performance scores from their Leena tracking. Reference their behavioral patterns from the app (meal timing, weekday vs weekend differences). Consider their weight trend when making recommendations. Provide meal-specific suggestions that align with their targets and preferences shown in Leena. Address any concerning patterns (like extreme restriction or overeating) visible in their tracking data. Be realistic about what changes they can implement based on their current consistency level demonstrated in the app. Always frame advice in the context of continuing to use Leena effectively rather than suggesting alternative tracking methods.`;
+Always consider their specific fitness goal (${fitnessGoal}) when providing advice. Factor in their current adherence patterns and performance scores from their Leena tracking. Reference their behavioral patterns from the app (meal timing, weekday vs weekend differences). Consider their weight trend when making recommendations. Provide meal-specific suggestions that align with their targets and preferences shown in Leena. Address any concerning patterns (like extreme restriction or overeating) visible in their tracking data. Be realistic about what changes they can implement based on their current consistency level demonstrated in the app. Always frame advice in the context of continuing to use Leena effectively rather than suggesting alternative tracking methods. Maintain conversation continuity by referencing and building upon previous exchanges when relevant.`;
 }

@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, MessageCircle, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ interface Message {
 }
 
 const CHAT_STORAGE_KEY = 'leena-chat-messages';
+const MAX_CONTEXT_MESSAGES = 12; // Last 6 exchanges (12 messages total)
 
 const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -89,14 +91,23 @@ const Chat = () => {
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
+    
     try {
+      // Get recent conversation history for context
+      const currentMessages = [...messages, userMessage];
+      const recentMessages = currentMessages.slice(-MAX_CONTEXT_MESSAGES).map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+
       const {
         data,
         error
       } = await supabase.functions.invoke('ai-coach', {
         body: {
           message: content,
-          userId: session?.user?.id
+          userId: session?.user?.id,
+          conversationHistory: recentMessages.slice(0, -1) // Exclude the current message from history
         }
       });
       if (error) {
