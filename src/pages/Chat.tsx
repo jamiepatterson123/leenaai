@@ -174,7 +174,7 @@ const Chat = () => {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={clearChat} variant="gradient">
+                  <AlertDialogAction onClick={clearChat} className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] text-white hover:opacity-90">
                     Clear Chat
                   </AlertDialogAction>
                 </AlertDialogFooter>
