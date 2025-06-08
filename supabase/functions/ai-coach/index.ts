@@ -28,68 +28,42 @@ serve(async (req) => {
       .eq('user_id', userId)
       .single();
 
-    // Fetch recent food diary entries (last 7 days)
+    // Fetch food diary entries (last 30 days for comprehensive analysis)
     const { data: foodEntries } = await supabaseClient
       .from('food_diary')
       .select('*')
       .eq('user_id', userId)
-      .gte('date', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+      .gte('date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
       .order('date', { ascending: false });
 
-    // Fetch recent weight history (last 30 days)
+    // Fetch weight history (last 90 days for trend analysis)
     const { data: weightHistory } = await supabaseClient
       .from('weight_history')
       .select('*')
       .eq('user_id', userId)
-      .gte('recorded_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+      .gte('recorded_at', new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString())
       .order('recorded_at', { ascending: false });
 
-    // Calculate daily nutrition totals for the last 7 days
-    const dailyTotals = calculateDailyNutritionTotals(foodEntries || []);
-    
-    // Get today's nutrition totals
-    const today = new Date().toISOString().split('T')[0];
-    const todaysTotals = dailyTotals[today] || { calories: 0, protein: 0, carbs: 0, fat: 0 };
+    // Calculate comprehensive nutrition analysis
+    const nutritionAnalysis = calculateComprehensiveNutritionAnalysis(foodEntries || [], profile);
+    const goalAnalysis = analyzeGoalProgress(profile, nutritionAnalysis, weightHistory || []);
+    const performanceScore = calculatePerformanceScores(nutritionAnalysis, profile);
+    const behavioralInsights = analyzeBehavioralPatterns(foodEntries || []);
 
-    // Calculate recent weight trend
-    const weightTrend = calculateWeightTrend(weightHistory || []);
+    // Build comprehensive nutrition context
+    const nutritionContext = buildComprehensiveContext(
+      profile,
+      nutritionAnalysis,
+      goalAnalysis,
+      performanceScore,
+      behavioralInsights,
+      weightHistory || []
+    );
 
-    // Prepare nutrition context for the AI
-    const nutritionContext = `
-      User's Nutrition Profile:
-      ${profile ? `
-        - Target Calories: ${profile.target_calories || 'Not set'} kcal/day
-        - Target Protein: ${profile.target_protein || 'Not set'}g/day
-        - Target Carbs: ${profile.target_carbs || 'Not set'}g/day
-        - Target Fat: ${profile.target_fat || 'Not set'}g/day
-        - Age: ${profile.age || 'Not provided'}
-        - Weight: ${profile.weight_kg || 'Not provided'}kg
-        - Height: ${profile.height_cm || 'Not provided'}cm
-        - Fitness Goals: ${profile.fitness_goals || 'Not specified'}
-        - Activity Level: ${profile.activity_level || 'Not specified'}
-        - Dietary Restrictions: ${profile.dietary_restrictions?.join(', ') || 'None specified'}
-      ` : 'Profile not available'}
+    // Enhanced system prompt based on user's specific goals and patterns
+    const systemPrompt = buildPersonalizedSystemPrompt(profile, performanceScore, goalAnalysis);
 
-      Today's Nutrition Progress:
-      - Calories: ${todaysTotals.calories}/${profile?.target_calories || 'target not set'} kcal (${profile?.target_calories ? Math.round((todaysTotals.calories / profile.target_calories) * 100) : 0}%)
-      - Protein: ${todaysTotals.protein.toFixed(1)}/${profile?.target_protein || 'target not set'}g (${profile?.target_protein ? Math.round((todaysTotals.protein / profile.target_protein) * 100) : 0}%)
-      - Carbs: ${todaysTotals.carbs.toFixed(1)}/${profile?.target_carbs || 'target not set'}g (${profile?.target_carbs ? Math.round((todaysTotals.carbs / profile.target_carbs) * 100) : 0}%)
-      - Fat: ${todaysTotals.fat.toFixed(1)}/${profile?.target_fat || 'target not set'}g (${profile?.target_fat ? Math.round((todaysTotals.fat / profile.target_fat) * 100) : 0}%)
-
-      Recent Food History (Last 7 days):
-      ${formatRecentMeals(foodEntries || [])}
-
-      Weight Tracking:
-      ${weightTrend.length > 0 ? `
-        - Current Weight: ${weightTrend[0]?.weight_kg}kg (${new Date(weightTrend[0]?.recorded_at).toLocaleDateString()})
-        - Weight Trend (30 days): ${calculateWeightChange(weightTrend)}
-      ` : 'No recent weight data available'}
-
-      Daily Nutrition Summary (Last 7 days):
-      ${formatDailyNutritionSummary(dailyTotals, profile)}
-    `;
-
-    // Call OpenAI API with nutrition-focused context
+    // Call OpenAI API with comprehensive nutrition-focused context
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -101,11 +75,11 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: "You are Leena.ai, a specialized nutrition coach and food expert. Your role is to help users achieve their nutrition and weight goals through personalized dietary advice. Focus on meal planning, macro balance, food choices, portion sizes, and eating patterns. Analyze their current nutrition intake against their targets and provide actionable advice. Be encouraging, specific, and practical in your recommendations. When discussing food, mention specific foods, recipes, or meal ideas that would help them meet their goals."
+            content: systemPrompt
           },
           {
             role: 'user',
-            content: `Here's my current nutrition data:\n${nutritionContext}\n\nUser message: ${message}`
+            content: `Here's my comprehensive nutrition data:\n${nutritionContext}\n\nUser message: ${message}`
           }
         ],
       }),
@@ -126,64 +100,388 @@ serve(async (req) => {
   }
 });
 
-function calculateDailyNutritionTotals(foodEntries: any[]) {
-  const dailyTotals: { [date: string]: { calories: number; protein: number; carbs: number; fat: number } } = {};
+function calculateComprehensiveNutritionAnalysis(foodEntries: any[], profile: any) {
+  const dailyTotals: { [date: string]: { calories: number; protein: number; carbs: number; fat: number; meals: number } } = {};
+  const last7Days: { [date: string]: any } = {};
+  const last30Days: { [date: string]: any } = {};
+  
+  const now = new Date();
+  const last7DaysDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const last30DaysDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   
   foodEntries.forEach(entry => {
     const date = entry.date;
+    const entryDate = new Date(date);
+    
     if (!dailyTotals[date]) {
-      dailyTotals[date] = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+      dailyTotals[date] = { calories: 0, protein: 0, carbs: 0, fat: 0, meals: 0 };
     }
     
     dailyTotals[date].calories += Number(entry.calories) || 0;
     dailyTotals[date].protein += Number(entry.protein) || 0;
     dailyTotals[date].carbs += Number(entry.carbs) || 0;
     dailyTotals[date].fat += Number(entry.fat) || 0;
+    dailyTotals[date].meals += 1;
+    
+    if (entryDate >= last7DaysDate) {
+      if (!last7Days[date]) last7Days[date] = { ...dailyTotals[date] };
+    }
+    
+    if (entryDate >= last30DaysDate) {
+      if (!last30Days[date]) last30Days[date] = { ...dailyTotals[date] };
+    }
   });
   
-  return dailyTotals;
+  return {
+    dailyTotals,
+    last7Days,
+    last30Days,
+    averages: calculateAverages(dailyTotals, profile),
+    consistency: calculateConsistency(dailyTotals, profile)
+  };
 }
 
-function formatRecentMeals(foodEntries: any[]) {
-  if (!foodEntries || foodEntries.length === 0) return 'No recent meals logged';
+function calculateAverages(dailyTotals: any, profile: any) {
+  const dates = Object.keys(dailyTotals);
+  if (dates.length === 0) return { calories: 0, protein: 0, carbs: 0, fat: 0 };
   
-  const recentMeals = foodEntries.slice(0, 10); // Show last 10 entries
-  return recentMeals.map(entry => 
-    `- ${entry.food_name} (${entry.weight_g}g): ${entry.calories} kcal, ${entry.protein}g protein, ${entry.carbs}g carbs, ${entry.fat}g fat - ${new Date(entry.date).toLocaleDateString()}`
-  ).join('\n');
+  const totals = dates.reduce((acc, date) => {
+    acc.calories += dailyTotals[date].calories;
+    acc.protein += dailyTotals[date].protein;
+    acc.carbs += dailyTotals[date].carbs;
+    acc.fat += dailyTotals[date].fat;
+    return acc;
+  }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
+  
+  return {
+    calories: Math.round(totals.calories / dates.length),
+    protein: Math.round(totals.protein / dates.length),
+    carbs: Math.round(totals.carbs / dates.length),
+    fat: Math.round(totals.fat / dates.length)
+  };
 }
 
-function calculateWeightTrend(weightHistory: any[]) {
-  return weightHistory.sort((a, b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime());
+function calculateConsistency(dailyTotals: any, profile: any) {
+  const dates = Object.keys(dailyTotals);
+  if (dates.length === 0) return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+  
+  const targets = {
+    calories: profile?.target_calories || 2000,
+    protein: profile?.target_protein || 150,
+    carbs: profile?.target_carbs || 200,
+    fat: profile?.target_fat || 70
+  };
+  
+  const adherence = dates.map(date => {
+    const day = dailyTotals[date];
+    return {
+      calories: Math.min(day.calories / targets.calories, 1.5), // Cap at 150% to avoid extreme outliers
+      protein: Math.min(day.protein / targets.protein, 1.5),
+      carbs: Math.min(day.carbs / targets.carbs, 1.5),
+      fat: Math.min(day.fat / targets.fat, 1.5)
+    };
+  });
+  
+  return {
+    calories: Math.round((adherence.reduce((sum, day) => sum + day.calories, 0) / dates.length) * 100),
+    protein: Math.round((adherence.reduce((sum, day) => sum + day.protein, 0) / dates.length) * 100),
+    carbs: Math.round((adherence.reduce((sum, day) => sum + day.carbs, 0) / dates.length) * 100),
+    fat: Math.round((adherence.reduce((sum, day) => sum + day.fat, 0) / dates.length) * 100)
+  };
 }
 
-function calculateWeightChange(weightTrend: any[]) {
-  if (weightTrend.length < 2) return 'Insufficient data for trend analysis';
+function analyzeGoalProgress(profile: any, nutritionAnalysis: any, weightHistory: any[]) {
+  const fitnessGoal = profile?.fitness_goals || 'maintenance';
+  const targetCalories = profile?.target_calories || 2000;
+  const averageCalories = nutritionAnalysis.averages.calories;
   
-  const latest = weightTrend[0];
-  const oldest = weightTrend[weightTrend.length - 1];
-  const change = Number(latest.weight_kg) - Number(oldest.weight_kg);
-  const days = Math.ceil((new Date(latest.recorded_at).getTime() - new Date(oldest.recorded_at).getTime()) / (1000 * 60 * 60 * 24));
+  let goalStatus = 'on_track';
+  let recommendedAdjustment = '';
   
-  if (change > 0) {
-    return `+${change.toFixed(1)}kg over ${days} days`;
-  } else if (change < 0) {
-    return `${change.toFixed(1)}kg over ${days} days`;
-  } else {
-    return `No change over ${days} days`;
+  // Analyze based on fitness goals
+  switch (fitnessGoal) {
+    case 'weight_loss':
+      const deficitTarget = targetCalories * 0.8; // 20% deficit
+      if (averageCalories > targetCalories) {
+        goalStatus = 'above_target';
+        recommendedAdjustment = 'Reduce calorie intake to create a sustainable deficit';
+      } else if (averageCalories < deficitTarget * 0.8) {
+        goalStatus = 'too_aggressive';
+        recommendedAdjustment = 'Increase calories slightly to avoid metabolic slowdown';
+      }
+      break;
+      
+    case 'muscle_gain':
+      const surplusTarget = targetCalories * 1.1; // 10% surplus
+      if (averageCalories < targetCalories) {
+        goalStatus = 'below_target';
+        recommendedAdjustment = 'Increase calorie intake to support muscle growth';
+      } else if (averageCalories > surplusTarget * 1.2) {
+        goalStatus = 'excessive_surplus';
+        recommendedAdjustment = 'Moderate calorie intake to minimize fat gain';
+      }
+      break;
+      
+    default: // maintenance
+      if (Math.abs(averageCalories - targetCalories) > targetCalories * 0.1) {
+        goalStatus = 'off_target';
+        recommendedAdjustment = 'Adjust intake to maintain current weight';
+      }
   }
+  
+  // Weight trend analysis
+  const weightTrend = analyzeWeightTrend(weightHistory);
+  
+  return {
+    fitnessGoal,
+    goalStatus,
+    recommendedAdjustment,
+    weightTrend,
+    calorieDeviation: averageCalories - targetCalories
+  };
 }
 
-function formatDailyNutritionSummary(dailyTotals: any, profile: any) {
-  const dates = Object.keys(dailyTotals).sort().reverse().slice(0, 7);
+function calculatePerformanceScores(nutritionAnalysis: any, profile: any) {
+  const consistency = nutritionAnalysis.consistency;
   
-  if (dates.length === 0) return 'No nutrition data available for the past week';
+  // Calculate overall adherence score (weighted average)
+  const calorieWeight = 0.4;
+  const proteinWeight = 0.3;
+  const carbsWeight = 0.15;
+  const fatWeight = 0.15;
   
-  return dates.map(date => {
-    const totals = dailyTotals[date];
-    const calTarget = profile?.target_calories || 2000;
-    const calPercent = Math.round((totals.calories / calTarget) * 100);
+  const overallScore = Math.round(
+    (consistency.calories * calorieWeight) +
+    (consistency.protein * proteinWeight) +
+    (consistency.carbs * carbsWeight) +
+    (consistency.fat * fatWeight)
+  );
+  
+  // Identify strongest and weakest areas
+  const scores = [
+    { macro: 'calories', score: consistency.calories },
+    { macro: 'protein', score: consistency.protein },
+    { macro: 'carbs', score: consistency.carbs },
+    { macro: 'fat', score: consistency.fat }
+  ];
+  
+  scores.sort((a, b) => b.score - a.score);
+  
+  return {
+    overall: overallScore,
+    strongest: scores[0],
+    weakest: scores[scores.length - 1],
+    individual: consistency
+  };
+}
+
+function analyzeBehavioralPatterns(foodEntries: any[]) {
+  // Group by day of week
+  const dayOfWeekPatterns: { [key: string]: { meals: number; calories: number } } = {};
+  const mealFrequency: { [date: string]: number } = {};
+  
+  foodEntries.forEach(entry => {
+    const date = new Date(entry.date);
+    const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
+    const dateStr = entry.date;
     
-    return `- ${new Date(date).toLocaleDateString()}: ${totals.calories} kcal (${calPercent}% of target), ${totals.protein.toFixed(1)}g protein, ${totals.carbs.toFixed(1)}g carbs, ${totals.fat.toFixed(1)}g fat`;
-  }).join('\n');
+    if (!dayOfWeekPatterns[dayOfWeek]) {
+      dayOfWeekPatterns[dayOfWeek] = { meals: 0, calories: 0 };
+    }
+    
+    dayOfWeekPatterns[dayOfWeek].meals += 1;
+    dayOfWeekPatterns[dayOfWeek].calories += Number(entry.calories) || 0;
+    
+    mealFrequency[dateStr] = (mealFrequency[dateStr] || 0) + 1;
+  });
+  
+  // Find patterns
+  const avgMealsPerDay = Object.values(mealFrequency).reduce((sum, count) => sum + count, 0) / Object.keys(mealFrequency).length || 0;
+  const mostChallenging = Object.entries(dayOfWeekPatterns).sort((a, b) => a[1].calories - b[1].calories)[0];
+  const bestDay = Object.entries(dayOfWeekPatterns).sort((a, b) => b[1].calories - a[1].calories)[0];
+  
+  return {
+    avgMealsPerDay: Math.round(avgMealsPerDay * 10) / 10,
+    mostChallengingDay: mostChallenging?.[0] || 'N/A',
+    bestDay: bestDay?.[0] || 'N/A',
+    weekdayVsWeekend: calculateWeekdayWeekendDifference(dayOfWeekPatterns)
+  };
+}
+
+function calculateWeekdayWeekendDifference(patterns: any) {
+  const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const weekends = ['Saturday', 'Sunday'];
+  
+  const weekdayAvg = weekdays.reduce((sum, day) => sum + (patterns[day]?.calories || 0), 0) / weekdays.length;
+  const weekendAvg = weekends.reduce((sum, day) => sum + (patterns[day]?.calories || 0), 0) / weekends.length;
+  
+  const difference = Math.round(weekendAvg - weekdayAvg);
+  return { weekdayAvg: Math.round(weekdayAvg), weekendAvg: Math.round(weekendAvg), difference };
+}
+
+function analyzeWeightTrend(weightHistory: any[]) {
+  if (weightHistory.length < 2) return 'insufficient_data';
+  
+  const sortedHistory = weightHistory.sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
+  const latest = sortedHistory[sortedHistory.length - 1];
+  const earliest = sortedHistory[0];
+  
+  const weightChange = Number(latest.weight_kg) - Number(earliest.weight_kg);
+  const daysDiff = Math.ceil((new Date(latest.recorded_at).getTime() - new Date(earliest.recorded_at).getTime()) / (1000 * 60 * 60 * 24));
+  const weeklyRate = (weightChange / daysDiff) * 7;
+  
+  let trendDescription = '';
+  if (Math.abs(weeklyRate) < 0.1) {
+    trendDescription = 'stable';
+  } else if (weeklyRate > 0) {
+    trendDescription = 'gaining';
+  } else {
+    trendDescription = 'losing';
+  }
+  
+  return {
+    description: trendDescription,
+    totalChange: weightChange,
+    weeklyRate: Math.round(weeklyRate * 100) / 100,
+    daysPeriod: daysDiff
+  };
+}
+
+function buildComprehensiveContext(profile: any, nutritionAnalysis: any, goalAnalysis: any, performanceScore: any, behavioralInsights: any, weightHistory: any[]) {
+  const today = new Date().toISOString().split('T')[0];
+  const todaysTotals = nutritionAnalysis.dailyTotals[today] || { calories: 0, protein: 0, carbs: 0, fat: 0 };
+  
+  return `
+USER PROFILE & GOALS:
+${profile ? `
+- Target Calories: ${profile.target_calories || 'Not set'} kcal/day
+- Target Protein: ${profile.target_protein || 'Not set'}g/day
+- Target Carbs: ${profile.target_carbs || 'Not set'}g/day
+- Target Fat: ${profile.target_fat || 'Not set'}g/day
+- Fitness Goals: ${profile.fitness_goals || 'Not specified'}
+- Age: ${profile.age || 'Not provided'} | Weight: ${profile.weight_kg || 'Not provided'}kg | Height: ${profile.height_cm || 'Not provided'}cm
+- Activity Level: ${profile.activity_level || 'Not specified'}
+- Dietary Restrictions: ${profile.dietary_restrictions?.join(', ') || 'None specified'}
+` : 'Profile not available'}
+
+PERFORMANCE ANALYSIS (Last 30 Days):
+- Overall Adherence Score: ${performanceScore.overall}%
+- Strongest Area: ${performanceScore.strongest.macro} (${performanceScore.strongest.score}% adherence)
+- Needs Improvement: ${performanceScore.weakest.macro} (${performanceScore.weakest.score}% adherence)
+- Individual Scores: Calories ${performanceScore.individual.calories}% | Protein ${performanceScore.individual.protein}% | Carbs ${performanceScore.individual.carbs}% | Fat ${performanceScore.individual.fat}%
+
+GOAL PROGRESS ASSESSMENT:
+- Primary Goal: ${goalAnalysis.fitnessGoal}
+- Current Status: ${goalAnalysis.goalStatus}
+- Calorie Deviation: ${goalAnalysis.calorieDeviation > 0 ? '+' : ''}${goalAnalysis.calorieDeviation} kcal from target
+- Weight Trend: ${goalAnalysis.weightTrend.description} (${goalAnalysis.weightTrend.weeklyRate > 0 ? '+' : ''}${goalAnalysis.weightTrend.weeklyRate}kg/week over ${goalAnalysis.weightTrend.daysPeriod} days)
+${goalAnalysis.recommendedAdjustment ? `- Recommendation: ${goalAnalysis.recommendedAdjustment}` : ''}
+
+TODAY'S PROGRESS:
+- Calories: ${todaysTotals.calories}/${profile?.target_calories || 'target not set'} kcal (${profile?.target_calories ? Math.round((todaysTotals.calories / profile.target_calories) * 100) : 0}%)
+- Protein: ${todaysTotals.protein.toFixed(1)}/${profile?.target_protein || 'target not set'}g (${profile?.target_protein ? Math.round((todaysTotals.protein / profile.target_protein) * 100) : 0}%)
+- Carbs: ${todaysTotals.carbs.toFixed(1)}/${profile?.target_carbs || 'target not set'}g (${profile?.target_carbs ? Math.round((todaysTotals.carbs / profile.target_carbs) * 100) : 0}%)
+- Fat: ${todaysTotals.fat.toFixed(1)}/${profile?.target_fat || 'target not set'}g (${profile?.target_fat ? Math.round((todaysTotals.fat / profile.target_fat) * 100) : 0}%)
+
+30-DAY AVERAGES vs TARGETS:
+- Daily Calories: ${nutritionAnalysis.averages.calories} kcal (Target: ${profile?.target_calories || 'not set'})
+- Daily Protein: ${nutritionAnalysis.averages.protein}g (Target: ${profile?.target_protein || 'not set'})
+- Daily Carbs: ${nutritionAnalysis.averages.carbs}g (Target: ${profile?.target_carbs || 'not set'})
+- Daily Fat: ${nutritionAnalysis.averages.fat}g (Target: ${profile?.target_fat || 'not set'})
+
+BEHAVIORAL PATTERNS:
+- Average Meals/Day: ${behavioralInsights.avgMealsPerDay}
+- Most Challenging Day: ${behavioralInsights.mostChallengingDay}
+- Best Performance Day: ${behavioralInsights.bestDay}
+- Weekday vs Weekend: ${behavioralInsights.weekdayVsWeekend.weekdayAvg} vs ${behavioralInsights.weekdayVsWeekend.weekendAvg} kcal (${behavioralInsights.weekdayVsWeekend.difference > 0 ? '+' : ''}${behavioralInsights.weekdayVsWeekend.difference} weekend difference)
+
+WEIGHT TRACKING:
+${weightHistory.length > 0 ? `
+- Current Weight: ${weightHistory[0]?.weight_kg}kg (${new Date(weightHistory[0]?.recorded_at).toLocaleDateString()})
+- Weight Change: ${goalAnalysis.weightTrend.totalChange > 0 ? '+' : ''}${goalAnalysis.weightTrend.totalChange}kg over ${goalAnalysis.weightTrend.daysPeriod} days
+- Weekly Rate: ${goalAnalysis.weightTrend.weeklyRate > 0 ? '+' : ''}${goalAnalysis.weightTrend.weeklyRate}kg/week
+` : 'No recent weight data available'}
+  `;
+}
+
+function buildPersonalizedSystemPrompt(profile: any, performanceScore: any, goalAnalysis: any) {
+  const fitnessGoal = profile?.fitness_goals || 'maintenance';
+  const weakestArea = performanceScore.weakest.macro;
+  const overallScore = performanceScore.overall;
+  
+  let goalSpecificGuidance = '';
+  
+  switch (fitnessGoal) {
+    case 'weight_loss':
+      goalSpecificGuidance = `Focus on sustainable weight loss strategies including:
+- Creating appropriate calorie deficits without being too aggressive
+- Emphasizing protein to preserve muscle mass
+- Suggesting filling, low-calorie foods for satiety
+- Timing meals to manage hunger and energy levels
+- Addressing emotional eating patterns if evident`;
+      break;
+      
+    case 'muscle_gain':
+      goalSpecificGuidance = `Focus on muscle building nutrition including:
+- Ensuring adequate calorie surplus for growth
+- Optimizing protein intake and timing around workouts
+- Balancing carbs for energy and recovery
+- Managing fat intake for hormone production
+- Meal timing strategies for training days`;
+      break;
+      
+    default: // maintenance
+      goalSpecificGuidance = `Focus on sustainable nutrition habits including:
+- Maintaining current weight through balanced intake
+- Building consistent, flexible eating patterns
+- Optimizing nutrition quality and variety
+- Managing portion sizes intuitively
+- Creating lifestyle-integrated approaches`;
+  }
+  
+  let performanceGuidance = '';
+  if (overallScore < 70) {
+    performanceGuidance = `This user struggles with consistency (${overallScore}% adherence). Focus on:
+- Simple, actionable changes rather than major overhauls
+- Addressing barriers to consistency
+- Building sustainable habits gradually
+- Providing encouragement and motivation`;
+  } else if (overallScore >= 85) {
+    performanceGuidance = `This user has excellent adherence (${overallScore}%). Focus on:
+- Fine-tuning and optimization strategies
+- Advanced nutrition concepts
+- Periodization and cycling approaches
+- Long-term sustainability and variety`;
+  } else {
+    performanceGuidance = `This user has moderate adherence (${overallScore}%). Focus on:
+- Identifying and addressing specific challenges
+- Building on existing good habits
+- Targeted improvements in weak areas`;
+  }
+  
+  return `You are Leena.ai, an expert nutrition coach specializing in personalized dietary guidance. You provide evidence-based, practical nutrition advice tailored to each individual's specific goals, current performance, and behavioral patterns.
+
+PERSONALIZATION APPROACH:
+${goalSpecificGuidance}
+
+PERFORMANCE-BASED GUIDANCE:
+${performanceGuidance}
+Pay special attention to their weakest area: ${weakestArea}.
+
+COACHING STYLE:
+- Be encouraging and supportive, acknowledging both successes and challenges
+- Provide specific, actionable advice rather than generic recommendations
+- Reference their actual data and patterns when giving advice
+- Address the root causes of struggles, not just symptoms
+- Celebrate improvements and consistency, even if targets aren't perfect
+- Adjust recommendations based on their demonstrated preferences and adherence history
+
+RESPONSE GUIDELINES:
+- Always consider their specific fitness goal (${fitnessGoal}) when providing advice
+- Factor in their current adherence patterns and performance scores
+- Reference their behavioral patterns (meal timing, weekday vs weekend differences)
+- Consider their weight trend when making recommendations
+- Provide meal-specific suggestions that align with their targets and preferences
+- Address any concerning patterns (like extreme restriction or overeating)
+- Be realistic about what changes they can implement based on their current consistency level`;
 }
