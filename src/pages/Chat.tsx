@@ -30,11 +30,13 @@ const Chat = () => {
     }
   }, []);
 
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  const sendMessage = async (messageContent?: string) => {
+    const content = messageContent || input.trim();
+    if (!content || isLoading) return;
+    
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: input.trim(),
+      content,
       role: 'user',
       timestamp: new Date()
     };
@@ -47,7 +49,7 @@ const Chat = () => {
         error
       } = await supabase.functions.invoke('ai-coach', {
         body: {
-          message: userMessage.content,
+          message: content,
           userId: session?.user?.id
         }
       });
@@ -84,7 +86,7 @@ const Chat = () => {
   };
 
   const handleQuickQuestion = (question: string) => {
-    setInput(question);
+    sendMessage(question);
   };
 
   const quickQuestions = [
@@ -166,7 +168,8 @@ const Chat = () => {
               <button
                 key={index}
                 onClick={() => handleQuickQuestion(question)}
-                className="flex-shrink-0 px-4 py-2 text-sm border border-border/40 rounded-full hover:bg-accent/50 transition-colors whitespace-nowrap"
+                disabled={isLoading}
+                className="flex-shrink-0 px-4 py-2 text-sm border border-border/40 rounded-full hover:bg-accent/50 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {question}
               </button>
@@ -190,7 +193,7 @@ const Chat = () => {
                 className="pr-12 min-h-[48px] resize-none"
               />
               <Button
-                onClick={sendMessage}
+                onClick={() => sendMessage()}
                 disabled={isLoading || !input.trim()}
                 variant="gradient"
                 size="icon"
