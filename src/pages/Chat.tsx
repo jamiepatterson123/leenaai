@@ -97,7 +97,7 @@ const Chat = () => {
   ];
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden pb-20">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Main content area - takes remaining space */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {messages.length === 0 ? (
