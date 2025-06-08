@@ -1,10 +1,9 @@
 
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, Trash2, MessageCircle } from "lucide-react";
+import { Send, Bot, User, MessageCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -32,16 +31,6 @@ const Chat = () => {
       }
     }
   }, [messages]);
-
-  // Add initial welcome message
-  useEffect(() => {
-    setMessages([{
-      id: '1',
-      content: "Hi! I'm your AI nutrition coach. I can help you understand your eating patterns, suggest meal improvements, and answer questions about your nutrition data. What would you like to know?",
-      role: 'assistant',
-      timestamp: new Date()
-    }]);
-  }, []);
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -81,7 +70,6 @@ const Chat = () => {
       console.error('Error sending message:', error);
       toast.error("Failed to send message. Please try again.");
       
-      // Add error message
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: "Sorry, I'm having trouble responding right now. Please try again later.",
@@ -101,156 +89,140 @@ const Chat = () => {
     }
   };
 
-  const clearChat = () => {
-    setMessages([{
-      id: '1',
-      content: "Hi! I'm your AI nutrition coach. I can help you understand your eating patterns, suggest meal improvements, and answer questions about your nutrition data. What would you like to know?",
-      role: 'assistant',
-      timestamp: new Date()
-    }]);
-    toast.success("Chat cleared");
-  };
-
-  const quickQuestions = [
-    "How did I do today?",
-    "What should I eat next?",
-    "Show my weekly progress",
-    "Suggest meal improvements"
-  ];
-
   const handleQuickQuestion = (question: string) => {
     setInput(question);
   };
 
+  const quickQuestions = [
+    {
+      title: "Daily nutrition",
+      subtitle: "How did I do today?",
+      question: "How did I do today with my nutrition goals?"
+    },
+    {
+      title: "Meal suggestions",
+      subtitle: "What should I eat next?",
+      question: "What should I eat for my next meal based on my goals?"
+    },
+    {
+      title: "Weekly progress",
+      subtitle: "Show my weekly progress",
+      question: "Show me my nutrition progress for this week"
+    },
+    {
+      title: "Macro balance",
+      subtitle: "Optimize my macros",
+      question: "How can I better balance my macronutrients?"
+    }
+  ];
+
   return (
-    <div className="container mx-auto px-4 py-8 pb-24 md:pb-8">
-      {/* Header Section */}
-      <Card className="mb-6">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-3xl font-bold flex items-center gap-2">
-                <MessageCircle className="h-8 w-8 text-primary" />
-                AI Nutrition Coach
-              </CardTitle>
-              <CardDescription className="mt-2">
-                Get personalized advice about your nutrition and eating habits
-              </CardDescription>
-            </div>
-            <Button 
-              variant="gradient" 
-              size="sm" 
-              onClick={clearChat}
-              className="flex items-center gap-2"
-            >
-              <Trash2 className="h-4 w-4" />
-              Clear Chat
-            </Button>
-          </div>
-        </CardHeader>
-      </Card>
+    <div className="flex flex-col h-screen bg-background">
+      {/* Header */}
+      <div className="flex items-center justify-center h-16 border-b border-border/40 px-4">
+        <div className="flex items-center gap-2">
+          <MessageCircle className="h-6 w-6 text-primary" />
+          <span className="font-semibold text-lg">Leena.ai</span>
+        </div>
+      </div>
 
-      {/* Quick Questions */}
-      <Card className="mb-6">
-        <CardContent className="p-4">
-          <p className="text-sm text-muted-foreground mb-3">Quick questions to get started:</p>
-          <div className="flex flex-wrap gap-2">
-            {quickQuestions.map((question, index) => (
-              <Button
-                key={index}
-                variant="outline"
-                size="sm"
-                onClick={() => handleQuickQuestion(question)}
-                className="text-xs"
-              >
-                {question}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Chat Container */}
-      <Card className="flex flex-col h-[calc(100vh-380px)] md:h-[600px]">
-        <CardContent className="flex-1 flex flex-col p-0">
-          <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-            <div className="space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex gap-3 ${
-                    message.role === 'user' ? 'justify-end' : 'justify-start'
-                  }`}
-                >
-                  {message.role === 'assistant' && (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] flex items-center justify-center flex-shrink-0">
-                      <Bot className="w-4 h-4 text-white" />
-                    </div>
-                  )}
-                  <div
-                    className={`max-w-[80%] rounded-lg px-4 py-3 ${
-                      message.role === 'user'
-                        ? 'bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] text-white ml-auto'
-                        : 'bg-gray-50 border border-gray-200'
-                    }`}
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col">
+        {messages.length === 0 ? (
+          /* Welcome screen */
+          <div className="flex-1 flex flex-col items-center justify-center px-4 pb-32">
+            <div className="w-full max-w-2xl">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold mb-2">What can I help with?</h1>
+                <p className="text-muted-foreground">Ask me about your nutrition, meals, or health goals</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
+                {quickQuestions.map((item, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleQuickQuestion(item.question)}
+                    className="p-4 text-left border border-border/40 rounded-xl hover:bg-accent/50 transition-colors"
                   >
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                    <p className={`text-xs mt-2 opacity-70 ${
-                      message.role === 'user' ? 'text-white/70' : 'text-muted-foreground'
-                    }`}>
-                      {message.timestamp.toLocaleTimeString([], { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                      })}
-                    </p>
-                  </div>
-                  {message.role === 'user' && (
-                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                      <User className="w-4 h-4 text-primary-foreground" />
+                    <div className="font-medium text-sm mb-1">{item.title}</div>
+                    <div className="text-muted-foreground text-sm">{item.subtitle}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Chat messages */
+          <ScrollArea className="flex-1 px-4" ref={scrollAreaRef}>
+            <div className="max-w-3xl mx-auto py-4">
+              <div className="space-y-6">
+                {messages.map((message) => (
+                  <div key={message.id} className="flex gap-4">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-accent">
+                      {message.role === 'user' ? (
+                        <User className="w-4 h-4" />
+                      ) : (
+                        <Bot className="w-4 h-4" />
+                      )}
                     </div>
-                  )}
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex gap-3 justify-start">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="font-medium text-sm">
+                        {message.role === 'user' ? 'You' : 'Leena.ai'}
+                      </div>
+                      <div className="prose prose-sm max-w-none">
+                        <p className="whitespace-pre-wrap">{message.content}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                ))}
+                
+                {isLoading && (
+                  <div className="flex gap-4">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-accent">
+                      <Bot className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="font-medium text-sm">Leena.ai</div>
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </ScrollArea>
+        )}
 
-          {/* Input Area */}
-          <div className="border-t border-gray-200 p-4">
+        {/* Input area */}
+        <div className="border-t border-border/40 p-4 bg-background/95 backdrop-blur">
+          <div className="max-w-3xl mx-auto">
             <div className="flex gap-2">
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Ask me about your nutrition..."
-                disabled={isLoading}
-                className="flex-1"
-              />
-              <Button 
-                onClick={sendMessage} 
-                disabled={isLoading || !input.trim()}
-                variant="gradient"
-                className="px-4"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
+              <div className="relative flex-1">
+                <Input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Ask anything..."
+                  disabled={isLoading}
+                  className="pr-12 min-h-[48px] resize-none"
+                />
+                <Button 
+                  onClick={sendMessage} 
+                  disabled={isLoading || !input.trim()}
+                  variant="gradient"
+                  size="icon"
+                  className="absolute right-1 top-1 h-10 w-10"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
