@@ -1,7 +1,5 @@
-
-
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, MessageCircle, Plus, Trash2 } from "lucide-react";
+import { Send, Bot, User, MessageCircle, Plus, Trash2, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -26,6 +24,7 @@ interface Message {
   content: string;
   role: 'user' | 'assistant';
   timestamp: Date;
+  imageAnalysis?: any;
 }
 
 const CHAT_STORAGE_KEY = 'leena-chat-messages';
@@ -35,10 +34,12 @@ const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const {
-    session
-  } = useSession();
+  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { session } = useSession();
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load messages from localStorage on component mount
   useEffect(() => {
@@ -79,18 +80,106 @@ const Chat = () => {
     toast.success("Chat cleared successfully");
   };
 
-  const sendMessage = async (messageContent?: string) => {
-    const content = messageContent || input.trim();
-    if (!content || isLoading) return;
+  const handleImageSelect = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      toast.error('Image file is too large. Please select an image under 10MB.');
+      return;
+    }
+
+    setSelectedImage(file);
     
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const analyzeImage = async (file: File) => {
+    setIsAnalyzingImage(true);
+    
+    try {
+      // Convert image to base64
+      const base64Image = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          const base64Data = result.split(',')[1];
+          resolve(base64Data);
+        };
+        reader.onerror = () => reject(new Error('Failed to read image file'));
+        reader.readAsDataURL(file);
+      });
+
+      const { data, error } = await supabase.functions.invoke('analyze-food', {
+        body: { image: base64Image }
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Failed to analyze image');
+      }
+
+      if (!data || !data.foods || !Array.isArray(data.foods)) {
+        throw new Error('No food items detected in the image');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error analyzing image:', error);
+      throw error;
+    } finally {
+      setIsAnalyzingImage(false);
+    }
+  };
+
+  const sendMessage = async (messageContent?: string, imageData?: any) => {
+    const content = messageContent || input.trim();
+    
+    if (!content && !selectedImage) return;
+    if (isLoading || isAnalyzingImage) return;
+
+    let analysisData = imageData;
+    
+    // If there's an image but no analysis data, analyze it first
+    if (selectedImage && !analysisData) {
+      try {
+        analysisData = await analyzeImage(selectedImage);
+      } catch (error) {
+        toast.error('Failed to analyze image. Please try again.');
+        return;
+      }
+    }
+
+    // Create user message with image context
+    let messageText = content;
+    if (analysisData && analysisData.foods) {
+      const foodList = analysisData.foods.map((food: any) => 
+        `${food.name} (${food.weight_g}g): ${food.nutrition.calories} kcal, ${food.nutrition.protein}g protein, ${food.nutrition.carbs}g carbs, ${food.nutrition.fat}g fat`
+      ).join('\n');
+      
+      messageText = content ? 
+        `${content}\n\nI'm looking at this food: \n${foodList}` :
+        `I'm looking at this food and would like advice: \n${foodList}`;
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
-      content,
+      content: messageText,
       role: 'user',
-      timestamp: new Date()
+      timestamp: new Date(),
+      imageAnalysis: analysisData
     };
+
     setMessages(prev => [...prev, userMessage]);
     setInput("");
+    setSelectedImage(null);
+    setImagePreview(null);
     setIsLoading(true);
     
     try {
@@ -101,25 +190,25 @@ const Chat = () => {
         content: msg.content
       }));
 
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke('ai-coach', {
+      const { data, error } = await supabase.functions.invoke('ai-coach', {
         body: {
-          message: content,
+          message: messageText,
           userId: session?.user?.id,
-          conversationHistory: recentMessages.slice(0, -1) // Exclude the current message from history
+          conversationHistory: recentMessages.slice(0, -1)
         }
       });
+
       if (error) {
         throw error;
       }
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: data.response,
         role: 'assistant',
         timestamp: new Date()
       };
+
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error sending message:', error);
@@ -203,7 +292,7 @@ const Chat = () => {
           <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
             <div className="w-full max-w-2xl text-center">
               <h1 className="text-3xl font-bold mb-2">What can I help with?</h1>
-              <p className="text-muted-foreground">Ask me about your nutrition, meals, or health goals</p>
+              <p className="text-muted-foreground">Ask me about your nutrition, meals, or health goals. You can also upload photos of food for personalized advice!</p>
             </div>
           </div>
         ) : (
@@ -252,6 +341,35 @@ const Chat = () => {
         )}
       </div>
 
+      {/* Image preview section */}
+      {imagePreview && (
+        <div className="flex-shrink-0 px-4 py-2 border-t border-border/40">
+          <div className="max-w-3xl mx-auto">
+            <div className="relative inline-block">
+              <img 
+                src={imagePreview} 
+                alt="Selected food" 
+                className="h-20 w-20 object-cover rounded-lg border"
+              />
+              {isAnalyzingImage && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
+                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
+              <button
+                onClick={() => {
+                  setSelectedImage(null);
+                  setImagePreview(null);
+                }}
+                className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center text-xs"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Suggested questions - fixed height */}
       <div className="flex-shrink-0 px-4 py-2">
         <div className="max-w-3xl mx-auto">
@@ -260,7 +378,7 @@ const Chat = () => {
               <button
                 key={index}
                 onClick={() => handleQuickQuestion(question)}
-                disabled={isLoading}
+                disabled={isLoading || isAnalyzingImage}
                 className="flex-shrink-0 px-4 py-2 text-sm border border-border/40 rounded-full hover:bg-accent/50 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {question}
@@ -274,19 +392,28 @@ const Chat = () => {
       <div className="flex-shrink-0 border-t border-border/40 p-4 bg-background/95 backdrop-blur">
         <div className="max-w-3xl mx-auto">
           <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading || isAnalyzingImage}
+              className="h-12 w-12"
+            >
+              <Camera className="w-5 h-5" />
+            </Button>
             <div className="relative flex-1">
               <Input
                 ref={inputRef}
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask anything..."
-                disabled={isLoading}
+                placeholder={selectedImage ? "Ask about this food..." : "Ask anything or upload a photo..."}
+                disabled={isLoading || isAnalyzingImage}
                 className="pr-12 min-h-[48px] resize-none"
               />
               <Button
                 onClick={() => sendMessage()}
-                disabled={isLoading || !input.trim()}
+                disabled={isLoading || isAnalyzingImage || (!input.trim() && !selectedImage)}
                 variant="gradient"
                 size="icon"
                 className="absolute right-1 top-1 h-10 w-10"
@@ -297,9 +424,22 @@ const Chat = () => {
           </div>
         </div>
       </div>
+
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            handleImageSelect(file);
+          }
+        }}
+      />
     </div>
   );
 };
 
 export default Chat;
-
