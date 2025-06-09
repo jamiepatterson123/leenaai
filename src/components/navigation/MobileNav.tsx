@@ -1,12 +1,13 @@
+
 import React, { useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, Book, MessageSquare, LineChart } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthButtons } from "./AuthButtons";
-import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { toast } from "sonner";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useAnalyzing } from "@/context/AnalyzingContext";
 
 interface MobileNavProps {
   onAddClick: () => void;
@@ -18,8 +19,8 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
   const isMobile = useIsMobile();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [session, setSession] = React.useState(null);
-  const [isUploading, setIsUploading] = useState(false);
   const { dailyLimitReached, redirectToCheckout } = useSubscription();
+  const { setAnalyzing } = useAnalyzing();
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -55,26 +56,17 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && onFileSelect) {
-      setIsUploading(true);
+      setAnalyzing(true);
       onFileSelect(file);
       e.target.value = '';
       
-      // Reset the uploading state after a delay to ensure the loading overlay appears
+      // Reset the analyzing state after a delay to ensure the progress bar appears
       // This is a fallback in case the component doesn't reset it
       setTimeout(() => {
-        setIsUploading(false);
+        setAnalyzing(false);
       }, 30000); // 30 seconds maximum timeout
     }
   };
-
-  // Image analysis-specific loading messages
-  const imageAnalysisMessages = [
-    { text: "Identifying food items in your photo...", type: "processing" as const },
-    { text: "Calculating nutrition information...", type: "nutrition" as const },
-    { text: "Measuring portion sizes...", type: "processing" as const },
-    { text: "Counting calories in your meal...", type: "nutrition" as const },
-    { text: "Estimating macros: protein, carbs, and fats...", type: "nutrition" as const }
-  ];
 
   if (!isMobile) return null;
 
@@ -85,14 +77,6 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
           <div className="absolute top-5 right-4 z-50">
             <AuthButtons handleShare={() => {}} session={session} />
           </div>
-          
-          <LoadingOverlay 
-            isVisible={isUploading}
-            type="image"
-            title="Analyzing Your Food"
-            messages={imageAnalysisMessages}
-            fullScreen={true}
-          />
           
           <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/40 py-2 px-4 z-50">
             <div className="flex justify-around items-center max-w-xl mx-auto">
@@ -109,7 +93,6 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
                   onClick={handleCircleClick}
                   className={`w-14 h-14 rounded-full border-2 ${dailyLimitReached ? 'border-[#D946EF] bg-[#D946EF]/10 hover:bg-[#D946EF]/20' : 'border-[#9a9a9a] hover:bg-gray-50'} transition-colors`}
                   aria-label={dailyLimitReached ? "Upgrade to Premium" : "Upload photo"}
-                  disabled={isUploading}
                 />
                 {!dailyLimitReached && (
                   <input
@@ -119,7 +102,6 @@ export const MobileNav = ({ onAddClick, onFileSelect }: MobileNavProps) => {
                     className="hidden"
                     onChange={handleFileChange}
                     capture="environment"
-                    disabled={isUploading}
                   />
                 )}
                 {dailyLimitReached && (

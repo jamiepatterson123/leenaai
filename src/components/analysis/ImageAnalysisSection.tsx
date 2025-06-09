@@ -10,7 +10,6 @@ import { FoodVerificationDialog } from "./FoodVerificationDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import { triggerSuccessConfetti } from "@/utils/confetti";
-import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { useAnalyzing } from "@/context/AnalyzingContext";
 
 interface ImageAnalysisSectionProps {
@@ -120,29 +119,12 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     }
   }, []);
 
-  // Image analysis-specific loading messages with corrected type values
-  const imageAnalysisMessages = [
-    { text: "Identifying food items in your photo...", type: "processing" as const },
-    { text: "Calculating nutrition information...", type: "nutrition" as const },
-    { text: "Measuring portion sizes...", type: "processing" as const },
-    { text: "Counting calories in your meal...", type: "nutrition" as const },
-    { text: "Estimating macros: protein, carbs, and fats...", type: "nutrition" as const }
-  ];
-
   return (
-    <div className={`space-y-4 ${localAnalyzing && !showVerification && isMobile ? 'hidden' : ''}`} ref={componentRef} data-image-analysis>
+    <div className={`space-y-4`} ref={componentRef} data-image-analysis>
       <ImageUpload 
         onImageSelect={handleImageSelect} 
         resetPreview={resetUpload}
         isAnalyzing={localAnalyzing && !showVerification} 
-      />
-
-      <LoadingOverlay 
-        isVisible={localAnalyzing && !showVerification && isMobile}
-        type="image"
-        title="Analyzing Your Food"
-        messages={imageAnalysisMessages}
-        fullScreen={isMobile}
       />
 
       <FoodVerificationDialog isOpen={showVerification} onClose={() => setShowVerification(false)} foods={analyzedFoods} onConfirm={handleConfirmFoods} />

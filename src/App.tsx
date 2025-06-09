@@ -13,8 +13,8 @@ import WhatsApp from "./pages/WhatsApp";
 import OneTimeOffer from "./pages/OneTimeOffer";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { AuthLoading } from "./components/auth/AuthLoading";
-import { AnalyzingProvider, useAnalyzing } from "./context/AnalyzingContext";
-import { Progress } from "@/components/ui/progress";
+import { AnalyzingProvider } from "./context/AnalyzingContext";
+import { TopProgressBar } from "@/components/ui/top-progress-bar";
 import Chat from "./pages/Chat";
 import { UpgradeButton } from './components/subscription/UpgradeButton';
 
@@ -28,26 +28,12 @@ const queryClient = new QueryClient({
   }
 });
 
-// Loading bar component that will be displayed on all pages
-const GlobalLoadingBar = () => {
-  const { analyzing } = useAnalyzing();
-  
-  return analyzing ? (
-    <div className="fixed top-0 left-0 w-full z-50">
-      <Progress 
-        value={100} 
-        className="h-2 animate-pulse"
-      />
-    </div>
-  ) : null;
-};
-
 // Main App component
 function AppContent() {
   return (
     <Router>
       <div className="min-h-screen pb-10">
-        <GlobalLoadingBar />
+        <TopProgressBar />
         <Navigation />
         <Routes>
           <Route path="/auth" element={<Auth />} />
