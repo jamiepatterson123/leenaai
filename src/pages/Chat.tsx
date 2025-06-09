@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, MessageCircle, Plus, Trash2, Camera, Image as ImageIcon, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -406,17 +407,40 @@ const Chat = () => {
         </div>
       </div>
 
-      {/* Input area - fixed above mobile nav */}
+      {/* Input area - restructured layout */}
       <div className="flex-shrink-0 border-t border-border/40 p-4 bg-background/95 backdrop-blur">
-        <div className="max-w-3xl mx-auto">
-          <div className="relative flex items-center gap-2">
+        <div className="max-w-3xl mx-auto space-y-3">
+          {/* Input field taking full width */}
+          <div className="relative">
+            <Input
+              ref={inputRef}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={selectedImage ? "Ask about this food..." : "Ask anything or upload a photo..."}
+              disabled={isLoading || isAnalyzingImage}
+              className="w-full min-h-[48px] pr-12"
+            />
+            <Button
+              onClick={() => sendMessage()}
+              disabled={isLoading || isAnalyzingImage || (!input.trim() && !selectedImage)}
+              variant="gradient"
+              size="icon"
+              className="absolute right-1 top-1 h-10 w-10"
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Plus button centered below input */}
+          <div className="flex justify-center">
             <Popover open={isAttachmentOpen} onOpenChange={setIsAttachmentOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
                   disabled={isLoading || isAnalyzingImage}
-                  className="h-10 w-10 flex-shrink-0"
+                  className="h-10 w-10"
                 >
                   <Plus className="w-4 h-4" />
                 </Button>
@@ -453,27 +477,6 @@ const Chat = () => {
                 </div>
               </PopoverContent>
             </Popover>
-
-            <div className="relative flex-1">
-              <Input
-                ref={inputRef}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder={selectedImage ? "Ask about this food..." : "Ask anything or upload a photo..."}
-                disabled={isLoading || isAnalyzingImage}
-                className="pr-12 min-h-[48px] resize-none"
-              />
-              <Button
-                onClick={() => sendMessage()}
-                disabled={isLoading || isAnalyzingImage || (!input.trim() && !selectedImage)}
-                variant="gradient"
-                size="icon"
-                className="absolute right-1 top-1 h-10 w-10"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
-            </div>
           </div>
         </div>
       </div>
