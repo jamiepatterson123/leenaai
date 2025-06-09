@@ -1,7 +1,7 @@
 
 import React, { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { analyzeImage } from "./ImageAnalyzer";
 import { saveFoodEntries } from "./FoodEntrySaver";
 import { useQueryClient } from "@tanstack/react-query";
@@ -48,7 +48,9 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       toast.error("No image selected");
       return;
     }
+    
     console.log("handleImageSelect called with image:", image);
+    
     if (localAnalyzing) {
       toast.error("Please wait for the current analysis to complete");
       return;
@@ -64,22 +66,21 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
         setNutritionData,
         saveFoodEntries: async () => {} // Don't save immediately
       });
+      
       console.log("Analysis result:", result);
-      if (result?.foods) {
+      
+      if (result?.foods && result.foods.length > 0) {
         setAnalyzedFoods(result.foods);
         setShowVerification(true);
+        toast.success("Image analyzed successfully!");
       } else {
-        throw new Error("Invalid analysis result");
+        throw new Error("No food items detected in the image");
       }
     } catch (error) {
       console.error("Error analyzing image:", error);
       const errorMessage = error instanceof Error ? error.message : "Error analyzing image";
       toast.error(errorMessage);
-    } finally {
-      // Only set analyzing to false if verification dialog isn't showing
-      if (!showVerification) {
-        setLocalAnalyzing(false);
-      }
+      setLocalAnalyzing(false);
     }
   };
   
@@ -106,6 +107,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
     } catch (error) {
       console.error("Error saving food entries:", error);
       toast.error("Failed to save food entries");
+      setLocalAnalyzing(false);
     }
   };
   
@@ -127,7 +129,15 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
         isAnalyzing={localAnalyzing && !showVerification} 
       />
 
-      <FoodVerificationDialog isOpen={showVerification} onClose={() => setShowVerification(false)} foods={analyzedFoods} onConfirm={handleConfirmFoods} />
+      <FoodVerificationDialog 
+        isOpen={showVerification} 
+        onClose={() => {
+          setShowVerification(false);
+          setLocalAnalyzing(false);
+        }} 
+        foods={analyzedFoods} 
+        onConfirm={handleConfirmFoods} 
+      />
     </div>
   );
 });

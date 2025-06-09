@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
@@ -62,17 +61,23 @@ export const Navigation = () => {
       toast.error("Please upload an image file");
       return;
     }
-    setAnalyzing(true);
+    
+    console.log("Navigation handleFileSelect called, redirecting to home...");
+    
+    // Navigate to home page where the ImageAnalysisSection is available
+    navigate("/");
+    
+    // Small delay to ensure the page loads
     setTimeout(() => {
       const imageAnalysisSection = document.querySelector('[data-image-analysis]');
       if (imageAnalysisSection && 'handleImageSelect' in imageAnalysisSection) {
+        console.log("Found image analysis section, processing file...");
         (imageAnalysisSection as any).handleImageSelect(file);
       } else {
-        console.error("Image analysis section not found");
-        toast.error("Failed to analyze image");
-        setAnalyzing(false);
+        console.error("Image analysis section not found on home page");
+        toast.error("Please use the camera feature from the home page");
       }
-    }, 100);
+    }, 500);
   };
   
   return (
