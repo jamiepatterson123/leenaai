@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -89,7 +90,12 @@ export const useFoodItems = (initialFoods: FoodItem[]) => {
             ? {
                 ...food,
                 name: newName,
-                nutrition: nutritionData.nutrition
+                nutrition: {
+                  calories: Math.round(nutritionData.nutrition.calories),
+                  protein: Math.round(nutritionData.nutrition.protein),
+                  carbs: Math.round(nutritionData.nutrition.carbs),
+                  fat: Math.round(nutritionData.nutrition.fat)
+                }
               }
             : food
         )
@@ -128,10 +134,10 @@ export const useFoodItems = (initialFoods: FoodItem[]) => {
                 ...food,
                 weight_g: weight,
                 nutrition: {
-                  calories: ratio * food.nutrition.calories,
-                  protein: ratio * food.nutrition.protein,
-                  carbs: ratio * food.nutrition.carbs,
-                  fat: ratio * food.nutrition.fat,
+                  calories: Math.round(ratio * food.nutrition.calories),
+                  protein: Math.round(ratio * food.nutrition.protein),
+                  carbs: Math.round(ratio * food.nutrition.carbs),
+                  fat: Math.round(ratio * food.nutrition.fat),
                 },
               }
             : food

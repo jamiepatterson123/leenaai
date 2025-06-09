@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,9 +72,9 @@ export const FoodItemForm = ({
           ) : (
             <>
               Calories: {Math.round(nutrition.calories)} kcal | 
-              Protein: {nutrition.protein.toFixed(1)}g | 
-              Carbs: {nutrition.carbs.toFixed(1)}g | 
-              Fat: {nutrition.fat.toFixed(1)}g
+              Protein: {Math.round(nutrition.protein)}g | 
+              Carbs: {Math.round(nutrition.carbs)}g | 
+              Fat: {Math.round(nutrition.fat)}g
             </>
           )}
         </div>

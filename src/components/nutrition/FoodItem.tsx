@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "../ui/button";
 import { Trash2, ChevronDown } from "lucide-react";
@@ -49,17 +50,17 @@ export const FoodItem: React.FC<FoodItemProps> = ({
       </div>
       {food.nutrition && (
         <div className="text-sm text-muted-foreground space-x-2">
-          <span>{food.nutrition.protein}g protein</span>
+          <span>{Math.round(food.nutrition.protein)}g protein</span>
           <span>•</span>
-          <span>{food.nutrition.carbs}g carbs</span>
+          <span>{Math.round(food.nutrition.carbs)}g carbs</span>
           <span>•</span>
-          <span>{food.nutrition.fat}g fat</span>
+          <span>{Math.round(food.nutrition.fat)}g fat</span>
         </div>
       )}
     </div>
     <div className="flex items-center justify-end gap-3">
       {food.nutrition && (
-        <span className="text-sm font-medium">{food.nutrition.calories} kcal</span>
+        <span className="text-sm font-medium">{Math.round(food.nutrition.calories)} kcal</span>
       )}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
