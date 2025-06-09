@@ -391,16 +391,7 @@ const Chat = () => {
       {/* Input area - fixed above mobile nav */}
       <div className="flex-shrink-0 border-t border-border/40 p-4 bg-background/95 backdrop-blur">
         <div className="max-w-3xl mx-auto">
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isLoading || isAnalyzingImage}
-              className="h-12 w-12"
-            >
-              <Camera className="w-5 h-5" />
-            </Button>
+          <div className="relative flex items-center gap-2">
             <div className="relative flex-1">
               <Input
                 ref={inputRef}
@@ -409,17 +400,28 @@ const Chat = () => {
                 onKeyPress={handleKeyPress}
                 placeholder={selectedImage ? "Ask about this food..." : "Ask anything or upload a photo..."}
                 disabled={isLoading || isAnalyzingImage}
-                className="pr-12 min-h-[48px] resize-none"
+                className="pr-20 min-h-[48px] resize-none"
               />
-              <Button
-                onClick={() => sendMessage()}
-                disabled={isLoading || isAnalyzingImage || (!input.trim() && !selectedImage)}
-                variant="gradient"
-                size="icon"
-                className="absolute right-1 top-1 h-10 w-10"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
+              <div className="absolute right-1 top-1 flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isLoading || isAnalyzingImage}
+                  className="h-10 w-10"
+                >
+                  <Camera className="w-4 h-4" />
+                </Button>
+                <Button
+                  onClick={() => sendMessage()}
+                  disabled={isLoading || isAnalyzingImage || (!input.trim() && !selectedImage)}
+                  variant="gradient"
+                  size="icon"
+                  className="h-10 w-10"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
