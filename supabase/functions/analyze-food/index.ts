@@ -25,14 +25,11 @@ serve(async (req) => {
     }
 
     if (req.headers.get('content-type')?.includes('application/json')) {
-      const { images, image, text } = await req.json();
+      const { image, text } = await req.json();
       
-      // Support both single image (legacy) and multiple images
-      const imageList = images || (image ? [image] : []);
-      
-      if (!imageList.length && !text) {
+      if (!image && !text) {
         return new Response(
-          JSON.stringify({ error: 'No images or text provided' }),
+          JSON.stringify({ error: 'No image or text provided' }),
           { status: 400, headers: corsHeaders }
         );
       }
@@ -67,6 +64,7 @@ serve(async (req) => {
             throw new Error('No response from OpenAI');
           }
 
+          // Clean and parse the response
           const cleanContent = completion.choices[0].message.content
             .replace(/```json\n?/g, '')
             .replace(/```/g, '')
@@ -118,62 +116,12 @@ serve(async (req) => {
           );
         }
 
-        if (imageList.length > 0) {
-          console.log(`Processing ${imageList.length} image(s)`);
+        if (image) {
+          console.log('Processing image input');
           
-          // Validate all images
-          for (let i = 0; i < imageList.length; i++) {
-            if (!imageList[i].match(/^[A-Za-z0-9+/=]+$/)) {
-              throw new Error(`Invalid base64 image data for image ${i + 1}`);
-            }
+          if (!image.match(/^[A-Za-z0-9+/=]+$/)) {
+            throw new Error('Invalid base64 image data');
           }
-
-          // Create content array with multiple images
-          const content = [
-            {
-              type: "text",
-              text: imageList.length > 1 
-                ? `Analyze these ${imageList.length} images of the same meal taken from different angles. Use the multiple perspectives to get more accurate volume estimates and identify food items more precisely. Provide detailed nutrition estimates for each item separately.`
-                : "Identify each individual food item in this image and provide detailed nutrition estimates for each item separately."
-            }
-          ];
-
-          // Add all images to the content
-          imageList.forEach((imageData: string, index: number) => {
-            content.push({
-              type: "image_url",
-              image_url: {
-                url: `data:image/jpeg;base64,${imageData}`
-              }
-            });
-          });
-
-          const systemPrompt = imageList.length > 1
-            ? `You are a nutrition expert analyzing multiple images of the same meal from different angles. Use the multiple perspectives to:
-
-1. Get more accurate volume estimates by comparing angles
-2. Identify foods that might be hidden in single views
-3. Better estimate portion sizes using visual references across angles
-4. Provide higher confidence in your analysis
-
-IMPORTANT WEIGHT GUIDELINES: With multiple angles, provide more precise weight estimates. Use specific numbers like 127g, 283g, 157g, 91g instead of rounded numbers. The multiple views should allow for better accuracy.
-
-NUTRITION GUIDELINES: Provide all nutrition values (calories, protein, carbs, fat) as whole numbers without decimals.
-
-Return your response as a JSON array containing objects for each food item you identify. Each object should have this exact structure:
-{"name": "Specific food name with cooking method", "weight_g": estimated_weight_in_grams, "nutrition": {"calories": number, "protein": number, "carbs": number, "fat": number}, "confidence": confidence_level_0_to_1}
-
-Be specific with food names (e.g., "Grilled Ribeye Steak" not just "steak"). With multiple angles, you can be more confident in weights and identification. Apply a 5% calorie buffer for hidden fats/oils. Return ONLY the JSON array, no other text.`
-            : `You are a nutrition expert who identifies individual food items in images. Analyze the image and identify each distinct food item visible. For each item, estimate its specific weight and provide detailed nutrition information.
-
-IMPORTANT WEIGHT GUIDELINES: Provide realistic, non-rounded weights that convey precision. Use specific numbers like 127g, 283g, 157g, 91g instead of rounded numbers like 130g, 300g, 150g, 90g. Weights should vary naturally and not frequently end in 0 or 5.
-
-NUTRITION GUIDELINES: Provide all nutrition values (calories, protein, carbs, fat) as whole numbers without decimals.
-
-Return your response as a JSON array containing objects for each food item you identify. Each object should have this exact structure:
-{"name": "Specific food name with cooking method", "weight_g": estimated_weight_in_grams, "nutrition": {"calories": number, "protein": number, "carbs": number, "fat": number}, "confidence": confidence_level_0_to_1}
-
-Be specific with food names (e.g., "Grilled Ribeye Steak" not just "steak"). Estimate weights based on visual cues like plate size, utensils, and portion appearance. Apply a 5% calorie buffer for hidden fats/oils. Return ONLY the JSON array, no other text.`;
 
           const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
@@ -188,11 +136,22 @@ Be specific with food names (e.g., "Grilled Ribeye Steak" not just "steak"). Est
               messages: [
                 {
                   role: "system",
-                  content: systemPrompt
+                  content: "You are a nutrition expert who identifies individual food items in images. Analyze the image and identify each distinct food item visible. For each item, estimate its specific weight and provide detailed nutrition information.\n\nIMPORTANT WEIGHT GUIDELINES: Provide realistic, non-rounded weights that convey precision. Use specific numbers like 127g, 283g, 157g, 91g instead of rounded numbers like 130g, 300g, 150g, 90g. Weights should vary naturally and not frequently end in 0 or 5.\n\nNUTRITION GUIDELINES: Provide all nutrition values (calories, protein, carbs, fat) as whole numbers without decimals.\n\nReturn your response as a JSON array containing objects for each food item you identify. Each object should have this exact structure:\n{\"name\": \"Specific food name with cooking method\", \"weight_g\": estimated_weight_in_grams, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}\n\nBe specific with food names (e.g., \"Grilled Ribeye Steak\" not just \"steak\"). Estimate weights based on visual cues like plate size, utensils, and portion appearance. Apply a 5% calorie buffer for hidden fats/oils. Return ONLY the JSON array, no other text."
                 },
                 {
                   role: "user",
-                  content: content
+                  content: [
+                    {
+                      type: "text",
+                      text: "Identify each individual food item in this image and provide detailed nutrition estimates for each item separately."
+                    },
+                    {
+                      type: "image_url",
+                      image_url: {
+                        url: `data:image/jpeg;base64,${image}`
+                      }
+                    }
+                  ]
                 }
               ]
             }),
@@ -215,6 +174,7 @@ Be specific with food names (e.g., "Grilled Ribeye Steak" not just "steak"). Est
             const content = completion.choices[0].message.content;
             console.log('Full response content:', content);
             
+            // Extract JSON array from the response
             const jsonMatch = content.match(/\[[\s\S]*\]/);
             if (!jsonMatch) {
               throw new Error('No JSON array found in response');
@@ -224,10 +184,12 @@ Be specific with food names (e.g., "Grilled Ribeye Steak" not just "steak"). Est
             console.log('Extracted JSON string:', jsonStr);
             const foods = JSON.parse(jsonStr);
 
+            // Validate that we have an array of food items
             if (!Array.isArray(foods) || foods.length === 0) {
               throw new Error('Invalid foods array in response');
             }
 
+            // Ensure each food item has the correct structure
             const validatedFoods = foods.map(food => ({
               name: food.name || 'Unknown Food',
               weight_g: food.weight_g || 100,
@@ -236,16 +198,11 @@ Be specific with food names (e.g., "Grilled Ribeye Steak" not just "steak"). Est
                 protein: food.nutrition?.protein || 0,
                 carbs: food.nutrition?.carbs || 0,
                 fat: food.nutrition?.fat || 0
-              },
-              confidence: food.confidence || 0.7
+              }
             }));
 
             return new Response(
-              JSON.stringify({ 
-                foods: validatedFoods,
-                multi_angle: imageList.length > 1,
-                image_count: imageList.length
-              }),
+              JSON.stringify({ foods: validatedFoods }),
               { headers: corsHeaders }
             );
           } catch (parseError) {
