@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, MessageCircle, Plus, Trash2, Camera } from "lucide-react";
+import { Send, Bot, User, MessageCircle, Plus, Trash2, Camera, Image as ImageIcon, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -14,6 +14,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -37,9 +42,11 @@ const Chat = () => {
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isAttachmentOpen, setIsAttachmentOpen] = useState(false);
   const { session } = useSession();
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   // Load messages from localStorage on component mount
   useEffect(() => {
@@ -92,6 +99,7 @@ const Chat = () => {
     }
 
     setSelectedImage(file);
+    setIsAttachmentOpen(false);
     
     // Create preview
     const reader = new FileReader();
@@ -99,6 +107,16 @@ const Chat = () => {
       setImagePreview(reader.result as string);
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleCameraCapture = () => {
+    cameraInputRef.current?.click();
+    setIsAttachmentOpen(false);
+  };
+
+  const handlePhotoSelect = () => {
+    fileInputRef.current?.click();
+    setIsAttachmentOpen(false);
   };
 
   const analyzeImage = async (file: File) => {
@@ -392,6 +410,50 @@ const Chat = () => {
       <div className="flex-shrink-0 border-t border-border/40 p-4 bg-background/95 backdrop-blur">
         <div className="max-w-3xl mx-auto">
           <div className="relative flex items-center gap-2">
+            <Popover open={isAttachmentOpen} onOpenChange={setIsAttachmentOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={isLoading || isAnalyzingImage}
+                  className="h-10 w-10 flex-shrink-0"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent side="top" className="w-72 p-2">
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    onClick={handlePhotoSelect}
+                    className="flex flex-col items-center gap-2 p-4 rounded-lg hover:bg-accent transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <ImageIcon className="w-5 h-5 text-primary" />
+                    </div>
+                    <span className="text-sm font-medium">Photos</span>
+                  </button>
+                  <button
+                    onClick={handleCameraCapture}
+                    className="flex flex-col items-center gap-2 p-4 rounded-lg hover:bg-accent transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Camera className="w-5 h-5 text-primary" />
+                    </div>
+                    <span className="text-sm font-medium">Camera</span>
+                  </button>
+                  <button
+                    disabled
+                    className="flex flex-col items-center gap-2 p-4 rounded-lg opacity-50 cursor-not-allowed"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-muted-foreground" />
+                    </div>
+                    <span className="text-sm font-medium">Files</span>
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
+
             <div className="relative flex-1">
               <Input
                 ref={inputRef}
@@ -400,38 +462,40 @@ const Chat = () => {
                 onKeyPress={handleKeyPress}
                 placeholder={selectedImage ? "Ask about this food..." : "Ask anything or upload a photo..."}
                 disabled={isLoading || isAnalyzingImage}
-                className="pr-20 min-h-[48px] resize-none"
+                className="pr-12 min-h-[48px] resize-none"
               />
-              <div className="absolute right-1 top-1 flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isLoading || isAnalyzingImage}
-                  className="h-10 w-10"
-                >
-                  <Camera className="w-4 h-4" />
-                </Button>
-                <Button
-                  onClick={() => sendMessage()}
-                  disabled={isLoading || isAnalyzingImage || (!input.trim() && !selectedImage)}
-                  variant="gradient"
-                  size="icon"
-                  className="h-10 w-10"
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
-              </div>
+              <Button
+                onClick={() => sendMessage()}
+                disabled={isLoading || isAnalyzingImage || (!input.trim() && !selectedImage)}
+                variant="gradient"
+                size="icon"
+                className="absolute right-1 top-1 h-10 w-10"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Hidden file input */}
+      {/* Hidden file inputs */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            handleImageSelect(file);
+          }
+        }}
+      />
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
