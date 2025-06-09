@@ -27,13 +27,28 @@ serve(async (req) => {
       .eq('user_id', userId)
       .single();
 
+    // Get current date in YYYY-MM-DD format (UTC)
+    const today = new Date().toISOString().split('T')[0];
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    console.log('Fetching food entries for userId:', userId);
+    console.log('Today date:', today);
+    console.log('Thirty days ago:', thirtyDaysAgo);
+
     // Fetch food diary entries (last 30 days for comprehensive analysis)
-    const { data: foodEntries } = await supabaseClient
+    const { data: foodEntries, error: foodError } = await supabaseClient
       .from('food_diary')
       .select('*')
       .eq('user_id', userId)
-      .gte('date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+      .gte('date', thirtyDaysAgo)
       .order('date', { ascending: false });
+
+    if (foodError) {
+      console.error('Error fetching food entries:', foodError);
+    } else {
+      console.log('Found food entries:', foodEntries?.length || 0);
+      console.log('Today entries:', foodEntries?.filter(entry => entry.date === today).length || 0);
+    }
 
     // Fetch weight history (last 90 days for trend analysis)
     const { data: weightHistory } = await supabaseClient
@@ -56,7 +71,8 @@ serve(async (req) => {
       goalAnalysis,
       performanceScore,
       behavioralInsights,
-      weightHistory || []
+      weightHistory || [],
+      today
     );
 
     // Enhanced system prompt based on user's specific goals and patterns
@@ -374,9 +390,8 @@ function analyzeWeightTrend(weightHistory: any[]) {
   };
 }
 
-function buildComprehensiveContext(profile: any, nutritionAnalysis: any, goalAnalysis: any, performanceScore: any, behavioralInsights: any, weightHistory: any[]) {
-  const today = new Date().toISOString().split('T')[0];
-  const todaysTotals = nutritionAnalysis.dailyTotals[today] || { calories: 0, protein: 0, carbs: 0, fat: 0 };
+function buildComprehensiveContext(profile: any, nutritionAnalysis: any, goalAnalysis: any, performanceScore: any, behavioralInsights: any, weightHistory: any[], today: string) {
+  const todaysTotals = nutritionAnalysis.dailyTotals[today] || { calories: 0, protein: 0, carbs: 0, fat: 0, meals: 0 };
   
   return `
 USER PROFILE & GOALS:
@@ -404,11 +419,12 @@ GOAL PROGRESS ASSESSMENT:
 - Weight Trend: ${goalAnalysis.weightTrend.description} (${goalAnalysis.weightTrend.weeklyRate > 0 ? '+' : ''}${goalAnalysis.weightTrend.weeklyRate}kg/week over ${goalAnalysis.weightTrend.daysPeriod} days)
 ${goalAnalysis.recommendedAdjustment ? `- Recommendation: ${goalAnalysis.recommendedAdjustment}` : ''}
 
-TODAY'S PROGRESS:
-- Calories: ${todaysTotals.calories}/${profile?.target_calories || 'target not set'} kcal (${profile?.target_calories ? Math.round((todaysTotals.calories / profile.target_calories) * 100) : 0}%)
-- Protein: ${todaysTotals.protein.toFixed(1)}/${profile?.target_protein || 'target not set'}g (${profile?.target_protein ? Math.round((todaysTotals.protein / profile.target_protein) * 100) : 0}%)
-- Carbs: ${todaysTotals.carbs.toFixed(1)}/${profile?.target_carbs || 'target not set'}g (${profile?.target_carbs ? Math.round((todaysTotals.carbs / profile.target_carbs) * 100) : 0}%)
-- Fat: ${todaysTotals.fat.toFixed(1)}/${profile?.target_fat || 'target not set'}g (${profile?.target_fat ? Math.round((todaysTotals.fat / profile.target_fat) * 100) : 0}%)
+TODAY'S PROGRESS (${today}):
+- Calories: ${Math.round(todaysTotals.calories)}/${profile?.target_calories || 'target not set'} kcal (${profile?.target_calories ? Math.round((todaysTotals.calories / profile.target_calories) * 100) : 0}%)
+- Protein: ${Math.round(todaysTotals.protein)}/${profile?.target_protein || 'target not set'}g (${profile?.target_protein ? Math.round((todaysTotals.protein / profile.target_protein) * 100) : 0}%)
+- Carbs: ${Math.round(todaysTotals.carbs)}/${profile?.target_carbs || 'target not set'}g (${profile?.target_carbs ? Math.round((todaysTotals.carbs / profile.target_carbs) * 100) : 0}%)
+- Fat: ${Math.round(todaysTotals.fat)}/${profile?.target_fat || 'target not set'}g (${profile?.target_fat ? Math.round((todaysTotals.fat / profile.target_fat) * 100) : 0}%)
+- Meals logged today: ${todaysTotals.meals}
 
 30-DAY AVERAGES vs TARGETS:
 - Daily Calories: ${nutritionAnalysis.averages.calories} kcal (Target: ${profile?.target_calories || 'not set'})
