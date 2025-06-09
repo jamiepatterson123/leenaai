@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, MessageCircle, Plus, Trash2, Camera, Image as ImageIcon, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -48,6 +47,16 @@ const Chat = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   // Load messages from localStorage on component mount
   useEffect(() => {
@@ -353,6 +362,9 @@ const Chat = () => {
                       </div>
                     </div>
                   )}
+                  
+                  {/* Invisible div to scroll to */}
+                  <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
             </div>
