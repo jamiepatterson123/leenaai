@@ -36,192 +36,20 @@ interface OpenAIResponse {
   }>;
 }
 
-class OpenAIClient {
-  private apiKey: string;
-
-  constructor(apiKey: string) {
-    this.apiKey = apiKey;
-  }
-
-  async makeRequest(body: any): Promise<OpenAIResponse> {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('OpenAI API error:', errorData);
-      throw new Error(`OpenAI API error: ${JSON.stringify(errorData)}`);
-    }
-
-    return await response.json();
-  }
-
-  cleanResponse(content: string): string {
-    return content
-      .replace(/```json\n?/g, '')
-      .replace(/```/g, '')
-      .trim();
-  }
-}
-
-class ImageProcessor {
-  constructor(private openAIClient: OpenAIClient) {}
-
-  async processImage(image: string): Promise<{ foods: FoodItem[] }> {
-    console.log('Processing image input');
-    
-    if (!image.match(/^[A-Za-z0-9+/=]+$/)) {
-      throw new Error('Invalid base64 image data');
-    }
-
-    const openAIResponse = await this.openAIClient.makeRequest({
-      model: "gpt-4o",
-      temperature: 0.3,
-      max_tokens: 2000,
-      messages: [
-        {
-          role: "system",
-          content: SYSTEM_PROMPTS.IMAGE_ANALYSIS
-        },
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: "Identify each individual food item in this image and provide detailed nutrition estimates for each item separately."
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: `data:image/jpeg;base64,${image}`
-              }
-            }
-          ]
-        }
-      ]
-    });
-
-    console.log('Raw OpenAI response:', openAIResponse);
-
-    if (!openAIResponse.choices?.[0]?.message?.content) {
-      throw new Error('Empty response from OpenAI');
-    }
-
-    return this.parseImageResponse(openAIResponse.choices[0].message.content);
-  }
-
-  private parseImageResponse(content: string): { foods: FoodItem[] } {
-    console.log('Full response content:', content);
-    
-    // Extract JSON array from the response
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
-      throw new Error('No JSON array found in response');
-    }
-    
-    const jsonStr = jsonMatch[0];
-    console.log('Extracted JSON string:', jsonStr);
-    const foods = JSON.parse(jsonStr);
-
-    // Validate that we have an array of food items
-    if (!Array.isArray(foods) || foods.length === 0) {
-      throw new Error('Invalid foods array in response');
-    }
-
-    // Ensure each food item has the correct structure
-    const validatedFoods = foods.map(food => ({
-      name: food.name || 'Unknown Food',
-      weight_g: food.weight_g || 100,
-      nutrition: {
-        calories: food.nutrition?.calories || 0,
-        protein: food.nutrition?.protein || 0,
-        carbs: food.nutrition?.carbs || 0,
-        fat: food.nutrition?.fat || 0
-      }
-    }));
-
-    return { foods: validatedFoods };
-  }
-}
-
-class TextProcessor {
-  constructor(private openAIClient: OpenAIClient) {}
-
-  async processText(text: string): Promise<{ foods: FoodItem[] }> {
-    console.log('Processing text input:', text);
-
-    const response = await this.openAIClient.makeRequest({
-      model: "gpt-4o",
-      temperature: 0.3,
-      messages: [
-        {
-          role: "system",
-          content: SYSTEM_PROMPTS.TEXT_EXTRACTION
-        },
-        {
-          role: "user",
-          content: `Extract food items from this text and return a JSON array like this example (NO OTHER TEXT OR FORMATTING): [{"name":"apple","weight_g":100}]. Text: ${text}`
-        }
-      ],
-    });
-
-    if (!response.choices?.[0]?.message?.content) {
-      throw new Error('No response from OpenAI');
-    }
-
-    const cleanContent = this.openAIClient.cleanResponse(response.choices[0].message.content);
-    console.log('Cleaned content:', cleanContent);
-    const foodItems = JSON.parse(cleanContent);
-
-    const foods = await Promise.all(foodItems.map(async (item: any) => {
-      const nutritionData = await this.getNutritionData(item);
-      return {
-        ...item,
-        nutrition: nutritionData
-      };
-    }));
-
-    return { foods };
-  }
-
-  private async getNutritionData(item: any) {
-    const nutritionResponse = await this.openAIClient.makeRequest({
-      model: "gpt-4o",
-      temperature: 0.3,
-      messages: [
-        {
-          role: "system",
-          content: SYSTEM_PROMPTS.NUTRITION_ANALYSIS
-        },
-        {
-          role: "user",
-          content: `Return nutrition data as a JSON object like this example (NO OTHER TEXT OR FORMATTING): {"calories":50,"protein":0.5,"carbs":12,"fat":0.2}. Food: ${item.weight_g}g of ${item.name}`
-        }
-      ],
-    });
-
-    const cleanNutritionContent = this.openAIClient.cleanResponse(
-      nutritionResponse.choices[0]?.message?.content || '{}'
-    );
-
-    console.log('Cleaned nutrition content:', cleanNutritionContent);
-    return JSON.parse(cleanNutritionContent);
-  }
-}
-
 serve(async (req) => {
+  console.log('analyze-food function started');
+  console.log('Request method:', req.method);
+  console.log('Request URL:', req.url);
+
   if (req.method === 'OPTIONS') {
+    console.log('Handling CORS preflight request');
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const apiKey = Deno.env.get('OPENAI_API_KEY');
+    console.log('OpenAI API key configured:', !!apiKey);
+    
     if (!apiKey) {
       console.error('OpenAI API key not configured');
       return new Response(
@@ -230,35 +58,53 @@ serve(async (req) => {
       );
     }
 
-    if (!req.headers.get('content-type')?.includes('application/json')) {
+    const contentType = req.headers.get('content-type');
+    console.log('Content type:', contentType);
+    
+    if (!contentType?.includes('application/json')) {
+      console.error('Invalid content type:', contentType);
       return new Response(
-        JSON.stringify({ error: 'Invalid request' }),
+        JSON.stringify({ error: 'Invalid request - content type must be application/json' }),
         { status: 400, headers: corsHeaders }
       );
     }
 
-    const { image, text } = await req.json();
+    let requestBody;
+    try {
+      requestBody = await req.json();
+      console.log('Request body keys:', Object.keys(requestBody));
+    } catch (error) {
+      console.error('Failed to parse JSON body:', error);
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON in request body' }),
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    const { image, text } = requestBody;
     
     if (!image && !text) {
+      console.error('No image or text provided in request');
       return new Response(
         JSON.stringify({ error: 'No image or text provided' }),
         { status: 400, headers: corsHeaders }
       );
     }
 
-    const openAIClient = new OpenAIClient(apiKey);
+    console.log('Processing request with:', { hasImage: !!image, hasText: !!text });
 
     try {
       let result;
 
       if (text) {
-        const textProcessor = new TextProcessor(openAIClient);
-        result = await textProcessor.processText(text);
+        console.log('Processing text input');
+        result = await processText(text, apiKey);
       } else if (image) {
-        const imageProcessor = new ImageProcessor(openAIClient);
-        result = await imageProcessor.processImage(image);
+        console.log('Processing image input');
+        result = await processImage(image, apiKey);
       }
 
+      console.log('Processing completed successfully, returning result');
       return new Response(
         JSON.stringify(result),
         { headers: corsHeaders }
@@ -286,3 +132,202 @@ serve(async (req) => {
     );
   }
 });
+
+async function makeOpenAIRequest(body: any, apiKey: string): Promise<OpenAIResponse> {
+  console.log('Making OpenAI API request');
+  
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error('OpenAI API error:', errorData);
+    throw new Error(`OpenAI API error: ${JSON.stringify(errorData)}`);
+  }
+
+  const result = await response.json();
+  console.log('OpenAI API response received');
+  return result;
+}
+
+function cleanResponse(content: string): string {
+  return content
+    .replace(/```json\n?/g, '')
+    .replace(/```/g, '')
+    .trim();
+}
+
+async function processImage(image: string, apiKey: string): Promise<{ foods: FoodItem[] }> {
+  console.log('Starting image processing');
+  
+  if (!image.match(/^[A-Za-z0-9+/=]+$/)) {
+    throw new Error('Invalid base64 image data');
+  }
+
+  const openAIResponse = await makeOpenAIRequest({
+    model: "gpt-4o",
+    temperature: 0.3,
+    max_tokens: 2000,
+    messages: [
+      {
+        role: "system",
+        content: SYSTEM_PROMPTS.IMAGE_ANALYSIS
+      },
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: "Identify each individual food item in this image and provide detailed nutrition estimates for each item separately."
+          },
+          {
+            type: "image_url",
+            image_url: {
+              url: `data:image/jpeg;base64,${image}`
+            }
+          }
+        ]
+      }
+    ]
+  }, apiKey);
+
+  console.log('OpenAI image analysis response received');
+
+  if (!openAIResponse.choices?.[0]?.message?.content) {
+    throw new Error('Empty response from OpenAI');
+  }
+
+  return parseImageResponse(openAIResponse.choices[0].message.content);
+}
+
+function parseImageResponse(content: string): { foods: FoodItem[] } {
+  console.log('Parsing image response content');
+  
+  // Extract JSON array from the response
+  const jsonMatch = content.match(/\[[\s\S]*\]/);
+  if (!jsonMatch) {
+    console.error('No JSON array found in response:', content);
+    throw new Error('No JSON array found in response');
+  }
+  
+  const jsonStr = jsonMatch[0];
+  console.log('Extracted JSON string:', jsonStr);
+  
+  let foods;
+  try {
+    foods = JSON.parse(jsonStr);
+  } catch (error) {
+    console.error('Failed to parse JSON:', error);
+    throw new Error('Invalid JSON in OpenAI response');
+  }
+
+  // Validate that we have an array of food items
+  if (!Array.isArray(foods) || foods.length === 0) {
+    console.error('Invalid foods array:', foods);
+    throw new Error('Invalid foods array in response');
+  }
+
+  // Ensure each food item has the correct structure
+  const validatedFoods = foods.map(food => ({
+    name: food.name || 'Unknown Food',
+    weight_g: food.weight_g || 100,
+    nutrition: {
+      calories: food.nutrition?.calories || 0,
+      protein: food.nutrition?.protein || 0,
+      carbs: food.nutrition?.carbs || 0,
+      fat: food.nutrition?.fat || 0
+    }
+  }));
+
+  console.log('Successfully parsed and validated foods:', validatedFoods.length, 'items');
+  return { foods: validatedFoods };
+}
+
+async function processText(text: string, apiKey: string): Promise<{ foods: FoodItem[] }> {
+  console.log('Processing text input:', text);
+
+  const response = await makeOpenAIRequest({
+    model: "gpt-4o",
+    temperature: 0.3,
+    messages: [
+      {
+        role: "system",
+        content: SYSTEM_PROMPTS.TEXT_EXTRACTION
+      },
+      {
+        role: "user",
+        content: `Extract food items from this text and return a JSON array like this example (NO OTHER TEXT OR FORMATTING): [{"name":"apple","weight_g":100}]. Text: ${text}`
+      }
+    ],
+  }, apiKey);
+
+  if (!response.choices?.[0]?.message?.content) {
+    throw new Error('No response from OpenAI');
+  }
+
+  const cleanContent = cleanResponse(response.choices[0].message.content);
+  console.log('Cleaned text extraction content:', cleanContent);
+  
+  let foodItems;
+  try {
+    foodItems = JSON.parse(cleanContent);
+  } catch (error) {
+    console.error('Failed to parse text extraction JSON:', error);
+    throw new Error('Invalid JSON in text extraction response');
+  }
+
+  const foods = await Promise.all(foodItems.map(async (item: any) => {
+    const nutritionData = await getNutritionData(item, apiKey);
+    return {
+      ...item,
+      nutrition: nutritionData
+    };
+  }));
+
+  console.log('Successfully processed text input, foods:', foods.length);
+  return { foods };
+}
+
+async function getNutritionData(item: any, apiKey: string) {
+  console.log('Getting nutrition data for:', item.name);
+  
+  const nutritionResponse = await makeOpenAIRequest({
+    model: "gpt-4o",
+    temperature: 0.3,
+    messages: [
+      {
+        role: "system",
+        content: SYSTEM_PROMPTS.NUTRITION_ANALYSIS
+      },
+      {
+        role: "user",
+        content: `Return nutrition data as a JSON object like this example (NO OTHER TEXT OR FORMATTING): {"calories":50,"protein":0.5,"carbs":12,"fat":0.2}. Food: ${item.weight_g}g of ${item.name}`
+      }
+    ],
+  }, apiKey);
+
+  const cleanNutritionContent = cleanResponse(
+    nutritionResponse.choices[0]?.message?.content || '{}'
+  );
+
+  console.log('Cleaned nutrition content:', cleanNutritionContent);
+  
+  try {
+    return JSON.parse(cleanNutritionContent);
+  } catch (error) {
+    console.error('Failed to parse nutrition JSON:', error);
+    // Return default nutrition values if parsing fails
+    return {
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0
+    };
+  }
+}
