@@ -132,18 +132,18 @@ serve(async (req) => {
             body: JSON.stringify({
               model: "gpt-4o",
               temperature: 0.3,
-              max_tokens: 1500,
+              max_tokens: 2000,
               messages: [
                 {
                   role: "system",
-                  content: "You're a world-class nutrition coach. Estimate the total calories, macros, and portion sizes in this meal photo. Be specific and detailed. First, describe what foods you see. Then, estimate each component's portion size (e.g., grams or cups), and provide an overall estimate of calories, carbs, protein, and fat. Assume standard preparation unless visible clues suggest otherwise. Use common reference sizes (e.g., plate, spoon) for portion estimation.\n\nIMPORTANT: Overestimate total calories by approximately 5% to ensure we do not under-report for users trying to lose weight. Keep protein, carbs, and fat realistic, and apply the slight calorie buffer to account for hidden oils, sauces, or cooking methods.\n\nAt the end, return the nutritional estimate in this exact JSON format:\n\n{\n  \"calories\": 0,\n  \"protein_g\": 0,\n  \"fat_g\": 0,\n  \"carbs_g\": 0\n}\n\nReplace the zeros with your best estimates. Do not include any extra text after the JSON."
+                  content: "You are a nutrition expert who identifies individual food items in images. Analyze the image and identify each distinct food item visible. For each item, estimate its specific weight and provide detailed nutrition information.\n\nIMPORTANT: Return your response as a JSON array containing objects for each food item you identify. Each object should have this exact structure:\n{\"name\": \"Specific food name with cooking method\", \"weight_g\": estimated_weight_in_grams, \"nutrition\": {\"calories\": number, \"protein\": number, \"carbs\": number, \"fat\": number}}\n\nBe specific with food names (e.g., \"Grilled Ribeye Steak\" not just \"steak\"). Estimate weights based on visual cues like plate size, utensils, and portion appearance. Apply a 5% calorie buffer for hidden fats/oils. Return ONLY the JSON array, no other text."
                 },
                 {
                   role: "user",
                   content: [
                     {
                       type: "text",
-                      text: "Analyze this meal photo and provide detailed nutrition estimates following the format specified."
+                      text: "Identify each individual food item in this image and provide detailed nutrition estimates for each item separately."
                     },
                     {
                       type: "image_url",
@@ -174,30 +174,35 @@ serve(async (req) => {
             const content = completion.choices[0].message.content;
             console.log('Full response content:', content);
             
-            // Extract JSON from the response - look for the last JSON object
-            const jsonMatch = content.match(/\{[^}]*"calories"[^}]*\}/);
+            // Extract JSON array from the response
+            const jsonMatch = content.match(/\[[\s\S]*\]/);
             if (!jsonMatch) {
-              throw new Error('No nutrition JSON found in response');
+              throw new Error('No JSON array found in response');
             }
             
             const jsonStr = jsonMatch[0];
             console.log('Extracted JSON string:', jsonStr);
-            const nutritionData = JSON.parse(jsonStr);
+            const foods = JSON.parse(jsonStr);
 
-            // Convert to the expected format for the app
-            const foods = [{
-              name: "Analyzed Meal",
-              weight_g: 100, // Default weight, will be adjusted based on actual analysis
+            // Validate that we have an array of food items
+            if (!Array.isArray(foods) || foods.length === 0) {
+              throw new Error('Invalid foods array in response');
+            }
+
+            // Ensure each food item has the correct structure
+            const validatedFoods = foods.map(food => ({
+              name: food.name || 'Unknown Food',
+              weight_g: food.weight_g || 100,
               nutrition: {
-                calories: nutritionData.calories,
-                protein: nutritionData.protein_g,
-                carbs: nutritionData.carbs_g,
-                fat: nutritionData.fat_g
+                calories: food.nutrition?.calories || 0,
+                protein: food.nutrition?.protein || 0,
+                carbs: food.nutrition?.carbs || 0,
+                fat: food.nutrition?.fat || 0
               }
-            }];
+            }));
 
             return new Response(
-              JSON.stringify({ foods }),
+              JSON.stringify({ foods: validatedFoods }),
               { headers: corsHeaders }
             );
           } catch (parseError) {
