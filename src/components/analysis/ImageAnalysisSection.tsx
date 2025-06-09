@@ -49,7 +49,7 @@ export const ImageAnalysisSection = forwardRef<any, ImageAnalysisSectionProps>((
       return;
     }
     
-    console.log("handleImageSelect called with image:", image);
+    console.log("handleImageSelect called with image:", image.name, "type:", image.type, "size:", image.size);
     
     if (localAnalyzing) {
       toast.error("Please wait for the current analysis to complete");

@@ -44,6 +44,10 @@ export const analyzeImage = async (
 
     if (error) {
       console.error("Error calling analyze-food function:", error);
+      // Check if it's a deployment/configuration issue
+      if (error.message?.includes('not found') || error.message?.includes('404')) {
+        throw new Error('Image analysis service is not available. Please try again later.');
+      }
       throw new Error(error.message || 'Failed to analyze image');
     }
 
