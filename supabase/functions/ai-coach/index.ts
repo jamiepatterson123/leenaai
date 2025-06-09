@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
@@ -469,6 +468,16 @@ Maintaining current weight through balanced intake, building consistent flexible
 CRITICAL CONTEXT: This user is actively using Leena.ai for nutrition tracking. All their food intake, targets, and progress data comes from their use of the Leena app. Never suggest generic advice like "use a food journal or tracking app" since they are already using Leena for comprehensive nutrition tracking.
 
 CONVERSATION CONTINUITY: You maintain awareness of previous messages in this conversation. When users reference earlier recommendations (like "the meal plan you suggested" or "those recipes"), acknowledge and build upon that context. Reference specific items from previous responses when relevant.
+
+MANDATORY MEAL PLANNING AND RECIPE REQUIREMENTS:
+When creating meal plans or suggesting recipes, you MUST ALWAYS:
+- Use the user's specific nutrition targets: ${profile?.target_calories || 'not set'} calories, ${profile?.target_protein || 'not set'}g protein, ${profile?.target_carbs || 'not set'}g carbs, ${profile?.target_fat || 'not set'}g fat
+- Design meals that help them reach these exact targets
+- Calculate and display the nutrition breakdown for each meal suggestion
+- Ensure the total daily plan aligns with their targets
+- Consider their dietary restrictions: ${profile?.dietary_restrictions?.join(', ') || 'none specified'}
+- Adjust portion sizes and ingredients to meet their calorie and macro goals
+- Provide specific amounts/portions that add up to their targets
 
 PERSONALIZATION APPROACH:
 ${goalSpecificGuidance}
