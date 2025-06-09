@@ -18,6 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Camera, Eye, RotateCw } from "lucide-react";
 
 interface FoodItem {
   name: string;
@@ -30,6 +32,7 @@ interface FoodItem {
   };
   state: string;
   category?: string;
+  confidence?: number;
 }
 
 interface FoodVerificationDialogProps {
@@ -37,6 +40,7 @@ interface FoodVerificationDialogProps {
   onClose: () => void;
   foods: FoodItem[];
   onConfirm: (foods: FoodItem[]) => void;
+  analysisMetadata?: any;
 }
 
 export const FoodVerificationDialog = ({
@@ -44,6 +48,7 @@ export const FoodVerificationDialog = ({
   onClose,
   foods,
   onConfirm,
+  analysisMetadata,
 }: FoodVerificationDialogProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("uncategorized");
   const {
@@ -67,13 +72,70 @@ export const FoodVerificationDialog = ({
 
   const categories = ["Breakfast", "Lunch", "Dinner", "Snacks"];
 
+  // Calculate average confidence
+  const avgConfidence = editedFoods.length > 0 
+    ? editedFoods.reduce((sum, food) => sum + (food.confidence || 0.7), 0) / editedFoods.length
+    : 0.7;
+
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 0.8) return "bg-green-100 text-green-800";
+    if (confidence >= 0.6) return "bg-yellow-100 text-yellow-800";
+    return "bg-orange-100 text-orange-800";
+  };
+
+  const getConfidenceLabel = (confidence: number) => {
+    if (confidence >= 0.8) return "High";
+    if (confidence >= 0.6) return "Medium";
+    return "Low";
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Verify Food Items</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            Verify Food Items
+            {analysisMetadata?.image_count > 1 && (
+              <Badge variant="secondary" className="text-xs">
+                {analysisMetadata.image_count} angles
+              </Badge>
+            )}
+          </DialogTitle>
         </DialogHeader>
+        
         <div className="space-y-6 py-4">
+          {/* Analysis info */}
+          {analysisMetadata && (
+            <div className="bg-blue-50 rounded-lg p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                {analysisMetadata.image_count > 1 ? (
+                  <>
+                    <Eye className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-700">
+                      Multi-angle analysis completed
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Camera className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-700">
+                      Single photo analysis
+                    </span>
+                  </>
+                )}
+                <Badge className={`text-xs ${getConfidenceColor(avgConfidence)}`}>
+                  {getConfidenceLabel(avgConfidence)} confidence
+                </Badge>
+              </div>
+              
+              {analysisMetadata.image_count > 1 && (
+                <p className="text-xs text-blue-600">
+                  Enhanced accuracy from multiple viewing angles
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="category">Meal Category</Label>
             <Select
@@ -92,21 +154,31 @@ export const FoodVerificationDialog = ({
               </SelectContent>
             </Select>
           </div>
+          
           {editedFoods.map((food, index) => (
-            <FoodItemForm
-              key={index}
-              name={tempNames[index]}
-              weight={food.weight_g}
-              index={index}
-              isUpdating={updating === index}
-              nutrition={food.nutrition}
-              onNameChange={handleNameChange}
-              onNameBlur={handleNameBlur}
-              onWeightChange={handleWeightChange}
-              onDelete={handleDeleteFood}
-            />
+            <div key={index} className="space-y-2">
+              <FoodItemForm
+                name={tempNames[index]}
+                weight={food.weight_g}
+                index={index}
+                isUpdating={updating === index}
+                nutrition={food.nutrition}
+                onNameChange={handleNameChange}
+                onNameBlur={handleNameBlur}
+                onWeightChange={handleWeightChange}
+                onDelete={handleDeleteFood}
+              />
+              {food.confidence !== undefined && (
+                <div className="flex justify-end">
+                  <Badge className={`text-xs ${getConfidenceColor(food.confidence)}`}>
+                    {Math.round(food.confidence * 100)}% confidence
+                  </Badge>
+                </div>
+              )}
+            </div>
           ))}
         </div>
+        
         <DialogFooter className="bg-background pt-2 flex-col-reverse sm:flex-row gap-3">
           <Button 
             onClick={handleConfirm}

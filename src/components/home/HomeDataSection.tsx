@@ -43,8 +43,9 @@ export const HomeDataSection = () => {
             <MacroCircles />
           </div>
 
-          {/* Food Input Section - No longer protected */}
-          <div className="bg-white rounded-lg border border-gray-200">
+          {/* Multi-Photo Food Input Section */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <h3 className="text-lg font-semibold mb-4">Food Analysis</h3>
             <ImageAnalysisSection
               ref={imageAnalysisSectionRef}
               analyzing={analyzing}
