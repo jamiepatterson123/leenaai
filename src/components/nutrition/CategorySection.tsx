@@ -1,3 +1,4 @@
+
 import React from "react";
 import { FoodItem } from "./FoodItem";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -20,6 +21,7 @@ interface CategorySectionProps {
   }>;
   onDelete: (id: string) => void;
   onUpdateCategory: (id: string, category: string) => void;
+  onUpdateWeight: (id: string, newWeight: number) => void;
   mealCategories: string[];
   showEmpty?: boolean;
 }
@@ -29,6 +31,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
   foods,
   onDelete,
   onUpdateCategory,
+  onUpdateWeight,
   mealCategories,
   showEmpty = false,
 }) => {
@@ -62,6 +65,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
                 food={food}
                 onDelete={onDelete}
                 onUpdateCategory={onUpdateCategory}
+                onUpdateWeight={onUpdateWeight}
                 mealCategories={mealCategories}
               />
             ))}

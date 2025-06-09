@@ -26,6 +26,7 @@ interface NutritionCardProps {
   }>;
   onDelete: (id: string) => void;
   onUpdateCategory: (id: string, category: string) => void;
+  onUpdateWeight: (id: string, newWeight: number) => void;
   selectedDate: Date;
 }
 
@@ -33,6 +34,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
   foods, 
   onDelete,
   onUpdateCategory,
+  onUpdateWeight,
   selectedDate
 }) => {
   const totalNutrition = TotalNutrition({ foods });
@@ -114,6 +116,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
             foods={foods} 
             onDelete={onDelete} 
             onUpdateCategory={onUpdateCategory}
+            onUpdateWeight={onUpdateWeight}
           />
         </div>
       </div>

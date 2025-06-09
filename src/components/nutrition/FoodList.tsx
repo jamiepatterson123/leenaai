@@ -1,3 +1,4 @@
+
 import React from "react";
 import { CategorySection } from "./CategorySection";
 
@@ -17,12 +18,14 @@ interface FoodListProps {
   }>;
   onDelete: (id: string) => void;
   onUpdateCategory: (id: string, category: string) => void;
+  onUpdateWeight: (id: string, newWeight: number) => void;
 }
 
 export const FoodList: React.FC<FoodListProps> = ({ 
   foods, 
   onDelete,
-  onUpdateCategory 
+  onUpdateCategory,
+  onUpdateWeight
 }) => {
   const mealCategories = ["Breakfast", "Lunch", "Dinner", "Snacks", "Uncategorized"];
   
@@ -43,6 +46,7 @@ export const FoodList: React.FC<FoodListProps> = ({
           foods={foodsByCategory[category] || []}
           onDelete={onDelete}
           onUpdateCategory={onUpdateCategory}
+          onUpdateWeight={onUpdateWeight}
           mealCategories={mealCategories}
           showEmpty={true}
         />

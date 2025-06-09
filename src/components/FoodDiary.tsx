@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -114,6 +115,45 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
     }
   };
 
+  const handleUpdateWeight = async (id: string, newWeight: number) => {
+    try {
+      // Find the current food entry to get original nutrition values
+      const currentEntry = foodEntries?.find(entry => entry.id === id);
+      if (!currentEntry) {
+        toast.error("Food entry not found");
+        return;
+      }
+
+      // Calculate the ratio to adjust nutrition values
+      const ratio = newWeight / currentEntry.weight_g;
+      
+      // Calculate new nutrition values
+      const newCalories = Math.round(currentEntry.calories * ratio);
+      const newProtein = Math.round(currentEntry.protein * ratio);
+      const newCarbs = Math.round(currentEntry.carbs * ratio);
+      const newFat = Math.round(currentEntry.fat * ratio);
+
+      const { error } = await supabase
+        .from("food_diary")
+        .update({ 
+          weight_g: newWeight,
+          calories: newCalories,
+          protein: newProtein,
+          carbs: newCarbs,
+          fat: newFat
+        })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast.success("Weight and nutrition updated");
+      queryClient.invalidateQueries({ queryKey: ["foodDiary", formattedDate] });
+    } catch (error) {
+      toast.error("Failed to update weight");
+      console.error("Error updating weight:", error);
+    }
+  };
+
   // Log any query errors
   if (error) {
     console.error("Query error:", error);
@@ -150,6 +190,7 @@ export const FoodDiary = ({ selectedDate }: FoodDiaryProps) => {
         foods={foods} 
         onDelete={handleDelete} 
         onUpdateCategory={handleUpdateCategory}
+        onUpdateWeight={handleUpdateWeight}
         selectedDate={selectedDate}
       />
     </div>
