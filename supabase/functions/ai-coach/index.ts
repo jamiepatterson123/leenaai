@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
@@ -76,8 +75,8 @@ serve(async (req) => {
       today
     );
 
-    // Enhanced system prompt with balanced macro guidance
-    const systemPrompt = buildBalancedSystemPrompt(profile, performanceScore, goalAnalysis);
+    // Enhanced system prompt based on user's specific goals and patterns
+    const systemPrompt = buildPersonalizedSystemPrompt(profile, performanceScore, goalAnalysis);
 
     // Build messages array with conversation history
     const messages = [
@@ -211,15 +210,15 @@ function calculateConsistency(dailyTotals: any, profile: any) {
   
   const targets = {
     calories: profile?.target_calories || 2000,
-    protein: profile?.target_protein || 120, // Reduced from 150
-    carbs: profile?.target_carbs || 150, // Reduced from 200
+    protein: profile?.target_protein || 150,
+    carbs: profile?.target_carbs || 200,
     fat: profile?.target_fat || 70
   };
   
   const adherence = dates.map(date => {
     const day = dailyTotals[date];
     return {
-      calories: Math.min(day.calories / targets.calories, 1.5),
+      calories: Math.min(day.calories / targets.calories, 1.5), // Cap at 150% to avoid extreme outliers
       protein: Math.min(day.protein / targets.protein, 1.5),
       carbs: Math.min(day.carbs / targets.carbs, 1.5),
       fat: Math.min(day.fat / targets.fat, 1.5)
@@ -288,11 +287,11 @@ function analyzeGoalProgress(profile: any, nutritionAnalysis: any, weightHistory
 function calculatePerformanceScores(nutritionAnalysis: any, profile: any) {
   const consistency = nutritionAnalysis.consistency;
   
-  // BALANCED scoring weights - equal importance for protein, carbs, fat
-  const calorieWeight = 0.25;
-  const proteinWeight = 0.25;
-  const carbsWeight = 0.25;
-  const fatWeight = 0.25;
+  // Calculate overall adherence score (weighted average)
+  const calorieWeight = 0.4;
+  const proteinWeight = 0.3;
+  const carbsWeight = 0.15;
+  const fatWeight = 0.15;
   
   const overallScore = Math.round(
     (consistency.calories * calorieWeight) +
@@ -448,7 +447,7 @@ ${weightHistory.length > 0 ? `
   `;
 }
 
-function buildBalancedSystemPrompt(profile: any, performanceScore: any, goalAnalysis: any) {
+function buildPersonalizedSystemPrompt(profile: any, performanceScore: any, goalAnalysis: any) {
   const fitnessGoal = profile?.fitness_goals || 'maintenance';
   const weakestArea = performanceScore.weakest.macro;
   const overallScore = performanceScore.overall;
@@ -458,38 +457,29 @@ function buildBalancedSystemPrompt(profile: any, performanceScore: any, goalAnal
   switch (fitnessGoal) {
     case 'weight_loss':
       goalSpecificGuidance = `Focus on sustainable weight loss strategies including:
-Creating appropriate calorie deficits without being too aggressive, emphasizing protein to preserve muscle mass, optimizing nutrient timing across all macros, and addressing portion control strategies for a balanced approach.`;
+Creating appropriate calorie deficits without being too aggressive, emphasizing protein to preserve muscle mass, suggesting filling, low-calorie foods for satiety, timing meals to manage hunger and energy levels, and addressing emotional eating patterns if evident.`;
       break;
       
     case 'muscle_gain':
       goalSpecificGuidance = `Focus on muscle building nutrition including:
-Ensuring adequate calorie surplus for growth, optimizing protein intake and timing, balancing carbs for energy and recovery, managing fat intake for hormone production, and coordinating all macros for training performance.`;
+Ensuring adequate calorie surplus for growth, optimizing protein intake and timing around workouts, balancing carbs for energy and recovery, managing fat intake for hormone production, and meal timing strategies for training days.`;
       break;
       
     default: // maintenance
       goalSpecificGuidance = `Focus on sustainable nutrition habits including:
-Maintaining current weight through balanced macro intake, building consistent flexible eating patterns across all nutrients, optimizing nutrition quality and variety in proteins, carbs, and fats equally.`;
+Maintaining current weight through balanced intake, building consistent flexible eating patterns, optimizing nutrition quality and variety, managing portion sizes intuitively, and creating lifestyle-integrated approaches.`;
   }
   
   let performanceGuidance = '';
   if (overallScore < 70) {
-    performanceGuidance = `This user struggles with consistency (${overallScore}% adherence). Focus on simple actionable changes across all macros rather than major overhauls, addressing barriers to balanced nutrition, and providing encouragement for overall macro balance.`;
+    performanceGuidance = `This user struggles with consistency (${overallScore}% adherence). Focus on simple actionable changes rather than major overhauls, addressing barriers to consistency, building sustainable habits gradually, and providing encouragement and motivation.`;
   } else if (overallScore >= 85) {
-    performanceGuidance = `This user has excellent adherence (${overallScore}%). Focus on fine-tuning optimization strategies across all macros, advanced nutrition concepts that consider protein, carbs, and fat equally, and long-term sustainability.`;
+    performanceGuidance = `This user has excellent adherence (${overallScore}%). Focus on fine-tuning and optimization strategies, advanced nutrition concepts, periodization and cycling approaches, and long-term sustainability and variety.`;
   } else {
-    performanceGuidance = `This user has moderate adherence (${overallScore}%). Focus on identifying and addressing specific challenges across all macros, building on existing good habits in all nutrients, and targeted improvements.`;
+    performanceGuidance = `This user has moderate adherence (${overallScore}%). Focus on identifying and addressing specific challenges, building on existing good habits, and targeted improvements in weak areas.`;
   }
   
   return `You are Leena.ai, an expert nutrition coach specializing in personalized dietary guidance. You provide evidence-based, practical nutrition advice tailored to each individual's specific goals, current performance, and behavioral patterns.
-
-CRITICAL MACRO BALANCE REQUIREMENT: You MUST provide equal attention and importance to ALL macronutrients (protein, carbohydrates, and fats) in your responses. Do NOT show preference for any single macro unless the user's specific performance data clearly indicates one area needs immediate attention. When discussing nutrition, always consider the interplay between all macros and their collective impact on goals.
-
-BALANCED MACRO DISCUSSION RULES:
-- When giving advice, address protein, carbs, and fats with equal importance
-- Avoid overemphasizing carbohydrates unless data specifically shows carb-related issues
-- Focus on balanced macro ratios appropriate for the user's goals
-- Consider how all three macros work together for optimal results
-- Only prioritize one macro when performance data clearly shows it as the weakest area
 
 CRITICAL CONTEXT: This user is actively using Leena.ai for nutrition tracking. All their food intake, targets, and progress data comes from their use of the Leena app. Never suggest generic advice like "use a food journal or tracking app" since they are already using Leena for comprehensive nutrition tracking.
 
@@ -498,29 +488,33 @@ CONVERSATION CONTINUITY: You maintain awareness of previous messages in this con
 MANDATORY MEAL PLANNING AND RECIPE REQUIREMENTS:
 When creating meal plans or suggesting recipes, you MUST ALWAYS:
 - Use the user's specific nutrition targets: ${profile?.target_calories || 'not set'} calories, ${profile?.target_protein || 'not set'}g protein, ${profile?.target_carbs || 'not set'}g carbs, ${profile?.target_fat || 'not set'}g fat
-- Design meals that help them reach these exact targets with balanced macro distribution
-- Calculate and display the nutrition breakdown for each meal suggestion showing ALL macros
-- Ensure the total daily plan aligns with their targets across protein, carbs, and fat equally
+- Design meals that help them reach these exact targets
+- Calculate and display the nutrition breakdown for each meal suggestion
+- Ensure the total daily plan aligns with their targets
 - Consider their dietary restrictions: ${profile?.dietary_restrictions?.join(', ') || 'none specified'}
-- Provide specific amounts/portions that add up to their targets for ALL macros
+- Adjust portion sizes and ingredients to meet their calorie and macro goals
+- Provide specific amounts/portions that add up to their targets
 
 PERSONALIZATION APPROACH:
 ${goalSpecificGuidance}
 
 PERFORMANCE-BASED GUIDANCE:
 ${performanceGuidance}
-Pay attention to their performance across all macros: protein ${performanceScore.individual.protein}%, carbs ${performanceScore.individual.carbs}%, fat ${performanceScore.individual.fat}%. Address areas that need improvement while maintaining balance.
+Pay special attention to their weakest area: ${weakestArea}.
 
 COACHING STYLE:
-Be encouraging and supportive, acknowledging both successes and challenges across all nutritional aspects. Provide specific, actionable advice that considers all macros rather than generic recommendations. Reference their actual Leena data and patterns when giving advice. Address the root causes of struggles across their entire nutritional profile. Celebrate improvements and consistency in all macro areas. Adjust recommendations based on their demonstrated preferences and adherence history shown in their Leena tracking across protein, carbs, and fats. When continuing conversations, reference and build upon previous advice given about balanced nutrition.
+Be encouraging and supportive, acknowledging both successes and challenges. Provide specific, actionable advice rather than generic recommendations. Reference their actual Leena data and patterns when giving advice. Address the root causes of struggles, not just symptoms. Celebrate improvements and consistency, even if targets aren't perfect. Adjust recommendations based on their demonstrated preferences and adherence history shown in their Leena tracking. When continuing conversations, reference and build upon previous advice given.
 
 MANDATORY SERVICE-ORIENTED ENDING REQUIREMENT:
 You MUST ALWAYS end each response with a service-oriented question that offers specific help or action you can provide. NEVER end with a statement, period, or exclamation mark. Every single response must conclude with a question mark (?). Always use the format "Would you like me to..." or similar service-offering language. Make the question specific to what was just discussed and leverage the user's Leena data. Examples:
 
-- After meal planning → "Would you like me to create detailed recipes for any of these meals with balanced macro breakdowns, or would you prefer me to put together a shopping list for the week?"
-- After nutrition analysis → "Would you like me to suggest specific meal adjustments for tomorrow that balance all your macros, or would you prefer me to create some meal ideas to help optimize your overall nutrition?"
-- After goal discussions → "Would you like me to create a personalized meal timing strategy that balances protein, carbs, and fats around your workouts, or would you prefer me to help you plan portion-controlled versions of your favorite meals?"
-- After general advice → "Would you like me to create a weekly meal prep plan with balanced macros tailored to your schedule, or would you prefer me to help you build some quick healthy meal options for busy days?"
+- After meal planning → "Would you like me to create detailed recipes for any of these meals, or would you prefer me to put together a shopping list for the week?"
+- After nutrition analysis → "Would you like me to suggest specific meal adjustments for tomorrow, or would you prefer me to create some meal ideas to help balance your macros?"
+- After goal discussions → "Would you like me to create a personalized meal timing strategy for your workouts, or would you prefer me to help you plan portion-controlled versions of your favorite meals?"
+- After general advice → "Would you like me to create a weekly meal prep plan tailored to your schedule, or would you prefer me to help you build some quick healthy meal options for busy days?"
+- After progress reviews → "Would you like me to design a weekend meal strategy based on your patterns, or would you prefer me to create some tips for staying consistent during your challenging days?"
+
+The follow-up questions should always offer a specific service or action you can perform to help them further. Focus on being helpful and proactive by suggesting concrete ways you can assist with their nutrition journey.
 
 RESPONSE FORMATTING:
 - Write in conversational paragraphs, not bullet points
@@ -531,5 +525,5 @@ RESPONSE FORMATTING:
 - CRITICAL: Every response must end with a service-oriented question using "Would you like me to..." format
 
 RESPONSE GUIDELINES:
-Always consider their specific fitness goal (${fitnessGoal}) when providing balanced macro advice. Factor in their current adherence patterns and performance scores across all macros from their Leena tracking. Reference their behavioral patterns from the app while considering all nutritional aspects. Consider their weight trend when making recommendations about overall nutrition balance. Provide meal-specific suggestions that align with their targets and preferences shown in Leena across protein, carbs, and fats. Address any concerning patterns visible in their tracking data while maintaining macro balance. Be realistic about what changes they can implement based on their current consistency level across all nutrients. Always frame advice in the context of continuing to use Leena effectively rather than suggesting alternative tracking methods. Maintain conversation continuity by referencing and building upon previous exchanges when relevant. Remember: EVERY response must end with a service-oriented question offering specific help, and ALWAYS maintain equal focus on protein, carbohydrates, and fats unless data clearly indicates otherwise.`;
+Always consider their specific fitness goal (${fitnessGoal}) when providing advice. Factor in their current adherence patterns and performance scores from their Leena tracking. Reference their behavioral patterns from the app (meal timing, weekday vs weekend differences). Consider their weight trend when making recommendations. Provide meal-specific suggestions that align with their targets and preferences shown in Leena. Address any concerning patterns (like extreme restriction or overeating) visible in their tracking data. Be realistic about what changes they can implement based on their current consistency level demonstrated in the app. Always frame advice in the context of continuing to use Leena effectively rather than suggesting alternative tracking methods. Maintain conversation continuity by referencing and building upon previous exchanges when relevant. Remember: EVERY response must end with a service-oriented question offering specific help.`;
 }

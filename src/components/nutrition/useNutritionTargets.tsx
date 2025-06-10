@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { calculateTargets } from "@/utils/profileCalculations";
@@ -23,11 +22,10 @@ export const useNutritionTargets = () => {
     },
   });
 
-  // More balanced default targets - reduced carbs emphasis
   let targets = {
     calories: 1830,
-    protein: 120, // Increased from 100
-    carbs: 150,   // Reduced from 200
+    protein: 100,
+    carbs: 200,
     fat: 70,
   };
 
@@ -35,8 +33,8 @@ export const useNutritionTargets = () => {
     if (profile.target_calories) {
       targets = {
         calories: profile.target_calories,
-        protein: profile.target_protein || 120, // Better default
-        carbs: profile.target_carbs || 150,     // More balanced default
+        protein: profile.target_protein || 100,
+        carbs: profile.target_carbs || 200,
         fat: profile.target_fat || 70,
       };
     } else if (profile.height_cm && profile.weight_kg && profile.age && profile.activity_level && profile.gender) {
