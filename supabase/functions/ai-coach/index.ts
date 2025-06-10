@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
@@ -28,57 +27,23 @@ serve(async (req) => {
       .eq('user_id', userId)
       .single();
 
-    // Get current date in YYYY-MM-DD format (UTC)
-    const today = new Date().toISOString().split('T')[0];
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    // Analyze user message to determine what data to fetch
+    const dataIntent = analyzeMessageIntent(message);
+    console.log('Data intent analyzed:', dataIntent);
 
-    console.log('Fetching food entries for userId:', userId);
-    console.log('Today date:', today);
-    console.log('Thirty days ago:', thirtyDaysAgo);
+    // Fetch relevant data based on intent
+    const contextData = await fetchRelevantData(supabaseClient, userId, dataIntent);
 
-    // Fetch food diary entries (last 30 days for comprehensive analysis)
-    const { data: foodEntries, error: foodError } = await supabaseClient
-      .from('food_diary')
-      .select('*')
-      .eq('user_id', userId)
-      .gte('date', thirtyDaysAgo)
-      .order('date', { ascending: false });
-
-    if (foodError) {
-      console.error('Error fetching food entries:', foodError);
-    } else {
-      console.log('Found food entries:', foodEntries?.length || 0);
-      console.log('Today entries:', foodEntries?.filter(entry => entry.date === today).length || 0);
-    }
-
-    // Fetch weight history (last 90 days for trend analysis)
-    const { data: weightHistory } = await supabaseClient
-      .from('weight_history')
-      .select('*')
-      .eq('user_id', userId)
-      .gte('recorded_at', new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString())
-      .order('recorded_at', { ascending: false });
-
-    // Calculate simplified nutrition analysis for custom GPT
-    const nutritionAnalysis = calculateSimplifiedNutritionAnalysis(foodEntries || [], profile);
-    const goalAnalysis = analyzeGoalProgress(profile, nutritionAnalysis, weightHistory || []);
-
-    // Build simplified context for custom GPT
-    const nutritionContext = buildSimplifiedContext(
-      profile,
-      nutritionAnalysis,
-      goalAnalysis,
-      weightHistory || [],
-      today
-    );
+    // Build context based on intent
+    const nutritionContext = buildContextForIntent(profile, contextData, dataIntent);
 
     // Build messages array with conversation history
     const messages = [
       {
         role: 'user',
         content: conversationHistory && conversationHistory.length > 0 
-          ? `Previous conversation context:\n${nutritionContext}\n\nContinuing our conversation:\n${message}`
-          : `Here's my current nutrition data:\n${nutritionContext}\n\nUser message: ${message}`
+          ? `User data context:\n${nutritionContext}\n\nContinuing our conversation:\n${message}`
+          : `User data context:\n${nutritionContext}\n\nUser message: ${message}`
       }
     ];
 
@@ -110,37 +75,13 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: messages,
-        // Add custom GPT configuration
-        tools: [{
-          type: 'function',
-          function: {
-            name: 'leena_ai_coach',
-            description: 'Leena.ai personalized nutrition coaching',
-            parameters: {
-              type: 'object',
-              properties: {
-                user_data: {
-                  type: 'string',
-                  description: 'User nutrition and profile data'
-                },
-                message: {
-                  type: 'string', 
-                  description: 'User message or question'
-                }
-              }
-            }
-          }
-        }],
-        tool_choice: {
-          type: 'function',
-          function: { name: 'leena_ai_coach' }
-        }
+        max_tokens: 1000,
+        temperature: 0.7,
       }),
     });
 
     const data = await response.json();
     const aiResponse = data.choices[0].message.content || 
-                      data.choices[0].message.tool_calls?.[0]?.function?.arguments ||
                       "I'm here to help with your nutrition goals. Could you tell me more about what you'd like assistance with?";
 
     return new Response(JSON.stringify({ response: aiResponse }), {
@@ -155,12 +96,215 @@ serve(async (req) => {
   }
 });
 
-function calculateSimplifiedNutritionAnalysis(foodEntries: any[], profile: any) {
-  const dailyTotals: { [date: string]: { calories: number; protein: number; carbs: number; fat: number; meals: number } } = {};
+function analyzeMessageIntent(message: string) {
+  const lowerMessage = message.toLowerCase();
   
+  // Time scope keywords
+  const todayKeywords = ['today', 'so far today', 'currently', 'this morning', 'right now'];
+  const weekKeywords = ['this week', 'weekly', 'past week', 'last 7 days', 'week'];
+  const monthKeywords = ['this month', 'monthly', 'past month', 'last 30 days', 'month'];
+  const trendKeywords = ['trend', 'trending', 'pattern', 'over time', 'progress', 'improvement'];
+  
+  // Data focus keywords
+  const weightKeywords = ['weight', 'weigh', 'scale', 'pounds', 'kg', 'body weight'];
+  const calorieKeywords = ['calories', 'calorie', 'kcal', 'energy'];
+  const macroKeywords = ['protein', 'carbs', 'carbohydrates', 'fat', 'macros', 'macronutrients'];
+  const performanceKeywords = ['how did i do', 'performance', 'doing', 'progress', 'goals'];
+  
+  let timeScope = 'comprehensive'; // default
+  let dataFocus = 'all'; // default
+  let questionType = 'general'; // default
+  
+  // Determine time scope
+  if (todayKeywords.some(keyword => lowerMessage.includes(keyword))) {
+    timeScope = 'today';
+  } else if (weekKeywords.some(keyword => lowerMessage.includes(keyword))) {
+    timeScope = 'week';
+  } else if (monthKeywords.some(keyword => lowerMessage.includes(keyword))) {
+    timeScope = 'month';
+  } else if (trendKeywords.some(keyword => lowerMessage.includes(keyword))) {
+    timeScope = 'trends';
+  }
+  
+  // Determine data focus
+  if (weightKeywords.some(keyword => lowerMessage.includes(keyword))) {
+    dataFocus = 'weight';
+  } else if (calorieKeywords.some(keyword => lowerMessage.includes(keyword))) {
+    dataFocus = 'calories';
+  } else if (macroKeywords.some(keyword => lowerMessage.includes(keyword))) {
+    dataFocus = 'macros';
+  } else if (performanceKeywords.some(keyword => lowerMessage.includes(keyword))) {
+    dataFocus = 'performance';
+  }
+  
+  // Determine question type
+  if (performanceKeywords.some(keyword => lowerMessage.includes(keyword))) {
+    questionType = 'performance_review';
+  } else if (trendKeywords.some(keyword => lowerMessage.includes(keyword))) {
+    questionType = 'trend_analysis';
+  } else if (lowerMessage.includes('help') || lowerMessage.includes('advice') || lowerMessage.includes('should')) {
+    questionType = 'advice';
+  }
+  
+  return { timeScope, dataFocus, questionType };
+}
+
+async function fetchRelevantData(supabaseClient: any, userId: string, intent: any) {
   const now = new Date();
-  const last7DaysDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  const last30DaysDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  let startDate: Date;
+  let endDate = now;
+  
+  // Determine date range based on intent
+  switch (intent.timeScope) {
+    case 'today':
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      break;
+    case 'week':
+      startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      break;
+    case 'month':
+      startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      break;
+    case 'trends':
+      startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000); // 3 months for trends
+      break;
+    default: // comprehensive
+      startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); // Default to 30 days
+  }
+  
+  const startDateString = startDate.toISOString().split('T')[0];
+  const todayString = now.toISOString().split('T')[0];
+  
+  console.log(`Fetching data from ${startDateString} to ${todayString} for intent:`, intent);
+  
+  let foodEntries = [];
+  let weightHistory = [];
+  
+  // Fetch food data unless it's weight-only focus
+  if (intent.dataFocus !== 'weight') {
+    const { data: foodData, error: foodError } = await supabaseClient
+      .from('food_diary')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('date', startDateString)
+      .order('date', { ascending: false });
+    
+    if (foodError) {
+      console.error('Error fetching food entries:', foodError);
+    } else {
+      foodEntries = foodData || [];
+      console.log(`Found ${foodEntries.length} food entries`);
+    }
+  }
+  
+  // Fetch weight data unless it's nutrition-only focus
+  if (intent.dataFocus === 'weight' || intent.dataFocus === 'performance' || intent.dataFocus === 'all') {
+    const weightStartDate = intent.timeScope === 'trends' ? 
+      new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000) : startDate;
+    
+    const { data: weightData, error: weightError } = await supabaseClient
+      .from('weight_history')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('recorded_at', weightStartDate.toISOString())
+      .order('recorded_at', { ascending: false });
+    
+    if (weightError) {
+      console.error('Error fetching weight history:', weightError);
+    } else {
+      weightHistory = weightData || [];
+      console.log(`Found ${weightHistory.length} weight entries`);
+    }
+  }
+  
+  return {
+    foodEntries,
+    weightHistory,
+    timeScope: intent.timeScope,
+    startDate: startDateString,
+    endDate: todayString
+  };
+}
+
+function buildContextForIntent(profile: any, contextData: any, intent: any) {
+  const { foodEntries, weightHistory, timeScope, startDate, endDate } = contextData;
+  const todayString = new Date().toISOString().split('T')[0];
+  
+  // Calculate nutrition data
+  const nutritionAnalysis = calculateNutritionForTimeScope(foodEntries, timeScope, todayString);
+  const goalAnalysis = analyzeGoalProgress(profile, nutritionAnalysis, weightHistory);
+  
+  let context = `USER PROFILE:
+- Fitness Goal: ${profile?.fitness_goals || 'Not specified'}
+- Daily Targets: ${profile?.target_calories || 'Not set'} kcal, ${profile?.target_protein || 'Not set'}g protein, ${profile?.target_carbs || 'Not set'}g carbs, ${profile?.target_fat || 'Not set'}g fat
+- Age: ${profile?.age || 'Not provided'} | Weight: ${profile?.weight_kg || 'Not provided'}kg | Activity: ${profile?.activity_level || 'Not specified'}
+
+`;
+
+  // Add relevant data based on intent
+  switch (intent.timeScope) {
+    case 'today':
+      const todayData = nutritionAnalysis.dailyTotals[todayString] || { calories: 0, protein: 0, carbs: 0, fat: 0, meals: 0 };
+      context += `TODAY'S PROGRESS (${todayString}):
+- Consumed: ${Math.round(todayData.calories)} kcal, ${Math.round(todayData.protein)}g protein, ${Math.round(todayData.carbs)}g carbs, ${Math.round(todayData.fat)}g fat
+- Meals logged: ${todayData.meals}
+- Remaining to target: ${Math.max(0, (profile?.target_calories || 0) - todayData.calories)} kcal`;
+      break;
+      
+    case 'week':
+      context += `THIS WEEK'S PERFORMANCE (Last 7 days):
+- Average daily: ${nutritionAnalysis.averages.calories} kcal, ${nutritionAnalysis.averages.protein}g protein
+- Goal adherence: ${goalAnalysis.goalStatus}
+- Days with data: ${Object.keys(nutritionAnalysis.dailyTotals).length}`;
+      break;
+      
+    case 'month':
+      context += `THIS MONTH'S PERFORMANCE (Last 30 days):
+- Average daily: ${nutritionAnalysis.averages.calories} kcal, ${nutritionAnalysis.averages.protein}g protein
+- Consistency: ${nutritionAnalysis.consistency.overall}%
+- Goal status: ${goalAnalysis.goalStatus}
+- Calorie deviation: ${goalAnalysis.calorieDeviation > 0 ? '+' : ''}${goalAnalysis.calorieDeviation} from target`;
+      break;
+      
+    case 'trends':
+      context += `TREND ANALYSIS (Last 90 days):
+- Average intake: ${nutritionAnalysis.averages.calories} kcal/day
+- Consistency score: ${nutritionAnalysis.consistency.overall}%
+- Goal adherence: ${goalAnalysis.goalStatus}`;
+      
+      if (weightHistory.length > 1) {
+        const weightTrend = analyzeWeightTrend(weightHistory);
+        context += `
+- Weight trend: ${weightTrend.description} (${weightTrend.weeklyRate > 0 ? '+' : ''}${weightTrend.weeklyRate}kg/week)
+- Total weight change: ${weightTrend.totalChange > 0 ? '+' : ''}${weightTrend.totalChange}kg`;
+      }
+      break;
+      
+    default: // comprehensive
+      const todayDataComp = nutritionAnalysis.dailyTotals[todayString] || { calories: 0, protein: 0, carbs: 0, fat: 0, meals: 0 };
+      context += `TODAY'S PROGRESS: ${Math.round(todayDataComp.calories)} kcal, ${todayDataComp.meals} meals
+RECENT AVERAGES: ${nutritionAnalysis.averages.calories} kcal/day (last 30 days)
+GOAL STATUS: ${goalAnalysis.goalStatus}`;
+  }
+  
+  // Add weight data if relevant
+  if (intent.dataFocus === 'weight' && weightHistory.length > 0) {
+    context += `
+
+WEIGHT DATA:
+- Current: ${weightHistory[0]?.weight_kg}kg`;
+    if (weightHistory.length > 1) {
+      const weightTrend = analyzeWeightTrend(weightHistory);
+      context += `
+- Trend: ${weightTrend.description} (${weightTrend.weeklyRate > 0 ? '+' : ''}${weightTrend.weeklyRate}kg/week)`;
+    }
+  }
+  
+  return context;
+}
+
+function calculateNutritionForTimeScope(foodEntries: any[], timeScope: string, todayString: string) {
+  const dailyTotals: { [date: string]: { calories: number; protein: number; carbs: number; fat: number; meals: number } } = {};
   
   foodEntries.forEach(entry => {
     const date = entry.date;
@@ -176,35 +320,19 @@ function calculateSimplifiedNutritionAnalysis(foodEntries: any[], profile: any) 
     dailyTotals[date].meals += 1;
   });
   
-  // Calculate 7-day and 30-day averages
+  // Calculate averages
   const dates = Object.keys(dailyTotals);
-  const last7Days = dates.filter(date => new Date(date) >= last7DaysDate);
-  const last30Days = dates.filter(date => new Date(date) >= last30DaysDate);
-  
-  const calculateAverage = (days: string[]) => {
-    if (days.length === 0) return { calories: 0, protein: 0, carbs: 0, fat: 0 };
-    
-    const totals = days.reduce((acc, date) => {
-      acc.calories += dailyTotals[date].calories;
-      acc.protein += dailyTotals[date].protein;
-      acc.carbs += dailyTotals[date].carbs;
-      acc.fat += dailyTotals[date].fat;
-      return acc;
-    }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
-    
-    return {
-      calories: Math.round(totals.calories / days.length),
-      protein: Math.round(totals.protein / days.length),
-      carbs: Math.round(totals.carbs / days.length),
-      fat: Math.round(totals.fat / days.length)
-    };
-  };
+  const averages = dates.length > 0 ? {
+    calories: Math.round(dates.reduce((sum, date) => sum + dailyTotals[date].calories, 0) / dates.length),
+    protein: Math.round(dates.reduce((sum, date) => sum + dailyTotals[date].protein, 0) / dates.length),
+    carbs: Math.round(dates.reduce((sum, date) => sum + dailyTotals[date].carbs, 0) / dates.length),
+    fat: Math.round(dates.reduce((sum, date) => sum + dailyTotals[date].fat, 0) / dates.length)
+  } : { calories: 0, protein: 0, carbs: 0, fat: 0 };
   
   return {
     dailyTotals,
-    averages7Day: calculateAverage(last7Days),
-    averages30Day: calculateAverage(last30Days),
-    consistency: calculateConsistency(dailyTotals, profile)
+    averages,
+    consistency: calculateConsistency(dailyTotals, { target_calories: 2000, target_protein: 150 })
   };
 }
 
@@ -237,7 +365,7 @@ function calculateConsistency(dailyTotals: any, profile: any) {
 function analyzeGoalProgress(profile: any, nutritionAnalysis: any, weightHistory: any[]) {
   const fitnessGoal = profile?.fitness_goals || 'maintenance';
   const targetCalories = profile?.target_calories || 2000;
-  const averageCalories = nutritionAnalysis.averages30Day.calories;
+  const averageCalories = nutritionAnalysis.averages.calories;
   
   let goalStatus = 'on_track';
   let calorieDeviation = averageCalories - targetCalories;
@@ -263,7 +391,7 @@ function analyzeGoalProgress(profile: any, nutritionAnalysis: any, weightHistory
 }
 
 function analyzeWeightTrend(weightHistory: any[]) {
-  if (weightHistory.length < 2) return { description: 'insufficient_data', weeklyRate: 0 };
+  if (weightHistory.length < 2) return { description: 'insufficient_data', weeklyRate: 0, totalChange: 0 };
   
   const sortedHistory = weightHistory.sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
   const latest = sortedHistory[sortedHistory.length - 1];
@@ -271,7 +399,7 @@ function analyzeWeightTrend(weightHistory: any[]) {
   
   const weightChange = Number(latest.weight_kg) - Number(earliest.weight_kg);
   const daysDiff = Math.ceil((new Date(latest.recorded_at).getTime() - new Date(earliest.recorded_at).getTime()) / (1000 * 60 * 60 * 24));
-  const weeklyRate = (weightChange / daysDiff) * 7;
+  const weeklyRate = daysDiff > 0 ? (weightChange / daysDiff) * 7 : 0;
   
   let description = 'stable';
   if (Math.abs(weeklyRate) >= 0.1) {
@@ -283,30 +411,4 @@ function analyzeWeightTrend(weightHistory: any[]) {
     weeklyRate: Math.round(weeklyRate * 100) / 100,
     totalChange: Math.round(weightChange * 100) / 100
   };
-}
-
-function buildSimplifiedContext(profile: any, nutritionAnalysis: any, goalAnalysis: any, weightHistory: any[], today: string) {
-  const todaysTotals = nutritionAnalysis.dailyTotals[today] || { calories: 0, protein: 0, carbs: 0, fat: 0, meals: 0 };
-  
-  return `USER PROFILE:
-- Fitness Goal: ${profile?.fitness_goals || 'Not specified'}
-- Daily Targets: ${profile?.target_calories || 'Not set'} kcal, ${profile?.target_protein || 'Not set'}g protein, ${profile?.target_carbs || 'Not set'}g carbs, ${profile?.target_fat || 'Not set'}g fat
-- Age: ${profile?.age || 'Not provided'} | Weight: ${profile?.weight_kg || 'Not provided'}kg | Activity: ${profile?.activity_level || 'Not specified'}
-
-TODAY'S PROGRESS (${today}):
-- Consumed: ${Math.round(todaysTotals.calories)} kcal, ${Math.round(todaysTotals.protein)}g protein, ${Math.round(todaysTotals.carbs)}g carbs, ${Math.round(todaysTotals.fat)}g fat
-- Meals logged: ${todaysTotals.meals}
-
-RECENT PERFORMANCE:
-- 7-day average: ${nutritionAnalysis.averages7Day.calories} kcal/day
-- 30-day average: ${nutritionAnalysis.averages30Day.calories} kcal/day
-- Goal status: ${goalAnalysis.goalStatus}
-- Calorie deviation: ${goalAnalysis.calorieDeviation > 0 ? '+' : ''}${goalAnalysis.calorieDeviation} from target
-- Overall consistency: ${nutritionAnalysis.consistency.overall}%
-
-WEIGHT TREND:
-${weightHistory.length > 0 ? `
-- Current: ${weightHistory[0]?.weight_kg}kg
-- Trend: ${goalAnalysis.weightTrend.description} (${goalAnalysis.weightTrend.weeklyRate > 0 ? '+' : ''}${goalAnalysis.weightTrend.weeklyRate}kg/week)
-` : '- No recent weight data'}`;
 }
