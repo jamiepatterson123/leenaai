@@ -58,13 +58,13 @@ export const calculateTargets = (data: ProfileFormData): TargetCalculations => {
       break;
   }
 
-  // Calculate macronutrient targets
-  // Protein: 2g per kg of body weight
-  const protein = data.weight_kg * 2;
+  // More balanced macronutrient targets
+  // Protein: 1.6-2.0g per kg of body weight (optimal for most goals)
+  const protein = data.weight_kg * 1.8;
   const proteinCalories = protein * 4;
   
-  // Fat: 25% of total calories
-  const fatCalories = targetCalories * 0.25;
+  // Fat: 25-30% of total calories (optimal for hormone production)
+  const fatCalories = targetCalories * 0.275; // 27.5% for balance
   const fat = fatCalories / 9;
   
   // Remaining calories go to carbs
