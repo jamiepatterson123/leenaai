@@ -33,7 +33,7 @@ interface Message {
 }
 
 const CHAT_STORAGE_KEY = 'leena-chat-messages';
-const MAX_CONTEXT_MESSAGES = 12; // Last 6 exchanges (12 messages total)
+const THREAD_STORAGE_KEY = 'leena-chat-thread-id';
 
 const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -43,6 +43,7 @@ const Chat = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isAttachmentOpen, setIsAttachmentOpen] = useState(false);
+  const [threadId, setThreadId] = useState<string | null>(null);
   const { session } = useSession();
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -58,9 +59,11 @@ const Chat = () => {
     scrollToBottom();
   }, [messages]);
 
-  // Load messages from localStorage on component mount
+  // Load messages and thread ID from localStorage on component mount
   useEffect(() => {
     const savedMessages = localStorage.getItem(CHAT_STORAGE_KEY);
+    const savedThreadId = localStorage.getItem(THREAD_STORAGE_KEY);
+    
     if (savedMessages) {
       try {
         const parsedMessages = JSON.parse(savedMessages);
@@ -75,6 +78,10 @@ const Chat = () => {
         localStorage.removeItem(CHAT_STORAGE_KEY);
       }
     }
+
+    if (savedThreadId) {
+      setThreadId(savedThreadId);
+    }
   }, []);
 
   // Save messages to localStorage whenever messages change
@@ -83,6 +90,13 @@ const Chat = () => {
       localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
     }
   }, [messages]);
+
+  // Save thread ID to localStorage whenever it changes
+  useEffect(() => {
+    if (threadId) {
+      localStorage.setItem(THREAD_STORAGE_KEY, threadId);
+    }
+  }, [threadId]);
 
   // Auto-focus input on component mount
   useEffect(() => {
@@ -93,7 +107,9 @@ const Chat = () => {
 
   const clearChat = () => {
     setMessages([]);
+    setThreadId(null);
     localStorage.removeItem(CHAT_STORAGE_KEY);
+    localStorage.removeItem(THREAD_STORAGE_KEY);
     toast.success("Chat cleared successfully");
   };
 
@@ -211,23 +227,21 @@ const Chat = () => {
     setIsLoading(true);
     
     try {
-      // Get recent conversation history for context
-      const currentMessages = [...messages, userMessage];
-      const recentMessages = currentMessages.slice(-MAX_CONTEXT_MESSAGES).map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
-
       const { data, error } = await supabase.functions.invoke('ai-coach', {
         body: {
           message: messageText,
           userId: session?.user?.id,
-          conversationHistory: recentMessages.slice(0, -1)
+          threadId: threadId
         }
       });
 
       if (error) {
         throw error;
+      }
+
+      // Update thread ID if we got a new one
+      if (data.threadId && data.threadId !== threadId) {
+        setThreadId(data.threadId);
       }
 
       const assistantMessage: Message = {

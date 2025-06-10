@@ -7,13 +7,15 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const ASSISTANT_ID = 'asst_gCaTiV0aEDfB8SfJmoqH9V6Z';
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { message, userId, conversationHistory = [] } = await req.json();
+    const { message, userId, threadId } = await req.json();
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -37,54 +39,130 @@ serve(async (req) => {
     // Build context based on intent
     const nutritionContext = buildContextForIntent(profile, contextData, dataIntent);
 
-    // Build messages array with conversation history
-    const messages = [
-      {
-        role: 'user',
-        content: conversationHistory && conversationHistory.length > 0 
-          ? `User data context:\n${nutritionContext}\n\nContinuing our conversation:\n${message}`
-          : `User data context:\n${nutritionContext}\n\nUser message: ${message}`
+    // Create message content with context
+    const messageWithContext = `User data context:\n${nutritionContext}\n\nUser message: ${message}`;
+
+    // Create or use existing thread
+    let currentThreadId = threadId;
+    if (!currentThreadId) {
+      const threadResponse = await fetch('https://api.openai.com/v1/threads', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        },
+        body: JSON.stringify({})
+      });
+
+      if (!threadResponse.ok) {
+        throw new Error('Failed to create thread');
       }
-    ];
 
-    // Add conversation history if available
-    if (conversationHistory && conversationHistory.length > 0) {
-      // Add the last 6 exchanges (12 messages) for context
-      const recentHistory = conversationHistory.slice(-12);
-      recentHistory.forEach((msg: any) => {
-        messages.push({
-          role: msg.role,
-          content: msg.content
-        });
-      });
-
-      // Add current user message
-      messages.push({
-        role: 'user',
-        content: message
-      });
+      const threadData = await threadResponse.json();
+      currentThreadId = threadData.id;
+      console.log('Created new thread:', currentThreadId);
     }
 
-    // Call your custom GPT via OpenAI API
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Add message to thread
+    const messageResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/messages`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
         'Content-Type': 'application/json',
+        'OpenAI-Beta': 'assistants=v2'
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: messages,
-        max_tokens: 1000,
-        temperature: 0.7,
-      }),
+        role: 'user',
+        content: messageWithContext
+      })
     });
 
-    const data = await response.json();
-    const aiResponse = data.choices[0].message.content || 
+    if (!messageResponse.ok) {
+      throw new Error('Failed to add message to thread');
+    }
+
+    // Create run
+    const runResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/runs`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Content-Type': 'application/json',
+        'OpenAI-Beta': 'assistants=v2'
+      },
+      body: JSON.stringify({
+        assistant_id: ASSISTANT_ID
+      })
+    });
+
+    if (!runResponse.ok) {
+      throw new Error('Failed to create run');
+    }
+
+    const runData = await runResponse.json();
+    const runId = runData.id;
+    console.log('Created run:', runId);
+
+    // Poll for completion
+    let runStatus = 'queued';
+    let attempts = 0;
+    const maxAttempts = 30; // 30 seconds timeout
+    
+    while (runStatus !== 'completed' && runStatus !== 'failed' && attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+      
+      const statusResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/runs/${runId}`, {
+        headers: {
+          'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+          'OpenAI-Beta': 'assistants=v2'
+        }
+      });
+
+      if (!statusResponse.ok) {
+        throw new Error('Failed to check run status');
+      }
+
+      const statusData = await statusResponse.json();
+      runStatus = statusData.status;
+      attempts++;
+      
+      console.log(`Run status: ${runStatus}, attempt: ${attempts}`);
+    }
+
+    if (runStatus === 'failed') {
+      throw new Error('Assistant run failed');
+    }
+
+    if (runStatus !== 'completed') {
+      throw new Error('Assistant run timed out');
+    }
+
+    // Get messages from thread
+    const messagesResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/messages?order=desc&limit=1`, {
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'OpenAI-Beta': 'assistants=v2'
+      }
+    });
+
+    if (!messagesResponse.ok) {
+      throw new Error('Failed to get messages');
+    }
+
+    const messagesData = await messagesResponse.json();
+    const assistantMessage = messagesData.data[0];
+    
+    if (!assistantMessage || assistantMessage.role !== 'assistant') {
+      throw new Error('No assistant response found');
+    }
+
+    const aiResponse = assistantMessage.content[0]?.text?.value || 
                       "I'm here to help with your nutrition goals. Could you tell me more about what you'd like assistance with?";
 
-    return new Response(JSON.stringify({ response: aiResponse }), {
+    return new Response(JSON.stringify({ 
+      response: aiResponse,
+      threadId: currentThreadId 
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
