@@ -1,13 +1,18 @@
 
-
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Weight } from "lucide-react";
+import { Weight, Info } from "lucide-react";
 import { format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const QuickWeightInput = () => {
   const [weight, setWeight] = useState<string>("");
@@ -91,7 +96,31 @@ export const QuickWeightInput = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
+    <div className="bg-white rounded-lg p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <h3 className="text-sm font-medium text-gray-700">Daily Weight</h3>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-5 w-5">
+              <Info className="h-4 w-4 text-gray-500" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md">
+            <DialogTitle>Daily Weighing Leads to Greater Weight Loss</DialogTitle>
+            <div className="space-y-3 pt-2">
+              <p className="text-sm text-gray-700">
+                A 2015 randomized controlled trial published in Obesity found that individuals who weighed themselves daily lost significantly more weight over a year than those who did not.
+              </p>
+              <p className="text-sm text-gray-600">
+                <strong>Source:</strong> Steinberg et al., Obesity (Silver Spring), 2015.
+              </p>
+              <p className="text-sm text-gray-600">
+                <strong>Finding:</strong> Daily weighers lost ~6 kg more than those who didn't weigh themselves daily.
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
       <form onSubmit={handleSubmit} className="flex gap-2">
         <Input
           type="number"
@@ -115,4 +144,3 @@ export const QuickWeightInput = () => {
     </div>
   );
 };
-
