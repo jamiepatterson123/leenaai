@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -95,7 +96,7 @@ export const QuickWeightInput = () => {
           type="number"
           step="0.1"
           min="0"
-          placeholder="update your weight daily for best results"
+          placeholder="Update weight daily for best results"
           value={weight}
           onChange={(e) => setWeight(e.target.value)}
           className="flex-1 text-sm h-10"
