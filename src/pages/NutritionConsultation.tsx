@@ -30,22 +30,12 @@ interface Message {
 const CONSULTATION_STORAGE_KEY = 'leena-consultation-messages';
 const CONSULTATION_THREAD_KEY = 'leena-consultation-thread-id';
 
-// Structured consultation prompts
-const CONSULTATION_PROMPTS = [
-  "What is your number 1 nutrition or health goal?",
-  "Tell me about your current challenges",
-  "What have you tried before?",
-  "Any dietary restrictions I should know about?",
-  "Let's create your personalized plan",
-  "How can I support you better?"
-];
-
 const NutritionConsultation = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [threadId, setThreadId] = useState<string | null>(null);
-  const [promptKey, setPromptKey] = useState(0);
+  const [hasStarted, setHasStarted] = useState(false);
   const { session } = useSession();
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -72,6 +62,7 @@ const NutritionConsultation = () => {
           timestamp: new Date(msg.timestamp)
         }));
         setMessages(messagesWithDates);
+        setHasStarted(messagesWithDates.length > 0);
       } catch (error) {
         console.error('Failed to load saved consultation messages:', error);
         localStorage.removeItem(CONSULTATION_STORAGE_KEY);
@@ -104,13 +95,64 @@ const NutritionConsultation = () => {
     }
   }, []);
 
+  // Start consultation automatically
+  useEffect(() => {
+    if (!hasStarted && messages.length === 0 && !isLoading) {
+      startConsultation();
+    }
+  }, [hasStarted, messages.length, isLoading]);
+
   const clearConsultation = () => {
     setMessages([]);
     setThreadId(null);
-    setPromptKey(prev => prev + 1);
+    setHasStarted(false);
     localStorage.removeItem(CONSULTATION_STORAGE_KEY);
     localStorage.removeItem(CONSULTATION_THREAD_KEY);
     toast.success("Consultation cleared successfully");
+    // Restart consultation after clearing
+    setTimeout(() => startConsultation(), 500);
+  };
+
+  const startConsultation = async () => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    setHasStarted(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-coach', {
+        body: {
+          message: "Start nutrition consultation",
+          userId: session?.user?.id,
+          threadId: null,
+          consultationMode: true
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Update thread ID if we got a new one
+      if (data.threadId) {
+        setThreadId(data.threadId);
+      }
+
+      const assistantMessage: Message = {
+        id: Date.now().toString(),
+        content: data.response,
+        role: 'assistant',
+        timestamp: new Date()
+      };
+
+      setMessages([assistantMessage]);
+    } catch (error) {
+      console.error('Error starting consultation:', error);
+      toast.error("Failed to start consultation. Please try again.");
+      setHasStarted(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const sendMessage = async (messageContent?: string) => {
@@ -137,7 +179,7 @@ const NutritionConsultation = () => {
           message: content,
           userId: session?.user?.id,
           threadId: threadId,
-          consultationMode: true // Special flag for consultation
+          consultationMode: true
         }
       });
 
@@ -158,9 +200,6 @@ const NutritionConsultation = () => {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-      
-      // Reset prompts after AI responds
-      setPromptKey(prev => prev + 1);
     } catch (error) {
       console.error('Error sending consultation message:', error);
       toast.error("Failed to send message. Please try again.");
@@ -181,60 +220,6 @@ const NutritionConsultation = () => {
       e.preventDefault();
       sendMessage();
     }
-  };
-
-  const handleQuickQuestion = (question: string) => {
-    sendMessage(question);
-    setPromptKey(prev => prev + 1);
-  };
-
-  const getConsultationPrompts = () => {
-    // Return consultation-specific prompts based on conversation progress
-    const messageCount = messages.length;
-    
-    if (messageCount === 0) {
-      return [
-        "What is your number 1 nutrition goal?",
-        "I want to lose weight",
-        "I want to gain muscle",
-        "I want to improve my energy",
-        "I want to eat healthier",
-        "I have specific dietary needs"
-      ];
-    }
-    
-    // Dynamic prompts based on conversation stage
-    if (messageCount < 4) {
-      return [
-        "Tell me more about that",
-        "What challenges have you faced?",
-        "What have you tried before?",
-        "Any dietary restrictions?",
-        "How motivated are you (1-10)?",
-        "What's your timeline?"
-      ];
-    }
-    
-    if (messageCount < 8) {
-      return [
-        "What does success look like to you?",
-        "What's your biggest obstacle?",
-        "How can I help you overcome this?",
-        "Let's create a plan together",
-        "What support do you need?",
-        "Any questions for me?"
-      ];
-    }
-    
-    // Later stage prompts
-    return [
-      "Let's finalize your plan",
-      "How does this sound to you?",
-      "What would you like to adjust?",
-      "Are you ready to get started?",
-      "Any final questions?",
-      "Let's schedule your follow-up"
-    ];
   };
 
   return (
@@ -262,13 +247,13 @@ const NutritionConsultation = () => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Clear Consultation History</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently delete all messages in this consultation. This action cannot be undone.
+                    This will permanently delete all messages in this consultation and start over. This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction onClick={clearConsultation} className="bg-gradient-to-r from-[#D946EF] to-[#8B5CF6] text-white hover:opacity-90">
-                    Clear Consultation
+                    Clear & Restart
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -284,7 +269,18 @@ const NutritionConsultation = () => {
           <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
             <div className="w-full max-w-2xl text-center">
               <h1 className="text-3xl font-bold mb-2">Nutrition Consultation</h1>
-              <p className="text-muted-foreground">Let's have a personalized consultation to understand your goals, challenges, and create a plan that works for you.</p>
+              <p className="text-muted-foreground mb-4">
+                Let's have a personalized consultation to understand your goals, challenges, and create a plan that works for you.
+              </p>
+              {isLoading && (
+                <div className="flex justify-center">
+                  <div className="flex space-x-1 py-2">
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -327,49 +323,33 @@ const NutritionConsultation = () => {
         )}
       </div>
 
-      {/* Suggested consultation prompts */}
-      <div className="flex-shrink-0 px-4 py-2">
-        <div className="max-w-3xl mx-auto">
-          <div key={promptKey} className="flex gap-2 overflow-x-auto scrollbar-hide">
-            {getConsultationPrompts().map((question, index) => (
-              <button
-                key={index}
-                onClick={() => handleQuickQuestion(question)}
+      {/* Input area - only show when there are messages */}
+      {messages.length > 0 && (
+        <div className="flex-shrink-0 border-t border-border/40 p-4 bg-background/95 backdrop-blur">
+          <div className="max-w-3xl mx-auto">
+            <div className="relative">
+              <Input
+                ref={inputRef}
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Type your answer..."
                 disabled={isLoading}
-                className="flex-shrink-0 px-4 py-2 text-sm border border-border/40 rounded-full hover:bg-accent/50 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full min-h-[48px] pr-12"
+              />
+              <Button
+                onClick={() => sendMessage()}
+                disabled={isLoading || !input.trim()}
+                variant="gradient"
+                size="icon"
+                className="absolute right-1 top-1 h-10 w-10"
               >
-                {question}
-              </button>
-            ))}
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Input area */}
-      <div className="flex-shrink-0 border-t border-border/40 p-4 bg-background/95 backdrop-blur">
-        <div className="max-w-3xl mx-auto">
-          <div className="relative">
-            <Input
-              ref={inputRef}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Share your thoughts, goals, and challenges..."
-              disabled={isLoading}
-              className="w-full min-h-[48px] pr-12"
-            />
-            <Button
-              onClick={() => sendMessage()}
-              disabled={isLoading || !input.trim()}
-              variant="gradient"
-              size="icon"
-              className="absolute right-1 top-1 h-10 w-10"
-            >
-              <Send className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

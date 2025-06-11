@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
@@ -9,6 +8,7 @@ const corsHeaders = {
 };
 
 const ASSISTANT_ID = 'asst_gCaTiV0aEDfB8SfJmoqH9V6Z';
+const CONSULTATION_ASSISTANT_ID = 'asst_G8uPDKNcQLl3Y1xiKqvCT45X';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -16,38 +16,51 @@ serve(async (req) => {
   }
 
   try {
-    const { message, userId, threadId, image } = await req.json();
+    const { message, userId, threadId, image, consultationMode } = await req.json();
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Fetch user's profile data
-    const { data: profile } = await supabaseClient
-      .from('profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
+    // Choose assistant based on mode
+    const assistantId = consultationMode ? CONSULTATION_ASSISTANT_ID : ASSISTANT_ID;
 
-    // Analyze user message to determine what data to fetch
-    const dataIntent = analyzeMessageIntent(message);
-    console.log('Data intent analyzed:', dataIntent);
-
-    // Fetch relevant data based on intent
-    const contextData = await fetchRelevantData(supabaseClient, userId, dataIntent);
-
-    // Build context based on intent
-    const nutritionContext = buildContextForIntent(profile, contextData, dataIntent);
-
-    // Create message content with context and image
+    // For consultation mode, we don't need complex data context
     let messageContent = [];
     
-    // Add text content
-    messageContent.push({
-      type: "text",
-      text: `User data context:\n${nutritionContext}\n\nUser message: ${message}`
-    });
+    if (consultationMode) {
+      // Simple context for consultation
+      messageContent.push({
+        type: "text",
+        text: message
+      });
+    } else {
+      // ... keep existing code (complex data fetching and context building for regular chat)
+      
+      // Fetch user's profile data
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      // Analyze user message to determine what data to fetch
+      const dataIntent = analyzeMessageIntent(message);
+      console.log('Data intent analyzed:', dataIntent);
+
+      // Fetch relevant data based on intent
+      const contextData = await fetchRelevantData(supabaseClient, userId, dataIntent);
+
+      // Build context based on intent
+      const nutritionContext = buildContextForIntent(profile, contextData, dataIntent);
+
+      // Add text content
+      messageContent.push({
+        type: "text",
+        text: `User data context:\n${nutritionContext}\n\nUser message: ${message}`
+      });
+    }
 
     // Add image if provided
     if (image) {
@@ -108,7 +121,7 @@ serve(async (req) => {
         'OpenAI-Beta': 'assistants=v2'
       },
       body: JSON.stringify({
-        assistant_id: ASSISTANT_ID
+        assistant_id: assistantId
       })
     });
 
