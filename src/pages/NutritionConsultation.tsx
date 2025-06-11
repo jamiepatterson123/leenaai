@@ -88,19 +88,12 @@ const NutritionConsultation = () => {
     }
   }, [threadId]);
 
-  // Auto-focus input on component mount
+  // Auto-focus input when consultation starts
   useEffect(() => {
-    if (inputRef.current) {
+    if (hasStarted && inputRef.current) {
       inputRef.current.focus();
     }
-  }, []);
-
-  // Start consultation automatically
-  useEffect(() => {
-    if (!hasStarted && messages.length === 0 && !isLoading) {
-      startConsultation();
-    }
-  }, [hasStarted, messages.length, isLoading]);
+  }, [hasStarted]);
 
   const clearConsultation = () => {
     setMessages([]);
@@ -109,8 +102,6 @@ const NutritionConsultation = () => {
     localStorage.removeItem(CONSULTATION_STORAGE_KEY);
     localStorage.removeItem(CONSULTATION_THREAD_KEY);
     toast.success("Consultation cleared successfully");
-    // Restart consultation after clearing
-    setTimeout(() => startConsultation(), 500);
   };
 
   const startConsultation = async () => {
@@ -224,8 +215,8 @@ const NutritionConsultation = () => {
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col bg-background overflow-hidden">
-      {/* Header with Clear Consultation button */}
-      {messages.length > 0 && (
+      {/* Header with Clear Consultation button - only show when consultation has started */}
+      {hasStarted && (
         <div className="flex-shrink-0 border-b border-border/40 px-4 py-3 bg-background/95 backdrop-blur">
           <div className="max-w-3xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -264,23 +255,30 @@ const NutritionConsultation = () => {
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {messages.length === 0 ? (
-          /* Welcome screen */
+        {!hasStarted ? (
+          /* Welcome screen with Get Started button */
           <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
             <div className="w-full max-w-2xl text-center">
               <h1 className="text-3xl font-bold mb-2">Nutrition Consultation</h1>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-8">
                 Let's have a personalized consultation to understand your goals, challenges, and create a plan that works for you.
               </p>
-              {isLoading && (
-                <div className="flex justify-center">
-                  <div className="flex space-x-1 py-2">
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              <Button
+                onClick={startConsultation}
+                disabled={isLoading}
+                variant="gradient"
+                size="lg"
+                className="px-8"
+              >
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Starting...
                   </div>
-                </div>
-              )}
+                ) : (
+                  "Let's get started"
+                )}
+              </Button>
             </div>
           </div>
         ) : (
@@ -323,8 +321,8 @@ const NutritionConsultation = () => {
         )}
       </div>
 
-      {/* Input area - only show when there are messages */}
-      {messages.length > 0 && (
+      {/* Input area - only show when consultation has started */}
+      {hasStarted && (
         <div className="flex-shrink-0 border-t border-border/40 p-4 bg-background/95 backdrop-blur">
           <div className="max-w-3xl mx-auto">
             <div className="relative">
