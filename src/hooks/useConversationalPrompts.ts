@@ -189,11 +189,11 @@ export const useConversationalPrompts = (messages: Message[]) => {
     if (messages.length === 0) {
       // Initial prompts when no conversation has started
       return [
-        'Plan my meals for today',
+        'How can you help me?',
         'Analyze this food photo',
+        'Plan my meals for today',
         'Check my macro targets',
         'Healthy breakfast ideas',
-        'What should I eat now?',
         'Track my progress'
       ];
     }
