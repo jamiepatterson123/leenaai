@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import Index from "@/pages/Index";
@@ -15,6 +14,7 @@ import NutritionConsultation from "@/pages/NutritionConsultation";
 import OneTimeOffer from "@/pages/OneTimeOffer";
 import Landing from "@/pages/Landing";
 import DownloadApp from "@/pages/DownloadApp";
+import GifUpload from "@/pages/GifUpload";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useSession } from "@/hooks/useSession";
 import { AuthLoading } from "@/components/auth/AuthLoading";
@@ -34,6 +34,7 @@ export const AppContent = () => {
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/download-app" element={<DownloadApp />} />
+          <Route path="/gif-upload" element={<GifUpload />} />
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <Index />
