@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
@@ -7,7 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
-import { Menu, User, MessageCircle, UserCheck } from "lucide-react";
+import { Menu, User, MessageCircle, UserCheck, Download } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Send, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -87,6 +86,12 @@ export const Navigation = () => {
       }
     }, 500);
   };
+
+  const handleDownloadApp = () => {
+    // For now, just show a toast message - this can be updated later with actual app store links
+    toast.info("Mobile app coming soon! Stay tuned for updates.");
+    setIsOpen(false);
+  };
   
   return (
     <div className="border-b">
@@ -115,6 +120,10 @@ export const Navigation = () => {
                 <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={() => handleNavigation("/chat")}>
                   <MessageCircle className="h-4 w-4" />
                   Nutrition Coach
+                </Button>
+                <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={handleDownloadApp}>
+                  <Download className="h-4 w-4" />
+                  Download app
                 </Button>
                 <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={() => { handleShare(); setIsOpen(false); }}>
                   <Send className="h-4 w-4" />
