@@ -88,8 +88,7 @@ export const Navigation = () => {
   };
 
   const handleDownloadApp = () => {
-    // For now, just show a toast message - this can be updated later with actual app store links
-    toast.info("Mobile app coming soon! Stay tuned for updates.");
+    navigate("/download-app");
     setIsOpen(false);
   };
   

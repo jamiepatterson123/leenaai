@@ -1,131 +1,110 @@
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "sonner";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Navigation } from "@/components/Navigation";
 import Index from "./pages/Index";
-import FoodDiary from "./pages/FoodDiary";
-import Profile from "./pages/Profile";
-import { Reports } from "./pages/Reports";
-import { Navigation } from "./components/Navigation";
 import Auth from "./pages/Auth";
-import Landing from "./pages/Landing";
-import WhatsApp from "./pages/WhatsApp";
-import OneTimeOffer from "./pages/OneTimeOffer";
-import { ProtectedRoute } from "./components/auth/ProtectedRoute";
-import { AuthLoading } from "./components/auth/AuthLoading";
-import { AnalyzingProvider } from "./context/AnalyzingContext";
-import { TopProgressBar } from "@/components/ui/top-progress-bar";
+import Profile from "./pages/Profile";
+import Reports from "./pages/Reports";
 import Chat from "./pages/Chat";
+import Coach from "./pages/Coach";
+import WhatsApp from "./pages/WhatsApp";
+import Community from "./pages/Community";
+import Learn from "./pages/Learn";
+import FoodDiary from "./pages/FoodDiary";
 import NutritionConsultation from "./pages/NutritionConsultation";
-import { UpgradeButton } from './components/subscription/UpgradeButton';
+import OneTimeOffer from "./pages/OneTimeOffer";
+import Landing from "./pages/Landing";
+import DownloadApp from "./pages/DownloadApp";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { useSession } from "@/hooks/useSession";
+import { AuthLoading } from "@/components/auth/AuthLoading";
+import { TopProgressBar } from "@/components/ui/top-progress-bar";
 
-// Create a new QueryClient instance
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-      refetchOnWindowFocus: false
-    }
+const queryClient = new QueryClient();
+
+const App = () => {
+  const { session, loading } = useSession();
+
+  if (loading) {
+    return <AuthLoading />;
   }
-});
 
-// Main App component
-function AppContent() {
-  return (
-    <Router>
-      <div className="min-h-screen pb-10">
-        <TopProgressBar />
-        <Navigation />
-        <Routes>
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/auth/callback" element={<Auth />} />
-          
-          {/* Make the OTO page accessible without authentication */}
-          <Route path="/oto" element={<OneTimeOffer />} />
-          
-          {/* Protected Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Index />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/food-diary"
-            element={
-              <ProtectedRoute>
-                <FoodDiary />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/reports"
-            element={
-              <ProtectedRoute>
-                <Reports />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/whatsapp"
-            element={
-              <ProtectedRoute>
-                <WhatsApp />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chat"
-            element={
-              <ProtectedRoute>
-                <Chat />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/consultation"
-            element={
-              <ProtectedRoute>
-                <NutritionConsultation />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Landing page or redirect to dashboard if authenticated */}
-          <Route
-            path="/"
-            element={<Landing />}
-          />
-          
-          {/* Catch-all route - redirect to home for any page not found */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-        <Toaster position="top-right" />
-      </div>
-    </Router>
-  );
-}
-
-function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AnalyzingProvider>
-        <AppContent />
-        {/* Add the floating upgrade button */}
-        <UpgradeButton />
-      </AnalyzingProvider>
+      <TooltipProvider>
+        <Toaster />
+        <TopProgressBar />
+        <BrowserRouter>
+          <div className="min-h-screen bg-background">
+            <Navigation />
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/download-app" element={<DownloadApp />} />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/reports" element={
+                <ProtectedRoute>
+                  <Reports />
+                </ProtectedRoute>
+              } />
+              <Route path="/chat" element={
+                <ProtectedRoute>
+                  <Chat />
+                </ProtectedRoute>
+              } />
+              <Route path="/coach" element={
+                <ProtectedRoute>
+                  <Coach />
+                </ProtectedRoute>
+              } />
+              <Route path="/whatsapp" element={
+                <ProtectedRoute>
+                  <WhatsApp />
+                </ProtectedRoute>
+              } />
+              <Route path="/community" element={
+                <ProtectedRoute>
+                  <Community />
+                </ProtectedRoute>
+              } />
+              <Route path="/learn" element={
+                <ProtectedRoute>
+                  <Learn />
+                </ProtectedRoute>
+              } />
+              <Route path="/food-diary" element={
+                <ProtectedRoute>
+                  <FoodDiary />
+                </ProtectedRoute>
+              } />
+              <Route path="/consultation" element={
+                <ProtectedRoute>
+                  <NutritionConsultation />
+                </ProtectedRoute>
+              } />
+              <Route path="/offer" element={
+                <ProtectedRoute>
+                  <OneTimeOffer />
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </div>
+        </BrowserRouter>
+      </TooltipProvider>
     </QueryClientProvider>
   );
-}
+};
 
 export default App;
