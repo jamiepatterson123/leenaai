@@ -5,6 +5,7 @@ import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection
 import { HabitTracker } from "@/components/habits/HabitTracker";
 import { MacroCircles } from "@/components/home/MacroCircles";
 import { WeightTrendChart } from "@/components/reports/WeightTrendChart";
+import { QuickWeightInput } from "@/components/home/QuickWeightInput";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHomeData } from "@/components/home/useHomeData";
 
@@ -26,6 +27,11 @@ export const HomeDataSection = () => {
         </div>
       </div>
 
+      {/* Quick Weight Input - Mobile Only */}
+      <div className="md:hidden w-full">
+        <QuickWeightInput />
+      </div>
+
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Column - Habit Tracking */}
@@ -41,6 +47,11 @@ export const HomeDataSection = () => {
           <div className="hidden md:block bg-white rounded-lg p-6">
             <h2 className="text-lg font-semibold mb-2">Today's Nutrition</h2>
             <MacroCircles />
+          </div>
+
+          {/* Quick Weight Input - Desktop Only */}
+          <div className="hidden md:block">
+            <QuickWeightInput />
           </div>
 
           {/* Food Input Section - No longer protected */}
@@ -64,13 +75,13 @@ export const HomeDataSection = () => {
             ) : (
               <div className="p-4">
                 <p className="text-center text-gray-500 mb-2">No weight data available</p>
-                <p className="text-center text-sm text-gray-400">Add your first weight entry below</p>
+                <p className="text-center text-sm text-gray-400">Add your first weight entry above</p>
               </div>
             )}
           </div>
 
-          {/* Weight Input Section */}
-          <div className="w-full bg-white rounded-lg border border-gray-200">
+          {/* Weight Input Section - Desktop Only */}
+          <div className="hidden md:block w-full bg-white rounded-lg border border-gray-200">
             <WeightInput />
           </div>
         </div>
