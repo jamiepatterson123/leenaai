@@ -16,6 +16,7 @@ import { AuthLoading } from "./components/auth/AuthLoading";
 import { AnalyzingProvider } from "./context/AnalyzingContext";
 import { TopProgressBar } from "@/components/ui/top-progress-bar";
 import Chat from "./pages/Chat";
+import NutritionConsultation from "./pages/NutritionConsultation";
 import { UpgradeButton } from './components/subscription/UpgradeButton';
 
 // Create a new QueryClient instance
@@ -88,6 +89,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <Chat />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/consultation"
+            element={
+              <ProtectedRoute>
+                <NutritionConsultation />
               </ProtectedRoute>
             }
           />

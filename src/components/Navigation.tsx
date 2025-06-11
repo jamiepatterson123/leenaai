@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
@@ -7,7 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
-import { Menu, User, MessageCircle } from "lucide-react";
+import { Menu, User, MessageCircle, UserCheck } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Send, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -101,9 +100,13 @@ export const Navigation = () => {
                   <User className="h-4 w-4" />
                   Profile
                 </Button>
+                <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={() => navigate("/consultation")}>
+                  <UserCheck className="h-4 w-4" />
+                  Nutrition Consultation
+                </Button>
                 <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={() => navigate("/chat")}>
                   <MessageCircle className="h-4 w-4" />
-                  Nutrition Consultation
+                  Nutrition Coach
                 </Button>
                 <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={handleShare}>
                   <Send className="h-4 w-4" />
