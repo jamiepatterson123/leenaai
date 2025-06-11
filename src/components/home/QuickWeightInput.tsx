@@ -126,7 +126,7 @@ export const QuickWeightInput = () => {
           type="number"
           step="0.1"
           min="0"
-          placeholder="Weigh in daily for best results"
+          placeholder="Update daily for best results"
           value={weight}
           onChange={(e) => setWeight(e.target.value)}
           className="flex-1 text-sm h-10"
