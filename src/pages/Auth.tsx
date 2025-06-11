@@ -185,48 +185,96 @@ const Auth = () => {
             </p>
           </div>
 
-          <SupabaseAuth 
-            supabaseClient={supabase} 
-            appearance={{
-              theme: ThemeSupa,
-              style: {
-                button: {
-                  background: 'linear-gradient(to right, #D946EF, #8B5CF6)',
-                  border: 'none',
-                  color: 'white',
-                  fontWeight: 600  // Changed from 500 to 600 to make it semi-bold
-                },
-                anchor: {
-                  color: '#D946EF',
-                  fontWeight: 600
-                },
-                message: {
-                  fontWeight: 500
+          {/* Mobile-optimized Supabase Auth UI */}
+          <div className="supabase-auth-mobile">
+            <style jsx>{`
+              .supabase-auth-mobile input {
+                font-size: 16px !important;
+                padding: 12px !important;
+                border-radius: 6px !important;
+                border: 1px solid #d1d5db !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                -webkit-appearance: none !important;
+                -webkit-tap-highlight-color: transparent !important;
+                background-color: white !important;
+              }
+              
+              .supabase-auth-mobile input:focus {
+                outline: none !important;
+                border-color: #8B5CF6 !important;
+                box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
+              }
+              
+              .supabase-auth-mobile button {
+                font-size: 16px !important;
+                padding: 12px !important;
+                border-radius: 6px !important;
+                -webkit-tap-highlight-color: transparent !important;
+              }
+              
+              @media (max-width: 768px) {
+                .supabase-auth-mobile input {
+                  font-size: 16px !important;
+                  transform: none !important;
+                  zoom: 1 !important;
                 }
-              },
-              // Fix the type issue by using the correct object structure for ThemeSupa
-              variables: {
-                default: {
-                  colors: {
-                    brand: '#8B5CF6',
-                    brandAccent: '#D946EF'
+              }
+            `}</style>
+            
+            <SupabaseAuth 
+              supabaseClient={supabase} 
+              appearance={{
+                theme: ThemeSupa,
+                style: {
+                  button: {
+                    background: 'linear-gradient(to right, #D946EF, #8B5CF6)',
+                    border: 'none',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '16px',
+                    padding: '12px',
+                    borderRadius: '6px'
+                  },
+                  input: {
+                    fontSize: '16px',
+                    padding: '12px',
+                    borderRadius: '6px',
+                    border: '1px solid #d1d5db',
+                    backgroundColor: 'white',
+                    WebkitAppearance: 'none'
+                  },
+                  anchor: {
+                    color: '#D946EF',
+                    fontWeight: 600
+                  },
+                  message: {
+                    fontWeight: 500
+                  }
+                },
+                variables: {
+                  default: {
+                    colors: {
+                      brand: '#8B5CF6',
+                      brandAccent: '#D946EF'
+                    }
                   }
                 }
-              }
-            }} 
-            providers={[]} 
-            redirectTo={`${window.location.origin}/auth/callback`} 
-            view={authView} 
-            showLinks={false}
-            magicLink={false} 
-            localization={{
-              variables: {
-                sign_up: {
-                  button_label: 'Create Free Account'
+              }} 
+              providers={[]} 
+              redirectTo={`${window.location.origin}/auth/callback`} 
+              view={authView} 
+              showLinks={false}
+              magicLink={false} 
+              localization={{
+                variables: {
+                  sign_up: {
+                    button_label: 'Create Free Account'
+                  }
                 }
-              }
-            }}
-          />
+              }}
+            />
+          </div>
 
           {/* Custom link handler that properly toggles between sign-in and sign-up views */}
           <div className="mt-4 text-center">
