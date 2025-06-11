@@ -256,33 +256,20 @@ const NutritionConsultation = () => {
       {/* Main content area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {!hasStarted ? (
-          /* Welcome screen with Get Started button */
+          /* Welcome screen - centered content like chat page */
           <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
             <div className="w-full max-w-2xl text-center">
               <h1 className="text-3xl font-bold mb-2">Nutrition Consultation</h1>
-              <p className="text-muted-foreground mb-8">
+              <p className="text-muted-foreground mb-2">
                 Let's have a personalized consultation to understand your goals, challenges, and create a plan that works for you.
               </p>
-              <Button
-                onClick={startConsultation}
-                disabled={isLoading}
-                variant="gradient"
-                size="lg"
-                className="px-8"
-              >
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Starting...
-                  </div>
-                ) : (
-                  "Let's get started"
-                )}
-              </Button>
+              <p className="text-sm text-muted-foreground">
+                This consultation usually takes around 3 minutes to complete.
+              </p>
             </div>
           </div>
         ) : (
-          /* Chat messages */
+          /* Chat messages - scrollable area with left padding like chat page */
           <div className="flex-1 pl-8 pr-4 overflow-hidden">
             <div className="max-w-4xl mx-auto h-full flex flex-col py-4">
               <ScrollArea className="flex-1">
@@ -320,6 +307,23 @@ const NutritionConsultation = () => {
           </div>
         )}
       </div>
+
+      {/* Small question prompt section - only show when not started */}
+      {!hasStarted && (
+        <div className="flex-shrink-0 px-4 py-2">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              <button
+                onClick={startConsultation}
+                disabled={isLoading}
+                className="flex-shrink-0 px-4 py-2 text-sm border border-border/40 rounded-full hover:bg-accent/50 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? "Starting..." : "Let's get started"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Input area - only show when consultation has started */}
       {hasStarted && (
