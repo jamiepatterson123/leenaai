@@ -6,13 +6,118 @@ import { useNutritionTargets } from '@/components/nutrition/useNutritionTargets'
 interface ContextualPrompt {
   text: string;
   priority: number;
-  category: 'meal' | 'progress' | 'goal' | 'reminder' | 'health';
+  category: 'meal' | 'progress' | 'goal' | 'reminder' | 'health' | 'follow-up';
 }
 
-export const useContextualPrompts = () => {
+export const useContextualPrompts = (lastAIMessage?: string) => {
   const [prompts, setPrompts] = useState<ContextualPrompt[]>([]);
   const [loading, setLoading] = useState(false);
   const { targets } = useNutritionTargets();
+
+  const generateFollowUpPrompt = (message: string): ContextualPrompt | null => {
+    const lowerMessage = message.toLowerCase();
+    
+    // Shopping list related
+    if (lowerMessage.includes('shopping list') || lowerMessage.includes('grocery')) {
+      return {
+        text: "Create the shopping list",
+        priority: 100,
+        category: 'follow-up'
+      };
+    }
+    
+    // Meal planning related
+    if (lowerMessage.includes('meal plan') || lowerMessage.includes('plan your meals')) {
+      return {
+        text: "Plan my meals",
+        priority: 100,
+        category: 'follow-up'
+      };
+    }
+    
+    // Recipe related
+    if (lowerMessage.includes('recipe') || lowerMessage.includes('how to make')) {
+      return {
+        text: "Show me the recipe",
+        priority: 100,
+        category: 'follow-up'
+      };
+    }
+    
+    // Progress related
+    if (lowerMessage.includes('track progress') || lowerMessage.includes('check progress')) {
+      return {
+        text: "Show my progress",
+        priority: 100,
+        category: 'follow-up'
+      };
+    }
+    
+    // Calorie adjustment related
+    if (lowerMessage.includes('adjust calories') || lowerMessage.includes('change target')) {
+      return {
+        text: "Adjust my targets",
+        priority: 100,
+        category: 'follow-up'
+      };
+    }
+    
+    // Exercise related
+    if (lowerMessage.includes('workout') || lowerMessage.includes('exercise')) {
+      return {
+        text: "Plan my workout",
+        priority: 100,
+        category: 'follow-up'
+      };
+    }
+    
+    // Alternative suggestions
+    if (lowerMessage.includes('alternative') || lowerMessage.includes('substitute')) {
+      return {
+        text: "Show alternatives",
+        priority: 100,
+        category: 'follow-up'
+      };
+    }
+    
+    // Weight tracking
+    if (lowerMessage.includes('weigh') || lowerMessage.includes('weight')) {
+      return {
+        text: "Log my weight",
+        priority: 100,
+        category: 'follow-up'
+      };
+    }
+    
+    // Macro breakdown
+    if (lowerMessage.includes('macro') || lowerMessage.includes('protein') || lowerMessage.includes('carbs')) {
+      return {
+        text: "Analyze my macros",
+        priority: 100,
+        category: 'follow-up'
+      };
+    }
+    
+    // Water tracking
+    if (lowerMessage.includes('water') || lowerMessage.includes('hydration')) {
+      return {
+        text: "Track my water",
+        priority: 100,
+        category: 'follow-up'
+      };
+    }
+    
+    // General follow-up questions
+    if (lowerMessage.includes('would you like') || lowerMessage.includes('shall i') || lowerMessage.includes('do you want')) {
+      return {
+        text: "Yes, please",
+        priority: 100,
+        category: 'follow-up'
+      };
+    }
+    
+    return null;
+  };
 
   const generatePrompts = async () => {
     setLoading(true);
@@ -60,6 +165,14 @@ export const useContextualPrompts = () => {
       );
 
       const contextualPrompts: ContextualPrompt[] = [];
+
+      // Generate follow-up prompt if there's a last AI message
+      if (lastAIMessage) {
+        const followUpPrompt = generateFollowUpPrompt(lastAIMessage);
+        if (followUpPrompt) {
+          contextualPrompts.push(followUpPrompt);
+        }
+      }
 
       // Time-based prompts
       if (currentHour >= 6 && currentHour < 11) {
@@ -226,7 +339,7 @@ export const useContextualPrompts = () => {
 
   useEffect(() => {
     generatePrompts();
-  }, [targets]);
+  }, [targets, lastAIMessage]);
 
   return {
     prompts: prompts.map(p => p.text),

@@ -50,7 +50,13 @@ const Chat = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { prompts, refreshPrompts } = useContextualPrompts();
+
+  // Get the last AI message for contextual prompts
+  const lastAIMessage = messages.length > 0
+    ? messages.filter(m => m.role === 'assistant').slice(-1)[0]?.content
+    : undefined;
+
+  const { prompts, refreshPrompts } = useContextualPrompts(lastAIMessage);
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
@@ -65,7 +71,7 @@ const Chat = () => {
   useEffect(() => {
     const savedMessages = localStorage.getItem(CHAT_STORAGE_KEY);
     const savedThreadId = localStorage.getItem(THREAD_STORAGE_KEY);
-    
+
     if (savedMessages) {
       try {
         const parsedMessages = JSON.parse(savedMessages);
@@ -130,7 +136,7 @@ const Chat = () => {
 
     setSelectedImage(file);
     setIsAttachmentOpen(false);
-    
+
     // Create preview
     const reader = new FileReader();
     reader.onload = () => {
@@ -151,7 +157,7 @@ const Chat = () => {
 
   const analyzeImage = async (file: File) => {
     setIsAnalyzingImage(true);
-    
+
     try {
       // Convert image to base64
       const base64Image = await new Promise<string>((resolve, reject) => {
@@ -188,12 +194,12 @@ const Chat = () => {
 
   const sendMessage = async (messageContent?: string, imageData?: any) => {
     const content = messageContent || input.trim();
-    
+
     if (!content && !selectedImage) return;
     if (isLoading || isAnalyzingImage) return;
 
     let analysisData = imageData;
-    
+
     // If there's an image but no analysis data, analyze it first
     if (selectedImage && !analysisData) {
       try {
@@ -207,11 +213,11 @@ const Chat = () => {
     // Create user message with image context
     let messageText = content;
     if (analysisData && analysisData.foods) {
-      const foodList = analysisData.foods.map((food: any) => 
+      const foodList = analysisData.foods.map((food: any) =>
         `${food.name} (${food.weight_g}g): ${food.nutrition.calories} kcal, ${food.nutrition.protein}g protein, ${food.nutrition.carbs}g carbs, ${food.nutrition.fat}g fat`
       ).join('\n');
-      
-      messageText = content ? 
+
+      messageText = content ?
         `${content}\n\nI'm looking at this food: \n${foodList}` :
         `I'm looking at this food and would like advice: \n${foodList}`;
     }
@@ -229,7 +235,7 @@ const Chat = () => {
     setSelectedImage(null);
     setImagePreview(null);
     setIsLoading(true);
-    
+
     try {
       const { data, error } = await supabase.functions.invoke('ai-coach', {
         body: {
@@ -256,7 +262,7 @@ const Chat = () => {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-      
+
       // Refresh prompts after each message to keep them contextual
       refreshPrompts();
     } catch (error) {
@@ -287,7 +293,7 @@ const Chat = () => {
 
   const quickQuestions = [
     "How did I do today?",
-    "What should I eat next?", 
+    "What should I eat next?",
     "Show my weekly progress",
     "Balance my macros better?",
     "Healthy snack ideas?",
@@ -365,7 +371,7 @@ const Chat = () => {
                       )}
                     </div>
                   ))}
-                  
+
                   {isLoading && (
                     <div className="flex justify-start">
                       <div className="w-full pr-2">
@@ -383,7 +389,7 @@ const Chat = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Invisible div to scroll to */}
                   <div ref={messagesEndRef} />
                 </div>
@@ -398,9 +404,9 @@ const Chat = () => {
         <div className="flex-shrink-0 px-4 py-2 border-t border-border/40">
           <div className="max-w-3xl mx-auto">
             <div className="relative inline-block">
-              <img 
-                src={imagePreview} 
-                alt="Selected food" 
+              <img
+                src={imagePreview}
+                alt="Selected food"
                 className="h-20 w-20 object-cover rounded-lg border"
               />
               {isAnalyzingImage && (
