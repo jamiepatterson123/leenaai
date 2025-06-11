@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, MessageCircle, Trash2 } from "lucide-react";
+import { Send, MessageCircle, Trash2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -26,6 +26,8 @@ const NutritionConsultation = () => {
   const [threadId, setThreadId] = useState<string | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
   const [consultationCompleted, setConsultationCompleted] = useState(false);
+  const [showCompleteButton, setShowCompleteButton] = useState(false);
+  const [dataSaved, setDataSaved] = useState(false);
   const { session } = useSession();
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -103,12 +105,17 @@ const NutritionConsultation = () => {
 
     if (hasCompletionIndicators && !consultationCompleted) {
       setConsultationCompleted(true);
-      extractAndSaveInsights();
+      setShowCompleteButton(true);
+      if (!dataSaved) {
+        extractAndSaveInsights();
+      }
     }
   };
 
   const extractAndSaveInsights = async () => {
-    if (!session?.user?.id) return;
+    if (!session?.user?.id || dataSaved) return;
+
+    setDataSaved(true); // Prevent multiple saves
 
     try {
       // Use OpenAI to extract structured insights from the conversation
@@ -164,13 +171,27 @@ const NutritionConsultation = () => {
 
       if (updateError) {
         console.error('Error saving consultation insights:', updateError);
+        setDataSaved(false); // Allow retry
       } else {
-        toast.success("Consultation completed! Your insights have been saved to help personalize future coaching.");
+        toast.success("Consultation insights saved! Your AI coach will now provide more personalized guidance.");
       }
 
     } catch (error) {
       console.error('Error extracting consultation insights:', error);
+      setDataSaved(false); // Allow retry
     }
+  };
+
+  const completeConsultation = () => {
+    setMessages([]);
+    setThreadId(null);
+    setHasStarted(false);
+    setConsultationCompleted(false);
+    setShowCompleteButton(false);
+    setDataSaved(false);
+    localStorage.removeItem(CONSULTATION_STORAGE_KEY);
+    localStorage.removeItem(CONSULTATION_THREAD_KEY);
+    toast.success("Consultation completed! You can start a new one anytime.");
   };
 
   const clearConsultation = () => {
@@ -178,6 +199,8 @@ const NutritionConsultation = () => {
     setThreadId(null);
     setHasStarted(false);
     setConsultationCompleted(false);
+    setShowCompleteButton(false);
+    setDataSaved(false);
     localStorage.removeItem(CONSULTATION_STORAGE_KEY);
     localStorage.removeItem(CONSULTATION_THREAD_KEY);
     toast.success("Consultation cleared successfully");
@@ -358,6 +381,20 @@ const NutritionConsultation = () => {
                     </div>
                   ))}
                   
+                  {/* Complete Consultation Button */}
+                  {showCompleteButton && (
+                    <div className="flex justify-center py-4">
+                      <Button 
+                        onClick={completeConsultation}
+                        variant="gradient"
+                        className="flex items-center gap-2"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        Complete Consultation
+                      </Button>
+                    </div>
+                  )}
+                  
                   {isLoading && (
                     <div className="flex justify-start">
                       <div className="w-full pr-2">
@@ -378,8 +415,8 @@ const NutritionConsultation = () => {
         )}
       </div>
 
-      {/* Input area - only show when consultation has started */}
-      {hasStarted && (
+      {/* Input area - only show when consultation has started and not completed */}
+      {hasStarted && !showCompleteButton && (
         <div className="flex-shrink-0 border-t border-border/40 p-4 bg-background/95 backdrop-blur">
           <div className="max-w-3xl mx-auto">
             <div className="relative">
