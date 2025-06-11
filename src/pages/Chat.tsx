@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, MessageCircle, Plus, Trash2, Camera, Image as ImageIcon, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -508,5 +509,3 @@ const Chat = () => {
 };
 
 export default Chat;
-
-}
