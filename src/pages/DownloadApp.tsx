@@ -1,27 +1,13 @@
-
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { HomescreenTutorial } from "@/components/onboarding/HomescreenTutorial";
-
 export default function DownloadApp() {
   const navigate = useNavigate();
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <div className="max-w-md mx-auto">
         {/* Header */}
-        <div className="flex items-center p-4 border-b">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate(-1)}
-            className="mr-2"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-lg font-semibold">Download App</h1>
-        </div>
+        
 
         {/* Content */}
         <div className="p-4">
@@ -61,6 +47,5 @@ export default function DownloadApp() {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 }
