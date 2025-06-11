@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
@@ -14,6 +15,7 @@ import { Button } from "@/components/ui/button";
 export const Navigation = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
   const [nutritionData, setNutritionData] = React.useState(null);
+  const [isOpen, setIsOpen] = React.useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const {
@@ -40,11 +42,17 @@ export const Navigation = () => {
         toast.error("Error signing out");
         return;
       }
+      setIsOpen(false);
       navigate("/auth");
       toast.success("Signed out successfully");
     } catch (error) {
       toast.error("Error signing out");
     }
+  };
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setIsOpen(false);
   };
   
   const theme = "light" as const;
@@ -88,7 +96,7 @@ export const Navigation = () => {
         </Link>
         
         <div className="absolute top-0 right-0 mt-4 mr-4 z-10">
-          <Sheet>
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="text-muted-foreground text-right">
                 <Menu className="h-5 w-5" />
@@ -96,19 +104,19 @@ export const Navigation = () => {
             </SheetTrigger>
             <SheetContent side="right" className="w-[250px] sm:w-[300px]">
               <div className="flex flex-col gap-4 mt-6">
-                <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={() => navigate("/profile")}>
+                <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={() => handleNavigation("/profile")}>
                   <User className="h-4 w-4" />
                   Profile
                 </Button>
-                <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={() => navigate("/consultation")}>
+                <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={() => handleNavigation("/consultation")}>
                   <UserCheck className="h-4 w-4" />
                   Nutrition Consultation
                 </Button>
-                <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={() => navigate("/chat")}>
+                <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={() => handleNavigation("/chat")}>
                   <MessageCircle className="h-4 w-4" />
                   Nutrition Coach
                 </Button>
-                <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={handleShare}>
+                <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={() => { handleShare(); setIsOpen(false); }}>
                   <Send className="h-4 w-4" />
                   Share
                 </Button>

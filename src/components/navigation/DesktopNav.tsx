@@ -30,6 +30,7 @@ export const DesktopNav = ({
   toggleTheme: (checked: boolean) => void;
 }) => {
   const [session, setSession] = React.useState(null);
+  const [isOpen, setIsOpen] = React.useState(false);
   const navigate = useNavigate();
   const { redirectToCheckout, isSubscribed } = useSubscription();
 
@@ -54,11 +55,17 @@ export const DesktopNav = ({
         toast.error("Error signing out");
         return;
       }
+      setIsOpen(false);
       navigate("/auth");
       toast.success("Signed out successfully");
     } catch (error) {
       toast.error("Error signing out");
     }
+  };
+
+  const handleNavigation = (action: () => void) => {
+    action();
+    setIsOpen(false);
   };
 
   return (
@@ -70,7 +77,7 @@ export const DesktopNav = ({
         </NavigationMenuList>
       </NavigationMenu>
       
-      <Sheet>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <Button variant="ghost" size="icon" className="text-muted-foreground">
             <Menu className="h-5 w-5" />
@@ -82,7 +89,7 @@ export const DesktopNav = ({
               <Button 
                 variant="gradient" 
                 className="flex items-center justify-start gap-3" 
-                onClick={() => window.location.href = "https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02"}
+                onClick={() => handleNavigation(() => window.location.href = "https://buy.stripe.com/eVqaEYgDQ4Bgam54Dqe7m02")}
               >
                 <ArrowUp className="h-4 w-4" />
                 Upgrade to Unlimited
@@ -91,7 +98,7 @@ export const DesktopNav = ({
             <Button
               variant="ghost"
               className="flex items-center justify-start gap-3"
-              onClick={handleShare}
+              onClick={() => handleNavigation(handleShare)}
             >
               <Send className="h-4 w-4" />
               Share
