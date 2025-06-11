@@ -23,6 +23,7 @@ import { useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import MessageContent from "@/components/MessageContent";
+import { useConversationalPrompts } from "@/hooks/useConversationalPrompts";
 
 interface Message {
   id: string;
@@ -49,6 +50,7 @@ const Chat = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const prompts = useConversationalPrompts(messages);
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
@@ -278,15 +280,6 @@ const Chat = () => {
     sendMessage(question);
   };
 
-  const quickQuestions = [
-    "How did I do today?",
-    "What should I eat next?", 
-    "Show my weekly progress",
-    "Balance my macros better?",
-    "Healthy snack ideas?",
-    "Plan tomorrow's meals"
-  ];
-
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col bg-background overflow-hidden">
       {/* Header with Clear Chat button - only show when there are messages */}
@@ -415,11 +408,11 @@ const Chat = () => {
         </div>
       )}
 
-      {/* Suggested questions - fixed height */}
+      {/* Suggested questions - updated to use dynamic prompts */}
       <div className="flex-shrink-0 px-4 py-2">
         <div className="max-w-3xl mx-auto">
           <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-            {quickQuestions.map((question, index) => (
+            {prompts.map((question, index) => (
               <button
                 key={index}
                 onClick={() => handleQuickQuestion(question)}
