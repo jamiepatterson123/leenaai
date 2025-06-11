@@ -250,6 +250,9 @@ export type Database = {
           age: number | null
           api_version: string | null
           chart_settings: Json | null
+          consultation_completed: boolean | null
+          consultation_completed_at: string | null
+          consultation_insights: Json | null
           created_at: string
           dietary_restrictions: string[] | null
           first_name: string | null
@@ -273,6 +276,9 @@ export type Database = {
           age?: number | null
           api_version?: string | null
           chart_settings?: Json | null
+          consultation_completed?: boolean | null
+          consultation_completed_at?: string | null
+          consultation_insights?: Json | null
           created_at?: string
           dietary_restrictions?: string[] | null
           first_name?: string | null
@@ -296,6 +302,9 @@ export type Database = {
           age?: number | null
           api_version?: string | null
           chart_settings?: Json | null
+          consultation_completed?: boolean | null
+          consultation_completed_at?: string | null
+          consultation_insights?: Json | null
           created_at?: string
           dietary_restrictions?: string[] | null
           first_name?: string | null

@@ -17,6 +17,9 @@ export type ProfileRow = {
   target_carbs: number | null;
   target_fat: number | null;
   chart_settings: ChartSettingsType | null;
+  consultation_completed: boolean | null;
+  consultation_insights: ConsultationInsights | null;
+  consultation_completed_at: string | null;
 };
 
 export type ProfileInsert = {
@@ -37,6 +40,9 @@ export type ProfileInsert = {
   target_carbs?: number | null;
   target_fat?: number | null;
   chart_settings?: ChartSettingsType | null;
+  consultation_completed?: boolean | null;
+  consultation_insights?: ConsultationInsights | null;
+  consultation_completed_at?: string | null;
 };
 
 export type ProfileUpdate = {
@@ -57,6 +63,9 @@ export type ProfileUpdate = {
   target_carbs?: number | null;
   target_fat?: number | null;
   chart_settings?: ChartSettingsType | null;
+  consultation_completed?: boolean | null;
+  consultation_insights?: ConsultationInsights | null;
+  consultation_completed_at?: string | null;
 };
 
 // Define a type for chart settings that's compatible with JSON
@@ -65,4 +74,19 @@ export type ChartSettingsType = {
     [key: string]: boolean;
   };
   viewMode?: "charts" | "table";
+};
+
+// Define a type for consultation insights
+export type ConsultationInsights = {
+  primaryGoals?: string[];
+  challenges?: string[];
+  preferences?: string[];
+  currentHabits?: string[];
+  recommendations?: string[];
+  timeConstraints?: string;
+  experience_level?: string;
+  motivation_factors?: string[];
+  barriers?: string[];
+  summary?: string;
+  consultation_date?: string;
 };

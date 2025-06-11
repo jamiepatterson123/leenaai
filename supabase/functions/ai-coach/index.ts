@@ -16,7 +16,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message, userId, threadId, image, consultationMode } = await req.json();
+    const { message, userId, threadId, image, consultationMode, extractInsights } = await req.json();
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -35,10 +35,16 @@ serve(async (req) => {
         type: "text",
         text: message
       });
+    } else if (extractInsights) {
+      // Special mode for extracting insights
+      messageContent.push({
+        type: "text",
+        text: message
+      });
     } else {
       // ... keep existing code (complex data fetching and context building for regular chat)
       
-      // Fetch user's profile data
+      // Fetch user's profile data including consultation insights
       const { data: profile } = await supabaseClient
         .from('profiles')
         .select('*')
@@ -52,7 +58,7 @@ serve(async (req) => {
       // Fetch relevant data based on intent
       const contextData = await fetchRelevantData(supabaseClient, userId, dataIntent);
 
-      // Build context based on intent
+      // Build context based on intent, now including consultation insights
       const nutritionContext = buildContextForIntent(profile, contextData, dataIntent);
 
       // Add text content
@@ -207,23 +213,20 @@ serve(async (req) => {
 function analyzeMessageIntent(message: string) {
   const lowerMessage = message.toLowerCase();
   
-  // Time scope keywords
   const todayKeywords = ['today', 'so far today', 'currently', 'this morning', 'right now'];
   const weekKeywords = ['this week', 'weekly', 'past week', 'last 7 days', 'week'];
   const monthKeywords = ['this month', 'monthly', 'past month', 'last 30 days', 'month'];
   const trendKeywords = ['trend', 'trending', 'pattern', 'over time', 'progress', 'improvement'];
   
-  // Data focus keywords
   const weightKeywords = ['weight', 'weigh', 'scale', 'pounds', 'kg', 'body weight'];
   const calorieKeywords = ['calories', 'calorie', 'kcal', 'energy'];
   const macroKeywords = ['protein', 'carbs', 'carbohydrates', 'fat', 'macros', 'macronutrients'];
   const performanceKeywords = ['how did i do', 'performance', 'doing', 'progress', 'goals'];
   
-  let timeScope = 'comprehensive'; // default
-  let dataFocus = 'all'; // default
-  let questionType = 'general'; // default
+  let timeScope = 'comprehensive';
+  let dataFocus = 'all';
+  let questionType = 'general';
   
-  // Determine time scope
   if (todayKeywords.some(keyword => lowerMessage.includes(keyword))) {
     timeScope = 'today';
   } else if (weekKeywords.some(keyword => lowerMessage.includes(keyword))) {
@@ -234,7 +237,6 @@ function analyzeMessageIntent(message: string) {
     timeScope = 'trends';
   }
   
-  // Determine data focus
   if (weightKeywords.some(keyword => lowerMessage.includes(keyword))) {
     dataFocus = 'weight';
   } else if (calorieKeywords.some(keyword => lowerMessage.includes(keyword))) {
@@ -245,7 +247,6 @@ function analyzeMessageIntent(message: string) {
     dataFocus = 'performance';
   }
   
-  // Determine question type
   if (performanceKeywords.some(keyword => lowerMessage.includes(keyword))) {
     questionType = 'performance_review';
   } else if (trendKeywords.some(keyword => lowerMessage.includes(keyword))) {
@@ -262,7 +263,6 @@ async function fetchRelevantData(supabaseClient: any, userId: string, intent: an
   let startDate: Date;
   let endDate = now;
   
-  // Determine date range based on intent
   switch (intent.timeScope) {
     case 'today':
       startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -274,10 +274,10 @@ async function fetchRelevantData(supabaseClient: any, userId: string, intent: an
       startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
       break;
     case 'trends':
-      startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000); // 3 months for trends
+      startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
       break;
-    default: // comprehensive
-      startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); // Default to 30 days
+    default:
+      startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   }
   
   const startDateString = startDate.toISOString().split('T')[0];
@@ -288,7 +288,6 @@ async function fetchRelevantData(supabaseClient: any, userId: string, intent: an
   let foodEntries = [];
   let weightHistory = [];
   
-  // Fetch food data unless it's weight-only focus
   if (intent.dataFocus !== 'weight') {
     const { data: foodData, error: foodError } = await supabaseClient
       .from('food_diary')
@@ -305,7 +304,6 @@ async function fetchRelevantData(supabaseClient: any, userId: string, intent: an
     }
   }
   
-  // Fetch weight data unless it's nutrition-only focus
   if (intent.dataFocus === 'weight' || intent.dataFocus === 'performance' || intent.dataFocus === 'all') {
     const weightStartDate = intent.timeScope === 'trends' ? 
       new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000) : startDate;
@@ -349,6 +347,42 @@ function buildContextForIntent(profile: any, contextData: any, intent: any) {
 
 `;
 
+  // Add consultation insights if available
+  if (profile?.consultation_completed && profile?.consultation_insights) {
+    const insights = profile.consultation_insights;
+    context += `CONSULTATION INSIGHTS (Completed: ${profile.consultation_completed_at ? new Date(profile.consultation_completed_at).toLocaleDateString() : 'Recently'}):
+`;
+    
+    if (insights.primaryGoals) {
+      context += `- Primary Goals: ${insights.primaryGoals.join(', ')}\n`;
+    }
+    if (insights.challenges) {
+      context += `- Main Challenges: ${insights.challenges.join(', ')}\n`;
+    }
+    if (insights.preferences) {
+      context += `- Food Preferences: ${insights.preferences.join(', ')}\n`;
+    }
+    if (insights.currentHabits) {
+      context += `- Current Habits: ${insights.currentHabits.join(', ')}\n`;
+    }
+    if (insights.timeConstraints) {
+      context += `- Time Constraints: ${insights.timeConstraints}\n`;
+    }
+    if (insights.experience_level) {
+      context += `- Experience Level: ${insights.experience_level}\n`;
+    }
+    if (insights.motivation_factors) {
+      context += `- Motivation Factors: ${insights.motivation_factors.join(', ')}\n`;
+    }
+    if (insights.barriers) {
+      context += `- Key Barriers: ${insights.barriers.join(', ')}\n`;
+    }
+    if (insights.summary) {
+      context += `- Consultation Summary: ${insights.summary}\n`;
+    }
+    context += '\n';
+  }
+
   // Add relevant data based on intent
   switch (intent.timeScope) {
     case 'today':
@@ -388,7 +422,7 @@ function buildContextForIntent(profile: any, contextData: any, intent: any) {
       }
       break;
       
-    default: // comprehensive
+    default:
       const todayDataComp = nutritionAnalysis.dailyTotals[todayString] || { calories: 0, protein: 0, carbs: 0, fat: 0, meals: 0 };
       context += `TODAY'S PROGRESS: ${Math.round(todayDataComp.calories)} kcal, ${todayDataComp.meals} meals
 RECENT AVERAGES: ${nutritionAnalysis.averages.calories} kcal/day (last 30 days)
@@ -428,7 +462,6 @@ function calculateNutritionForTimeScope(foodEntries: any[], timeScope: string, t
     dailyTotals[date].meals += 1;
   });
   
-  // Calculate averages
   const dates = Object.keys(dailyTotals);
   const averages = dates.length > 0 ? {
     calories: Math.round(dates.reduce((sum, date) => sum + dailyTotals[date].calories, 0) / dates.length),
@@ -478,7 +511,6 @@ function analyzeGoalProgress(profile: any, nutritionAnalysis: any, weightHistory
   let goalStatus = 'on_track';
   let calorieDeviation = averageCalories - targetCalories;
   
-  // Analyze based on fitness goals
   if (fitnessGoal === 'weight_loss' && averageCalories > targetCalories) {
     goalStatus = 'above_target';
   } else if (fitnessGoal === 'muscle_gain' && averageCalories < targetCalories) {
@@ -487,7 +519,6 @@ function analyzeGoalProgress(profile: any, nutritionAnalysis: any, weightHistory
     goalStatus = 'off_target';
   }
   
-  // Weight trend analysis
   const weightTrend = analyzeWeightTrend(weightHistory);
   
   return {

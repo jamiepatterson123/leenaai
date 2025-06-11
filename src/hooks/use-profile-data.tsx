@@ -58,6 +58,7 @@ export const useProfileData = () => {
       console.log("Saving profile data:", cleanedData);
 
       // Update profile with new data and calculated targets
+      // Note: consultation fields are preserved and not overwritten
       const { error } = await supabase
         .from("profiles")
         .upsert({
