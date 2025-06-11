@@ -23,6 +23,7 @@ import { useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import MessageContent from "@/components/MessageContent";
+import { useContextualPrompts } from "@/hooks/useContextualPrompts";
 
 interface Message {
   id: string;
@@ -49,6 +50,7 @@ const Chat = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { prompts, refreshPrompts } = useContextualPrompts();
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
@@ -111,6 +113,8 @@ const Chat = () => {
     localStorage.removeItem(CHAT_STORAGE_KEY);
     localStorage.removeItem(THREAD_STORAGE_KEY);
     toast.success("Chat cleared successfully");
+    // Refresh prompts after clearing chat
+    refreshPrompts();
   };
 
   const handleImageSelect = async (file: File) => {
@@ -252,6 +256,9 @@ const Chat = () => {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+      
+      // Refresh prompts after each message to keep them contextual
+      refreshPrompts();
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error("Failed to send message. Please try again.");
@@ -415,11 +422,11 @@ const Chat = () => {
         </div>
       )}
 
-      {/* Suggested questions - fixed height */}
+      {/* Dynamic contextual question prompts - fixed height */}
       <div className="flex-shrink-0 px-4 py-2">
         <div className="max-w-3xl mx-auto">
           <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-            {quickQuestions.map((question, index) => (
+            {prompts.map((question, index) => (
               <button
                 key={index}
                 onClick={() => handleQuickQuestion(question)}
