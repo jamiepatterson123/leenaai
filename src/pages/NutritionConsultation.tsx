@@ -225,15 +225,26 @@ const NutritionConsultation = () => {
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {!hasStarted ? (/* Welcome screen - centered content like chat page */
-      <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
+        {!hasStarted ? (
+          /* Welcome screen - centered content like chat page */
+          <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
             <div className="w-full max-w-2xl text-center">
               <h1 className="text-3xl font-bold mb-2">Nutrition Consultation</h1>
-              <p className="text-muted-foreground mb-2">Let's have a personalized consultation to understand your goals, challenges, and create a plan that works for you. Takes ~3 minutes. </p>
-              
+              <p className="text-muted-foreground mb-6">Let's have a personalized consultation to understand your goals, challenges, and create a plan that works for you. Takes ~3 minutes.</p>
+              <div className="flex justify-center">
+                <button 
+                  onClick={startConsultation} 
+                  disabled={isLoading} 
+                  className="px-6 py-3 text-sm border border-border/40 rounded-full hover:bg-accent/50 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? "Starting..." : "Let's get started"}
+                </button>
+              </div>
             </div>
-          </div>) : (/* Chat messages - scrollable area with left padding like chat page */
-      <div className="flex-1 pl-8 pr-4 overflow-hidden">
+          </div>
+        ) : (
+          /* Chat messages - scrollable area with left padding like chat page */
+          <div className="flex-1 pl-8 pr-4 overflow-hidden">
             <div className="max-w-4xl mx-auto h-full flex flex-col py-4">
               <ScrollArea className="flex-1">
                 <div className="space-y-4 pr-4">
@@ -265,19 +276,9 @@ const NutritionConsultation = () => {
                 </div>
               </ScrollArea>
             </div>
-          </div>)}
-      </div>
-
-      {/* Small question prompt section - only show when not started */}
-      {!hasStarted && <div className="flex-shrink-0 px-4 py-2">
-          <div className="max-w-3xl mx-auto">
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-              <button onClick={startConsultation} disabled={isLoading} className="flex-shrink-0 px-4 py-2 text-sm border border-border/40 rounded-full hover:bg-accent/50 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
-                {isLoading ? "Starting..." : "Let's get started"}
-              </button>
-            </div>
           </div>
-        </div>}
+        )}
+      </div>
 
       {/* Input area - only show when consultation has started */}
       {hasStarted && <div className="flex-shrink-0 border-t border-border/40 p-4 bg-background/95 backdrop-blur">
