@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
@@ -15,7 +16,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message, userId, threadId } = await req.json();
+    const { message, userId, threadId, image } = await req.json();
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -39,8 +40,24 @@ serve(async (req) => {
     // Build context based on intent
     const nutritionContext = buildContextForIntent(profile, contextData, dataIntent);
 
-    // Create message content with context
-    const messageWithContext = `User data context:\n${nutritionContext}\n\nUser message: ${message}`;
+    // Create message content with context and image
+    let messageContent = [];
+    
+    // Add text content
+    messageContent.push({
+      type: "text",
+      text: `User data context:\n${nutritionContext}\n\nUser message: ${message}`
+    });
+
+    // Add image if provided
+    if (image) {
+      messageContent.push({
+        type: "image_url",
+        image_url: {
+          url: `data:image/jpeg;base64,${image}`
+        }
+      });
+    }
 
     // Create or use existing thread
     let currentThreadId = threadId;
@@ -74,7 +91,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         role: 'user',
-        content: messageWithContext
+        content: messageContent
       })
     });
 

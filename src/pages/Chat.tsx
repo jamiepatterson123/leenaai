@@ -30,7 +30,7 @@ interface Message {
   content: string;
   role: 'user' | 'assistant';
   timestamp: Date;
-  imageAnalysis?: any;
+  hasImage?: boolean;
 }
 
 const CHAT_STORAGE_KEY = 'leena-chat-messages';
@@ -40,7 +40,6 @@ const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isAttachmentOpen, setIsAttachmentOpen] = useState(false);
@@ -149,79 +148,48 @@ const Chat = () => {
     setIsAttachmentOpen(false);
   };
 
-  const analyzeImage = async (file: File) => {
-    setIsAnalyzingImage(true);
-    
-    try {
-      // Convert image to base64
-      const base64Image = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const result = reader.result as string;
-          const base64Data = result.split(',')[1];
-          resolve(base64Data);
-        };
-        reader.onerror = () => reject(new Error('Failed to read image file'));
-        reader.readAsDataURL(file);
-      });
-
-      const { data, error } = await supabase.functions.invoke('analyze-food', {
-        body: { image: base64Image }
-      });
-
-      if (error) {
-        throw new Error(error.message || 'Failed to analyze image');
-      }
-
-      if (!data || !data.foods || !Array.isArray(data.foods)) {
-        throw new Error('No food items detected in the image');
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Error analyzing image:', error);
-      throw error;
-    } finally {
-      setIsAnalyzingImage(false);
-    }
+  const convertImageToBase64 = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        const base64Data = result.split(',')[1];
+        resolve(base64Data);
+      };
+      reader.onerror = () => reject(new Error('Failed to read image file'));
+      reader.readAsDataURL(file);
+    });
   };
 
-  const sendMessage = async (messageContent?: string, imageData?: any) => {
+  const sendMessage = async (messageContent?: string) => {
     const content = messageContent || input.trim();
     
     if (!content && !selectedImage) return;
-    if (isLoading || isAnalyzingImage) return;
+    if (isLoading) return;
 
-    let analysisData = imageData;
-    
-    // If there's an image but no analysis data, analyze it first
-    if (selectedImage && !analysisData) {
+    let messageText = content;
+    let imageBase64 = null;
+
+    // If there's an image, convert it to base64
+    if (selectedImage) {
       try {
-        analysisData = await analyzeImage(selectedImage);
+        imageBase64 = await convertImageToBase64(selectedImage);
+        messageText = content ? 
+          `${content}\n\n[Image attached]` :
+          "I've attached an image. Can you help me with this?";
       } catch (error) {
-        toast.error('Failed to analyze image. Please try again.');
+        toast.error('Failed to process image. Please try again.');
         return;
       }
     }
 
-    // Create user message with image context
-    let messageText = content;
-    if (analysisData && analysisData.foods) {
-      const foodList = analysisData.foods.map((food: any) => 
-        `${food.name} (${food.weight_g}g): ${food.nutrition.calories} kcal, ${food.nutrition.protein}g protein, ${food.nutrition.carbs}g carbs, ${food.nutrition.fat}g fat`
-      ).join('\n');
-      
-      messageText = content ? 
-        `${content}\n\nI'm looking at this food: \n${foodList}` :
-        `I'm looking at this food and would like advice: \n${foodList}`;
-    }
-
+    // Create user message
     const userMessage: Message = {
       id: Date.now().toString(),
       content: messageText,
       role: 'user',
       timestamp: new Date(),
-      imageAnalysis: analysisData
+      hasImage: !!selectedImage
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -233,9 +201,10 @@ const Chat = () => {
     try {
       const { data, error } = await supabase.functions.invoke('ai-coach', {
         body: {
-          message: messageText,
+          message: content || "I've attached an image. Can you help me with this?",
           userId: session?.user?.id,
-          threadId: threadId
+          threadId: threadId,
+          image: imageBase64 // Send the base64 image data
         }
       });
 
@@ -334,7 +303,7 @@ const Chat = () => {
           <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
             <div className="w-full max-w-2xl text-center">
               <h1 className="text-3xl font-bold mb-2">What can I help with?</h1>
-              <p className="text-muted-foreground">Ask me about your nutrition, meals, or health goals. You can also upload photos of food for personalized advice!</p>
+              <p className="text-muted-foreground">Ask me about your nutrition, meals, or health goals. You can also upload photos for personalized advice!</p>
             </div>
           </div>
         ) : (
@@ -349,6 +318,12 @@ const Chat = () => {
                         // User message bubble on the right - compact padding
                         <div className="max-w-[80%] bg-muted text-foreground px-4 py-2 rounded-2xl rounded-br-sm">
                           <p className="whitespace-pre-wrap">{message.content}</p>
+                          {message.hasImage && (
+                            <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
+                              <ImageIcon className="w-3 h-3" />
+                              Image attached
+                            </div>
+                          )}
                         </div>
                       ) : (
                         // AI message on the left with full width and minimal right padding
@@ -393,14 +368,9 @@ const Chat = () => {
             <div className="relative inline-block">
               <img 
                 src={imagePreview} 
-                alt="Selected food" 
+                alt="Selected image" 
                 className="h-20 w-20 object-cover rounded-lg border"
               />
-              {isAnalyzingImage && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
-                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                </div>
-              )}
               <button
                 onClick={() => {
                   setSelectedImage(null);
@@ -423,7 +393,7 @@ const Chat = () => {
               <button
                 key={index}
                 onClick={() => handleQuickQuestion(question)}
-                disabled={isLoading || isAnalyzingImage}
+                disabled={isLoading}
                 className="flex-shrink-0 px-4 py-2 text-sm border border-border/40 rounded-full hover:bg-accent/50 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {question}
@@ -444,12 +414,12 @@ const Chat = () => {
               onChange={e => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder={selectedImage ? "Ask about this food..." : "Ask anything or upload a photo..."}
-              disabled={isLoading || isAnalyzingImage}
+              disabled={isLoading}
               className="w-full min-h-[48px] pr-12"
             />
             <Button
               onClick={() => sendMessage()}
-              disabled={isLoading || isAnalyzingImage || (!input.trim() && !selectedImage)}
+              disabled={isLoading || (!input.trim() && !selectedImage)}
               variant="gradient"
               size="icon"
               className="absolute right-1 top-1 h-10 w-10"
@@ -465,7 +435,7 @@ const Chat = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  disabled={isLoading || isAnalyzingImage}
+                  disabled={isLoading}
                   className="h-10 w-10"
                 >
                   <Plus className="w-4 h-4" />
@@ -538,3 +508,5 @@ const Chat = () => {
 };
 
 export default Chat;
+
+}
