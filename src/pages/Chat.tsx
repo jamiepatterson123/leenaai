@@ -538,5 +538,3 @@ const Chat = () => {
 };
 
 export default Chat;
-
-</edits_to_apply>
