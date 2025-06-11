@@ -117,6 +117,14 @@ export const QuickWeightInput = () => {
               <p className="text-sm text-gray-600">
                 <strong>Finding:</strong> Daily weighers lost ~6 kg more than those who didn't weigh themselves daily.
               </p>
+              <div className="border-t pt-3 space-y-2">
+                <p className="text-sm text-gray-700">
+                  For most accurate readings, weigh yourself in the morning before eating or drinking and after using the bathroom.
+                </p>
+                <p className="text-sm text-gray-700">
+                  Over time, Leena will identify trends in your weight based on your nutrition patterns and lifestyle.
+                </p>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
