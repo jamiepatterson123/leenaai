@@ -107,7 +107,7 @@ const generateFollowUpPrompt = (lastAiMessage: string): string | null => {
 const generateContextualPrompts = (context: ConversationContext, hasProfile: boolean): string[] => {
   const prompts: string[] = [];
   
-  // Always try to add a follow-up prompt first
+  // ALWAYS prioritize follow-up prompt from AI's last message as the FIRST prompt
   const followUp = generateFollowUpPrompt(context.lastAiMessage);
   if (followUp) {
     prompts.push(followUp);
