@@ -230,9 +230,7 @@ const NutritionConsultation = () => {
             <div className="w-full max-w-2xl text-center">
               <h1 className="text-3xl font-bold mb-2">Nutrition Consultation</h1>
               <p className="text-muted-foreground mb-2">Let's have a personalized consultation to understand your goals, challenges, and create a plan that works for you. Takes ~3 minutes. </p>
-              <p className="text-sm text-muted-foreground">
-                This consultation usually takes around 3 minutes to complete.
-              </p>
+              
             </div>
           </div>) : (/* Chat messages - scrollable area with left padding like chat page */
       <div className="flex-1 pl-8 pr-4 overflow-hidden">
