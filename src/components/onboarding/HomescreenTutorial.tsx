@@ -23,7 +23,7 @@ export function HomescreenTutorial() {
     <div className="w-full">
       <img 
         className="w-full rounded-t-lg" 
-        src="/untitled design.gif"
+        src="/untitled%20design.gif"
         alt="Tutorial on how to add Leena.ai to your iPhone homescreen"
         loading="lazy"
       />
@@ -54,7 +54,7 @@ export function HomescreenTutorial() {
     <div className="w-full">
       <img 
         className="w-full rounded-t-lg" 
-        src="/untitled design.gif"
+        src="/untitled%20design.gif"
         alt="Tutorial on how to add Leena.ai to your Android homescreen"
         loading="lazy"
       />
