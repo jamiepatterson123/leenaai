@@ -1,50 +1,39 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Send, MessageCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import MessageContent from "@/components/MessageContent";
-
 interface Message {
   id: string;
   content: string;
   role: 'user' | 'assistant';
   timestamp: Date;
 }
-
 const CONSULTATION_STORAGE_KEY = 'leena-consultation-messages';
 const CONSULTATION_THREAD_KEY = 'leena-consultation-thread-id';
-
 const NutritionConsultation = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
-  const { session } = useSession();
+  const {
+    session
+  } = useSession();
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth"
+    });
   };
-
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -53,7 +42,6 @@ const NutritionConsultation = () => {
   useEffect(() => {
     const savedMessages = localStorage.getItem(CONSULTATION_STORAGE_KEY);
     const savedThreadId = localStorage.getItem(CONSULTATION_THREAD_KEY);
-    
     if (savedMessages) {
       try {
         const parsedMessages = JSON.parse(savedMessages);
@@ -68,7 +56,6 @@ const NutritionConsultation = () => {
         localStorage.removeItem(CONSULTATION_STORAGE_KEY);
       }
     }
-
     if (savedThreadId) {
       setThreadId(savedThreadId);
     }
@@ -94,7 +81,6 @@ const NutritionConsultation = () => {
       inputRef.current.focus();
     }
   }, [hasStarted]);
-
   const clearConsultation = () => {
     setMessages([]);
     setThreadId(null);
@@ -103,15 +89,15 @@ const NutritionConsultation = () => {
     localStorage.removeItem(CONSULTATION_THREAD_KEY);
     toast.success("Consultation cleared successfully");
   };
-
   const startConsultation = async () => {
     if (isLoading) return;
-    
     setIsLoading(true);
     setHasStarted(true);
-    
     try {
-      const { data, error } = await supabase.functions.invoke('ai-coach', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('ai-coach', {
         body: {
           message: "Start nutrition consultation",
           userId: session?.user?.id,
@@ -119,7 +105,6 @@ const NutritionConsultation = () => {
           consultationMode: true
         }
       });
-
       if (error) {
         throw error;
       }
@@ -128,14 +113,12 @@ const NutritionConsultation = () => {
       if (data.threadId) {
         setThreadId(data.threadId);
       }
-
       const assistantMessage: Message = {
         id: Date.now().toString(),
         content: data.response,
         role: 'assistant',
         timestamp: new Date()
       };
-
       setMessages([assistantMessage]);
     } catch (error) {
       console.error('Error starting consultation:', error);
@@ -145,10 +128,8 @@ const NutritionConsultation = () => {
       setIsLoading(false);
     }
   };
-
   const sendMessage = async (messageContent?: string) => {
     const content = messageContent || input.trim();
-    
     if (!content) return;
     if (isLoading) return;
 
@@ -157,15 +138,16 @@ const NutritionConsultation = () => {
       id: Date.now().toString(),
       content: content,
       role: 'user',
-      timestamp: new Date(),
+      timestamp: new Date()
     };
-
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
-    
     try {
-      const { data, error } = await supabase.functions.invoke('ai-coach', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('ai-coach', {
         body: {
           message: content,
           userId: session?.user?.id,
@@ -173,7 +155,6 @@ const NutritionConsultation = () => {
           consultationMode: true
         }
       });
-
       if (error) {
         throw error;
       }
@@ -182,14 +163,12 @@ const NutritionConsultation = () => {
       if (data.threadId && data.threadId !== threadId) {
         setThreadId(data.threadId);
       }
-
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: data.response,
         role: 'assistant',
         timestamp: new Date()
       };
-
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error sending consultation message:', error);
@@ -205,19 +184,15 @@ const NutritionConsultation = () => {
       setIsLoading(false);
     }
   };
-
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
-
-  return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col bg-background overflow-hidden">
+  return <div className="h-[calc(100vh-8rem)] flex flex-col bg-background overflow-hidden">
       {/* Header with Clear Consultation button - only show when consultation has started */}
-      {hasStarted && (
-        <div className="flex-shrink-0 border-b border-border/40 px-4 py-3 bg-background/95 backdrop-blur">
+      {hasStarted && <div className="flex-shrink-0 border-b border-border/40 px-4 py-3 bg-background/95 backdrop-blur">
           <div className="max-w-3xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2">
               <MessageCircle className="w-5 h-5 text-muted-foreground" />
@@ -225,11 +200,7 @@ const NutritionConsultation = () => {
             </div>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-destructive"
-                >
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
                   <Trash2 className="w-4 h-4 mr-2" />
                   Clear Consultation
                 </Button>
@@ -250,110 +221,77 @@ const NutritionConsultation = () => {
               </AlertDialogContent>
             </AlertDialog>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {!hasStarted ? (
-          /* Welcome screen - centered content like chat page */
-          <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
+        {!hasStarted ? (/* Welcome screen - centered content like chat page */
+      <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
             <div className="w-full max-w-2xl text-center">
               <h1 className="text-3xl font-bold mb-2">Nutrition Consultation</h1>
-              <p className="text-muted-foreground mb-2">
-                Let's have a personalized consultation to understand your goals, challenges, and create a plan that works for you.
-              </p>
+              <p className="text-muted-foreground mb-2">Let's have a personalized consultation to understand your goals, challenges, and create a plan that works for you. Takes ~3 minutes. </p>
               <p className="text-sm text-muted-foreground">
                 This consultation usually takes around 3 minutes to complete.
               </p>
             </div>
-          </div>
-        ) : (
-          /* Chat messages - scrollable area with left padding like chat page */
-          <div className="flex-1 pl-8 pr-4 overflow-hidden">
+          </div>) : (/* Chat messages - scrollable area with left padding like chat page */
+      <div className="flex-1 pl-8 pr-4 overflow-hidden">
             <div className="max-w-4xl mx-auto h-full flex flex-col py-4">
               <ScrollArea className="flex-1">
                 <div className="space-y-4 pr-4">
-                  {messages.map(message => (
-                    <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      {message.role === 'user' ? (
-                        <div className="max-w-[80%] bg-muted text-foreground px-4 py-2 rounded-2xl rounded-br-sm">
+                  {messages.map(message => <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      {message.role === 'user' ? <div className="max-w-[80%] bg-muted text-foreground px-4 py-2 rounded-2xl rounded-br-sm">
                           <p className="whitespace-pre-wrap">{message.content}</p>
-                        </div>
-                      ) : (
-                        <div className="w-full pr-2">
+                        </div> : <div className="w-full pr-2">
                           <MessageContent content={message.content} />
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                        </div>}
+                    </div>)}
                   
-                  {isLoading && (
-                    <div className="flex justify-start">
+                  {isLoading && <div className="flex justify-start">
                       <div className="w-full pr-2">
                         <div className="flex space-x-1 py-2">
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{
+                      animationDelay: '0ms'
+                    }}></div>
+                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{
+                      animationDelay: '150ms'
+                    }}></div>
+                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{
+                      animationDelay: '300ms'
+                    }}></div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    </div>}
                   
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
             </div>
-          </div>
-        )}
+          </div>)}
       </div>
 
       {/* Small question prompt section - only show when not started */}
-      {!hasStarted && (
-        <div className="flex-shrink-0 px-4 py-2">
+      {!hasStarted && <div className="flex-shrink-0 px-4 py-2">
           <div className="max-w-3xl mx-auto">
             <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-              <button
-                onClick={startConsultation}
-                disabled={isLoading}
-                className="flex-shrink-0 px-4 py-2 text-sm border border-border/40 rounded-full hover:bg-accent/50 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+              <button onClick={startConsultation} disabled={isLoading} className="flex-shrink-0 px-4 py-2 text-sm border border-border/40 rounded-full hover:bg-accent/50 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
                 {isLoading ? "Starting..." : "Let's get started"}
               </button>
             </div>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Input area - only show when consultation has started */}
-      {hasStarted && (
-        <div className="flex-shrink-0 border-t border-border/40 p-4 bg-background/95 backdrop-blur">
+      {hasStarted && <div className="flex-shrink-0 border-t border-border/40 p-4 bg-background/95 backdrop-blur">
           <div className="max-w-3xl mx-auto">
             <div className="relative">
-              <Input
-                ref={inputRef}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Type your answer..."
-                disabled={isLoading}
-                className="w-full min-h-[48px] pr-12"
-              />
-              <Button
-                onClick={() => sendMessage()}
-                disabled={isLoading || !input.trim()}
-                variant="gradient"
-                size="icon"
-                className="absolute right-1 top-1 h-10 w-10"
-              >
+              <Input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Type your answer..." disabled={isLoading} className="w-full min-h-[48px] pr-12" />
+              <Button onClick={() => sendMessage()} disabled={isLoading || !input.trim()} variant="gradient" size="icon" className="absolute right-1 top-1 h-10 w-10">
                 <Send className="w-4 h-4" />
               </Button>
             </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+    </div>;
 };
-
 export default NutritionConsultation;
