@@ -7,7 +7,7 @@ import { Navigation } from "@/components/Navigation";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
-import Reports from "./pages/Reports";
+import { Reports } from "./pages/Reports";
 import Chat from "./pages/Chat";
 import Coach from "./pages/Coach";
 import WhatsApp from "./pages/WhatsApp";
