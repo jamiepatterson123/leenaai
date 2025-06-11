@@ -45,6 +45,7 @@ const Chat = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isAttachmentOpen, setIsAttachmentOpen] = useState(false);
   const [threadId, setThreadId] = useState<string | null>(null);
+  const [promptKey, setPromptKey] = useState(0); // Add key to force re-render of prompts
   const { session } = useSession();
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -110,6 +111,7 @@ const Chat = () => {
   const clearChat = () => {
     setMessages([]);
     setThreadId(null);
+    setPromptKey(prev => prev + 1); // Reset prompts when clearing chat
     localStorage.removeItem(CHAT_STORAGE_KEY);
     localStorage.removeItem(THREAD_STORAGE_KEY);
     toast.success("Chat cleared successfully");
@@ -254,6 +256,9 @@ const Chat = () => {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+      
+      // Reset prompts to first option after AI responds
+      setPromptKey(prev => prev + 1);
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error("Failed to send message. Please try again.");
@@ -278,6 +283,8 @@ const Chat = () => {
 
   const handleQuickQuestion = (question: string) => {
     sendMessage(question);
+    // Reset prompts immediately when user clicks a prompt
+    setPromptKey(prev => prev + 1);
   };
 
   return (
@@ -408,10 +415,10 @@ const Chat = () => {
         </div>
       )}
 
-      {/* Suggested questions - updated to use dynamic prompts */}
+      {/* Suggested questions - now with key to force re-render */}
       <div className="flex-shrink-0 px-4 py-2">
         <div className="max-w-3xl mx-auto">
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+          <div key={promptKey} className="flex gap-2 overflow-x-auto scrollbar-hide">
             {prompts.map((question, index) => (
               <button
                 key={index}
@@ -531,3 +538,5 @@ const Chat = () => {
 };
 
 export default Chat;
+
+</edits_to_apply>
