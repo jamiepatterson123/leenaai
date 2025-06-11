@@ -21,16 +21,12 @@ export function HomescreenTutorial() {
 
   const renderIosTutorial = () => (
     <div className="w-full">
-      <video 
+      <img 
         className="w-full rounded-t-lg" 
-        controls
-        preload="metadata"
-        poster="/placeholder.svg"
-        aria-label="Tutorial on how to add Leena.ai to your iPhone homescreen"
-      >
-        <source src="https://player.vimeo.com/progressive_redirect/playback/898057338/rendition/1080p/file.mp4?loc=external" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+        src="/untitled design.gif"
+        alt="Tutorial on how to add Leena.ai to your iPhone homescreen"
+        loading="lazy"
+      />
       
       <ScrollArea className="h-40 p-4 bg-muted/20">
         <div className="space-y-4">
@@ -56,16 +52,12 @@ export function HomescreenTutorial() {
 
   const renderAndroidTutorial = () => (
     <div className="w-full">
-      <video 
+      <img 
         className="w-full rounded-t-lg" 
-        controls
-        preload="metadata"
-        poster="/placeholder.svg"
-        aria-label="Tutorial on how to add Leena.ai to your Android homescreen"
-      >
-        <source src="https://player.vimeo.com/progressive_redirect/playback/898057314/rendition/1080p/file.mp4?loc=external" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+        src="/untitled design.gif"
+        alt="Tutorial on how to add Leena.ai to your Android homescreen"
+        loading="lazy"
+      />
       
       <ScrollArea className="h-40 p-4 bg-muted/20">
         <div className="space-y-4">
