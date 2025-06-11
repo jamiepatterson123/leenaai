@@ -30,22 +30,11 @@ interface Message {
 const CONSULTATION_STORAGE_KEY = 'leena-consultation-messages';
 const CONSULTATION_THREAD_KEY = 'leena-consultation-thread-id';
 
-// Structured consultation prompts
-const CONSULTATION_PROMPTS = [
-  "What is your number 1 nutrition or health goal?",
-  "Tell me about your current challenges",
-  "What have you tried before?",
-  "Any dietary restrictions I should know about?",
-  "Let's create your personalized plan",
-  "How can I support you better?"
-];
-
 const NutritionConsultation = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [threadId, setThreadId] = useState<string | null>(null);
-  const [promptKey, setPromptKey] = useState(0);
   const { session } = useSession();
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -81,6 +70,17 @@ const NutritionConsultation = () => {
     if (savedThreadId) {
       setThreadId(savedThreadId);
     }
+
+    // If no saved messages, start with the first consultation question
+    if (!savedMessages || JSON.parse(savedMessages).length === 0) {
+      const welcomeMessage: Message = {
+        id: Date.now().toString(),
+        content: "Hello! I'm here to help you with a personalized nutrition consultation. Let's start with understanding your goals.\n\n**What is your number 1 nutrition or health goal right now?**",
+        role: 'assistant',
+        timestamp: new Date()
+      };
+      setMessages([welcomeMessage]);
+    }
   }, []);
 
   // Save messages to localStorage whenever messages change
@@ -107,14 +107,22 @@ const NutritionConsultation = () => {
   const clearConsultation = () => {
     setMessages([]);
     setThreadId(null);
-    setPromptKey(prev => prev + 1);
     localStorage.removeItem(CONSULTATION_STORAGE_KEY);
     localStorage.removeItem(CONSULTATION_THREAD_KEY);
+    
+    // Restart with the initial question
+    const welcomeMessage: Message = {
+      id: Date.now().toString(),
+      content: "Hello! I'm here to help you with a personalized nutrition consultation. Let's start with understanding your goals.\n\n**What is your number 1 nutrition or health goal right now?**",
+      role: 'assistant',
+      timestamp: new Date()
+    };
+    setMessages([welcomeMessage]);
     toast.success("Consultation cleared successfully");
   };
 
-  const sendMessage = async (messageContent?: string) => {
-    const content = messageContent || input.trim();
+  const sendMessage = async () => {
+    const content = input.trim();
     
     if (!content) return;
     if (isLoading) return;
@@ -158,9 +166,6 @@ const NutritionConsultation = () => {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-      
-      // Reset prompts after AI responds
-      setPromptKey(prev => prev + 1);
     } catch (error) {
       console.error('Error sending consultation message:', error);
       toast.error("Failed to send message. Please try again.");
@@ -183,64 +188,10 @@ const NutritionConsultation = () => {
     }
   };
 
-  const handleQuickQuestion = (question: string) => {
-    sendMessage(question);
-    setPromptKey(prev => prev + 1);
-  };
-
-  const getConsultationPrompts = () => {
-    // Return consultation-specific prompts based on conversation progress
-    const messageCount = messages.length;
-    
-    if (messageCount === 0) {
-      return [
-        "What is your number 1 nutrition goal?",
-        "I want to lose weight",
-        "I want to gain muscle",
-        "I want to improve my energy",
-        "I want to eat healthier",
-        "I have specific dietary needs"
-      ];
-    }
-    
-    // Dynamic prompts based on conversation stage
-    if (messageCount < 4) {
-      return [
-        "Tell me more about that",
-        "What challenges have you faced?",
-        "What have you tried before?",
-        "Any dietary restrictions?",
-        "How motivated are you (1-10)?",
-        "What's your timeline?"
-      ];
-    }
-    
-    if (messageCount < 8) {
-      return [
-        "What does success look like to you?",
-        "What's your biggest obstacle?",
-        "How can I help you overcome this?",
-        "Let's create a plan together",
-        "What support do you need?",
-        "Any questions for me?"
-      ];
-    }
-    
-    // Later stage prompts
-    return [
-      "Let's finalize your plan",
-      "How does this sound to you?",
-      "What would you like to adjust?",
-      "Are you ready to get started?",
-      "Any final questions?",
-      "Let's schedule your follow-up"
-    ];
-  };
-
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col bg-background overflow-hidden">
       {/* Header with Clear Consultation button */}
-      {messages.length > 0 && (
+      {messages.length > 1 && (
         <div className="flex-shrink-0 border-b border-border/40 px-4 py-3 bg-background/95 backdrop-blur">
           <div className="max-w-3xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -277,71 +228,40 @@ const NutritionConsultation = () => {
         </div>
       )}
 
-      {/* Main content area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {messages.length === 0 ? (
-          /* Welcome screen */
-          <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
-            <div className="w-full max-w-2xl text-center">
-              <h1 className="text-3xl font-bold mb-2">Nutrition Consultation</h1>
-              <p className="text-muted-foreground">Let's have a personalized consultation to understand your goals, challenges, and create a plan that works for you.</p>
-            </div>
-          </div>
-        ) : (
-          /* Chat messages */
-          <div className="flex-1 pl-8 pr-4 overflow-hidden">
-            <div className="max-w-4xl mx-auto h-full flex flex-col py-4">
-              <ScrollArea className="flex-1">
-                <div className="space-y-4 pr-4">
-                  {messages.map(message => (
-                    <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      {message.role === 'user' ? (
-                        <div className="max-w-[80%] bg-muted text-foreground px-4 py-2 rounded-2xl rounded-br-sm">
-                          <p className="whitespace-pre-wrap">{message.content}</p>
-                        </div>
-                      ) : (
-                        <div className="w-full pr-2">
-                          <MessageContent content={message.content} />
-                        </div>
-                      )}
+      {/* Chat messages */}
+      <div className="flex-1 pl-8 pr-4 overflow-hidden">
+        <div className="max-w-4xl mx-auto h-full flex flex-col py-4">
+          <ScrollArea className="flex-1">
+            <div className="space-y-4 pr-4">
+              {messages.map(message => (
+                <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  {message.role === 'user' ? (
+                    <div className="max-w-[80%] bg-muted text-foreground px-4 py-2 rounded-2xl rounded-br-sm">
+                      <p className="whitespace-pre-wrap">{message.content}</p>
                     </div>
-                  ))}
-                  
-                  {isLoading && (
-                    <div className="flex justify-start">
-                      <div className="w-full pr-2">
-                        <div className="flex space-x-1 py-2">
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                        </div>
-                      </div>
+                  ) : (
+                    <div className="w-full pr-2">
+                      <MessageContent content={message.content} />
                     </div>
                   )}
-                  
-                  <div ref={messagesEndRef} />
                 </div>
-              </ScrollArea>
+              ))}
+              
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="w-full pr-2">
+                    <div className="flex space-x-1 py-2">
+                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div ref={messagesEndRef} />
             </div>
-          </div>
-        )}
-      </div>
-
-      {/* Suggested consultation prompts */}
-      <div className="flex-shrink-0 px-4 py-2">
-        <div className="max-w-3xl mx-auto">
-          <div key={promptKey} className="flex gap-2 overflow-x-auto scrollbar-hide">
-            {getConsultationPrompts().map((question, index) => (
-              <button
-                key={index}
-                onClick={() => handleQuickQuestion(question)}
-                disabled={isLoading}
-                className="flex-shrink-0 px-4 py-2 text-sm border border-border/40 rounded-full hover:bg-accent/50 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {question}
-              </button>
-            ))}
-          </div>
+          </ScrollArea>
         </div>
       </div>
 
@@ -354,12 +274,12 @@ const NutritionConsultation = () => {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Share your thoughts, goals, and challenges..."
+              placeholder="Type your answer here..."
               disabled={isLoading}
               className="w-full min-h-[48px] pr-12"
             />
             <Button
-              onClick={() => sendMessage()}
+              onClick={sendMessage}
               disabled={isLoading || !input.trim()}
               variant="gradient"
               size="icon"
