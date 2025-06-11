@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { MoveRight } from "lucide-react";
@@ -59,7 +60,15 @@ function Hero() {
               </span>
             </h1>
 
-            <p className="text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-2xl text-center font-poppins">With just photos of your food</p>
+            <p className="text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-2xl text-center font-poppins">
+              With just photos of your food
+            </p>
+            
+            <div className="mt-4 text-center">
+              <p className="text-2xl md:text-3xl font-semibold text-gradient font-poppins">
+                Actualise Me
+              </p>
+            </div>
           </div>
           <div className="flex items-center">
             <Button variant="gradient" size="lg" className="gap-4 w-[200px] md:w-[200px] h-[64px] font-poppins" onClick={handleSubmit}>
