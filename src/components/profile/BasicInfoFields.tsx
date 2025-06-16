@@ -41,6 +41,16 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
   return (
     <>
       <div className="space-y-2">
+        <Label htmlFor="first_name">First Name</Label>
+        <Input
+          id="first_name"
+          type="text"
+          placeholder="Enter your first name"
+          {...register('first_name')}
+        />
+      </div>
+
+      <div className="space-y-2">
         <Label>Preferred Units</Label>
         <Select value={preferredUnits} onValueChange={onUnitsChange}>
           <SelectTrigger>

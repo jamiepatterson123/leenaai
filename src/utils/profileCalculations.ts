@@ -1,4 +1,6 @@
+
 export interface ProfileFormData {
+  first_name?: string;
   height_cm: number;
   weight_kg: number;
   age: number;
