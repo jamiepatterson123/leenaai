@@ -1,4 +1,3 @@
-
 import React from "react";
 import { WeightInput } from "@/components/WeightInput";
 import { ImageAnalysisSection } from "@/components/analysis/ImageAnalysisSection";
@@ -8,17 +7,16 @@ import { WeightTrendChart } from "@/components/reports/WeightTrendChart";
 import { QuickWeightInput } from "@/components/home/QuickWeightInput";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHomeData } from "@/components/home/useHomeData";
-
 export const HomeDataSection = () => {
   const [analyzing, setAnalyzing] = React.useState(false);
   const [nutritionData, setNutritionData] = React.useState<any>(null);
   const imageAnalysisSectionRef = React.useRef<any>(null);
   const isMobile = useIsMobile();
-
-  const { isLoading, weightData } = useHomeData();
-
-  return (
-    <div className="space-y-6">
+  const {
+    isLoading,
+    weightData
+  } = useHomeData();
+  return <div className="space-y-6">
       {/* Today's Macros - Mobile Only */}
       <div className="md:hidden w-full">
         <h2 className="text-lg font-semibold mb-2 text-center mt-5">Today</h2>
@@ -56,36 +54,20 @@ export const HomeDataSection = () => {
 
           {/* Food Input Section - No longer protected */}
           <div className="bg-white rounded-lg border border-gray-200">
-            <ImageAnalysisSection
-              ref={imageAnalysisSectionRef}
-              analyzing={analyzing}
-              setAnalyzing={setAnalyzing}
-              nutritionData={nutritionData}
-              setNutritionData={setNutritionData}
-              selectedDate={new Date()}
-            />
+            <ImageAnalysisSection ref={imageAnalysisSectionRef} analyzing={analyzing} setAnalyzing={setAnalyzing} nutritionData={nutritionData} setNutritionData={setNutritionData} selectedDate={new Date()} />
           </div>
 
           {/* Weight Trend Chart Section - Hidden on Mobile */}
           <div className="hidden md:block w-full bg-white rounded-lg border border-gray-200">
-            {isLoading ? (
-              <p className="text-center text-gray-500 p-4">Loading weight data...</p>
-            ) : weightData && weightData.length > 0 ? (
-              <WeightTrendChart data={weightData} />
-            ) : (
-              <div className="p-4">
+            {isLoading ? <p className="text-center text-gray-500 p-4">Loading weight data...</p> : weightData && weightData.length > 0 ? <WeightTrendChart data={weightData} /> : <div className="p-4">
                 <p className="text-center text-gray-500 mb-2">No weight data available</p>
                 <p className="text-center text-sm text-gray-400">Add your first weight entry above</p>
-              </div>
-            )}
+              </div>}
           </div>
 
           {/* Weight Input Section - Desktop Only */}
-          <div className="hidden md:block w-full bg-white rounded-lg border border-gray-200">
-            <WeightInput />
-          </div>
+          
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
