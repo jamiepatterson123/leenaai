@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
@@ -119,6 +120,10 @@ export const Navigation = () => {
                 <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={() => handleNavigation("/chat")}>
                   <MessageCircle className="h-4 w-4" />
                   Nutrition Coach
+                </Button>
+                <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={() => handleNavigation("/whatsapp")}>
+                  <MessageCircle className="h-4 w-4" />
+                  WhatsApp Settings
                 </Button>
                 <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={handleDownloadApp}>
                   <Download className="h-4 w-4" />
