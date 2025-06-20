@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, MessageCircle, Plus, Trash2, Camera, Image as ImageIcon, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +31,7 @@ interface Message {
   role: 'user' | 'assistant';
   timestamp: Date;
   hasImage?: boolean;
+  imageData?: string; // Store the actual image data
 }
 
 const CHAT_STORAGE_KEY = 'leena-chat-messages';
@@ -170,27 +170,34 @@ const Chat = () => {
 
     let messageText = content;
     let imageBase64 = null;
+    let fullImageData = null;
 
     // If there's an image, convert it to base64
     if (selectedImage) {
       try {
         imageBase64 = await convertImageToBase64(selectedImage);
-        messageText = content ? 
-          `${content}\n\n[Image attached]` :
-          "I've attached an image. Can you help me with this?";
+        // Keep the full data URL for display
+        const reader = new FileReader();
+        fullImageData = await new Promise<string>((resolve) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(selectedImage);
+        });
+        
+        messageText = content || "I've attached an image. Can you help me analyze this food?";
       } catch (error) {
         toast.error('Failed to process image. Please try again.');
         return;
       }
     }
 
-    // Create user message
+    // Create user message with image data for display
     const userMessage: Message = {
       id: Date.now().toString(),
       content: messageText,
       role: 'user',
       timestamp: new Date(),
-      hasImage: !!selectedImage
+      hasImage: !!selectedImage,
+      imageData: fullImageData || undefined
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -202,7 +209,7 @@ const Chat = () => {
     try {
       const { data, error } = await supabase.functions.invoke('ai-coach', {
         body: {
-          message: content || "I've attached an image. Can you help me with this?",
+          message: content || "I've attached an image. Can you help me analyze this food?",
           userId: session?.user?.id,
           threadId: threadId,
           image: imageBase64 // Send the base64 image data
@@ -319,7 +326,16 @@ const Chat = () => {
                         // User message bubble on the right - compact padding
                         <div className="max-w-[80%] bg-muted text-foreground px-4 py-2 rounded-2xl rounded-br-sm">
                           <p className="whitespace-pre-wrap">{message.content}</p>
-                          {message.hasImage && (
+                          {message.imageData && (
+                            <div className="mt-3">
+                              <img 
+                                src={message.imageData} 
+                                alt="Uploaded image" 
+                                className="max-w-full h-auto rounded-lg border max-h-64 object-cover"
+                              />
+                            </div>
+                          )}
+                          {message.hasImage && !message.imageData && (
                             <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
                               <ImageIcon className="w-3 h-3" />
                               Image attached

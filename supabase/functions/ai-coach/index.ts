@@ -42,8 +42,6 @@ serve(async (req) => {
         text: message
       });
     } else {
-      // ... keep existing code (complex data fetching and context building for regular chat)
-      
       // Fetch user's profile data including consultation insights
       const { data: profile } = await supabaseClient
         .from('profiles')
@@ -70,6 +68,7 @@ serve(async (req) => {
 
     // Add image if provided - this must be added after text content
     if (image) {
+      console.log('Adding image to message content');
       messageContent.push({
         type: "image_url",
         image_url: {
@@ -109,7 +108,7 @@ serve(async (req) => {
       content: messageContent
     };
 
-    console.log('Adding message to thread with payload:', JSON.stringify(messagePayload, null, 2));
+    console.log('Adding message to thread with content types:', messageContent.map(c => c.type));
 
     const messageResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/messages`, {
       method: 'POST',
@@ -126,6 +125,8 @@ serve(async (req) => {
       console.error('Failed to add message to thread:', errorText);
       throw new Error(`Failed to add message to thread: ${errorText}`);
     }
+
+    console.log('Successfully added message to thread');
 
     // Create run
     const runResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/runs`, {
