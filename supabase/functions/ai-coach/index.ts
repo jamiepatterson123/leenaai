@@ -61,19 +61,20 @@ serve(async (req) => {
       // Build context based on intent, now including consultation insights
       const nutritionContext = buildContextForIntent(profile, contextData, dataIntent);
 
-      // Add text content
+      // Add text content first
       messageContent.push({
         type: "text",
         text: `User data context:\n${nutritionContext}\n\nUser message: ${message}`
       });
     }
 
-    // Add image if provided
+    // Add image if provided - this must be added after text content
     if (image) {
       messageContent.push({
         type: "image_url",
         image_url: {
-          url: `data:image/jpeg;base64,${image}`
+          url: `data:image/jpeg;base64,${image}`,
+          detail: "high"
         }
       });
     }
@@ -92,6 +93,8 @@ serve(async (req) => {
       });
 
       if (!threadResponse.ok) {
+        const errorText = await threadResponse.text();
+        console.error('Failed to create thread:', errorText);
         throw new Error('Failed to create thread');
       }
 
@@ -100,7 +103,14 @@ serve(async (req) => {
       console.log('Created new thread:', currentThreadId);
     }
 
-    // Add message to thread
+    // Add message to thread with proper content structure
+    const messagePayload = {
+      role: 'user',
+      content: messageContent
+    };
+
+    console.log('Adding message to thread with payload:', JSON.stringify(messagePayload, null, 2));
+
     const messageResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/messages`, {
       method: 'POST',
       headers: {
@@ -108,14 +118,13 @@ serve(async (req) => {
         'Content-Type': 'application/json',
         'OpenAI-Beta': 'assistants=v2'
       },
-      body: JSON.stringify({
-        role: 'user',
-        content: messageContent
-      })
+      body: JSON.stringify(messagePayload)
     });
 
     if (!messageResponse.ok) {
-      throw new Error('Failed to add message to thread');
+      const errorText = await messageResponse.text();
+      console.error('Failed to add message to thread:', errorText);
+      throw new Error(`Failed to add message to thread: ${errorText}`);
     }
 
     // Create run
@@ -132,6 +141,8 @@ serve(async (req) => {
     });
 
     if (!runResponse.ok) {
+      const errorText = await runResponse.text();
+      console.error('Failed to create run:', errorText);
       throw new Error('Failed to create run');
     }
 
